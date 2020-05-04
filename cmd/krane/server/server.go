@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os/user"
 
 	"github.com/biensupernice/krane/server"
 	"github.com/dgraph-io/badger"
@@ -13,7 +15,14 @@ func main() {
 }
 
 func getDB() *badger.DB {
-	db, err := badger.Open(badger.DefaultOptions("~/.krane"))
+
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatalf("Unable to make ~/.krane dir %s", err.Error())
+	}
+
+	dbDir := fmt.Sprintf("%s/%s", usr.HomeDir, ".krane/db")
+	db, err := badger.Open(badger.DefaultOptions(dbDir))
 	if err != nil {
 		log.Fatal(err)
 	}
