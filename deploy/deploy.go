@@ -54,11 +54,11 @@ func Deploy(spec DeploySpec) (result.Result, error) {
 	// Configure Host Port
 	hostBinding := nat.PortBinding{
 		HostIP:   "0.0.0.0",
-		HostPort: "9999",
+		HostPort: "8080",
 	}
 
 	// Configure Container Port
-	containerPort, err := nat.NewPort("tcp", "9999")
+	containerPort, err := nat.NewPort("tcp", "8080")
 	if err != nil {
 		panic("Unable to get the port")
 	}
