@@ -51,9 +51,9 @@ func Deploy(spec DeploySpec) (result.Result, error) {
 
 	img := FormatImageSourceUrl(spec.Config.Repo, spec.Config.Image, spec.Config.Tag)
 
-	log.Printf("Pulling image: %s\n", img)
-
 	ctx := context.Background() // deployment context
+
+	log.Printf("Pulling image: %s\n", img)
 
 	// Pull docker image
 	err = PullImage(&ctx, dockerClient, img)
@@ -63,7 +63,7 @@ func Deploy(spec DeploySpec) (result.Result, error) {
 	}
 
 	// Create docker container
-	createContainerResp, err := CreateContainer(&ctx, dockerClient, img, spec.Config.HostPort, spec.Config.ContainerPort)
+	createContainerResp, err := CreateContainer(&ctx, dockerClient, img, "", spec.Config.HostPort, spec.Config.ContainerPort)
 	containerID := createContainerResp.ID
 	if err != nil {
 		log.Printf("Unable to create container for image %s - %s\n", img, err.Error())

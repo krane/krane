@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"os"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/nat"
 )
@@ -42,6 +44,7 @@ func CreateContainer(
 	ctx *context.Context,
 	dockerClient *client.Client,
 	image string,
+	containerName string,
 	hPort string,
 	cPort string,
 ) (container.ContainerCreateCreatedBody, error) {
@@ -54,15 +57,23 @@ func CreateContainer(
 	// Configure Container Port
 	containerPort, err := nat.NewPort("tcp", cPort)
 	if err != nil {
-		panic("Unable to get the port")
+		log.Printf("Unable to configure container port %s - %s", cPort, err.Error())
+		return container.ContainerCreateCreatedBody{}, err
 	}
 
-	// Bind Host--Container posrts
+	// Bind host-to-container ports
 	portBinding := nat.PortMap{containerPort: []nat.PortBinding{hostBinding}}
 
-	containerConf := &container.Config{Image: image}
+	// Setup host conf
 	hostConf := &container.HostConfig{PortBindings: portBinding}
-	return dockerClient.ContainerCreate(*ctx, containerConf, hostConf, nil, "")
+
+	// Setup container conf
+	containerConf := &container.Config{Image: image}
+
+	// Setup networking conf
+	networkConf := &network.NetworkingConfig{}
+
+	return dockerClient.ContainerCreate(*ctx, containerConf, hostConf, networkConf, containerName)
 }
 
 // StartContainer blah
@@ -77,12 +88,11 @@ func StartContainer(
 func StopContainer(
 	ctx *context.Context,
 	dockerClient *client.Client,
-	containerID string,
-) error {
+	containerID string) error {
 	return dockerClient.ContainerStop(*ctx, containerID, nil)
 }
 
-// GetDockerImageSource blah
+// FormatImageSourceUrl blah
 func FormatImageSourceUrl(
 	repo string,
 	imageName string,
