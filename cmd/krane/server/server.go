@@ -10,21 +10,20 @@ import (
 )
 
 func main() {
-	db := getDB()
+	db := startDB()
 	server.Run(db)
 }
 
-func getDB() *badger.DB {
-
+func startDB() *badger.DB {
 	usr, err := user.Current()
 	if err != nil {
-		log.Fatalf("Unable to make ~/.krane dir %s", err.Error())
+		log.Fatalf("Unable to make ~/.krane dir %s\n", err.Error())
 	}
 
 	dbDir := fmt.Sprintf("%s/%s", usr.HomeDir, ".krane/db")
 	db, err := badger.Open(badger.DefaultOptions(dbDir))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Unable to open db %s\n", err.Error())
 	}
 	defer db.Close()
 

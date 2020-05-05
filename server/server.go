@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Run blah
 func Run(db *badger.DB) {
 	gin.SetMode("release")
 
@@ -17,7 +18,10 @@ func Run(db *badger.DB) {
 
 	// Routes
 	client.POST("/login", LoginHandler)
-	client.POST("/deploy", DeployHandler)
+	client.POST("/deploy", StartDeployHandler)
+
+	client.POST("/container/:containerID/stop", StopContainerHandler)
+	client.POST("/container/:containerID/start", StartContainerHandler)
 
 	client.Run(":8000")
 }
