@@ -17,11 +17,8 @@ func Run(db *badger.DB) {
 	client.Use(cors.Default())
 
 	// Routes
-	client.POST("/login", LoginHandler)
-	client.POST("/deploy", StartDeployHandler)
-
-	client.POST("/container/:containerID/stop", StopContainerHandler)
-	client.POST("/container/:containerID/start", StartContainerHandler)
+	client.POST("/login", Login)
+	client.POST("/deploy", DeployApp)
 
 	client.Run(":8000")
 }

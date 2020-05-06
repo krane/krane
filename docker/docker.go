@@ -50,7 +50,7 @@ func CreateContainer(
 ) (container.ContainerCreateCreatedBody, error) {
 	// Configure Host Port
 	hostBinding := nat.PortBinding{
-		HostIP:   getHostIP(),
+		HostIP:   "0.0.0.0",
 		HostPort: hPort,
 	}
 
@@ -68,7 +68,7 @@ func CreateContainer(
 	hostConf := &container.HostConfig{PortBindings: portBinding}
 
 	// Setup container conf
-	containerConf := &container.Config{Image: image}
+	containerConf := &container.Config{Image: image, Env: []string{"TEST_ENV=pipi"}}
 
 	// Setup networking conf
 	networkConf := &network.NetworkingConfig{}
@@ -81,7 +81,8 @@ func StartContainer(
 	ctx *context.Context,
 	dockerClient *client.Client,
 	containerID string) error {
-	return dockerClient.ContainerStart(*ctx, containerID, types.ContainerStartOptions{})
+	options := types.ContainerStartOptions{}
+	return dockerClient.ContainerStart(*ctx, containerID, options)
 }
 
 // StopContainer blah
@@ -90,6 +91,15 @@ func StopContainer(
 	dockerClient *client.Client,
 	containerID string) error {
 	return dockerClient.ContainerStop(*ctx, containerID, nil)
+}
+
+// RemoveContainer blah
+func RemoveContainer(
+	ctx *context.Context,
+	dockerClient *client.Client,
+	containerID string) error {
+	options := types.ContainerRemoveOptions{}
+	return dockerClient.ContainerRemove(*ctx, containerID, options)
 }
 
 // FormatImageSourceUrl blah

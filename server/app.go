@@ -6,8 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// StartDeployHandler blah
-func StartDeployHandler(c *gin.Context) {
+// DeployApp blah
+func DeployApp(c *gin.Context) {
 	var spec docker.DeploySpec
 	err := c.ShouldBindJSON(&spec)
 	if err != nil {

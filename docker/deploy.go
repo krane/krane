@@ -30,9 +30,9 @@ func Deploy(spec DeploySpec) (result.Result, error) {
 		spec.Config.Tag = "latest"
 	}
 
-	// Set container host port to `80` if not provided
+	// Set container host port to `8080` if not provided
 	if spec.Config.HostPort == "" {
-		spec.Config.HostPort = "80"
+		spec.Config.HostPort = "8080"
 	}
 
 	// Set container port to `8080` if not provided
