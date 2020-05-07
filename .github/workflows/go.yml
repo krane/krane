@@ -33,7 +33,7 @@ jobs:
         fi
         
     - name: Build
-      run: go build ${{working-directory}} -v .
+      run: go build ${{env.working-directory}} -v .
 
     - name: Test
       run: go test -v .
