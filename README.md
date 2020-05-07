@@ -1,4 +1,5 @@
 ## krane
+![Go](https://github.com/biensupernice/krane-server/workflows/Go/badge.svg?branch=master)
 
 Easy container deployments
 
@@ -16,11 +17,11 @@ krane, inspired by [now](https://vercel.com/), [exoframe](https://github.com/exo
 You'll need the [krane-server](https://github.com/biensupernice/krane-server) installed on an inexpensive server.
 
 ```bash
-wget ...
+curl -sf https://raw.githubusercontent.com/biensupernice/krane-server/master/bootstrap.sh | sh
 ```
 
-Once the krane-server is finished installing, download the [cli](https://github.com/biensupernice/krane-cli) and login
+Deploy your project using the [cli](https://github.com/biensupernice/krane-cli)
 
 ```shell
-npx krane-cli login
+npx krane-cli deploy
 ```

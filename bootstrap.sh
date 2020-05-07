@@ -22,6 +22,3 @@ execute(){
 }
 
 execute
-
-
-
