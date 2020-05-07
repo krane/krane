@@ -2,7 +2,7 @@
 
 app=krane-server
 owner=biensupernice
-server_path="$PWD"/cmd/server
+server_path="$PWD"/cmd/krane-server
 bin_path=/usr/local/bin # Need to check if this should be overridable..
 
 echo "> Building $app"
