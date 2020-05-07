@@ -11,8 +11,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    env:
-      working-directory: ./cmd/krane-server
+    defaults:
+      run: 
+        working-directory: ./cmd/krane-server
     steps:
 
     - name: Set up Go 1.x
@@ -36,4 +37,4 @@ jobs:
       run: go build ${{env.working-directory}} -v .
 
     - name: Test
-      run: go test -v .
+      run: go test ${{env.working-directory}} -v .
