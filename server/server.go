@@ -6,11 +6,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Run blah
-func Run(db *badger.DB) {
-	gin.SetMode("release")
+type Config struct {
+	Port     string
+	LogLevel string // release | debug
+}
 
-	client := gin.Default()
+// Run blah
+func Run(cnf Config, db *badger.DB) {
+	gin.SetMode(cnf.LogLevel)
+
+	client := gin.New()
 
 	// Recover from any panics, returns 500
 	client.Use(gin.Recovery())
@@ -20,5 +25,5 @@ func Run(db *badger.DB) {
 	client.POST("/login", Login)
 	client.POST("/deploy", DeployApp)
 
-	client.Run(":8000")
+	client.Run(cnf.Port)
 }
