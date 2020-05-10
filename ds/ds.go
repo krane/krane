@@ -25,8 +25,8 @@ var (
 
 // New : instance of bolt
 func New(dbName string) error {
-	if DB == nil {
-		return fmt.Errorf("db not initialized")
+	if DB != nil {
+		return nil
 	}
 
 	// Open the `dbName` data file in your current directory.
@@ -92,13 +92,16 @@ func Get(bktName string, key string) (val []byte, length int) {
 	err := DB.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(bktName))
 		if bkt == nil {
-			return fmt.Errorf("Bucket %s not found!", bktName)
+			return fmt.Errorf("Bucket %s not found", bktName)
 		}
 		val = bkt.Get([]byte(key))
 		return nil
 	})
+
 	if err != nil {
 		log.Fatal(err)
+		return nil, -1
 	}
+
 	return val, len(string(val))
 }

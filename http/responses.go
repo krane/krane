@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Ok response with status code 200
+// Ok : response with status code 200
 func Ok(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -16,7 +16,7 @@ func Ok(c *gin.Context, data interface{}) {
 	return
 }
 
-// Created response with status code 200
+// Created : response with status code 200
 func Created(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusCreated, gin.H{
 		"success": true,
@@ -26,7 +26,7 @@ func Created(c *gin.Context, data interface{}) {
 	return
 }
 
-// BadRequest response with status code 400
+// BadRequest : response with status code 400
 func BadRequest(c *gin.Context, err interface{}) {
 	c.JSON(http.StatusBadRequest, gin.H{
 		"success": false,

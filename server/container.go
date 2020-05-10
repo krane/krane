@@ -19,15 +19,9 @@ func StopContainerHandler(c *gin.Context) {
 		return
 	}
 
-	client, err := docker.NewClient()
-	if err != nil {
-		msg, _ := fmt.Printf("Unable to start docker client %s", err.Error())
-		http.BadRequest(c, msg)
-		return
-	}
 	ctx := context.Background()
 
-	err = docker.StopContainer(&ctx, client, containerID)
+	err := docker.StopContainer(&ctx, containerID)
 	if err != nil {
 		msg := fmt.Sprintf("Unable to stop container %s", containerID)
 		http.BadRequest(c, msg)
@@ -49,15 +43,9 @@ func StartContainerHandler(c *gin.Context) {
 		return
 	}
 
-	client, err := docker.NewClient()
-	if err != nil {
-		msg, _ := fmt.Printf("Unable to start docker client %s", err.Error())
-		http.BadRequest(c, msg)
-		return
-	}
 	ctx := context.Background()
 
-	err = docker.StartContainer(&ctx, client, containerID)
+	err := docker.StartContainer(&ctx, containerID)
 	if err != nil {
 		msg := fmt.Sprintf("Unable to start container %s - %s", containerID, err.Error())
 		http.BadRequest(c, msg)

@@ -15,17 +15,28 @@ import (
 	"github.com/docker/go-connections/nat"
 )
 
-// NewClient blah
-func NewClient() (*client.Client, error) {
+var (
+	dkrClient *client.Client // Single docker client
+)
+
+// New : create docker client
+func New() (*client.Client, error) {
+	if dkrClient != nil {
+		return dkrClient, nil
+	}
+
 	return client.NewEnvClient()
 }
 
-// PullImage blah
-func PullImage(
-	ctx *context.Context,
-	dockerClient *client.Client,
-	image string) error {
-	ioreader, err := dockerClient.ImagePull(*ctx, image, types.ImagePullOptions{})
+// PullImage : poll docker image from registry
+func PullImage(ctx *context.Context, image string) error {
+	if dkrClient == nil {
+		err := fmt.Errorf("docker client not initialized")
+		return err
+	}
+
+	ioreader, err := dkrClient.ImagePull(*ctx, image, types.ImagePullOptions{})
+
 	if err != nil {
 		panic(err)
 	}
@@ -42,12 +53,16 @@ func PullImage(
 // CreateContainer blah
 func CreateContainer(
 	ctx *context.Context,
-	dockerClient *client.Client,
 	image string,
 	containerName string,
 	hPort string,
 	cPort string,
 ) (container.ContainerCreateCreatedBody, error) {
+	if dkrClient == nil {
+		err := fmt.Errorf("docker client not initialized")
+		return container.ContainerCreateCreatedBody{}, err
+	}
+
 	// Configure Host Port
 	hostBinding := nat.PortBinding{
 		HostIP:   "0.0.0.0",
@@ -73,43 +88,50 @@ func CreateContainer(
 	// Setup networking conf
 	networkConf := &network.NetworkingConfig{}
 
-	return dockerClient.ContainerCreate(*ctx, containerConf, hostConf, networkConf, containerName)
+	return dkrClient.ContainerCreate(*ctx, containerConf, hostConf, networkConf, containerName)
 }
 
 // StartContainer blah
-func StartContainer(
-	ctx *context.Context,
-	dockerClient *client.Client,
-	containerID string) error {
+func StartContainer(ctx *context.Context, containerID string) error {
+	if dkrClient == nil {
+		err := fmt.Errorf("docker client not initialized")
+		return err
+	}
+
 	options := types.ContainerStartOptions{}
-	return dockerClient.ContainerStart(*ctx, containerID, options)
+	return dkrClient.ContainerStart(*ctx, containerID, options)
 }
 
-// StopContainer blah
-func StopContainer(
-	ctx *context.Context,
-	dockerClient *client.Client,
-	containerID string) error {
-	return dockerClient.ContainerStop(*ctx, containerID, nil)
+// StopContainer : stop docker container
+func StopContainer(ctx *context.Context, containerID string) error {
+	if dkrClient == nil {
+		err := fmt.Errorf("docker client not initialized")
+		return err
+	}
+
+	return dkrClient.ContainerStop(*ctx, containerID, nil)
 }
 
-// RemoveContainer blah
-func RemoveContainer(
-	ctx *context.Context,
-	dockerClient *client.Client,
-	containerID string) error {
+// RemoveContainer : remove docker container
+func RemoveContainer(ctx *context.Context, containerID string) error {
+	if dkrClient == nil {
+		err := fmt.Errorf("docker client not initialized")
+		return err
+	}
+
 	options := types.ContainerRemoveOptions{}
-	return dockerClient.ContainerRemove(*ctx, containerID, options)
+	return dkrClient.ContainerRemove(*ctx, containerID, options)
 }
 
-// FormatImageSourceUrl blah
-func FormatImageSourceUrl(
+// FormatImageSourceURL : format into appropriate docker image url
+func FormatImageSourceURL(
 	repo string,
 	imageName string,
 	tag string) string {
 	return fmt.Sprintf("%s/%s:%s", repo, imageName, tag)
 }
 
+// Helper to find the current host ip address - 0.0.0.0 binds to all ip's
 func getHostIP() string {
 	host, _ := os.Hostname()
 	addrs, _ := net.LookupIP(host)

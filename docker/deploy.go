@@ -7,13 +7,13 @@ import (
 	"github.com/biensupernice/krane/result"
 )
 
-// DeploySpec blah
+// DeploySpec : blah
 type DeploySpec struct {
 	AppName string           `json:"app" binding:"required"`
 	Config  DeploySpecConfig `json:"config" binding:"required"`
 }
 
-// DeploySpecConfig blah
+// DeploySpecConfig : blah
 type DeploySpecConfig struct {
 	Repo          string `json:"repo" binding:"required"`
 	Image         string `json:"image" binding:"required"`
@@ -43,27 +43,27 @@ func Deploy(spec DeploySpec) (result.Result, error) {
 	log.Printf("Deploying %s\n", spec.AppName)
 
 	// Create docker client
-	dockerClient, err := NewClient()
+	_, err := New()
 	if err != nil {
 		log.Printf("Unable to create docker client %s\n", err.Error())
 		return result.Result{}, err
 	}
 
-	img := FormatImageSourceUrl(spec.Config.Repo, spec.Config.Image, spec.Config.Tag)
+	img := FormatImageSourceURL(spec.Config.Repo, spec.Config.Image, spec.Config.Tag)
 
 	ctx := context.Background() // deployment context
 
 	log.Printf("Pulling image: %s\n", img)
 
 	// Pull docker image
-	err = PullImage(&ctx, dockerClient, img)
+	err = PullImage(&ctx, img)
 	if err != nil {
 		log.Printf("Unable to pull image %s - %s\n", img, err.Error())
 		return result.Result{}, err
 	}
 
 	// Create docker container
-	createContainerResp, err := CreateContainer(&ctx, dockerClient, img, "", spec.Config.HostPort, spec.Config.ContainerPort)
+	createContainerResp, err := CreateContainer(&ctx, img, "", spec.Config.HostPort, spec.Config.ContainerPort)
 	containerID := createContainerResp.ID
 	if err != nil {
 		log.Printf("Unable to create container for image %s - %s\n", img, err.Error())
@@ -71,7 +71,7 @@ func Deploy(spec DeploySpec) (result.Result, error) {
 	}
 
 	// Docker start container
-	err = StartContainer(&ctx, dockerClient, containerID)
+	err = StartContainer(&ctx, containerID)
 	if err != nil {
 		log.Printf("Unable to start container %s - %s", containerID, err.Error())
 		return result.Result{}, nil
