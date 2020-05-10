@@ -7,13 +7,13 @@ import (
 	"github.com/biensupernice/krane/result"
 )
 
-// DeploySpec : blah
+// DeploySpec : spec to deploy and app
 type DeploySpec struct {
 	AppName string           `json:"app" binding:"required"`
 	Config  DeploySpecConfig `json:"config" binding:"required"`
 }
 
-// DeploySpecConfig : blah
+// DeploySpecConfig : config for deploying an app
 type DeploySpecConfig struct {
 	Repo          string `json:"repo" binding:"required"`
 	Image         string `json:"image" binding:"required"`

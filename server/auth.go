@@ -9,7 +9,8 @@ import (
 )
 
 type LoginRequest struct {
-	Token string `json:"token" binding:"required"`
+	RequestID string `json:"request_id" binding:"required"`
+	Token     string `json:"token" binding:"required"`
 }
 
 // PreLogin : id to authenticate login attempt
