@@ -1,12 +1,8 @@
 package server
 
 import (
-	"github.com/biensupernice/krane/auth"
-	"github.com/biensupernice/krane/ds"
-	"github.com/biensupernice/krane/http"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 type Config struct {
@@ -25,15 +21,7 @@ func Run(cnf Config) {
 	client.Use(cors.Default())
 
 	// Routes
-	client.GET("/login", func(c *gin.Context) {
-		id := uuid.New().String()
-
-		ds.Put(auth.Bucket, id, []byte(id))
-
-		val, _ := ds.Get(auth.Bucket, id)
-
-		http.Ok(c, map[string]string{"uid": string(val)})
-	})
+	client.GET("/login", PreLogin)
 	client.POST("/login", Login)
 	client.POST("/deploy", DeployApp)
 

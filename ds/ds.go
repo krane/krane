@@ -16,7 +16,7 @@ import (
 	"os/user"
 	"time"
 
-	"github.com/boltdb/bolt"
+	bolt "go.etcd.io/bbolt"
 )
 
 var (
@@ -25,6 +25,9 @@ var (
 
 // New : instance of bolt
 func New(dbName string) error {
+	if DB == nil {
+		return fmt.Errorf("db not initialized")
+	}
 
 	// Open the `dbName` data file in your current directory.
 	// It will be created if it doesn't exist.
@@ -54,6 +57,10 @@ func BoltPath() string {
 
 // CreateBucket : new bucket
 func CreateBucket(bktName string) error {
+	if DB == nil {
+		return fmt.Errorf("db not initialized")
+	}
+
 	return DB.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucket([]byte(bktName))
 		if err != nil {
@@ -65,6 +72,10 @@ func CreateBucket(bktName string) error {
 
 // Put : store data
 func Put(bktName string, k string, v []byte) error {
+	if DB == nil {
+		return fmt.Errorf("db not initialized")
+	}
+
 	return DB.Update(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(bktName))
 		err := bkt.Put([]byte(k), v)
@@ -73,11 +84,15 @@ func Put(bktName string, k string, v []byte) error {
 }
 
 // Get : retrieve data
-func Get(bucketName string, key string) (val []byte, length int) {
+func Get(bktName string, key string) (val []byte, length int) {
+	if DB == nil {
+		return nil, -1
+	}
+
 	err := DB.View(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket([]byte(bucketName))
+		bkt := tx.Bucket([]byte(bktName))
 		if bkt == nil {
-			return fmt.Errorf("Bucket %q not found!", bucketName)
+			return fmt.Errorf("Bucket %s not found!", bktName)
 		}
 		val = bkt.Get([]byte(key))
 		return nil
