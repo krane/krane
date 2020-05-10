@@ -2,9 +2,8 @@ package server
 
 import (
 	"github.com/biensupernice/krane/auth"
+	"github.com/biensupernice/krane/ds"
 	"github.com/biensupernice/krane/http"
-	"github.com/biensupernice/krane/store"
-	"github.com/boltdb/bolt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -16,7 +15,7 @@ type Config struct {
 }
 
 // Run blah
-func Run(cnf Config, db *bolt.DB) {
+func Run(cnf Config) {
 	gin.SetMode(cnf.LogLevel)
 
 	client := gin.New()
@@ -29,9 +28,9 @@ func Run(cnf Config, db *bolt.DB) {
 	client.GET("/login", func(c *gin.Context) {
 		id := uuid.New().String()
 
-		store.Put(db, auth.Bucket, id, []byte(id))
+		ds.Put(auth.Bucket, id, []byte(id))
 
-		val, _ := store.Get(db, auth.Bucket, id)
+		val, _ := ds.Get(auth.Bucket, id)
 
 		http.Ok(c, map[string]string{"uid": string(val)})
 	})

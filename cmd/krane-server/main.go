@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"github.com/biensupernice/krane/auth"
+	"github.com/biensupernice/krane/ds"
 	"github.com/biensupernice/krane/server"
-	"github.com/biensupernice/krane/store"
 )
 
 // Env
@@ -14,20 +14,17 @@ var (
 	Port     = os.Getenv("PORT")
 	LogLevel = os.Getenv("LOG_LEVEL")
 
-	db     *store.DB
 	config *server.Config
 )
 
 func init() {
 	// Setup db
-	db, _ = store.New("krane.db")
+	err := ds.New("krane.db")
+	if err != nil {
+		log.Panicf("Unable to start db - %s", err.Error())
+	}
 
-	store.CreateBucket(db, auth.Bucket)
-
-	// Example usage
-	store.Put(db, auth.Bucket, "123", []byte("True"))
-	val, _ := store.Get(db, auth.Bucket, "123")
-	log.Printf("---->%s\n", string(val))
+	ds.CreateBucket(auth.Bucket)
 
 	// Set default port
 	if Port == "" {
@@ -47,6 +44,6 @@ func init() {
 }
 
 func main() {
-	defer db.Close()
-	server.Run(*config, db)
+	defer ds.DB.Close()
+	server.Run(*config)
 }
