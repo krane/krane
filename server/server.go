@@ -1,9 +1,13 @@
 package server
 
 import (
-	"github.com/dgraph-io/badger"
+	"github.com/biensupernice/krane/auth"
+	"github.com/biensupernice/krane/http"
+	"github.com/biensupernice/krane/store"
+	"github.com/boltdb/bolt"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type Config struct {
@@ -12,7 +16,7 @@ type Config struct {
 }
 
 // Run blah
-func Run(cnf Config, db *badger.DB) {
+func Run(cnf Config, db *bolt.DB) {
 	gin.SetMode(cnf.LogLevel)
 
 	client := gin.New()
@@ -22,6 +26,15 @@ func Run(cnf Config, db *badger.DB) {
 	client.Use(cors.Default())
 
 	// Routes
+	client.GET("/login", func(c *gin.Context) {
+		id := uuid.New().String()
+
+		store.Put(db, auth.Bucket, id, []byte(id))
+
+		val, _ := store.Get(db, auth.Bucket, id)
+
+		http.Ok(c, map[string]string{"uid": string(val)})
+	})
 	client.POST("/login", Login)
 	client.POST("/deploy", DeployApp)
 

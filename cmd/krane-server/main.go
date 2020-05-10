@@ -1,31 +1,34 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"os/user"
 
+	"github.com/biensupernice/krane/auth"
 	"github.com/biensupernice/krane/server"
-	"github.com/dgraph-io/badger"
+	"github.com/biensupernice/krane/store"
 )
 
 // Env
-var Port = os.Getenv("PORT")
-var LogLevel = os.Getenv("LOG_LEVEL")
+var (
+	Port     = os.Getenv("PORT")
+	LogLevel = os.Getenv("LOG_LEVEL")
 
-func main() {
-	db := startDB()
+	db     *store.DB
+	config *server.Config
+)
 
-	// Configure default env
-	cnfEnv()
+func init() {
+	// Setup db
+	db, _ = store.New("krane.db")
 
-	cnf := &server.Config{Port: fmt.Sprintf(":%s", Port), LogLevel: LogLevel}
-	server.Run(*cnf, db)
-}
+	store.CreateBucket(db, auth.Bucket)
 
-// Configure default env
-func cnfEnv() {
+	// Example usage
+	store.Put(db, auth.Bucket, "123", []byte("True"))
+	val, _ := store.Get(db, auth.Bucket, "123")
+	log.Printf("---->%s\n", string(val))
+
 	// Set default port
 	if Port == "" {
 		Port = "8080"
@@ -33,22 +36,17 @@ func cnfEnv() {
 
 	// Set default loglevel
 	if LogLevel == "" {
-		LogLevel = "debug"
+		LogLevel = "release"
+	}
+
+	// Set server configuration
+	config = &server.Config{
+		Port:     ":" + Port,
+		LogLevel: LogLevel,
 	}
 }
 
-func startDB() *badger.DB {
-	usr, err := user.Current()
-	if err != nil {
-		log.Fatalf("Unable to make ~/.krane dir %s\n", err.Error())
-	}
-
-	dbDir := fmt.Sprintf("%s/%s", usr.HomeDir, ".krane/db")
-	db, err := badger.Open(badger.DefaultOptions(dbDir))
-	if err != nil {
-		log.Fatalf("Unable to open db %s\n", err.Error())
-	}
+func main() {
 	defer db.Close()
-
-	return db
+	server.Run(*config, db)
 }

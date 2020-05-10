@@ -7,6 +7,10 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+var (
+	Bucket = "AuthBucket"
+)
+
 func CreateToken(userid uint64) (string, error) {
 	var err error
 

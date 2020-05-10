@@ -1,5 +1,8 @@
 #!/bin/bash
 
+PORT="9000"
+LOG_LEVEL="release"
+
 app=krane-server
 owner=biensupernice
 server_path="$PWD"/cmd/krane-server
