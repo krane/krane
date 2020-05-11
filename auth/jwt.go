@@ -46,8 +46,8 @@ func CreateToken(SigningKey []byte, payload []byte) (string, error) {
 	return tknStr, nil
 }
 
-// ValidateToken : check if token is valid
-func ValidateToken(pubKey []byte, tknStr string) bool {
+// ValidateWithPubKey : check token against pubKey
+func ValidateWithPubKey(pubKey []byte, tknStr string) bool {
 	key, err := jwt.ParseRSAPublicKeyFromPEM(pubKey)
 	if err != nil {
 		return false

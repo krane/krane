@@ -51,7 +51,13 @@ func Login(c *gin.Context) {
 		http.BadRequest(c, err)
 	}
 
-	auth.ValidateToken("", req.Token, string(phrase))
+	pubKey := []byte("pk")
+	isValidTkn := auth.ValidateWithPubKey(pubKey, req.Token)
+
+	if !isValidTkn {
+		http.BadRequest(c, "Bad token")
+		return
+	}
 
 	http.Ok(c, req)
 }

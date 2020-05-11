@@ -2,7 +2,6 @@ package auth
 
 import (
 	"encoding/json"
-	"log"
 	"testing"
 )
 
@@ -26,9 +25,6 @@ func TestCreateToken(t *testing.T) {
 	tkn, err := CreateToken(sKey, data)  // With payload
 	tkn2, err2 := CreateToken(sKey, nil) // Without payload
 	tkn3, err3 := CreateToken(nil, nil)  // Without key or payload
-
-	log.Printf("My token - %s", tkn)
-	log.Printf("Payload - %s", data)
 
 	// Assert no error
 	if err != nil {
