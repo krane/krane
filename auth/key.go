@@ -8,8 +8,8 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// PubKey : get public ket from directory
-func PubKey(key []byte) (ssh.PublicKey, error) {
+// ParsePubKey : parse public
+func ParsePubKey(key []byte) (ssh.PublicKey, error) {
 	newAuthorizedKey, _, _, _, err := ssh.ParseAuthorizedKey(key)
 	if err != nil {
 		return nil, err

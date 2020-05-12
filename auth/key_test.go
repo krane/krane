@@ -12,7 +12,7 @@ func TestPubKeyReadVerify(t *testing.T) {
 	}
 
 	// Parse public key
-	_, err = PubKey(bKey)
+	_, err = ParsePubKey(bKey)
 	if err != nil {
 		t.Errorf("Error parsing PubKey - %s", err.Error())
 	}
