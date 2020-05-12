@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/biensupernice/krane/docker"
-	"github.com/biensupernice/krane/http"
+	"github.com/biensupernice/krane/server/http"
 	"github.com/gin-gonic/gin"
 )
 
@@ -31,7 +31,7 @@ func StopContainerHandler(c *gin.Context) {
 	msg := fmt.Sprintf("Container %s stopped", containerID)
 	log.Printf(msg)
 
-	http.Ok(c, msg)
+	http.Ok(c, map[string]string{"message": msg})
 }
 
 // StartContainerHandler blah
@@ -53,7 +53,6 @@ func StartContainerHandler(c *gin.Context) {
 	}
 
 	msg := fmt.Sprintf("Container %s started", containerID)
-	log.Printf(msg)
 
-	http.Ok(c, msg)
+	http.Ok(c, map[string]string{"message": msg})
 }

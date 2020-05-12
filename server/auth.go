@@ -7,7 +7,7 @@ import (
 
 	"github.com/biensupernice/krane/auth"
 	"github.com/biensupernice/krane/ds"
-	"github.com/biensupernice/krane/http"
+	"github.com/biensupernice/krane/server/http"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
