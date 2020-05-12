@@ -10,7 +10,7 @@ type Config struct {
 	LogLevel string // release | debug
 }
 
-// Run blah
+// Run : start server
 func Run(cnf Config) {
 	gin.SetMode(cnf.LogLevel)
 
