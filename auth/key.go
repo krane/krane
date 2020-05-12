@@ -10,12 +10,12 @@ import (
 
 // ParsePubKey : parse public
 func ParsePubKey(key []byte) (ssh.PublicKey, error) {
-	newAuthorizedKey, _, _, _, err := ssh.ParseAuthorizedKey(key)
+	pubKey, err := ssh.ParsePublicKey(key)
 	if err != nil {
 		return nil, err
 	}
 
-	return newAuthorizedKey, nil
+	return pubKey, nil
 }
 
 // ReadPubKeyFile : read public keys from file

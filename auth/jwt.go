@@ -3,7 +3,6 @@ package auth
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 	"time"
 
@@ -11,23 +10,26 @@ import (
 )
 
 var (
+	// Bucket : name used for storing auth related key-value data
 	Bucket = "AuthBucket"
 
+	// OneYear : unix time for 1 year
 	OneYear = time.Now().Add(time.Minute * 525600).Unix()
 )
 
+// Claims : custom claims packaged in every token
 type Claims struct {
 	Payload []byte `json:"payload"`
 	jwt.StandardClaims
 }
 
-// CreateToken : new jwt token encrypted with private key
+// CreateToken : new jwt token encrypted with a key
 func CreateToken(SigningKey []byte, payload []byte) (string, error) {
 	if SigningKey == nil {
 		return "", fmt.Errorf("Cannot create token - signing key not provided")
 	}
 
-	c := &Claims{
+	customClaims := &Claims{
 		Payload: payload,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: OneYear,
@@ -35,49 +37,51 @@ func CreateToken(SigningKey []byte, payload []byte) (string, error) {
 		},
 	}
 
-	// Declare the token with the algorithm used for signing, and the claims
-	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, c)
+	// Declare the unsigned token using RSA HS256 Algorithm for ecryption
+	tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, customClaims)
 
-	// Sign the token with our secret
-	tknStr, err := tkn.SignedString(SigningKey)
+	// Sign the token with secret
+	signedTkn, err := tkn.SignedString(SigningKey)
 	if err != nil {
 		return "", err
 	}
 
-	return tknStr, nil
+	return signedTkn, nil
 }
 
-// ValidateTokenWithPubKey : check token against pubKey
+// ValidateTokenWithPubKey : check token against publick key
 func ValidateTokenWithPubKey(tknStr string) (bool, error) {
-	// Read pub key to decode token
+	// Read pub key
 	pubKey, err := ReadPubKeyFile("")
 	if err != nil {
 		return false, err
 	}
 
+	// Parse public key & verify its PEM encoded
 	key, err := jwt.ParseRSAPublicKeyFromPEM(pubKey)
 	if err != nil {
-		log.Println("Error here")
 		return false, err
 	}
 
-	parts := strings.Split(tknStr, ".")
-	signingKey := strings.Join(parts[0:2], ".")
-	signature := parts[2]
+	// split on `.` from jwt token
+	tknParts := strings.Split(tknStr, ".")
+
+	signingKey := strings.Join(tknParts[0:2], ".")
+	signature := tknParts[2]
+
 	err = jwt.SigningMethodRS256.Verify(signingKey, signature, key)
 	if err != nil {
-		log.Println(err.Error())
 		return false, err
 	}
 
 	return true, nil
 }
 
-// ParseToken : get the contents of a token
+// ParseToken : get the contents of a jwt token
 func ParseToken(SigningKey []byte, tknStr string) ([]byte, error) {
 	token, err := jwt.ParseWithClaims(
-		tknStr,    // token
-		&Claims{}, // Claims struct
+		tknStr,
+		&Claims{},
 		func(token *jwt.Token) (interface{}, error) {
 			return SigningKey, nil
 		},
