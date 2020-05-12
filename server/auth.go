@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-var PrivateKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
+var KranePrivateKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
 
 // LoginRequest : to authenticate with krane-server
 type LoginRequest struct {
@@ -54,8 +54,9 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// Check if reequest id is valid
 	phrase, len := ds.Get(auth.Bucket, req.RequestID)
-	if phrase == nil || len == -1 { // verify requestID is not nil
+	if phrase == nil || len == -1 {
 		err := fmt.Errorf("Unable to authenticate, login request not found")
 		http.BadRequest(c, err)
 		return
@@ -70,12 +71,12 @@ func Login(c *gin.Context) {
 
 	// Create new token with the valid req as the payload
 	payload, _ := json.Marshal(req)
-	tkn, err := auth.CreateToken(PrivateKey, payload)
+	tkn, err := auth.CreateToken(KranePrivateKey, payload)
 	if err != nil {
 		errMsg := fmt.Sprintf("Invalid request - %s", err.Error())
 		http.BadRequest(c, errMsg)
 		return
 	}
 
-	http.Ok(c, map[string]string{"token": tkn})
+	http.Ok(c, map[string]interface{}{"token": tkn, "expires_at": auth.OneYear})
 }

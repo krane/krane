@@ -35,7 +35,7 @@ func init() {
 
 	// Set default loglevel
 	if LogLevel == "" {
-		LogLevel = "release"
+		LogLevel = "debug"
 	}
 
 	// Set server configuration

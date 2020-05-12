@@ -3,6 +3,7 @@ package auth
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -56,12 +57,16 @@ func ValidateTokenWithPubKey(tknStr string) (bool, error) {
 
 	key, err := jwt.ParseRSAPublicKeyFromPEM(pubKey)
 	if err != nil {
+		log.Println("Error here")
 		return false, err
 	}
 
 	parts := strings.Split(tknStr, ".")
-	err = jwt.SigningMethodRS256.Verify(strings.Join(parts[0:2], "."), parts[2], key)
+	signingKey := strings.Join(parts[0:2], ".")
+	signature := parts[2]
+	err = jwt.SigningMethodRS256.Verify(signingKey, signature, key)
 	if err != nil {
+		log.Println(err.Error())
 		return false, err
 	}
 

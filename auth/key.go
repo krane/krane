@@ -27,7 +27,7 @@ func ReadPubKeyFile(dir string) ([]byte, error) {
 			return nil, err
 		}
 
-		dir = fmt.Sprintf("%s/.ssh/id_rsa.pub", homeDir) // Set default dir
+		dir = fmt.Sprintf("%s/.ssh/krane.key.pub", homeDir) // Set default dir
 	}
 
 	byteKey, err := ioutil.ReadFile(dir)
