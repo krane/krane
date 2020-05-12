@@ -1,4 +1,5 @@
 ## krane
+
 ![Go](https://github.com/biensupernice/krane-server/workflows/Go/badge.svg?branch=master)
 
 Easy container deployments
@@ -26,8 +27,8 @@ Deploy your project using the [cli](https://github.com/biensupernice/krane-cli)
 npx krane-cli deploy
 ```
 
-
 ### Creating keys
+
 ```bash
 ssh-keygen -t rsa -b 4096 -m PEM -f krane.key
 openssl rsa -in krane.key -pubout -outform PEM -out krane.key.pub

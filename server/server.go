@@ -21,8 +21,8 @@ func Run(cnf Config) {
 	client.Use(cors.Default())
 
 	// Routes
-	client.GET("/login", PreLogin)
-	client.POST("/login", Login)
+	client.GET("/login", Login)
+	client.POST("/auth", Auth)
 	client.POST("/deploy", DeployApp)
 
 	client.Run(cnf.Port)

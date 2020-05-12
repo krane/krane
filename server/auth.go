@@ -26,8 +26,8 @@ type PreLoginResponse struct {
 	Phrase    string `json:"phrase" binding:"required"`
 }
 
-// PreLogin : id to authenticate login attempt
-func PreLogin(c *gin.Context) {
+// Login : id to authenticate login attempt
+func Login(c *gin.Context) {
 	reqID := uuid.New()
 
 	// Store `reqID` in auth bucket
@@ -44,8 +44,8 @@ func PreLogin(c *gin.Context) {
 	http.Ok(c, resp)
 }
 
-// Login : handle login attempt
-func Login(c *gin.Context) {
+// Auth : handle login attempt
+func Auth(c *gin.Context) {
 	var req LoginRequest
 
 	err := c.ShouldBindJSON(&req)
