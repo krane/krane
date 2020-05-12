@@ -53,6 +53,7 @@ func Login(c *gin.Context) {
 	if phrase == nil || len == -1 { // verify requestID is not nil
 		err := fmt.Errorf("Unable to authenticate, login request not found")
 		http.BadRequest(c, err)
+		return
 	}
 
 	// Login token should be encrypted with privKey
@@ -62,11 +63,13 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	data, _ := json.Marshal(req)
-	reqID, err := auth.CreateToken(PrivateKey, data)
+	// Create new token with the valid req as the payload
+	payload, _ := json.Marshal(req)
+	reqID, err := auth.CreateToken(PrivateKey, payload)
 	if err != nil {
 		errMsg := fmt.Sprintf("Invalid request - %s", err.Error())
 		http.BadRequest(c, errMsg)
+		return
 	}
 
 	http.Ok(c, reqID)

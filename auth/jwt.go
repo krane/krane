@@ -87,7 +87,5 @@ func ParseToken(SigningKey []byte, tknStr string) ([]byte, error) {
 		return nil, errors.New("Could not parse claims")
 	}
 
-	// b, _ := json.Marshal(claims.Payload)
-
 	return claims.Payload, nil
 }
