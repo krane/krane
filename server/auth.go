@@ -77,5 +77,5 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	http.Ok(c, tkn)
+	http.Ok(c, map[string]string{"token": tkn})
 }
