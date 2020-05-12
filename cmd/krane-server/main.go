@@ -18,6 +18,8 @@ var (
 )
 
 func init() {
+	os.Setenv("KRANE_PRIVATE_KEY", "biensupernice") // Change this :]
+
 	// Setup db
 	err := ds.New("krane.db")
 	if err != nil {

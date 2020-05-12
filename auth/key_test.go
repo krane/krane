@@ -6,13 +6,13 @@ import (
 
 func TestPubKeyReadVerify(t *testing.T) {
 	// Get public key
-	bKey, err := ReadPubKeyFile("")
+	pubKey, err := ReadPubKeyFile("")
 	if err != nil {
 		t.Errorf("Error getting PubKey - %s", err.Error())
 	}
 
 	// Parse public key
-	_, err = ParsePubKey(bKey)
+	_, err = ParsePubKey(pubKey)
 	if err != nil {
 		t.Errorf("Error parsing PubKey - %s", err.Error())
 	}

@@ -46,20 +46,26 @@ func CreateToken(SigningKey []byte, payload []byte) (string, error) {
 	return tknStr, nil
 }
 
-// ValidateWithPubKey : check token against pubKey
-func ValidateWithPubKey(pubKey []byte, tknStr string) bool {
+// ValidateTokenWithPubKey : check token against pubKey
+func ValidateTokenWithPubKey(tknStr string) (bool, error) {
+	// Read pub key to decode token
+	pubKey, err := ReadPubKeyFile("")
+	if err != nil {
+		return false, err
+	}
+
 	key, err := jwt.ParseRSAPublicKeyFromPEM(pubKey)
 	if err != nil {
-		return false
+		return false, err
 	}
 
 	parts := strings.Split(tknStr, ".")
 	err = jwt.SigningMethodRS256.Verify(strings.Join(parts[0:2], "."), parts[2], key)
 	if err != nil {
-		return false
+		return false, err
 	}
 
-	return true
+	return true, nil
 }
 
 // ParseToken : get the contents of a token
