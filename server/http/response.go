@@ -23,7 +23,7 @@ func Ok(c *gin.Context, data interface{}) {
 	return
 }
 
-// Created : response with status code 200
+// Created : response with status code 201
 func Created(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusCreated, &Response{
 		Success: true,
@@ -43,7 +43,7 @@ func BadRequest(c *gin.Context, err interface{}) {
 	return
 }
 
-// Unauthorized response with status code 400
+// Unauthorized : response with status code 401
 func Unauthorized(c *gin.Context) {
 	c.JSON(http.StatusUnauthorized, &Response{
 		Success: false,

@@ -1,4 +1,4 @@
-package server
+package handler
 
 import (
 	"encoding/json"
@@ -26,8 +26,8 @@ type PreLoginResponse struct {
 	Phrase    string `json:"phrase" binding:"required"`
 }
 
-// LoginHandler : id to authenticate login attempt
-func LoginHandler(c *gin.Context) {
+// Login : returns request_id to authenticate login attempt
+func Login(c *gin.Context) {
 	reqID := uuid.New()
 
 	// Store `reqID` in auth bucket
@@ -44,8 +44,8 @@ func LoginHandler(c *gin.Context) {
 	http.Ok(c, resp)
 }
 
-// Handler : handle login attempt
-func AuthHandler(c *gin.Context) {
+// Auth : handle login attempt
+func Auth(c *gin.Context) {
 	var req LoginRequest
 
 	err := c.ShouldBindJSON(&req)

@@ -1,4 +1,4 @@
-package server
+package handler
 
 import (
 	"context"
@@ -10,8 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// StopContainerHandler blah
-func StopContainerHandler(c *gin.Context) {
+// StopContainer : stop docker container
+func StopContainer(c *gin.Context) {
 	containerID := c.Param("containerID")
 
 	if containerID == "" {
@@ -34,8 +34,8 @@ func StopContainerHandler(c *gin.Context) {
 	http.Ok(c, map[string]string{"message": msg})
 }
 
-// StartContainerHandler blah
-func StartContainerHandler(c *gin.Context) {
+// StartContainer : start docker container
+func StartContainer(c *gin.Context) {
 	containerID := c.Param("containerID")
 
 	if containerID == "" {

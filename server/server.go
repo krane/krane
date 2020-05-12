@@ -1,10 +1,12 @@
 package server
 
 import (
+	"github.com/biensupernice/krane/server/handler"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
+// Config : server config
 type Config struct {
 	Port     string
 	LogLevel string // release | debug
@@ -16,18 +18,18 @@ func Run(cnf Config) {
 
 	client := gin.New()
 
-	// Gin middleware
+	// Middleware
 	client.Use(gin.Recovery())
 	client.Use(gin.Logger())
 	client.Use(cors.Default())
 
 	// Routes
-	client.POST("/auth", AuthHandler)
-	client.GET("/login", LoginHandler)
-	client.POST("/deploy", DeployAppHandler)
+	client.POST("/auth", handler.Auth)
+	client.GET("/login", handler.Login)
+	client.POST("/deploy", handler.DeployApp)
 
-	client.PUT("/container/:containerID/stop", StopContainerHandler)
-	client.PUT("/container/:containerID/start", StartContainerHandler)
+	client.PUT("/container/:containerID/stop", handler.StopContainer)
+	client.PUT("/container/:containerID/start", handler.StartContainer)
 
 	client.Run(cnf.Port)
 }
