@@ -18,7 +18,12 @@ var PrivateKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
 type LoginRequest struct {
 	RequestID string `json:"request_id" binding:"required"`
 	Token     string `json:"token" binding:"required"`
-	User      string `json:"user" binding:"required"`
+}
+
+// PreLoginResponse : response sent to client pre-login
+type PreLoginResponse struct {
+	RequestID string `json:"request_id" binding:"required"`
+	Phrase    string `json:"phrase" binding:"required"`
 }
 
 // PreLogin : id to authenticate login attempt
@@ -35,8 +40,8 @@ func PreLogin(c *gin.Context) {
 		return
 	}
 
-	http.Ok(c, map[string]string{"request_id": reqID.String()})
-	return
+	resp := &PreLoginResponse{RequestID: key, Phrase: string(val)}
+	http.Ok(c, resp)
 }
 
 // Login : handle login attempt
@@ -65,12 +70,12 @@ func Login(c *gin.Context) {
 
 	// Create new token with the valid req as the payload
 	payload, _ := json.Marshal(req)
-	reqID, err := auth.CreateToken(PrivateKey, payload)
+	tkn, err := auth.CreateToken(PrivateKey, payload)
 	if err != nil {
 		errMsg := fmt.Sprintf("Invalid request - %s", err.Error())
 		http.BadRequest(c, errMsg)
 		return
 	}
 
-	http.Ok(c, reqID)
+	http.Ok(c, tkn)
 }
