@@ -25,3 +25,10 @@ Deploy your project using the [cli](https://github.com/biensupernice/krane-cli)
 ```shell
 npx krane-cli deploy
 ```
+
+
+### Creating keys
+```bash
+ssh-keygen -t rsa -b 4096 -m PEM -f krane.key
+openssl rsa -in krane.key -pubout -outform PEM -out krane.key.pub
+```
