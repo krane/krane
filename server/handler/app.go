@@ -17,7 +17,8 @@ func DeployApp(c *gin.Context) {
 	var spec docker.DeploySpec
 	err := c.ShouldBindJSON(&spec)
 	if err != nil {
-		http.BadRequest(c, err.Error())
+		resp := &DeploymentResponse{Success: false, Error: err}
+		http.BadRequest(c, resp)
 		return
 	}
 

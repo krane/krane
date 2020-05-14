@@ -11,6 +11,7 @@ import (
 // ParsePubKey : parse public
 func ParsePubKey(key []byte) (ssh.PublicKey, error) {
 	pubKey, err := ssh.ParsePublicKey(key)
+
 	if err != nil {
 		return nil, err
 	}

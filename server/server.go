@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/biensupernice/krane/server/handler"
+	"github.com/biensupernice/krane/server/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -26,10 +27,9 @@ func Run(cnf Config) {
 	// Routes
 	client.POST("/auth", handler.Auth)
 	client.GET("/login", handler.Login)
-	client.POST("/deploy", handler.DeployApp)
-
-	client.PUT("/container/:containerID/stop", handler.StopContainer)
-	client.PUT("/container/:containerID/start", handler.StartContainer)
+	client.POST("/deploy", middleware.TokenAuthMiddleware(), handler.DeployApp)
+	client.PUT("/container/:containerID/stop", middleware.TokenAuthMiddleware(), handler.StopContainer)
+	client.PUT("/container/:containerID/start", middleware.TokenAuthMiddleware(), handler.StartContainer)
 
 	client.Run(cnf.Port)
 }

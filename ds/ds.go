@@ -78,8 +78,7 @@ func Put(bktName string, k string, v []byte) error {
 
 	return DB.Update(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(bktName))
-		err := bkt.Put([]byte(k), v)
-		return err
+		return bkt.Put([]byte(k), v)
 	})
 }
 
@@ -104,4 +103,16 @@ func Get(bktName string, key string) (val []byte, length int) {
 	}
 
 	return val, len(string(val))
+}
+
+// Remove : remove item by key
+func Remove(bktName string, key string) error {
+	if DB == nil {
+		return fmt.Errorf("db not initialized")
+	}
+
+	return DB.Update(func(tx *bolt.Tx) error {
+		bkt := tx.Bucket([]byte(bktName))
+		return bkt.Delete([]byte(key))
+	})
 }
