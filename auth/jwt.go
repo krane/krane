@@ -9,11 +9,11 @@ import (
 )
 
 var (
-	// AuthBucket : name used for storing auth related key-value data
+	// AuthBucket : bucket used for storing auth related key-value data
 	AuthBucket = "AuthBucket"
 
-	// IdentityBucket : name used for storing identity related key-value data
-	IdentityBucket = "IdentityBucket" // Store identiy related data
+	// SessionsBucket : bucket used for storing session related key-value data
+	SessionsBucket = "SessionsBucket"
 
 	// OneYear : unix time for 1 year
 	OneYear = time.Now().Add(time.Minute * 525600).Unix()

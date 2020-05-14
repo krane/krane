@@ -83,9 +83,9 @@ func Put(bktName string, k string, v []byte) error {
 }
 
 // Get : retrieve data
-func Get(bktName string, key string) (val []byte, length int) {
+func Get(bktName string, key string) (val []byte) {
 	if DB == nil {
-		return nil, -1
+		return nil
 	}
 
 	err := DB.View(func(tx *bolt.Tx) error {
@@ -99,10 +99,10 @@ func Get(bktName string, key string) (val []byte, length int) {
 
 	if err != nil {
 		log.Fatal(err)
-		return nil, -1
+		return nil
 	}
 
-	return val, len(string(val))
+	return val
 }
 
 // Remove : remove item by key

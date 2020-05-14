@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/biensupernice/krane/auth"
@@ -13,13 +14,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// LoginRequest : to authenticate with krane-server
-type LoginRequest struct {
+// AuthRequest : to authenticate with krane-server
+type AuthRequest struct {
 	RequestID string `json:"request_id" binding:"required"`
 	Token     string `json:"token" binding:"required"`
 }
 
-// LoginResponse : response sent to client pre-login
+// LoginResponse : client response when attempting to login
 type LoginResponse struct {
 	RequestID string `json:"request_id" binding:"required"`
 	Phrase    string `json:"phrase" binding:"required"`
@@ -47,7 +48,7 @@ func Login(c *gin.Context) {
 func Auth(c *gin.Context) {
 	var KranePrivateKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
 
-	var req LoginRequest
+	var req AuthRequest
 
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
@@ -55,10 +56,10 @@ func Auth(c *gin.Context) {
 		return
 	}
 
-	// Check if request id is valid
-	phrase, len := ds.Get(auth.AuthBucket, req.RequestID)
-	if phrase == nil || len == -1 {
-		err := fmt.Errorf("Unable to authenticate, login request not found")
+	// Check if request id is valid, get phrase stored on the server
+	serverPhrase := string(ds.Get(auth.AuthBucket, req.RequestID))
+	if serverPhrase == "" {
+		err := fmt.Errorf("Unable to authenticate")
 		http.BadRequest(c, err)
 		return
 	}
@@ -70,36 +71,51 @@ func Auth(c *gin.Context) {
 		return
 	}
 
-	// Read pub key
+	// Read public key
 	pubKey, err := auth.ReadPubKeyFile("")
 	if err != nil {
 		http.BadRequest(c, err.Error())
 		return
 	}
 
-	// Parse token & get phrase
-	p, err := auth.ParseAuthToken(pubKey, req.Token)
+	// Get phrase from token
+	tknPhrase, err := auth.ParseAuthToken(pubKey, req.Token)
 	if err != nil {
 		http.BadRequest(c, err.Error())
 		return
 	}
 
-	// Compare phrase
-	if string(p) != string(phrase) {
+	// Compare phrase from server against pharse from token
+	if strings.Compare(tknPhrase, serverPhrase) != 0 {
 		http.BadRequest(c, fmt.Errorf("Invalid token"))
 		return
 	}
 
-	// Create new token with req id in payload
-	data := map[string]string{"request_id": req.RequestID}
-	tkn, err := auth.CreateToken(KranePrivateKey, data)
+	// If reached here, authentication was succesful
+	// create a new token and assign it to a user for ease of use
+	type Session struct {
+		ID        uuid.UUID `json:"id"`
+		Token     string    `json:"token"`
+		ExpiresAt string    `json:"expires_at"`
+	}
+
+	// New token expiration date
+	exp := UnixToDate(auth.OneYear)
+
+	// Create new token including sessionID
+	sessionID := uuid.New()
+	tkn, err := auth.CreateToken(KranePrivateKey, sessionID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Invalid request - %s", err.Error())
 		http.BadRequest(c, errMsg)
 		return
 	}
 
-	// Remove request_id from auth bucket
+	// Store session info to sessions bucket
+	session, _ := json.Marshal(&Session{ID: sessionID, Token: tkn, ExpiresAt: exp})
+	ds.Put(auth.SessionsBucket, sessionID.String(), session)
+
+	// Remove auth info from auth bucket
 	err = ds.Remove(auth.AuthBucket, req.RequestID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Something went wrong - %s", err.Error())
@@ -107,20 +123,7 @@ func Auth(c *gin.Context) {
 		return
 	}
 
-	// token expiration date
-	exp := UnixToDate(auth.OneYear)
-
-	type IdentityData struct {
-		Token     string `json:"token"`
-		ExpiresAt string `json:"expires_at"`
-	}
-
-	// Store identity info to identity bucket
-	identityData := &IdentityData{Token: tkn, ExpiresAt: exp}
-	b, _ := json.Marshal(identityData)
-	ds.Put(auth.IdentityBucket, req.RequestID, b)
-
-	http.Ok(c, identityData)
+	http.Ok(c, session)
 }
 
 // UnixToDate : format MM/DD/YYYY
