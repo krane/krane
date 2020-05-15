@@ -22,34 +22,34 @@ func ParsePubKey(key []byte) (ssh.PublicKey, error) {
 }
 
 // GetAuthorizedKeys : get authorized keys from server
-func GetAuthorizedKeys(pubKeyLocation string) ([]string, error) {
-	// Set default pub key location if not passes in, default to ~/.ssh/authorized_keys
-	if pubKeyLocation == "" {
-		// Get user gome dir
-		homeDir := GetHomeDir()
-		if homeDir == "" {
+func GetAuthorizedKeys(authKeysLocation string) ([]string, error) {
+	// sets to ~/.ssh/authorized_keys is not passed in
+	if authKeysLocation == "" {
+		// Get user home dir
+		usrHomeDir := GetHomeDir()
+		if usrHomeDir == "" {
 			err := fmt.Errorf("Unable to read user home dir when getting public keys")
 			return nil, err
 		}
 
 		// Format location of authorized_keys using users home directory as base
-		pubKeyLocation = fmt.Sprintf("%s/.ssh/authorized_keys", homeDir)
+		authKeysLocation = fmt.Sprintf("%s/.ssh/authorized_keys", usrHomeDir)
 	}
 
-	// Read keys from pubKeyLocation
-	keysBytes, err := ioutil.ReadFile(pubKeyLocation)
+	// Read authorized_keys from authKeysLocation
+	authKeysBytes, err := ioutil.ReadFile(authKeysLocation)
 	if err != nil {
 		msg := fmt.Errorf("Failed to load authorized_keys - %v", err)
 		return nil, msg
 	}
 
-	// Remove traling new line from authorized_keys file
-	keyLines := strings.TrimSuffix(string(keysBytes), "\n")
+	// Remove trailing new line from authorized_keys file
+	authKeys := strings.TrimSuffix(string(authKeysBytes), "\n")
 
-	// Every token is a single line, split the authorized_keys file on every new line
-	keys := strings.Split(keyLines, "\n")
+	// Every token is a single line, split the authorized_keys file on every new line returning array of authorized_keys
+	authKeysArr := strings.Split(authKeys, "\n")
 
-	return keys, nil
+	return authKeysArr, nil
 }
 
 // GetHomeDir : get user home dir

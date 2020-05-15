@@ -74,15 +74,15 @@ func Auth(c *gin.Context) {
 		return
 	}
 
-	// Read authorized_keys from server
+	// Get authorized_keys
 	authorizedKeys, err := auth.GetAuthorizedKeys("")
 	if err != nil {
 		http.BadRequest(c, &AuthResponse{Error: err.Error()})
 		return
 	}
 
-	// Check if any key in authorized_keys serves as a valid key to parse jwt token
-	// If key can parse jwt token, authClaims will be returned containing phrase from claims
+	// Check if any key in authorized_keys serves as a valid key to parse incoming jwt token
+	// If an authorized_key can parse incoming token, authClaims will be returned containing the phrase from the token
 	authClaims, err := auth.VerifyAuthTokenWithAuthorizedKeys(authorizedKeys, req.Token)
 	if err != nil {
 		msg := "Unable to verify with public key, make sure to have your public key in authorized_keys file on the server"
@@ -91,22 +91,19 @@ func Auth(c *gin.Context) {
 	}
 
 	// Compare phrase from server against pharse from auth claims
-	if strings.Compare(authClaims.Phrase, serverPhrase) != 0 {
+	if strings.Compare(serverPhrase, authClaims.Phrase) != 0 {
 		http.BadRequest(c, &AuthResponse{Error: "Invalid token"})
 		return
 	}
 
 	// If reached here, authentication was succesful
 	// create a new token and assign it to a session
-	// New token expiration date
-	exp := UnixToDate(auth.OneYear)
-
 	// Server private key used to create session token
-	var KranePrivateKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
+	var serverPrivKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
 
-	// Create new token including sessionID
+	// Create new token including sessionID, sign token with server private key
 	sessionID := uuid.New()
-	serverTkn, err := auth.CreateToken(KranePrivateKey, sessionID)
+	serverSignedTkn, err := auth.CreateToken(serverPrivKey, sessionID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Invalid request - %s", err.Error())
 		http.BadRequest(c, &AuthResponse{Error: errMsg})
@@ -114,15 +111,22 @@ func Auth(c *gin.Context) {
 	}
 
 	// Create a session with relevant data
-	session := &Session{ID: sessionID, Token: serverTkn, ExpiresAt: exp}
+	session := &Session{
+		ID:        sessionID,
+		Token:     serverSignedTkn, // Token used for subsequent requests
+		ExpiresAt: UnixToDate(auth.OneYear),
+	}
 
-	// Store session info to sessions bucket
+	// Store session into sessions bucket
 	sessionBytes, _ := json.Marshal(session)
 	ds.Put(auth.SessionsBucket, sessionID.String(), sessionBytes)
 
-	// Remove auth info from auth bucket
+	// Remove auth data from auth bucket
 	err = ds.Remove(auth.AuthBucket, req.RequestID)
 	if err != nil {
+		// If something went wrong removing auth data, remove the newly created session from sessions bucket
+		ds.Remove(auth.SessionsBucket, sessionID.String())
+
 		errMsg := fmt.Sprintf("Something went wrong - %s", err.Error())
 		http.BadRequest(c, &AuthResponse{Error: errMsg})
 		return
