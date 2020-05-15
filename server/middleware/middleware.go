@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -30,7 +29,6 @@ func TokenAuthMiddleware() gin.HandlerFunc {
 
 		// Authenticate token using server private key
 		tkn := auth.ParseJWTToken(serverPrivKey, jwtTkn)
-		log.Println(tkn)
 		if tkn == nil {
 			c.JSON(http.StatusUnauthorized, "Unauthorized")
 			c.Abort()

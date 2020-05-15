@@ -18,7 +18,7 @@ var (
 )
 
 func init() {
-	err := os.Setenv("KRANE_PRIVATE_KEY", "biensupernice") // Change this :]
+	err := os.Setenv("KRANE_PRIVATE_KEY", "biensupernic") // Change this :]
 	if err != nil {
 		log.Panicf("Unable to set KRANE_PRIVATE_KEY")
 	}
