@@ -20,6 +20,17 @@ type AuthRequest struct {
 	Token     string `json:"token" binding:"required"`
 }
 
+type AuthResponse struct {
+	Session Session     `json:"session"`
+	Error   interface{} `json:"error"`
+}
+
+type Session struct {
+	ID        uuid.UUID `json:"id"`
+	Token     string    `json:"token"`
+	ExpiresAt string    `json:"expires_at"`
+}
+
 // LoginResponse : client response when attempting to login
 type LoginResponse struct {
 	RequestID string `json:"request_id" binding:"required"`
@@ -52,7 +63,7 @@ func Auth(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		http.BadRequest(c, err.Error())
+		http.BadRequest(c, &AuthResponse{Error: err.Error()})
 		return
 	}
 
@@ -60,70 +71,68 @@ func Auth(c *gin.Context) {
 	serverPhrase := string(ds.Get(auth.AuthBucket, req.RequestID))
 	if serverPhrase == "" {
 		err := fmt.Errorf("Unable to authenticate")
-		http.BadRequest(c, err)
-		return
-	}
-
-	// Validate token was encrypted with private key
-	ok, err := auth.ValidateTokenWithPubKey(req.Token)
-	if !ok {
-		http.BadRequest(c, err.Error())
+		http.BadRequest(c, &AuthResponse{Error: err.Error()})
 		return
 	}
 
 	// Read public key
-	pubKey, err := auth.ReadPubKeyFile("")
+	dir := fmt.Sprintf("%s/.ssh/pinga.pub", auth.GetHomeDir())
+	pubKey, err := auth.ReadPubKeyFile(dir)
 	if err != nil {
-		http.BadRequest(c, err.Error())
+		http.BadRequest(c, &AuthResponse{Error: err.Error()})
 		return
 	}
 
-	// Get phrase from token
-	tknPhrase, err := auth.ParseAuthToken(pubKey, req.Token)
+	// Get claims from token
+	claims, err := auth.ParseToken(string(pubKey), req.Token)
 	if err != nil {
-		http.BadRequest(c, err.Error())
+		http.BadRequest(c, &AuthResponse{Error: err.Error()})
 		return
 	}
 
-	// Compare phrase from server against pharse from token
-	if strings.Compare(tknPhrase, serverPhrase) != 0 {
-		http.BadRequest(c, fmt.Errorf("Invalid token"))
+	// Read contents of token
+	authClaims, ok := claims.(*auth.AuthClaims)
+	if !ok {
+		http.BadRequest(c, &AuthResponse{Error: "Invalid token"})
+		return
+	}
+
+	// Compare phrase from server against pharse from auth claims
+	if strings.Compare(authClaims.Phrase, serverPhrase) != 0 {
+		http.BadRequest(c, &AuthResponse{Error: "Invalid token"})
 		return
 	}
 
 	// If reached here, authentication was succesful
-	// create a new token and assign it to a user for ease of use
-	type Session struct {
-		ID        uuid.UUID `json:"id"`
-		Token     string    `json:"token"`
-		ExpiresAt string    `json:"expires_at"`
-	}
-
+	// create a new token and assign it to a session
 	// New token expiration date
 	exp := UnixToDate(auth.OneYear)
 
 	// Create new token including sessionID
 	sessionID := uuid.New()
-	tkn, err := auth.CreateToken(KranePrivateKey, sessionID)
+	serverTkn, err := auth.CreateToken(KranePrivateKey, sessionID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Invalid request - %s", err.Error())
-		http.BadRequest(c, errMsg)
+		http.BadRequest(c, &AuthResponse{Error: errMsg})
 		return
 	}
 
+	// Create a session with relevant data
+	session := &Session{ID: sessionID, Token: serverTkn, ExpiresAt: exp}
+
 	// Store session info to sessions bucket
-	session, _ := json.Marshal(&Session{ID: sessionID, Token: tkn, ExpiresAt: exp})
-	ds.Put(auth.SessionsBucket, sessionID.String(), session)
+	sessionBytes, _ := json.Marshal(session)
+	ds.Put(auth.SessionsBucket, sessionID.String(), sessionBytes)
 
 	// Remove auth info from auth bucket
 	err = ds.Remove(auth.AuthBucket, req.RequestID)
 	if err != nil {
 		errMsg := fmt.Sprintf("Something went wrong - %s", err.Error())
-		http.BadRequest(c, errMsg)
+		http.BadRequest(c, &AuthResponse{Error: errMsg})
 		return
 	}
 
-	http.Ok(c, session)
+	http.Ok(c, &AuthResponse{Session: *session})
 }
 
 // UnixToDate : format MM/DD/YYYY

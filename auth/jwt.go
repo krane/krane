@@ -1,7 +1,12 @@
 package auth
 
 import (
+	"bytes"
+	"crypto/rsa"
+	"encoding/base64"
+	"encoding/binary"
 	"fmt"
+	"math/big"
 	"strings"
 	"time"
 
@@ -57,56 +62,115 @@ func CreateToken(SigningKey []byte, data interface{}) (string, error) {
 	return signedTkn, nil
 }
 
-// ValidateTokenWithPubKey : check token against public key
-func ValidateTokenWithPubKey(tknStr string) (bool, error) {
-	// Read pub key
-	pubKey, err := ReadPubKeyFile("")
+// ParseToken : get the claims of a jwt token
+// Parse claims into struct - claims, ok := tkn.Claims.(*AuthClaims)
+func ParseToken(pubKey string, tknStr string) (claims jwt.Claims, err error) {
+	// Convert ssh format pub key to rsa pub key
+	rsaPubKey, err := DecodePublicKey(pubKey)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
-	// Parse public key & verify its PEM encoded
-	key, err := jwt.ParseRSAPublicKeyFromPEM(pubKey)
-	if err != nil {
-		return false, err
-	}
-
-	// split on `.` from jwt token
-	tknParts := strings.Split(tknStr, ".")
-
-	signingKey := strings.Join(tknParts[0:2], ".")
-	signature := tknParts[2]
-
-	err = jwt.SigningMethodRS256.Verify(signingKey, signature, key)
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
-}
-
-// ParseAuthToken : get the contents of a jwt token
-func ParseAuthToken(signingKey []byte, tknStr string) (phrase string, err error) {
-	pubKey, err := jwt.ParseRSAPublicKeyFromPEM(signingKey)
-	if err != nil {
-		return "", err
-	}
-
+	// Validate token signed with private key against rsa public key
 	tkn, err := jwt.ParseWithClaims(
 		tknStr,
 		&AuthClaims{},
 		func(token *jwt.Token) (interface{}, error) {
-			return pubKey, nil
+			return rsaPubKey, nil
 		},
 	)
+
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	claims, ok := tkn.Claims.(*AuthClaims)
-	if ok && tkn.Valid {
-		return claims.Phrase, nil
+	// Verify token is not invalid
+	if !tkn.Valid {
+		return nil, fmt.Errorf("Invalid token")
 	}
 
-	return "", nil
+	return tkn.Claims, nil
+}
+
+// DecodePublicKey : decode ssh-rsa string into rsa public key
+func DecodePublicKey(str string) (*rsa.PublicKey, error) {
+	// comes in as a three part string
+	// split into component parts
+	tokens := strings.Split(str, " ")
+
+	if len(tokens) < 2 {
+		return nil, fmt.Errorf("Invalid key format; must contain at least two fields (keytype data [comment])")
+	}
+
+	keyType := tokens[0]
+	data, err := base64.StdEncoding.DecodeString(tokens[1])
+	if err != nil {
+		return nil, err
+	}
+
+	format, e, n, err := getRsaValues(data)
+
+	if format != keyType {
+		return nil, fmt.Errorf("Key type said %s, but encoded format said %s.  These should match", keyType, format)
+	}
+
+	pubKey := &rsa.PublicKey{
+		N: n,
+		E: int(e.Int64()),
+	}
+
+	return pubKey, nil
+}
+
+func readLength(data []byte) ([]byte, uint32, error) {
+	lBuf := data[0:4]
+
+	buf := bytes.NewBuffer(lBuf)
+
+	var length uint32
+
+	err := binary.Read(buf, binary.BigEndian, &length)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return data[4:], length, nil
+}
+
+func readBigInt(data []byte, length uint32) ([]byte, *big.Int, error) {
+	var bigint = new(big.Int)
+	bigint.SetBytes(data[0:length])
+	return data[length:], bigint, nil
+}
+
+func getRsaValues(data []byte) (format string, e *big.Int, n *big.Int, err error) {
+	data, length, err := readLength(data)
+	if err != nil {
+		return
+	}
+
+	format = string(data[0:length])
+	data = data[length:]
+
+	data, length, err = readLength(data)
+	if err != nil {
+		return
+	}
+
+	data, e, err = readBigInt(data, length)
+	if err != nil {
+		return
+	}
+
+	data, length, err = readLength(data)
+	if err != nil {
+		return
+	}
+
+	data, n, err = readBigInt(data, length)
+	if err != nil {
+		return
+	}
+
+	return
 }

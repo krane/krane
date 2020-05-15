@@ -27,9 +27,13 @@ Deploy your project using the [cli](https://github.com/biensupernice/krane-cli)
 npx krane-cli deploy
 ```
 
-### Creating keys
-
-```bash
-ssh-keygen -t rsa -b 4096 -m PEM -f krane.key
-openssl rsa -in krane.key -pubout -outform PEM -out krane.key.pub
+### Creating authentication keys
 ```
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
+
+-t type
+-b bytes
+-C comments
+-m key format
+```
+Now grab the contents of `key.pub` and add it to the `authorized_keys` on your server

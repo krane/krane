@@ -20,26 +20,28 @@ func ParsePubKey(key []byte) (ssh.PublicKey, error) {
 }
 
 // ReadPubKeyFile : read public keys from file
-func ReadPubKeyFile(dir string) ([]byte, error) {
-	if dir == "" {
-		homeDir := getHomeDir()
+func ReadPubKeyFile(pubKeyLocation string) ([]byte, error) {
+	if pubKeyLocation == "" {
+		homeDir := GetHomeDir()
 		if homeDir == "" {
 			err := fmt.Errorf("Unable to read user home dir when getting public key")
 			return nil, err
 		}
 
-		dir = fmt.Sprintf("%s/.ssh/krane.key.pub", homeDir) // Set default dir
+		pubKeyLocation = fmt.Sprintf("%s/.ssh/authorized_keys", homeDir) // Set default dir
 	}
 
-	byteKey, err := ioutil.ReadFile(dir)
+	keys, err := ioutil.ReadFile(pubKeyLocation)
 	if err != nil {
-		return nil, err
+		msg := fmt.Errorf("Failed to load authorized_keys - %v", err)
+		return nil, msg
 	}
 
-	return byteKey, nil
+	return keys, err
 }
 
-func getHomeDir() string {
+// GetHomeDir : get user home dir
+func GetHomeDir() string {
 	usr, err := user.Current()
 	if err != nil {
 		return ""
