@@ -98,18 +98,6 @@ func Auth(c *gin.Context) {
 
 	// If reached here, authentication was succesful
 	// create a new token and assign it to a session
-	// Server private key used to create session token
-	var serverPrivKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
-
-	// Create new token including sessionID, sign token with server private key
-	sessionID := uuid.New()
-	serverSignedTkn, err := auth.CreateToken(serverPrivKey, sessionID)
-	if err != nil {
-		errMsg := fmt.Sprintf("Invalid request - %s", err.Error())
-		http.BadRequest(c, &AuthResponse{Error: errMsg})
-		return
-	}
-
 	// Remove auth data from auth bucket
 	err = ds.Remove(auth.AuthBucket, req.RequestID)
 	if err != nil {
@@ -118,10 +106,28 @@ func Auth(c *gin.Context) {
 		return
 	}
 
+	// Create new token for the authenticated session, sign token with server private key
+	type SessionToken struct {
+		SessionID uuid.UUID `json:"session_id"`
+	}
+
+	// Server private key to sign session token
+	var serverPrivKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
+
+	sessionID := uuid.New()
+	sessionTkn := &SessionToken{SessionID: sessionID}
+	sessionTknBytes, _ := json.Marshal(sessionTkn)
+	signedSessionTkn, err := auth.CreateToken(serverPrivKey, sessionTknBytes)
+	if err != nil {
+		errMsg := fmt.Sprintf("Invalid request - %s", err.Error())
+		http.BadRequest(c, &AuthResponse{Error: errMsg})
+		return
+	}
+
 	// Create a session with relevant data
 	session := &Session{
 		ID:        sessionID,
-		Token:     serverSignedTkn, // Token used for authenticating subsequent requests
+		Token:     signedSessionTkn, // Token used for authenticating subsequent requests for a session
 		ExpiresAt: UnixToDate(auth.OneYear),
 	}
 

@@ -63,6 +63,23 @@ func CreateToken(SigningKey []byte, data interface{}) (string, error) {
 	return signedTkn, nil
 }
 
+// ParseJWTToken : parse jwt using signing key
+func ParseJWTToken(signKey string, tknStr string) *jwt.Token {
+	tkn, err := jwt.Parse(tknStr, func(token *jwt.Token) (interface{}, error) {
+		return []byte(signKey), nil
+	})
+
+	if err != nil {
+		return nil
+	}
+
+	if !tkn.Valid {
+		return nil
+	}
+
+	return tkn
+}
+
 // ParseAuthTokenWithAuthKey : get the claims of a jwt auth token
 func ParseAuthTokenWithAuthKey(pubKey string, tknStr string) (claims jwt.Claims, err error) {
 	// Convert ssh format pub key to rsa pub key

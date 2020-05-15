@@ -27,7 +27,10 @@ func Run(cnf Config) {
 	// Routes
 	client.POST("/auth", handler.Auth)
 	client.GET("/login", handler.Login)
-	client.POST("/deploy", middleware.TokenAuthMiddleware(), handler.DeployApp)
+
+	client.GET("/deployments", middleware.TokenAuthMiddleware(), handler.GetDeployments)
+	client.POST("/deployments", middleware.TokenAuthMiddleware(), handler.CreateDeployment)
+
 	client.PUT("/container/:containerID/stop", middleware.TokenAuthMiddleware(), handler.StopContainer)
 	client.PUT("/container/:containerID/start", middleware.TokenAuthMiddleware(), handler.StartContainer)
 

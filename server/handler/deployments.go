@@ -12,8 +12,8 @@ type DeploymentResponse struct {
 	Error   error `json:"error"`
 }
 
-// DeployApp : deploy an app with a deployment spec
-func DeployApp(c *gin.Context) {
+// CreateDeployment : start a deploymet of an app
+func CreateDeployment(c *gin.Context) {
 	var spec docker.DeploySpec
 	err := c.ShouldBindJSON(&spec)
 	if err != nil {
@@ -32,4 +32,9 @@ func DeployApp(c *gin.Context) {
 	resp := &DeploymentResponse{Success: true}
 
 	http.Ok(c, resp)
+}
+
+// GetDeployments : get all deployments
+func GetDeployments(c *gin.Context) {
+	http.Ok(c, "Middleware activated")
 }
