@@ -63,9 +63,8 @@ func CreateToken(SigningKey []byte, data interface{}) (string, error) {
 	return signedTkn, nil
 }
 
-// ParseToken : get the claims of a jwt token
-// Parse claims into struct - claims, ok := tkn.Claims.(*AuthClaims)
-func ParseToken(pubKey string, tknStr string) (claims jwt.Claims, err error) {
+// ParseAuthTokenWithAuthKey : get the claims of a jwt auth token
+func ParseAuthTokenWithAuthKey(pubKey string, tknStr string) (claims jwt.Claims, err error) {
 	// Convert ssh format pub key to rsa pub key
 	rsaPubKey, err := DecodePublicKey(pubKey)
 	if err != nil {
@@ -84,7 +83,7 @@ func ParseToken(pubKey string, tknStr string) (claims jwt.Claims, err error) {
 		return nil, err
 	}
 
-	// Verify token is valid
+	// Verify token is still valid and not expired
 	if !tkn.Valid {
 		return nil, errors.New("Invalid token")
 	}

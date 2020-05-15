@@ -85,7 +85,7 @@ func Auth(c *gin.Context) {
 	// If an authorized_key can parse incoming token, authClaims will be returned containing the phrase from the token
 	authClaims, err := auth.VerifyAuthTokenWithAuthorizedKeys(authorizedKeys, req.Token)
 	if err != nil {
-		msg := "Unable to verify with public key, make sure to have your public key in authorized_keys file on the server"
+		msg := "Unable to verify with authorized_keys, your .pub key is part of the authorized_keys file on your server"
 		http.BadRequest(c, &AuthResponse{Error: msg})
 		return
 	}
@@ -110,27 +110,24 @@ func Auth(c *gin.Context) {
 		return
 	}
 
+	// Remove auth data from auth bucket
+	err = ds.Remove(auth.AuthBucket, req.RequestID)
+	if err != nil {
+		errMsg := fmt.Sprintf("Something went wrong - %s", err.Error())
+		http.BadRequest(c, &AuthResponse{Error: errMsg})
+		return
+	}
+
 	// Create a session with relevant data
 	session := &Session{
 		ID:        sessionID,
-		Token:     serverSignedTkn, // Token used for subsequent requests
+		Token:     serverSignedTkn, // Token used for authenticating subsequent requests
 		ExpiresAt: UnixToDate(auth.OneYear),
 	}
 
 	// Store session into sessions bucket
 	sessionBytes, _ := json.Marshal(session)
 	ds.Put(auth.SessionsBucket, sessionID.String(), sessionBytes)
-
-	// Remove auth data from auth bucket
-	err = ds.Remove(auth.AuthBucket, req.RequestID)
-	if err != nil {
-		// If something went wrong removing auth data, remove the newly created session from sessions bucket
-		ds.Remove(auth.SessionsBucket, sessionID.String())
-
-		errMsg := fmt.Sprintf("Something went wrong - %s", err.Error())
-		http.BadRequest(c, &AuthResponse{Error: errMsg})
-		return
-	}
 
 	http.Ok(c, &AuthResponse{Session: *session})
 }

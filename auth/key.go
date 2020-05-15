@@ -6,20 +6,7 @@ import (
 	"io/ioutil"
 	"os/user"
 	"strings"
-
-	"golang.org/x/crypto/ssh"
 )
-
-// ParsePubKey : parse public
-func ParsePubKey(key []byte) (ssh.PublicKey, error) {
-	pubKey, err := ssh.ParsePublicKey(key)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return pubKey, nil
-}
 
 // GetAuthorizedKeys : get authorized keys from server
 func GetAuthorizedKeys(authKeysLocation string) ([]string, error) {
@@ -52,23 +39,12 @@ func GetAuthorizedKeys(authKeysLocation string) ([]string, error) {
 	return authKeysArr, nil
 }
 
-// GetHomeDir : get user home dir
-func GetHomeDir() string {
-	usr, err := user.Current()
-	if err != nil {
-		return ""
-	}
-
-	return usr.HomeDir
-}
-
 // VerifyAuthTokenWithAuthorizedKeys : get auth claims from jwt token using an authorized key from server
 func VerifyAuthTokenWithAuthorizedKeys(authorizedKeys []string, authTkn string) (*AuthClaims, error) {
 	// Validate if pub key can parse incoming token
 	var authClaims *AuthClaims
 	for currKey := 0; currKey < len(authorizedKeys); currKey++ {
-		// Parse token against curr key
-		c, err := ParseToken(authorizedKeys[currKey], authTkn)
+		c, err := ParseAuthTokenWithAuthKey(authorizedKeys[currKey], authTkn)
 		if err != nil {
 			continue
 		}
@@ -83,11 +59,21 @@ func VerifyAuthTokenWithAuthorizedKeys(authorizedKeys []string, authTkn string) 
 		break
 	}
 
-	// Veirfy a token was found and authClaims is not empty, auth claims should have server token
+	// Veirfy a token was found and authClaims is not empty
 	if authClaims == nil {
 		msg := "Unable to verify with public key, make sure to have your public key in authorized_keys on the server"
 		return nil, errors.New(msg)
 	}
 
 	return authClaims, nil
+}
+
+// GetHomeDir : get user home dir
+func GetHomeDir() string {
+	usr, err := user.Current()
+	if err != nil {
+		return ""
+	}
+
+	return usr.HomeDir
 }
