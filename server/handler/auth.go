@@ -20,11 +20,13 @@ type AuthRequest struct {
 	Token     string `json:"token" binding:"required"`
 }
 
+// AuthResponse : response from auth request
 type AuthResponse struct {
 	Session Session     `json:"session"`
 	Error   interface{} `json:"error"`
 }
 
+// Session : relevant data for authenticated sessions
 type Session struct {
 	ID        uuid.UUID `json:"id"`
 	Token     string    `json:"token"`
@@ -57,10 +59,7 @@ func Login(c *gin.Context) {
 
 // Auth : handle login attempt
 func Auth(c *gin.Context) {
-	var KranePrivateKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
-
 	var req AuthRequest
-
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
 		http.BadRequest(c, &AuthResponse{Error: err.Error()})
@@ -75,25 +74,19 @@ func Auth(c *gin.Context) {
 		return
 	}
 
-	// Read public key
-	dir := fmt.Sprintf("%s/.ssh/pinga.pub", auth.GetHomeDir())
-	pubKey, err := auth.ReadPubKeyFile(dir)
+	// Read authorized_keys from server
+	authorizedKeys, err := auth.GetAuthorizedKeys("")
 	if err != nil {
 		http.BadRequest(c, &AuthResponse{Error: err.Error()})
 		return
 	}
 
-	// Get claims from token
-	claims, err := auth.ParseToken(string(pubKey), req.Token)
+	// Check if any key in authorized_keys serves as a valid key to parse jwt token
+	// If key can parse jwt token, authClaims will be returned containing phrase from claims
+	authClaims, err := auth.VerifyAuthTokenWithAuthorizedKeys(authorizedKeys, req.Token)
 	if err != nil {
-		http.BadRequest(c, &AuthResponse{Error: err.Error()})
-		return
-	}
-
-	// Read contents of token
-	authClaims, ok := claims.(*auth.AuthClaims)
-	if !ok {
-		http.BadRequest(c, &AuthResponse{Error: "Invalid token"})
+		msg := "Unable to verify with public key, make sure to have your public key in authorized_keys file on the server"
+		http.BadRequest(c, &AuthResponse{Error: msg})
 		return
 	}
 
@@ -107,6 +100,9 @@ func Auth(c *gin.Context) {
 	// create a new token and assign it to a session
 	// New token expiration date
 	exp := UnixToDate(auth.OneYear)
+
+	// Server private key used to create session token
+	var KranePrivateKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
 
 	// Create new token including sessionID
 	sessionID := uuid.New()

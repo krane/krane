@@ -5,6 +5,7 @@ import (
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"math/big"
 	"strings"
@@ -79,14 +80,13 @@ func ParseToken(pubKey string, tknStr string) (claims jwt.Claims, err error) {
 			return rsaPubKey, nil
 		},
 	)
-
 	if err != nil {
 		return nil, err
 	}
 
-	// Verify token is not invalid
+	// Verify token is valid
 	if !tkn.Valid {
-		return nil, fmt.Errorf("Invalid token")
+		return nil, errors.New("Invalid token")
 	}
 
 	return tkn.Claims, nil
