@@ -36,5 +36,5 @@ func CreateDeployment(c *gin.Context) {
 
 // GetDeployments : get all deployments
 func GetDeployments(c *gin.Context) {
-	http.Ok(c, "Middleware activated")
+	http.Ok(c, "Not yet implemented")
 }

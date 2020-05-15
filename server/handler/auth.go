@@ -28,9 +28,14 @@ type AuthResponse struct {
 
 // Session : relevant data for authenticated sessions
 type Session struct {
-	ID        uuid.UUID `json:"id"`
-	Token     string    `json:"token"`
-	ExpiresAt string    `json:"expires_at"`
+	ID        string `json:"id"`
+	Token     string `json:"token"`
+	ExpiresAt string `json:"expires_at"`
+}
+
+// SessionToken :  token for the authenticated session, sign token with server private key
+type SessionToken struct {
+	SessionID string `json:"session_id"`
 }
 
 // LoginResponse : client response when attempting to login
@@ -106,18 +111,13 @@ func Auth(c *gin.Context) {
 		return
 	}
 
-	// Create new token for the authenticated session, sign token with server private key
-	type SessionToken struct {
-		SessionID uuid.UUID `json:"session_id"`
-	}
-
 	// Server private key to sign session token
 	var serverPrivKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
 
-	sessionID := uuid.New()
+	sessionID := uuid.New().String()
 	sessionTkn := &SessionToken{SessionID: sessionID}
-	sessionTknBytes, _ := json.Marshal(sessionTkn)
-	signedSessionTkn, err := auth.CreateToken(serverPrivKey, sessionTknBytes)
+	// sessionTknBytes, _ := json.Marshal(sessionTkn)
+	signedSessionTkn, err := auth.CreateToken(serverPrivKey, sessionTkn)
 	if err != nil {
 		errMsg := fmt.Sprintf("Invalid request - %s", err.Error())
 		http.BadRequest(c, &AuthResponse{Error: errMsg})
@@ -133,7 +133,7 @@ func Auth(c *gin.Context) {
 
 	// Store session into sessions bucket
 	sessionBytes, _ := json.Marshal(session)
-	ds.Put(auth.SessionsBucket, sessionID.String(), sessionBytes)
+	ds.Put(auth.SessionsBucket, sessionID, sessionBytes)
 
 	http.Ok(c, &AuthResponse{Session: *session})
 }

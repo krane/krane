@@ -31,8 +31,8 @@ type AuthClaims struct {
 	jwt.StandardClaims
 }
 
-// IdentityClaims : custom claims for request identity
-type IdentityClaims struct {
+// CustomClaims : custom claims for request
+type CustomClaims struct {
 	Data interface{} `json:"data"`
 	jwt.StandardClaims
 }
@@ -43,7 +43,7 @@ func CreateToken(SigningKey []byte, data interface{}) (string, error) {
 		return "", fmt.Errorf("Cannot create token - signing key not provided")
 	}
 
-	customClaims := &IdentityClaims{
+	customClaims := &CustomClaims{
 		Data: data,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: OneYear,
@@ -65,7 +65,7 @@ func CreateToken(SigningKey []byte, data interface{}) (string, error) {
 
 // ParseJWTToken : parse jwt using signing key
 func ParseJWTToken(signKey string, tknStr string) *jwt.Token {
-	tkn, err := jwt.Parse(tknStr, func(token *jwt.Token) (interface{}, error) {
+	tkn, err := jwt.ParseWithClaims(tknStr, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(signKey), nil
 	})
 

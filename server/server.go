@@ -25,14 +25,17 @@ func Run(cnf Config) {
 	client.Use(cors.Default())
 
 	// Routes
+
 	client.POST("/auth", handler.Auth)
 	client.GET("/login", handler.Login)
 
-	client.GET("/deployments", middleware.TokenAuthMiddleware(), handler.GetDeployments)
-	client.POST("/deployments", middleware.TokenAuthMiddleware(), handler.CreateDeployment)
+	client.GET("/sessions", middleware.AuthSessionMiddleware(), handler.GetSessions)
 
-	client.PUT("/container/:containerID/stop", middleware.TokenAuthMiddleware(), handler.StopContainer)
-	client.PUT("/container/:containerID/start", middleware.TokenAuthMiddleware(), handler.StartContainer)
+	client.GET("/deployments", middleware.AuthSessionMiddleware(), handler.GetDeployments)
+	client.POST("/deployments", middleware.AuthSessionMiddleware(), handler.CreateDeployment)
+
+	client.PUT("/container/:containerID/stop", middleware.AuthSessionMiddleware(), handler.StopContainer)
+	client.PUT("/container/:containerID/start", middleware.AuthSessionMiddleware(), handler.StartContainer)
 
 	client.Run(cnf.Port)
 }

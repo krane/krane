@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/biensupernice/krane/auth"
 	"github.com/biensupernice/krane/ds"
 	"github.com/biensupernice/krane/server"
 )
@@ -18,19 +17,22 @@ var (
 )
 
 func init() {
-	err := os.Setenv("KRANE_PRIVATE_KEY", "biensupernic") // Change this :]
+	err := os.Setenv("KRANE_PRIVATE_KEY", "biensupernice") // Change this :]
 	if err != nil {
 		log.Panicf("Unable to set KRANE_PRIVATE_KEY")
 	}
 
-	// Setup db
-	err = ds.New("krane.db")
+	// Create db
+	_, err = ds.New("krane.db")
 	if err != nil {
 		log.Panicf("Unable to start db - %s", err.Error())
 	}
 
-	ds.CreateBucket(auth.AuthBucket)
-	ds.CreateBucket(auth.SessionsBucket)
+	// Setup db
+	err = ds.SetupDB()
+	if err != nil {
+		log.Panicf("Unable to setup db - %s", err.Error())
+	}
 
 	// Set default port
 	if Port == "" {
