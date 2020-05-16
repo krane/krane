@@ -12,7 +12,7 @@ import (
 
 // Env
 var (
-	Port            = os.Getenv("KRANE_PORT")
+	RestPort        = os.Getenv("KRANE_REST_PORT")
 	LogLevel        = os.Getenv("KRANE_LOG_LEVEL")
 	KranePath       = os.Getenv("KRANE_PATH")
 	KranePrivateKey = os.Getenv("KRANE_PRIVATE_KEY")
@@ -30,7 +30,7 @@ func init() {
 
 	log.Printf("🏗 krane path: %s", KranePath)
 	log.Printf("🏗 krane log level: %s", LogLevel)
-	log.Printf("🏗 krane port: %s", Port)
+	log.Printf("🏗 krane port: %s", RestPort)
 
 	// Create db
 	_, err := ds.New("krane.db")
@@ -49,8 +49,8 @@ func init() {
 	}
 
 	// Set default port
-	if Port == "" {
-		Port = "8080"
+	if RestPort == "" {
+		RestPort = "8080"
 	}
 
 	// Set default loglevel
@@ -60,7 +60,7 @@ func init() {
 
 	// Set server configuration
 	config = &server.Config{
-		Port:     ":" + Port,
+		Port:     ":" + RestPort,
 		LogLevel: LogLevel,
 	}
 }

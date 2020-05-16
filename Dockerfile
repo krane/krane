@@ -1,21 +1,50 @@
-FROM golang:alpine3.11
+# This dockerfile builds the krane-server in multi-stages resulting in a lighter image
+# The final image is alpine based containing only the krane-server executable and its working env
 
-# api env variables
-ENV KRANE_PATH "/.krane"
+FROM golang:1.12-alpine AS base
 
-# rest api port 
-ENV PORT 9000
-EXPOSE 9000
+# Dont cache locally, useful for keeping containers small.
+RUN apk add --no-cache git
 
-WORKDIR /app
+# Set current working directory inside the `golang-alpine` container
+WORKDIR /tmp/krane-server
+
+# Cache dependencies before building
+COPY go.mod .
+COPY go.sum .
+
+# Download dependencies
+RUN go mod download
 
 COPY . .
 
-# Cleanup/Install dependencies
-RUN cd cmd/krane-server && go mod tidy && go get
+# Build Go app
+RUN go build -o /usr/local/bin/krane-server ./cmd/krane-server
 
-RUN chmod +x "build.sh" 
+# Start fresh from smaller image image
+FROM alpine:3.9
 
-ENTRYPOINT ["sh", "build.sh"]
+# Install certs to establish secure communitcation via SSL/TLS
+RUN apk add ca-certificates
 
-CMD ["start"]
+# New working directory inside alpine container
+WORKDIR /bin
+
+# Copy executable from previous layer into this new layer which is smaller
+# and contains only this executable. Since working directory is /bin
+# we copy executable from previous location to working dir `.` 
+COPY --from=base /usr/local/bin/krane-server .
+
+# ENV inside the container, can also be passed in as flags with docker run
+# ie. docker run -e KRANE_REST_PORT=9292 -p 9292:9292 krane-server
+ENV KRANE_PATH "/.krane"
+ENV KRANE_REST_PORT 8080
+ENV KRANE_LOG_LEVEL "release"
+ENV KRANE_PRIVATE_KEY "KbVHZLjpM3IUprwTSRvteRx+d8kmVecnEKvwAuJIaaw="
+
+EXPOSE ${KRANE_REST_PORT}
+
+# Create directory for krane server details
+RUN mkdir $KRANE_PATH
+
+ENTRYPOINT ["krane-server"]

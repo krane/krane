@@ -16,8 +16,8 @@ if [ "$1" = 'start' ]; then
 
     # Run the build
     cd "$SERVER_ENTRY_PATH"
-    go build -o "$BIN_PATH"/$APP -tags $OWNER
-
+    # go build -o "$BIN_PATH"/$APP -tags $OWNER
+    
     echo "🏗 Starting $APP"
 
     export KRANE_PRIVATE_KEY=${PRIVATE_KEY:-"2733dd1ccfe8d36b6ec8818c78a8940ee714237f"}
@@ -33,6 +33,6 @@ if [ "$1" = 'start' ]; then
 
     echo "\n> $APP installed succesfully"
 
-    sh -c krane-server
+    # sh -c krane-server
 fi
 
