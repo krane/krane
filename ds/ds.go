@@ -1,13 +1,15 @@
 package ds
 
 /**
-	ds : Persistent key data store using bolt
-
-	Operations:
-		- Get : get value by key
-		- Put: store key-value pait
-		- New: new instance of boltdb
-		- CreateBucket: new bucket that collects relevant data
+Persistent key/value datastore using bolt
+Operations:
+- Get : get value by key
+- GetAll : get all values in a bucket
+- Put: store key-value pait
+- New: new instance of boltdb
+- CreateBucket: new bucket that collects relevant data
+- SetupDB : setup intial db buckets
+- StartDBMetrics:  start a gp routine to fetch bolt metrics
 **/
 
 import (
@@ -23,10 +25,11 @@ import (
 )
 
 var (
+	// DB : refrence to an instance of bolt
 	DB *bolt.DB
 )
 
-// SetupDB : create initial db bucket
+// SetupDB : create initial db buckets
 func SetupDB() error {
 	if DB == nil {
 		return fmt.Errorf("Unable to setup db")
@@ -94,7 +97,7 @@ func CreateBucket(bktName string) error {
 	})
 }
 
-// Put : store data
+// Put : a key/value pair
 func Put(bktName string, k string, v []byte) error {
 	if DB == nil {
 		return fmt.Errorf("db not initialized")
@@ -106,7 +109,7 @@ func Put(bktName string, k string, v []byte) error {
 	})
 }
 
-// Get : retrieve data
+// Get : a value by key
 func Get(bktName string, key string) (val []byte) {
 	if DB == nil {
 		return nil
@@ -154,7 +157,7 @@ func GetAll(bktName string) (data []*[]byte) {
 	return
 }
 
-// Remove : remove item by key
+// Remove : item by key
 func Remove(bktName string, key string) error {
 	if DB == nil {
 		return fmt.Errorf("db not initialized")
@@ -166,7 +169,7 @@ func Remove(bktName string, key string) error {
 	})
 }
 
-// StartDBMetrics : start a go routing capturing db metrics
+// StartDBMetrics : start a go routine capturing db metrics
 func StartDBMetrics() {
 	go func() {
 		// Grab the initial stats.
