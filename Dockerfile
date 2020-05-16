@@ -3,6 +3,9 @@
 
 FROM golang:1.12-alpine AS base
 
+LABEL maintainer="biensupernice Community"
+
+
 # Dont cache locally, useful for keeping containers small.
 RUN apk add --no-cache git
 
@@ -31,11 +34,9 @@ RUN apk add ca-certificates
 WORKDIR /bin
 
 # Copy executable from previous layer into this new layer which is smaller
-# and contains only this executable. Since working directory is /bin
-# we copy executable from previous location to working dir `.` 
 COPY --from=base /usr/local/bin/krane-server .
 
-# ENV inside the container, can also be passed in as flags with docker run
+# DEfault envars inside the container, can also be passed in as flags with docker run
 # ie. docker run -e KRANE_REST_PORT=9292 -p 9292:9292 krane-server
 ENV KRANE_PATH "/.krane"
 ENV KRANE_REST_PORT 8080
