@@ -20,6 +20,7 @@ if [ "$1" = 'start' ]; then
 
     echo "🏗 Starting $APP"
 
+    export KRANE_PRIVATE_KEY=${PRIVATE_KEY:-"2733dd1ccfe8d36b6ec8818c78a8940ee714237f"}
     export KRANE_PORT=${PORT:-8080}
     export KRANE_LOG_LEVEL=${LOG_LEVEL:-"debug"}
     export KRANE_PATH=${KRANE_PATH:-"/.krane"}
@@ -32,6 +33,6 @@ if [ "$1" = 'start' ]; then
 
     echo "\n> $APP installed succesfully"
 
-    krane-server
+    sh -c krane-server
 fi
 

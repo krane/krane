@@ -2,14 +2,7 @@
 
 ![Go](https://github.com/biensupernice/krane-server/workflows/Go/badge.svg?branch=master)
 
-Easy container deployments
-
-## Commands
-
-| Command      | Description                    |
-| ------------ | ------------------------------ |
-| krane deploy | Deploy your app                |
-| krane login  | Authenticate with krane server |
+🏗 Easy container deployments
 
 krane, inspired by [now](https://vercel.com/), [exoframe](https://github.com/exoframejs/exoframe), [render](https://render.com/), [dokku](http://dokku.viewdocs.io/dokku/)... is a tool for easily deploying docker apps to the cloud.
 
@@ -26,6 +19,13 @@ Deploy your project using the [cli](https://github.com/biensupernice/krane-cli)
 ```shell
 npx krane-cli deploy
 ```
+
+## Commands
+
+| Command      | Description                    |
+| ------------ | ------------------------------ |
+| krane deploy | Deploy your app                |
+| krane login  | Authenticate with krane server |
 
 ## Runing with docker
 

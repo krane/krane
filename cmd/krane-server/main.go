@@ -12,18 +12,15 @@ import (
 
 // Env
 var (
-	Port      = os.Getenv("KRANE_PORT")
-	LogLevel  = os.Getenv("KRANE_LOG_LEVEL")
-	KranePath = os.Getenv("KRANE_PATH")
+	Port            = os.Getenv("KRANE_PORT")
+	LogLevel        = os.Getenv("KRANE_LOG_LEVEL")
+	KranePath       = os.Getenv("KRANE_PATH")
+	KranePrivateKey = os.Getenv("KRANE_PRIVATE_KEY")
 
 	config *server.Config
 )
 
 func init() {
-	err := os.Setenv("KRANE_PRIVATE_KEY", "biensupernice") // Change this :]
-	if err != nil {
-		log.Panicf("Unable to set KRANE_PRIVATE_KEY")
-	}
 
 	// Set default krane dir
 	if KranePath == "" {
@@ -36,7 +33,7 @@ func init() {
 	log.Printf("🏗 krane port: %s", Port)
 
 	// Create db
-	_, err = ds.New("krane.db")
+	_, err := ds.New("krane.db")
 	if err != nil {
 		log.Panicf("Unable to start db - %s", err.Error())
 	}
@@ -45,6 +42,10 @@ func init() {
 	err = ds.SetupDB()
 	if err != nil {
 		log.Panicf("Unable to setup db - %s", err.Error())
+	}
+
+	if KranePrivateKey == "" {
+		log.Panicf("Private key [KRANE_PRIVATE_KEY] not set")
 	}
 
 	// Set default port
