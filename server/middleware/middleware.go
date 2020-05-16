@@ -83,7 +83,7 @@ func AuthSessionMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Add session stuct into router context
+		// Add session struct into router context
 		c.Set("session", session)
 
 		// Continue to the next handler

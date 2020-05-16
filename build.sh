@@ -1,25 +1,37 @@
 #!/bin/bash
 
-PORT="9000"
-LOG_LEVEL="release"
+APP=krane-server
+OWNER=biensupernice
+SERVER_ENTRY_PATH=$PWD/cmd/krane-server
+BIN_PATH=/usr/local/bin
 
-app=krane-server
-owner=biensupernice
-server_path="$PWD"/cmd/krane-server
-bin_path=/usr/local/bin # Need to check if this should be overridable..
+echo "> Building $APP in $SERVER_ENTRY_PATH"
 
-echo "> Building $app"
+if [ "$1" = 'start' ]; then
+    # Verify go is installed
+    if [ ! -x "$(command -v go)" ]; then
+        echo "go required to package $app"
+        exit 0
+    fi
 
-# Verify go is installed
-if [ ! -x "$(command -v go)" ]; then
-    echo "go required to package $app"
-    exit 0
+    # Run the build
+    cd "$SERVER_ENTRY_PATH"
+    go build -o "$BIN_PATH"/$APP -tags $OWNER
+
+    echo "🏗 Starting $APP"
+
+    export KRANE_PORT=${PORT:-8080}
+    export KRANE_LOG_LEVEL=${LOG_LEVEL:-"debug"}
+    export KRANE_PATH=${KRANE_PATH:-"/.krane"}
+
+    echo "> $APP port: $KRANE_PORT"
+    echo "> $APP log level: $KRANE_LOG_LEVEL"
+    echo "> $APP path: $KRANE_PATH"
+
+    mkdir $KRANE_PATH
+
+    echo "\n> $APP installed succesfully"
+
+    krane-server
 fi
 
-# Run the build
-cd "$server_path"
-
-go build -o "$bin_path"/$app -tags $owner
-echo "> $app installed succesfully"
-echo $'\nRun:'
-echo "> $app"

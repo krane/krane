@@ -1,17 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
+	"github.com/biensupernice/krane/auth"
 	"github.com/biensupernice/krane/ds"
 	"github.com/biensupernice/krane/server"
 )
 
 // Env
 var (
-	Port     = os.Getenv("PORT")
-	LogLevel = os.Getenv("LOG_LEVEL")
+	Port      = os.Getenv("KRANE_PORT")
+	LogLevel  = os.Getenv("KRANE_LOG_LEVEL")
+	KranePath = os.Getenv("KRANE_PATH")
 
 	config *server.Config
 )
@@ -21,6 +24,16 @@ func init() {
 	if err != nil {
 		log.Panicf("Unable to set KRANE_PRIVATE_KEY")
 	}
+
+	// Set default krane dir
+	if KranePath == "" {
+		dir := auth.GetHomeDir()
+		KranePath = fmt.Sprintf("%s/%s", dir, "/.krane")
+	}
+
+	log.Printf("🏗 krane path: %s", KranePath)
+	log.Printf("🏗 krane log level: %s", LogLevel)
+	log.Printf("🏗 krane port: %s", Port)
 
 	// Create db
 	_, err = ds.New("krane.db")

@@ -27,7 +27,15 @@ Deploy your project using the [cli](https://github.com/biensupernice/krane-cli)
 npx krane-cli deploy
 ```
 
+## Runing with docker
+
+```bash
+> docker build -t krane .
+> docker run -p 9000:90000 krane
+```
+
 ### Creating authentication keys
+
 ```
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
 
@@ -36,4 +44,5 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
 -C comments
 -m key format
 ```
+
 Now grab the contents of `key.pub` and add it to the `authorized_keys` on your server

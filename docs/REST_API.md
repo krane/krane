@@ -1,8 +1,16 @@
 ## krane rest api
 
-The krane server exposes an api to leverage if you need to
+The krane server exposes an api you can use to make api calls(We encourage you to use the [krane-cli](https://github.com/biensupernice/krane-cli))
 
-### Endpoints
+## Endpoints
+
+| Path         | Auth |
+| ------------ | ---- |
+| /login       | No   |
+| /auth        | No   |
+| /deployments | Yes  |
+
+---
 
 `GET /login`
 

@@ -25,7 +25,6 @@ func Run(cnf Config) {
 	client.Use(cors.Default())
 
 	// Routes
-
 	client.POST("/auth", handler.Auth)
 	client.GET("/login", handler.Login)
 

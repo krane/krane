@@ -1,11 +1,21 @@
-FROM alpine
+FROM golang:alpine3.11
 
-WORKDIR ~/.krane/
+# api env variables
+ENV KRANE_PATH "/.krane"
 
-COPY bootstrap.sh .
+# rest api port 
+ENV PORT 9000
+EXPOSE 9000
 
-COPY usr/local/bin/krane-server .
+WORKDIR /app
 
-RUN chmod 755 krane-server
+COPY . .
 
-CMD ["./krane-server"]
+# Cleanup/Install dependencies
+RUN cd cmd/krane-server && go mod tidy && go get
+
+RUN chmod +x "build.sh" 
+
+ENTRYPOINT ["sh", "build.sh"]
+
+CMD ["start"]
