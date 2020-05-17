@@ -6,13 +6,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// DeploymentResponse : response from deploying an app
+// DeploymentResponse : from deploying an app
 type DeploymentResponse struct {
 	Success bool  `json:"success"`
 	Error   error `json:"error"`
 }
 
-// CreateDeployment : start a deploymet of an app
+// CreateDeployment : using deployment spec
 func CreateDeployment(c *gin.Context) {
 	var spec docker.DeploySpec
 	err := c.ShouldBindJSON(&spec)

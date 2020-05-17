@@ -28,7 +28,7 @@ npx krane-cli deploy
 
 | Command      | Description                    |
 | ------------ | ------------------------------ |
-| krane deploy | Deploy aan app                 |
+| krane deploy | Deploy an app                  |
 | krane login  | Authenticate with krane server |
 
 ## Runing with docker

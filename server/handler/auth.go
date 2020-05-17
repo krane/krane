@@ -12,6 +12,12 @@ import (
 	"github.com/biensupernice/krane/server/http"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/pkg/errors"
+)
+
+var (
+	// Server private key
+	serverPrivKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
 )
 
 // AuthRequest : to authenticate with krane-server
@@ -22,8 +28,7 @@ type AuthRequest struct {
 
 // AuthResponse : response from auth request
 type AuthResponse struct {
-	Session Session     `json:"session"`
-	Error   interface{} `json:"error"`
+	Session Session `json:"session"`
 }
 
 // Session : relevant data for authenticated sessions
@@ -67,22 +72,22 @@ func Auth(c *gin.Context) {
 	var req AuthRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		http.BadRequest(c, &AuthResponse{Error: err.Error()})
+		http.BadRequest(c, err.Error())
 		return
 	}
 
 	// Check if request id is valid, get phrase stored on the server
 	serverPhrase := string(ds.Get(auth.AuthBucket, req.RequestID))
 	if serverPhrase == "" {
-		err := fmt.Errorf("Unable to authenticate")
-		http.BadRequest(c, &AuthResponse{Error: err.Error()})
+		errMsg := "Unable to authenticate"
+		http.BadRequest(c, errMsg)
 		return
 	}
 
-	// Get authorized_keys
+	// Get authorized_keys on the server
 	authorizedKeys, err := auth.GetAuthorizedKeys("")
 	if err != nil {
-		http.BadRequest(c, &AuthResponse{Error: err.Error()})
+		http.BadRequest(c, err.Error())
 		return
 	}
 
@@ -90,14 +95,15 @@ func Auth(c *gin.Context) {
 	// If an authorized_key can parse incoming token, authClaims will be returned containing the phrase from the token
 	authClaims, err := auth.VerifyAuthTokenWithAuthorizedKeys(authorizedKeys, req.Token)
 	if err != nil {
-		msg := "Unable to verify with authorized_keys, your .pub key is part of the authorized_keys file on your server"
-		http.BadRequest(c, &AuthResponse{Error: msg})
+		errMsg := "Unable to verify"
+		http.BadRequest(c, errMsg)
 		return
 	}
 
-	// Compare phrase from server against pharse from auth claims
+	// Compare phrase from server against phrase from auth claims
 	if strings.Compare(serverPhrase, authClaims.Phrase) != 0 {
-		http.BadRequest(c, &AuthResponse{Error: "Invalid token"})
+		errMsg := "Invalid token"
+		http.BadRequest(c, errMsg)
 		return
 	}
 
@@ -106,21 +112,17 @@ func Auth(c *gin.Context) {
 	// Remove auth data from auth bucket
 	err = ds.Remove(auth.AuthBucket, req.RequestID)
 	if err != nil {
-		errMsg := fmt.Sprintf("Something went wrong - %s", err.Error())
-		http.BadRequest(c, &AuthResponse{Error: errMsg})
+		errMsg := errors.Errorf("Something went wrong - %s", err.Error())
+		http.BadRequest(c, errMsg)
 		return
 	}
 
-	// Server private key to sign session token
-	var serverPrivKey = []byte(os.Getenv("KRANE_PRIVATE_KEY"))
-
 	sessionID := uuid.New().String()
 	sessionTkn := &SessionToken{SessionID: sessionID}
-	// sessionTknBytes, _ := json.Marshal(sessionTkn)
 	signedSessionTkn, err := auth.CreateToken(serverPrivKey, sessionTkn)
 	if err != nil {
-		errMsg := fmt.Sprintf("Invalid request - %s", err.Error())
-		http.BadRequest(c, &AuthResponse{Error: errMsg})
+		errMsg := errors.Errorf("Invalid request - %s", err.Error())
+		http.BadRequest(c, errMsg)
 		return
 	}
 
