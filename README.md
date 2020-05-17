@@ -28,7 +28,7 @@ npx krane-cli deploy
 
 | Command      | Description                    |
 | ------------ | ------------------------------ |
-| krane deploy | Deploy your app                |
+| krane deploy | Deploy aan app                 |
 | krane login  | Authenticate with krane server |
 
 ## Runing with docker
@@ -41,7 +41,7 @@ npx krane-cli deploy
 > docker run -e KRANE_REST_PORT=9292 -p 9292:9292 krane
 ```
 
-### Creating authentication keys
+## Creating authentication keys
 
 ```
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'

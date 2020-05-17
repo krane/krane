@@ -21,6 +21,20 @@ var (
 )
 
 func init() {
+	// Verify private key is provided
+	if KranePrivateKey == "" {
+		log.Fatalf("Private key [KRANE_PRIVATE_KEY] not set")
+	}
+
+	// Set default port
+	if RestPort == "" {
+		RestPort = "8080"
+	}
+
+	// Set default loglevel
+	if LogLevel == "" {
+		LogLevel = "debug"
+	}
 
 	// Set default krane dir
 	if KranePath == "" {
@@ -32,30 +46,16 @@ func init() {
 	log.Printf("🏗 krane log level: %s", LogLevel)
 	log.Printf("🏗 krane port: %s", RestPort)
 
-	// Create db
+	// Start db
 	_, err := ds.New("krane.db")
 	if err != nil {
-		log.Panicf("Unable to start db - %s", err.Error())
+		log.Fatalf("Unable to start db - %s", err.Error())
 	}
 
 	// Setup db
 	err = ds.SetupDB()
 	if err != nil {
-		log.Panicf("Unable to setup db - %s", err.Error())
-	}
-
-	if KranePrivateKey == "" {
-		log.Panicf("Private key [KRANE_PRIVATE_KEY] not set")
-	}
-
-	// Set default port
-	if RestPort == "" {
-		RestPort = "8080"
-	}
-
-	// Set default loglevel
-	if LogLevel == "" {
-		LogLevel = "debug"
+		log.Fatalf("Unable to setup db - %s", err.Error())
 	}
 
 	// Set server configuration

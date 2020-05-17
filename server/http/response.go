@@ -40,6 +40,7 @@ func BadRequest(c *gin.Context, err interface{}) {
 		Code:    http.StatusBadRequest,
 		Data:    map[string]interface{}{"error": err},
 	})
+	c.Abort()
 	return
 }
 
@@ -50,5 +51,6 @@ func Unauthorized(c *gin.Context) {
 		Code:    http.StatusUnauthorized,
 		Data:    map[string]string{"error": "Unauthorized request"},
 	})
+	c.Abort()
 	return
 }

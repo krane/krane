@@ -15,12 +15,6 @@ import (
 )
 
 var (
-	// AuthBucket : bucket used for storing auth related key-value data
-	AuthBucket = "AuthBucket"
-
-	// SessionsBucket : bucket used for storing session related key-value data
-	SessionsBucket = "SessionsBucket"
-
 	// OneYear : unix time for 1 year
 	OneYear = time.Now().Add(time.Minute * 525600).Unix()
 )
