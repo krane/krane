@@ -1,6 +1,7 @@
 ## krane
 
 ![Go](https://github.com/biensupernice/krane-server/workflows/Go/badge.svg?branch=master)
+[![Documentation](https://img.shields.io/badge/latest-documentation-informational)](https://github.com/biensupernice/krane-server/tree/master/docs)
 
 ### ⚠️ Under construction
 
