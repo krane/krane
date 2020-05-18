@@ -25,8 +25,12 @@ func Run(cnf Config) {
 	client.Use(cors.Default())
 
 	// Routes
+	client.POST("/health", handler.HealthHandler)
 	client.POST("/auth", handler.Auth)
 	client.GET("/login", handler.Login)
+
+	client.POST("/keys", middleware.AuthSessionMiddleware(), handler.AddAuthorizedKey)
+	client.DELETE("/keys", middleware.AuthSessionMiddleware(), handler.RemoveAuthorizedKey)
 
 	client.GET("/sessions", middleware.AuthSessionMiddleware(), handler.GetSessions)
 
