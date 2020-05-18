@@ -30,7 +30,9 @@ FROM alpine:3.9
 # Install certs to establish secure communitcation via SSL/TLS
 RUN apk add ca-certificates
 
-VOLUME "~/.ssh/authorized_keys"
+VOLUME ~/.krane
+VOLUME ~/.ssh/authorized_keys
+VOLUME /var/run/docker.sock:/var/run/docker.sock
 
 # New working directory inside alpine container
 WORKDIR /bin
@@ -40,14 +42,14 @@ COPY --from=base /usr/local/bin/krane-server .
 
 # DEfault envars inside the container, can also be passed in as flags with docker run
 # ie. docker run -e KRANE_REST_PORT=9292 -p 9292:9292 krane-server
-ENV KRANE_PATH "/.krane"
+ENV KRANE_PATH ~/.krane
 ENV KRANE_REST_PORT 8080
 ENV KRANE_LOG_LEVEL "release"
 ENV KRANE_PRIVATE_KEY "KbVHZLjpM3IUprwTSRvteRx+d8kmVecnEKvwAuJIaaw="
 
 EXPOSE ${KRANE_REST_PORT}
 
-# Create directory for krane server details
-RUN mkdir $KRANE_PATH
+VOLUME $KRANE_PATH
+VOLUME $KRANE_PATH/db
 
 ENTRYPOINT ["krane-server"]

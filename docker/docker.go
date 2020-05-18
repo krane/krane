@@ -25,7 +25,14 @@ func New() (*client.Client, error) {
 		return dkrClient, nil
 	}
 
-	return client.NewEnvClient()
+	client, err := client.NewEnvClient()
+	if err != nil {
+		return nil, err
+	}
+
+	dkrClient = client
+
+	return dkrClient, nil
 }
 
 // PullImage : poll docker image from registry

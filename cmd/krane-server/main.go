@@ -42,8 +42,8 @@ func init() {
 
 	// Set default krane dir
 	if KranePath == "" {
-		dir := auth.GetHomeDir()
-		KranePath = fmt.Sprintf("%s/%s", dir, ".krane")
+		homeDir := auth.GetHomeDir()
+		KranePath = fmt.Sprintf("%s/%s", homeDir, ".krane")
 
 		os.Setenv("KRANE_PATH", KranePath)
 	}
