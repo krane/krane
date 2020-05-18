@@ -47,6 +47,12 @@ func SetupDB() error {
 		return err
 	}
 
+	// Setup sessions bucket
+	err = CreateBucket(auth.DeploymentsBucket)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -66,7 +72,7 @@ func New(dbName string) (*bolt.DB, error) {
 	// Open the `dbName` data file in your current directory.
 	// It will be created if it doesn't exist.
 	options := &bolt.Options{Timeout: 1 * time.Second}
-	db, err := bolt.Open(dbPath+dbName, 0600, options)
+	db, err := bolt.Open(dbPath+"/"+dbName, 0600, options)
 	if err != nil {
 		return nil, err
 	}

@@ -35,10 +35,13 @@ func PullImage(ctx *context.Context, image string) error {
 		return err
 	}
 
-	ioreader, err := dkrClient.ImagePull(*ctx, image, types.ImagePullOptions{})
+	options := types.ImagePullOptions{
+		RegistryAuth: "", // RegistryAuth is the base64 encoded credentials for the registry
+	}
+	ioreader, err := dkrClient.ImagePull(*ctx, image, options)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	io.Copy(os.Stdout, ioreader)

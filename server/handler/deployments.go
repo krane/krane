@@ -8,8 +8,7 @@ import (
 
 // DeploymentResponse : from deploying an app
 type DeploymentResponse struct {
-	Success bool  `json:"success"`
-	Error   error `json:"error"`
+	ContainerID string `json:"container_id"`
 }
 
 // CreateDeployment : using deployment spec
@@ -17,21 +16,17 @@ func CreateDeployment(c *gin.Context) {
 	var spec docker.DeploySpec
 	err := c.ShouldBindJSON(&spec)
 	if err != nil {
-		resp := &DeploymentResponse{Success: false, Error: err}
-		http.BadRequest(c, resp)
+		http.BadRequest(c, err.Error())
 		return
 	}
 
-	err = docker.Deploy(spec)
+	containerID, err := docker.Deploy(spec)
 	if err != nil {
-		resp := &DeploymentResponse{Success: false, Error: err}
-		http.BadRequest(c, resp)
+		http.BadRequest(c, err.Error())
 		return
 	}
 
-	resp := &DeploymentResponse{Success: true}
-
-	http.Ok(c, resp)
+	http.Ok(c, &DeploymentResponse{ContainerID: containerID})
 }
 
 // GetDeployments : get all deployments

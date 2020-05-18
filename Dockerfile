@@ -30,6 +30,8 @@ FROM alpine:3.9
 # Install certs to establish secure communitcation via SSL/TLS
 RUN apk add ca-certificates
 
+VOLUME "~/.ssh/authorized_keys"
+
 # New working directory inside alpine container
 WORKDIR /bin
 

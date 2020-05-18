@@ -7,21 +7,26 @@ import (
 
 // DeploySpec : spec to deploy and app
 type DeploySpec struct {
-	AppName string           `json:"app" binding:"required"`
-	Config  DeploySpecConfig `json:"config" binding:"required"`
+	Name   string           `json:"name" binding:"required"`
+	Config DeploySpecConfig `json:"config" binding:"required"`
 }
 
 // DeploySpecConfig : config for deploying an app
 type DeploySpecConfig struct {
-	Repo          string `json:"repo" binding:"required"`
-	Image         string `json:"image" binding:"required"`
-	Tag           string `json:"tag"`
-	HostPort      string `json:"host_port"`
-	ContainerPort string `json:"container_port"`
+	Registry      string `json:"repo"`                     // Docker registry url
+	Image         string `json:"image" binding:"required"` // DOcker image name
+	Tag           string `json:"tag"`                      // Docker image tag
+	HostPort      string `json:"host_port"`                // Port to bind to  host machine from the container
+	ContainerPort string `json:"container_port"`           // POrt to expose from the container
 }
 
-// Deploy docker container
-func Deploy(spec DeploySpec) error {
+// Deploy : docker container
+func Deploy(spec DeploySpec) (containerID string, err error) {
+
+	// Set docker registry if not provided
+	if spec.Config.Registry == "" {
+		spec.Config.Registry = "registry.hub.docker.com"
+	}
 
 	// Set image tag to `latest` if not provided
 	if spec.Config.Tag == "" {
@@ -38,43 +43,43 @@ func Deploy(spec DeploySpec) error {
 		spec.Config.ContainerPort = "8080"
 	}
 
-	log.Printf("Deploying %s\n", spec.AppName)
+	log.Printf("Deploying %s\n", spec.Name)
 
-	// Create docker client
-	_, err := New()
+	// Get docker client
+	_, err = New()
 	if err != nil {
-		log.Printf("Unable to create docker client %s\n", err.Error())
-		return err
+		return
 	}
 
-	img := FormatImageSourceURL(spec.Config.Repo, spec.Config.Image, spec.Config.Tag)
+	// Start deployment context
+	ctx := context.Background()
 
-	ctx := context.Background() // deployment context
-
+	// Format docker image url source
+	img := FormatImageSourceURL(spec.Config.Registry, spec.Config.Image, spec.Config.Tag)
 	log.Printf("Pulling image: %s\n", img)
 
 	// Pull docker image
 	err = PullImage(&ctx, img)
 	if err != nil {
-		log.Printf("Unable to pull image %s - %s\n", img, err.Error())
-		return err
+		return
 	}
 
 	// Create docker container
-	createContainerResp, err := CreateContainer(&ctx, img, "", spec.Config.HostPort, spec.Config.ContainerPort)
-	containerID := createContainerResp.ID
+	createContainerResp, err := CreateContainer(&ctx, img, spec.Name, spec.Config.HostPort, spec.Config.ContainerPort)
+	containerID = createContainerResp.ID
 	if err != nil {
-		log.Printf("Unable to create container for image %s - %s\n", img, err.Error())
-		return nil
+		return
 	}
 
 	// Docker start container
 	err = StartContainer(&ctx, containerID)
 	if err != nil {
-		log.Printf("Unable to start container %s - %s", containerID, err.Error())
-		return nil
+		// If error starting the container, remove it
+		RemoveContainer(&ctx, containerID)
+		return
 	}
-	log.Printf("Deployed %s - 📦 %s\n", spec.AppName, containerID)
 
-	return nil
+	log.Printf("Deployed %s - 📦 %s\n", spec.Name, containerID)
+
+	return
 }

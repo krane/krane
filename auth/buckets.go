@@ -6,4 +6,7 @@ var (
 
 	// SessionsBucket : bucket used for storing session related key-value data
 	SessionsBucket = "SessionsBucket"
+
+	// DeploymentsBucket : bucket used for storing deployment related key-value data
+	DeploymentsBucket = "DeploymentsBucket"
 )

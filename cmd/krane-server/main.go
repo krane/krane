@@ -29,17 +29,23 @@ func init() {
 	// Set default port
 	if RestPort == "" {
 		RestPort = "8080"
+
+		os.Setenv("KRANE_REST_PORT", RestPort)
 	}
 
 	// Set default loglevel
 	if LogLevel == "" {
 		LogLevel = "debug"
+
+		os.Setenv("KRANE_LOG_LEVEL", LogLevel)
 	}
 
 	// Set default krane dir
 	if KranePath == "" {
 		dir := auth.GetHomeDir()
-		KranePath = fmt.Sprintf("%s/%s", dir, "/.krane")
+		KranePath = fmt.Sprintf("%s/%s", dir, ".krane")
+
+		os.Setenv("KRANE_PATH", KranePath)
 	}
 
 	log.Printf("🏗 krane path: %s", KranePath)
