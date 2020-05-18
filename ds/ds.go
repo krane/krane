@@ -64,15 +64,17 @@ func New(dbName string) (*bolt.DB, error) {
 
 	// Get base krane directory
 	kPath := os.Getenv("KRANE_PATH")
-	dbPath := fmt.Sprintf("%s/db", kPath)
+	dbDir := fmt.Sprintf("%s/db", kPath)
 
 	// Make db directory
-	os.Mkdir(dbPath, 0777)
+	os.Mkdir(dbDir, 0777)
 
 	// Open the `dbName` data file in your current directory.
 	// It will be created if it doesn't exist.
 	options := &bolt.Options{Timeout: 1 * time.Second}
-	db, err := bolt.Open(dbPath+"/"+dbName, 0600, options)
+
+	dbPath := fmt.Sprintf("%s/%s", dbDir, dbName)
+	db, err := bolt.Open(dbPath, 0600, options)
 	if err != nil {
 		return nil, err
 	}

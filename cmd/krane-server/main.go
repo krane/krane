@@ -12,9 +12,9 @@ import (
 
 // Env
 var (
-	RestPort        = os.Getenv("KRANE_REST_PORT")
-	LogLevel        = os.Getenv("KRANE_LOG_LEVEL")
-	KranePath       = os.Getenv("KRANE_PATH")
+	RestPort        = os.Getenv("KRANE_REST_PORT") //  Defaults to 8080
+	LogLevel        = os.Getenv("KRANE_LOG_LEVEL") // Defaults to debug
+	KranePath       = os.Getenv("KRANE_PATH")      // Defaults to ~/.krane
 	KranePrivateKey = os.Getenv("KRANE_PRIVATE_KEY")
 
 	config *server.Config
@@ -26,24 +26,24 @@ func init() {
 		log.Fatalf("Private key [KRANE_PRIVATE_KEY] not set")
 	}
 
-	// Set default port
+	// Set default port to `8080`
 	if RestPort == "" {
 		RestPort = "8080"
 
 		os.Setenv("KRANE_REST_PORT", RestPort)
 	}
 
-	// Set default loglevel
+	// Set default loglevel to `debug`
 	if LogLevel == "" {
 		LogLevel = "debug"
 
 		os.Setenv("KRANE_LOG_LEVEL", LogLevel)
 	}
 
-	// Set default krane dir
+	// Set default krane dir to `~/.krane`
 	if KranePath == "" {
 		homeDir := auth.GetHomeDir()
-		KranePath = fmt.Sprintf("%s/%s", homeDir, ".krane")
+		KranePath = fmt.Sprintf("%s/.krane", homeDir)
 
 		os.Setenv("KRANE_PATH", KranePath)
 	}

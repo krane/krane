@@ -16,8 +16,8 @@ type DeploySpecConfig struct {
 	Registry      string `json:"repo"`                     // Docker registry url
 	Image         string `json:"image" binding:"required"` // DOcker image name
 	Tag           string `json:"tag"`                      // Docker image tag
-	HostPort      string `json:"host_port"`                // Port to bind to  host machine from the container
-	ContainerPort string `json:"container_port"`           // POrt to expose from the container
+	HostPort      string `json:"host_port"`                // Port to bind to host machine from the container
+	ContainerPort string `json:"container_port"`           // Port to expose from the container
 }
 
 // Deploy : docker container
@@ -31,16 +31,6 @@ func Deploy(spec DeploySpec) (containerID string, err error) {
 	// Set image tag to `latest` if not provided
 	if spec.Config.Tag == "" {
 		spec.Config.Tag = "latest"
-	}
-
-	// Set container host port to `8080` if not provided
-	if spec.Config.HostPort == "" {
-		spec.Config.HostPort = "8080"
-	}
-
-	// Set container port to `8080` if not provided
-	if spec.Config.ContainerPort == "" {
-		spec.Config.ContainerPort = "8080"
 	}
 
 	log.Printf("Deploying %s\n", spec.Name)

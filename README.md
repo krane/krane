@@ -39,12 +39,11 @@ npx krane-cli deploy
 > docker build -t krane .
 
 # Run image
-> docker run --name=krane \
-    -v ~/.krane:/root/.krane \
+> docker run --rm --name=krane \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v ~/.ssh/authorized_keys:/root/.ssh/authorized_keys  \
-    -e KRANE_REST_PORT=8080 \
-    -p 80:8080 krane
+    -v ~/.krane:/root/.krane \
+    -p 80:8080 krane --build
 ```
 
 ## Creating authentication keys
