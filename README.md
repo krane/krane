@@ -6,5 +6,7 @@ It provides the framework that can be installed on an inexpensive linux server o
 
 ![Go](https://github.com/biensupernice/krane-server/workflows/Go/badge.svg?branch=master)
 [![Documentation](https://img.shields.io/badge/latest-documentation-informational)](https://github.com/biensupernice/krane-server/tree/master/docs)
+[![Go Report Card](https://goreportcard.com/badge/github.com/biensupernice/krane-server)](https://goreportcard.com/report/github.com/biensupernice/krane-server)
+
 
 > ⚠️ Under construction
