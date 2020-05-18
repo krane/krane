@@ -4,8 +4,7 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/biensupernice/krane/auth"
-	"github.com/biensupernice/krane/ds"
+	"github.com/biensupernice/krane/data"
 	"github.com/biensupernice/krane/server/http"
 	"github.com/gin-gonic/gin"
 )
@@ -16,12 +15,12 @@ func GetSessions(c *gin.Context) {
 	log.Printf("My session: %v", mySession)
 
 	// Get sessions
-	data := ds.GetAll(auth.SessionsBucket)
+	sessionData := data.GetAll(data.SessionsBucket)
 
 	var sessions []Session
-	for v := 0; v < len(data); v++ {
+	for v := 0; v < len(sessionData); v++ {
 		var s Session
-		err := json.Unmarshal(*data[v], &s)
+		err := json.Unmarshal(*sessionData[v], &s)
 		if err != nil {
 			log.Printf("Unable to parse session [skipping] - %s", err.Error())
 			continue

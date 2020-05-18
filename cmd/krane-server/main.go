@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/biensupernice/krane/auth"
-	"github.com/biensupernice/krane/ds"
+	"github.com/biensupernice/krane/data"
 	"github.com/biensupernice/krane/server"
 )
 
@@ -53,13 +53,13 @@ func init() {
 	log.Printf("🏗 krane port: %s", RestPort)
 
 	// Start db
-	_, err := ds.New("krane.db")
+	_, err := data.NewDB("krane.db")
 	if err != nil {
 		log.Fatalf("Unable to start db - %s", err.Error())
 	}
 
 	// Setup db
-	err = ds.SetupDB()
+	err = data.SetupDB()
 	if err != nil {
 		log.Fatalf("Unable to setup db - %s", err.Error())
 	}
@@ -72,6 +72,6 @@ func init() {
 }
 
 func main() {
-	defer ds.DB.Close()
+	defer data.DB.Close()
 	server.Run(*config)
 }

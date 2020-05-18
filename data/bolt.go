@@ -1,12 +1,13 @@
-package ds
+package data
 
 /**
 Persistent key/value datastore using bolt
+
 Operations:
 - Get : get value by key
 - GetAll : get all values in a bucket
 - Put: store key-value pait
-- New: new instance of boltdb
+- NewDB: new instance of boltdb
 - CreateBucket: new bucket that collects relevant data
 - SetupDB : setup intial db buckets
 - StartDBMetrics:  start a gp routine to fetch bolt metrics
@@ -20,8 +21,18 @@ import (
 	"os/user"
 	"time"
 
-	"github.com/biensupernice/krane/auth"
 	bolt "go.etcd.io/bbolt"
+)
+
+const (
+	// AuthBucket : bucket used for storing auth related key-value data
+	AuthBucket = "AuthBucket"
+
+	// SessionsBucket : bucket used for storing session related key-value data
+	SessionsBucket = "SessionsBucket"
+
+	// DeploymentsBucket : bucket used for storing deployment related key-value data
+	DeploymentsBucket = "DeploymentsBucket"
 )
 
 var (
@@ -29,35 +40,26 @@ var (
 	DB *bolt.DB
 )
 
-// SetupDB : create initial db buckets
+// SetupDB : initial db buckets
 func SetupDB() error {
 	if DB == nil {
 		return fmt.Errorf("Unable to setup db")
 	}
 
-	// Setup auth bucket
-	err := CreateBucket(auth.AuthBucket)
-	if err != nil {
-		return err
-	}
+	bkts := []string{AuthBucket, SessionsBucket, DeploymentsBucket}
 
-	// Setup sessions bucket
-	err = CreateBucket(auth.SessionsBucket)
-	if err != nil {
-		return err
-	}
-
-	// Setup sessions bucket
-	err = CreateBucket(auth.DeploymentsBucket)
-	if err != nil {
-		return err
+	for i := 0; i < len(bkts); i++ {
+		err := CreateBucket(bkts[i])
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-// New : instance of bolt
-func New(dbName string) (*bolt.DB, error) {
+// NewDB : instance of bolt
+func NewDB(dbName string) (*bolt.DB, error) {
 	if DB != nil {
 		return nil, nil
 	}

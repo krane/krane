@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/biensupernice/krane/auth"
-	"github.com/biensupernice/krane/ds"
+	"github.com/biensupernice/krane/data"
 	"github.com/biensupernice/krane/server/handler"
 	"github.com/biensupernice/krane/server/http"
 	"github.com/gin-gonic/gin"
@@ -67,7 +67,7 @@ func AuthSessionMiddleware() gin.HandlerFunc {
 		}
 
 		// Check if session is valid by retrieving the sessions from the servers datastore
-		sessionBytes := ds.Get(auth.SessionsBucket, sessionTkn.SessionID)
+		sessionBytes := data.Get(data.SessionsBucket, sessionTkn.SessionID)
 
 		var session handler.Session
 		err = json.Unmarshal(sessionBytes, &session) // convert bytes to session struct

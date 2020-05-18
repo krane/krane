@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/biensupernice/krane/auth"
-	"github.com/biensupernice/krane/ds"
+	"github.com/biensupernice/krane/data"
 	"github.com/biensupernice/krane/server/http"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -57,7 +57,7 @@ func Login(c *gin.Context) {
 	key := reqID.String()
 	val := []byte(fmt.Sprintf("Hey krane, %s", key))
 
-	err := ds.Put(auth.AuthBucket, key, val)
+	err := data.Put(data.AuthBucket, key, val)
 	if err != nil {
 		http.BadRequest(c, err.Error())
 		return
@@ -77,7 +77,7 @@ func Auth(c *gin.Context) {
 	}
 
 	// Check if request id is valid, get phrase stored on the server
-	serverPhrase := string(ds.Get(auth.AuthBucket, req.RequestID))
+	serverPhrase := string(data.Get(data.AuthBucket, req.RequestID))
 	if serverPhrase == "" {
 		errMsg := "Unable to authenticate"
 		http.BadRequest(c, errMsg)
@@ -110,7 +110,7 @@ func Auth(c *gin.Context) {
 	// If reached here, authentication was succesful
 	// create a new token and assign it to a session
 	// Remove auth data from auth bucket
-	err = ds.Remove(auth.AuthBucket, req.RequestID)
+	err = data.Remove(data.AuthBucket, req.RequestID)
 	if err != nil {
 		errMsg := errors.Errorf("Something went wrong - %s", err.Error())
 		http.BadRequest(c, errMsg)
@@ -119,7 +119,7 @@ func Auth(c *gin.Context) {
 
 	sessionID := uuid.New().String()
 	sessionTkn := &SessionToken{SessionID: sessionID}
-	signedSessionTkn, err := auth.CreateToken(serverPrivKey, sessionTkn)
+	signedataessionTkn, err := auth.CreateToken(serverPrivKey, sessionTkn)
 	if err != nil {
 		errMsg := errors.Errorf("Invalid request - %s", err.Error())
 		http.BadRequest(c, errMsg)
@@ -129,13 +129,13 @@ func Auth(c *gin.Context) {
 	// Create a session with relevant data
 	session := &Session{
 		ID:        sessionID,
-		Token:     signedSessionTkn, // Token used for authenticating subsequent requests for a session
+		Token:     signedataessionTkn, // Token used for authenticating subsequent requests for a session
 		ExpiresAt: UnixToDate(auth.OneYear),
 	}
 
 	// Store session into sessions bucket
 	sessionBytes, _ := json.Marshal(session)
-	ds.Put(auth.SessionsBucket, sessionID, sessionBytes)
+	data.Put(data.SessionsBucket, sessionID, sessionBytes)
 
 	http.Ok(c, &AuthResponse{Session: *session})
 }
