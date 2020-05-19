@@ -4,7 +4,7 @@ Krane is an open-source project inspired by [now](https://vercel.com/), [exofram
 
 It provides the framework that can be installed on an inexpensive linux server on any cloud. The [cli](https://github.com/biensupernice/krane-cli) is how you communicate to krane and manage your deployments.
 
-![krane](![build-push-dev](https://github.com/biensupernice/krane-server/workflows/build-push-dev/badge.svg?branch=master&event=status))
+![build-push-master](https://github.com/biensupernice/krane-server/workflows/build-push-master/badge.svg?branch=master&event=status)
 [![Documentation](https://img.shields.io/badge/latest-documentation-informational)](https://github.com/biensupernice/krane-server/tree/master/docs)
 [![Go Report Card](https://goreportcard.com/badge/github.com/biensupernice/krane-server)](https://goreportcard.com/report/github.com/biensupernice/krane-server)
 
