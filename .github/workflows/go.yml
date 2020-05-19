@@ -41,3 +41,4 @@ jobs:
         password: ${{ secrets.DOCKER_PASSWORD }}
         repository: biensupernice/krane
         tag_with_ref: true
+        path: ../../
