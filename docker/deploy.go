@@ -2,38 +2,101 @@ package docker
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"log"
+
+	"github.com/biensupernice/krane/data"
+
+	"github.com/google/uuid"
 )
 
 // DeploySpec : spec to deploy and app
-type DeploySpec struct {
-	Name   string           `json:"name" binding:"required"`
-	Config DeploySpecConfig `json:"config" binding:"required"`
-}
+// type DeploySpec struct {
+// 	Name   string           `json:"name" binding:"required"`
+// 	Config DeploySpecConfig `json:"config" binding:"required"`
+// }
 
-// DeploySpecConfig : config for deploying an app
-type DeploySpecConfig struct {
-	Registry      string `json:"repo"`                     // Docker registry url
-	Image         string `json:"image" binding:"required"` // DOcker image name
+// // DeploySpecConfig : config for deploying an app
+// type DeploySpecConfig struct {
+// 	Registry      string `json:"repo"`                     // Docker registry url
+// 	Image         string `json:"image" binding:"required"` // DOcker image name
+// 	Tag           string `json:"tag"`                      // Docker image tag
+// 	HostPort      string `json:"host_port"`                // Port to bind to host machine from the container
+// 	ContainerPort string `json:"container_port"`           // Port to expose from the container
+// }
+
+const (
+	// DeploymentStatusFailed : deployment failed
+	DeploymentStatusFailed = "Failed"
+
+	// DeploymentStatusSucceeded : deployment succeeded
+	DeploymentStatusSucceeded = "Succeeded"
+
+	// DeploymentStatusPending : deployment queued but not started.
+	DeploymentStatusPending = "Pending"
+
+	// DeploymentStatusInProgress : deployment in progress
+	DeploymentStatusInProgress = "InProgress"
+)
+
+// Deployment : state of a deployment
+type Deployment struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`                     // Deployment name
+	Status        string `json:"status"`                   // Deployment status
+	ContainerID   string `json:"container_id"`             // Deployment container id
+	Registry      string `json:"registry"`                 // Docker registry url
+	Image         string `json:"image" binding:"required"` // Docker image name
 	Tag           string `json:"tag"`                      // Docker image tag
-	HostPort      string `json:"host_port"`                // Port to bind to host machine from the container
 	ContainerPort string `json:"container_port"`           // Port to expose from the container
+	HostPort      string `json:"host_port"`                // Port to expose to the host
 }
 
-// Deploy : docker container
-func Deploy(spec DeploySpec) (containerID string, err error) {
+// QueueDeployment : queue a deployment
+func QueueDeployment(deployment Deployment) {
+	// Set defaults
+	dplmnt := setDeploymentDefaults(&deployment)
+
+	log.Printf("Queuing deployment - %s", dplmnt.Name)
+
+	// Set deployment status to pending
+	dplmnt.Status = DeploymentStatusPending
+
+	// Insert the current deployment into the deployments buckets
+	dplmntBytes, _ := json.Marshal(&dplmnt)
+	data.Put(data.DeploymentsBucket, dplmnt.ID, dplmntBytes)
+
+	// Queue up deployment
+}
+
+func setDeploymentDefaults(deployment *Deployment) *Deployment {
+	// Set deployment uid if not set
+	id, _ := uuid.NewUUID()
+	deployment.ID = id.String()
+
+	// Set deployment name to {image}-{id} name if not provided
+	if deployment.Name == "" {
+		deployment.Name = fmt.Sprintf("%s-%s", deployment.Image, deployment.ID)
+	}
 
 	// Set docker registry if not provided
-	if spec.Config.Registry == "" {
-		spec.Config.Registry = "registry.hub.docker.com"
+	if deployment.Registry == "" {
+		deployment.Registry = "registry.hub.docker.com"
 	}
 
 	// Set image tag to `latest` if not provided
-	if spec.Config.Tag == "" {
-		spec.Config.Tag = "latest"
+	if deployment.Tag == "" {
+		deployment.Tag = "latest"
 	}
 
-	log.Printf("Deploying %s\n", spec.Name)
+	return deployment
+}
+
+// Deploy : docker container
+func Deploy(deployment Deployment) (containerID string, err error) {
+	deployment.Status = DeploymentStatusInProgress
+	log.Printf("Deploying %s\n", deployment.Name)
 
 	// Get docker client
 	_, err = New()
@@ -45,7 +108,7 @@ func Deploy(spec DeploySpec) (containerID string, err error) {
 	ctx := context.Background()
 
 	// Format docker image url source
-	img := FormatImageSourceURL(spec.Config.Registry, spec.Config.Image, spec.Config.Tag)
+	img := FormatImageSourceURL(deployment.Registry, deployment.Image, deployment.Tag)
 	log.Printf("Pulling image: %s\n", img)
 
 	// Pull docker image
@@ -55,7 +118,11 @@ func Deploy(spec DeploySpec) (containerID string, err error) {
 	}
 
 	// Create docker container
-	createContainerResp, err := CreateContainer(&ctx, img, spec.Name, spec.Config.HostPort, spec.Config.ContainerPort)
+	createContainerResp, err := CreateContainer(&ctx,
+		img,
+		deployment.Name,
+		deployment.HostPort,
+		deployment.ContainerPort)
 	containerID = createContainerResp.ID
 	if err != nil {
 		return
@@ -69,7 +136,8 @@ func Deploy(spec DeploySpec) (containerID string, err error) {
 		return
 	}
 
-	log.Printf("Deployed %s - 📦 %s\n", spec.Name, containerID)
+	deployment.Status = DeploymentStatusSucceeded
+	log.Printf("Deployed %s - 📦 %s\n", deployment.Name, containerID)
 
 	return
 }

@@ -23,6 +23,12 @@ func Ok(c *gin.Context, data interface{}) {
 	return
 }
 
+// Accepted : response with status code 202
+func Accepted(c *gin.Context) {
+	c.Status(http.StatusAccepted)
+	return
+}
+
 // Created : response with status code 201
 func Created(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusCreated, &Response{

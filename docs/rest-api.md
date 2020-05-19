@@ -85,8 +85,4 @@ Create a new deployment
 }
 ```
 
-**Response**
-
-```json
-{}
-```
+**Response** 202 Accepted

@@ -28,5 +28,5 @@ func GetSessions(c *gin.Context) {
 		sessions = append(sessions, s)
 	}
 
-	http.Ok(c, sessions)
+	http.Created(c, sessions)
 }
