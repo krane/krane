@@ -35,10 +35,11 @@ func GetDeployments(c *gin.Context) {
 		var d docker.Deployment
 		err := json.Unmarshal(*deploymentData[v], &d)
 		if err != nil {
-			log.Printf("Unable to parse session [skipping] - %s", err.Error())
+			log.Printf("Unable to parse deployment [skipping] - %s", err.Error())
 			continue
 		}
 		deployments = append(deployments, d)
 	}
+
 	http.Ok(c, deployments)
 }
