@@ -11,21 +11,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// DeploySpec : spec to deploy and app
-// type DeploySpec struct {
-// 	Name   string           `json:"name" binding:"required"`
-// 	Config DeploySpecConfig `json:"config" binding:"required"`
-// }
-
-// // DeploySpecConfig : config for deploying an app
-// type DeploySpecConfig struct {
-// 	Registry      string `json:"repo"`                     // Docker registry url
-// 	Image         string `json:"image" binding:"required"` // DOcker image name
-// 	Tag           string `json:"tag"`                      // Docker image tag
-// 	HostPort      string `json:"host_port"`                // Port to bind to host machine from the container
-// 	ContainerPort string `json:"container_port"`           // Port to expose from the container
-// }
-
 const (
 	// DeploymentStatusFailed : deployment failed
 	DeploymentStatusFailed = "Failed"
@@ -67,7 +52,7 @@ func QueueDeployment(deployment Deployment) {
 	dplmntBytes, _ := json.Marshal(&dplmnt)
 	data.Put(data.DeploymentsBucket, dplmnt.ID, dplmntBytes)
 
-	// Queue up deployment
+	// TODO: Queue up deployment
 }
 
 func setDeploymentDefaults(deployment *Deployment) *Deployment {

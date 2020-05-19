@@ -1,0 +1,16 @@
+name: build-push-master
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-push-master:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: docker/build-push-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          repository: biensupernice/krane
+          tags: latest
