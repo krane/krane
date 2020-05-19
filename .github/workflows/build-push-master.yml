@@ -1,10 +1,10 @@
-name: build-push-prod
+name: build-push-master
 on:
   push:
     branches:
       - master
 jobs:
-  build-push:
+  build-push-master:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
