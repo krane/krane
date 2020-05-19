@@ -24,10 +24,8 @@ npx krane-cli deploy
 ## Runing with docker
 
 ```bash
-# Build image
-> docker build -t krane .
+> docker pull biensupernice/krane
 
-# Run image
 > docker run --rm --name=krane \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v ~/.ssh/authorized_keys:/root/.ssh/authorized_keys  \
