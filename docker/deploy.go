@@ -19,14 +19,11 @@ const (
 	// StatusSucceeded : deployment succeeded
 	StatusSucceeded = "Succeeded"
 
-	// StatusPending : deployment queued but not started.
-	StatusPending = "Pending"
-
 	// StatusInProgress : deployment in progress
 	StatusInProgress = "InProgress"
 )
 
-// Deployment : state of a deployment
+// Deployment :
 type Deployment struct {
 	ID            string   `json:"id"`
 	Name          string   `json:"name"`                     // Deployment name
@@ -53,11 +50,11 @@ type Event struct {
 
 // StartDeployment : start a deployment
 func StartDeployment(d *Deployment) {
-	// Set defaults
+	// Set deployments defaults
 	setDefaults(d)
 
-	// Set deployment status to pending,
-	updateDeploymentStatus(d.ID, StatusPending)
+	// Start deployment process
+	updateDeploymentStatus(d.ID, StatusInProgress)
 	addDeploymentEvent(d.ID, &Event{Timestamp: time.Now(), Data: map[string]string{"message": fmt.Sprintf("Starting Deployment - %s", d.ID)}})
 
 	// Store deployment
