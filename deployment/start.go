@@ -1,4 +1,4 @@
-package docker
+package deployment
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/biensupernice/krane/data"
+	"github.com/biensupernice/krane/docker"
 
 	"github.com/google/uuid"
 )
@@ -48,38 +49,38 @@ type Event struct {
 	Data      map[string]string `json:"data"`
 }
 
-// StartDeployment : start a deployment
-func StartDeployment(d *Deployment) {
+// Start : start a deployment
+func Start(d *Deployment) {
 	// Set deployments defaults
 	setDefaults(d)
 
 	// Start deployment process
 	updateDeploymentStatus(d.ID, StatusInProgress)
-	addDeploymentEvent(d.ID, &Event{Timestamp: time.Now(), Data: map[string]string{"message": fmt.Sprintf("Starting Deployment - %s", d.ID)}})
+	LogEvent(d.ID, &Event{Timestamp: time.Now(), Data: map[string]string{"message": fmt.Sprintf("Starting Deployment - %s", d.ID)}})
 
-	// Store deployment
+	// Save the deployment
 	err := storeDeployment(d)
 	if err != nil {
 		log.Println(err.Error())
-		addDeploymentEvent(d.ID, &Event{Timestamp: time.Now(), Data: map[string]string{"message": fmt.Sprintf("Unable to save deployment")}})
+		LogEvent(d.ID, &Event{Timestamp: time.Now(), Data: map[string]string{"message": fmt.Sprintf("Unable to save deployment")}})
 		return
 	}
 
-	// This number represent the amount of tries krane will attempt
-	// to start a deployment before marking it as failed
+	// This number represent the amount of tries that will be attemptted
+	// before marking it the deployment as Failed
 	attemptsBeforeFailing := 3
 	for attempts := 0; attempts < attemptsBeforeFailing; attempts++ {
-		_, err := Deploy(d)
+		_, err := deployWithDocker(d)
 		if err != nil {
 			// Deployment failed, update status, record event
 			updateDeploymentStatus(d.ID, StatusFailed)
-			addDeploymentEvent(d.ID, &Event{
+			LogEvent(d.ID, &Event{
 				Timestamp: time.Now(),
 				Data:      map[string]string{"message": fmt.Sprintf("[%d/%d] Deployment failed - %s", attempts+1, attemptsBeforeFailing, err.Error())}})
 
 			// Return if retry limit has exceeded
 			if attempts == attemptsBeforeFailing-1 {
-				addDeploymentEvent(d.ID, &Event{
+				LogEvent(d.ID, &Event{
 					Timestamp: time.Now(),
 					Data:      map[string]string{"message": fmt.Sprintf("Exceeded retry limit of %d, stopping deployment", attemptsBeforeFailing)}})
 				return
@@ -90,9 +91,71 @@ func StartDeployment(d *Deployment) {
 		}
 
 		updateMetadata(d.ID, d.Metadata)
-		addDeploymentEvent(d.ID, &Event{Timestamp: time.Now(), Data: map[string]string{"message": fmt.Sprintf(fmt.Sprintf("Deployment finished [Container ID] %s", d.Metadata.ContainerID))}})
+		LogEvent(d.ID, &Event{Timestamp: time.Now(), Data: map[string]string{"message": fmt.Sprintf(fmt.Sprintf("Deployment finished [Container ID] %s", d.Metadata.ContainerID))}})
 		break
 	}
+}
+
+// deployWithDocker : workflow to deploy a docker container
+func deployWithDocker(deployment *Deployment) (*Deployment, error) {
+	metadata := &deployment.Metadata
+	metadata.Status = StatusInProgress // Deployment : InProgress
+	updateDeploymentStatus(deployment.ID, metadata.Status)
+
+	// Get docker client
+	_, err := docker.New()
+	if err != nil {
+		metadata.Status = StatusFailed
+		LogEvent(deployment.ID, &Event{
+			Timestamp: time.Now(),
+			Data:      map[string]string{"message": err.Error()}})
+		return deployment, err
+	}
+
+	// Start deployment context
+	ctx := context.Background()
+
+	// Format docker image url source
+	img := docker.FormatImageSourceURL(deployment.Registry, deployment.Image, deployment.Tag)
+	LogEvent(deployment.ID, &Event{
+		Timestamp: time.Now(),
+		Data:      map[string]string{"message": fmt.Sprintf("Pulling image: %s", img)}})
+
+	// Pull docker image
+	err = docker.PullImage(&ctx, img)
+	if err != nil {
+		metadata.Status = StatusFailed
+		return deployment, err
+	}
+
+	// Create docker container
+	createContainerResp, err := docker.CreateContainer(&ctx,
+		img,
+		deployment.Name,
+		deployment.HostPort,
+		deployment.ContainerPort)
+	if err != nil {
+		metadata.Status = StatusFailed
+		return deployment, err
+	}
+
+	// Set deployment metadata container id
+	metadata.ContainerID = createContainerResp.ID
+
+	// Start docker container
+	err = docker.StartContainer(&ctx, metadata.ContainerID)
+	if err != nil {
+		docker.RemoveContainer(&ctx, metadata.ContainerID)
+		metadata.Status = StatusFailed
+		return deployment, err
+	}
+
+	metadata.Status = StatusSucceeded
+	LogEvent(deployment.ID, &Event{
+		Timestamp: time.Now(),
+		Data:      map[string]string{"message": fmt.Sprintf("Succesfully deployed %s - %s", deployment.Name, metadata.ContainerID)}})
+
+	return deployment, nil
 }
 
 func updateMetadata(id string, m Metadata) {
@@ -122,7 +185,7 @@ func storeDeployment(d *Deployment) error {
 	return data.Put(data.DeploymentsBucket, d.ID, dplmntBytes)
 }
 
-func addDeploymentEvent(id string, event *Event) error {
+func LogEvent(id string, event *Event) error {
 	// Get deployment from db
 	d := *getDeployment(id)
 
@@ -179,66 +242,4 @@ func setDefaults(deployment *Deployment) *Deployment {
 	}
 
 	return deployment
-}
-
-// Deploy : docker container
-func Deploy(deployment *Deployment) (*Deployment, error) {
-	metadata := &deployment.Metadata
-	metadata.Status = StatusInProgress // Deployment : InProgress
-	updateDeploymentStatus(deployment.ID, metadata.Status)
-
-	// Get docker client
-	_, err := New()
-	if err != nil {
-		metadata.Status = StatusFailed
-		addDeploymentEvent(deployment.ID, &Event{
-			Timestamp: time.Now(),
-			Data:      map[string]string{"message": err.Error()}})
-		return deployment, err
-	}
-
-	// Start deployment context
-	ctx := context.Background()
-
-	// Format docker image url source
-	img := FormatImageSourceURL(deployment.Registry, deployment.Image, deployment.Tag)
-	addDeploymentEvent(deployment.ID, &Event{
-		Timestamp: time.Now(),
-		Data:      map[string]string{"message": fmt.Sprintf("Pulling image: %s", img)}})
-
-	// Pull docker image
-	err = PullImage(&ctx, img)
-	if err != nil {
-		metadata.Status = StatusFailed
-		return deployment, err
-	}
-
-	// Create docker container
-	createContainerResp, err := CreateContainer(&ctx,
-		img,
-		deployment.Name,
-		deployment.HostPort,
-		deployment.ContainerPort)
-	if err != nil {
-		metadata.Status = StatusFailed
-		return deployment, err
-	}
-
-	// Set deployment metadata container id
-	metadata.ContainerID = createContainerResp.ID
-
-	// Start docker container
-	err = StartContainer(&ctx, metadata.ContainerID)
-	if err != nil {
-		RemoveContainer(&ctx, metadata.ContainerID)
-		metadata.Status = StatusFailed
-		return deployment, err
-	}
-
-	metadata.Status = StatusSucceeded
-	addDeploymentEvent(deployment.ID, &Event{
-		Timestamp: time.Now(),
-		Data:      map[string]string{"message": fmt.Sprintf("Succesfully deployed %s - %s", deployment.Name, metadata.ContainerID)}})
-
-	return deployment, nil
 }
