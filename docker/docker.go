@@ -93,7 +93,12 @@ func CreateContainer(
 	hostConf := &container.HostConfig{PortBindings: portBinding}
 
 	// Setup container conf
-	containerConf := &container.Config{Image: image, Env: []string{"TEST_ENV=pipi"}}
+	containerConf := &container.Config{
+		Hostname: "blah",
+		Image:    image,
+		Env:      []string{"TEST_ENV=pipi"},
+		Labels:   map[string]string{"TEST_LABEL": "poopoo"},
+	}
 
 	// Setup networking conf
 	networkConf := &network.NetworkingConfig{}
