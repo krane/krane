@@ -68,6 +68,8 @@ func StartDeployment(d *Deployment) {
 		return
 	}
 
+	// This number represent the amount of tries krane will attempt
+	// to start a deployment before marking it as failed
 	attemptsBeforeFailing := 3
 	for attempts := 0; attempts < attemptsBeforeFailing; attempts++ {
 		_, err := Deploy(d)
@@ -78,13 +80,15 @@ func StartDeployment(d *Deployment) {
 				Timestamp: time.Now(),
 				Data:      map[string]string{"message": fmt.Sprintf("[%d/%d] Deployment failed - %s", attempts+1, attemptsBeforeFailing, err.Error())}})
 
-			time.Sleep(10 * time.Second) // 5 seconds
-
+			// Return if retry limit has exceeded
 			if attempts == attemptsBeforeFailing-1 {
 				addDeploymentEvent(d.ID, &Event{
 					Timestamp: time.Now(),
 					Data:      map[string]string{"message": fmt.Sprintf("Exceeded retry limit of %d, stopping deployment", attemptsBeforeFailing)}})
+				return
 			}
+
+			time.Sleep(10 * time.Second) // 10 seconds
 			continue
 		}
 
@@ -184,6 +188,7 @@ func setDefaults(deployment *Deployment) *Deployment {
 func Deploy(deployment *Deployment) (*Deployment, error) {
 	metadata := &deployment.Metadata
 	metadata.Status = StatusInProgress // Deployment : InProgress
+	updateDeploymentStatus(deployment.ID, metadata.Status)
 
 	// Get docker client
 	_, err := New()
