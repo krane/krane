@@ -20,7 +20,7 @@ func CreateDeployment(c *gin.Context) {
 	}
 
 	// Queue up the deployment
-	go docker.QueueDeployment(deployment)
+	go docker.StartDeployment(&deployment)
 
 	http.Accepted(c)
 }
