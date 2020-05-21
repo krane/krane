@@ -7,8 +7,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/biensupernice/krane/data"
 	"github.com/biensupernice/krane/docker"
+	"github.com/biensupernice/krane/internal/data"
 
 	"github.com/google/uuid"
 )
@@ -27,7 +27,7 @@ const (
 // Deployment :
 type Deployment struct {
 	ID            string   `json:"id"`
-	Name          string   `json:"name"`                     // Deployment name
+	Name          string   `json:"name" binding:"required"`  // Deployment name
 	Registry      string   `json:"registry"`                 // Docker registry url
 	Image         string   `json:"image" binding:"required"` // Docker image name
 	Tag           string   `json:"tag"`                      // Docker image tag
@@ -38,15 +38,33 @@ type Deployment struct {
 
 // Metadata : about a deployment
 type Metadata struct {
-	Status      string  `json:"status"`       // Deployment status
-	ContainerID string  `json:"container_id"` // Deployment container id
-	Events      []Event `json:"events"`       // Deployment info, error
+	Status        string  `json:"status"`         // Deployment status
+	ContainerID   string  `json:"container_id"`   // Deployment container id
+	ContainerName string  `json:"container_name"` // Deployment container name
+	Events        []Event `json:"events"`         // Deployment info, error
 }
 
 // Event : specify a deployment event
 type Event struct {
 	Timestamp time.Time         `json:"timestamp" binding:"required"`
 	Data      map[string]string `json:"data"`
+}
+
+func Start2(t Template) {
+	retries := 3
+	for i := 0; i < retries; i++ {
+		err := deployWithDocker2(&t)
+		if err != nil {
+			// Log if this is last attempt and got error
+			if i+1 == retries {
+				return
+			}
+
+			wait(10)
+			continue
+		}
+		break
+	}
 }
 
 // Start : start a deployment
@@ -86,7 +104,6 @@ func Start(d *Deployment) {
 				return
 			}
 
-			time.Sleep(10 * time.Second) // 10 seconds
 			continue
 		}
 
@@ -129,9 +146,11 @@ func deployWithDocker(deployment *Deployment) (*Deployment, error) {
 	}
 
 	// Create docker container
-	createContainerResp, err := docker.CreateContainer(&ctx,
+	containerName := fmt.Sprintf("%s-%s", deployment.Name, uuid.NewSHA1(uuid.New(), nil))
+	createContainerResp, err := docker.CreateContainer(
+		&ctx,
 		img,
-		deployment.Name,
+		containerName,
 		deployment.HostPort,
 		deployment.ContainerPort)
 	if err != nil {
@@ -140,6 +159,7 @@ func deployWithDocker(deployment *Deployment) (*Deployment, error) {
 	}
 
 	// Set deployment metadata container id
+	metadata.ContainerName = containerName
 	metadata.ContainerID = createContainerResp.ID
 
 	// Start docker container
@@ -156,6 +176,45 @@ func deployWithDocker(deployment *Deployment) (*Deployment, error) {
 		Data:      map[string]string{"message": fmt.Sprintf("Succesfully deployed %s - %s", deployment.Name, metadata.ContainerID)}})
 
 	return deployment, nil
+}
+
+// deployWithDocker : workflow to deploy a docker container
+func deployWithDocker2(t *Template) (err error) {
+	// deployment context
+	ctx := context.Background()
+
+	// create well formated url to fetch docker image
+	img := docker.FormatImageSourceURL(t.Config.Registry, t.Config.Image, t.Config.Tag)
+
+	// Pull docker image
+	err = docker.PullImage(&ctx, img)
+	if err != nil {
+		return err
+	}
+
+	// Create docker container
+	dID := uuid.NewSHA1(uuid.New(), []byte(t.Name)) // deployment ID
+	containerName := fmt.Sprintf("%s-%s", t.Name, dID)
+	createContainerResp, err := docker.CreateContainer(
+		&ctx,
+		img,
+		containerName,
+		t.Config.HostPort,
+		t.Config.ContainerPort)
+	if err != nil {
+		return
+	}
+
+	containerID := createContainerResp.ID
+
+	// Start docker container
+	err = docker.StartContainer(&ctx, containerID)
+	if err != nil {
+		docker.RemoveContainer(&ctx, containerID)
+		return
+	}
+
+	return
 }
 
 func updateMetadata(id string, m Metadata) {
@@ -185,6 +244,7 @@ func storeDeployment(d *Deployment) error {
 	return data.Put(data.DeploymentsBucket, d.ID, dplmntBytes)
 }
 
+// LogEvent : related to a deployment
 func LogEvent(id string, event *Event) error {
 	// Get deployment from db
 	d := *getDeployment(id)
@@ -242,4 +302,8 @@ func setDefaults(deployment *Deployment) *Deployment {
 	}
 
 	return deployment
+}
+
+func wait(s time.Duration) {
+	time.Sleep(s * time.Second)
 }

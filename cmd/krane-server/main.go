@@ -6,8 +6,9 @@ import (
 	"os"
 
 	"github.com/biensupernice/krane/auth"
-	"github.com/biensupernice/krane/data"
-	"github.com/biensupernice/krane/server"
+	"github.com/biensupernice/krane/docker"
+	"github.com/biensupernice/krane/internal/api"
+	"github.com/biensupernice/krane/internal/data"
 )
 
 // Env
@@ -17,7 +18,7 @@ var (
 	KranePath       = os.Getenv("KRANE_PATH")      // Defaults to ~/.krane
 	KranePrivateKey = os.Getenv("KRANE_PRIVATE_KEY")
 
-	config *server.Config
+	config *api.Config
 )
 
 func init() {
@@ -65,13 +66,19 @@ func init() {
 	}
 
 	// Set server configuration
-	config = &server.Config{
-		Port:     ":" + RestPort,
+	config = &api.Config{
+		RestPort: RestPort,
 		LogLevel: LogLevel,
+	}
+
+	// Create docker client
+	_, err = docker.New()
+	if err != nil {
+		log.Fatalf("Error with docker - %s", err.Error())
 	}
 }
 
 func main() {
 	defer data.DB.Close()
-	server.Run(*config)
+	api.Start(*config)
 }

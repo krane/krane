@@ -6,9 +6,21 @@ import (
 	"log"
 
 	"github.com/biensupernice/krane/docker"
-	"github.com/biensupernice/krane/server/http"
+	"github.com/biensupernice/krane/internal/api/http"
 	"github.com/gin-gonic/gin"
 )
+
+// ListContainers : list all containers
+func ListContainers(c *gin.Context) {
+	ctx := context.Background()
+	containers, err := docker.ListContainers(&ctx)
+	if err != nil {
+		http.BadRequest(c, err.Error())
+		return
+	}
+
+	http.Ok(c, containers)
+}
 
 // StopContainer : stop docker container
 func StopContainer(c *gin.Context) {

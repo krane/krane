@@ -138,6 +138,16 @@ func RemoveContainer(ctx *context.Context, containerID string) error {
 	return dkrClient.ContainerRemove(*ctx, containerID, options)
 }
 
+// ListContainers : get all containers
+func ListContainers(ctx *context.Context) (containers []types.Container, err error) {
+	if dkrClient == nil {
+		err = fmt.Errorf("docker client not initialized")
+		return
+	}
+	options := types.ContainerListOptions{}
+	return dkrClient.ContainerList(*ctx, options)
+}
+
 // FormatImageSourceURL : format into appropriate docker image url
 func FormatImageSourceURL(
 	repo string,
