@@ -33,6 +33,9 @@ const (
 
 	// DeploymentsBucket : bucket used for storing deployment related key-value data
 	DeploymentsBucket = "DeploymentsBucket"
+
+	// TemplatesBucket : bucket used for storing deployment templates
+	TemplatesBucket = "Templates"
 )
 
 var (
@@ -46,8 +49,15 @@ func SetupDB() error {
 		return fmt.Errorf("Unable to setup db")
 	}
 
-	bkts := []string{AuthBucket, SessionsBucket, DeploymentsBucket}
+	// Bucket to create
+	bkts := []string{
+		AuthBucket,
+		SessionsBucket,
+		DeploymentsBucket,
+		TemplatesBucket,
+	}
 
+	// Iterate and create buckets
 	for i := 0; i < len(bkts); i++ {
 		err := CreateBucket(bkts[i])
 		if err != nil {
@@ -66,7 +76,11 @@ func NewDB(dbName string) (*bolt.DB, error) {
 
 	// Get base krane directory
 	kPath := os.Getenv("KRANE_PATH")
+
 	dbDir := fmt.Sprintf("%s/db", kPath)
+	if kPath == "" {
+		dbDir = "./db"
+	}
 
 	// Make db directory
 	os.Mkdir(dbDir, 0777)

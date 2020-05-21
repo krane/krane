@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/biensupernice/krane/data"
-	"github.com/biensupernice/krane/server/http"
+	"github.com/biensupernice/krane/internal/api/http"
+	"github.com/biensupernice/krane/internal/data"
 	"github.com/gin-gonic/gin"
 )
 

@@ -76,11 +76,11 @@ Create a new deployment
 {
   "name": "backend-service-1", // Name of the deployment
   "config": {
-    "repo": "dockerhub.io", // Docker registry url
-    "image": "app/backend-service-1", // Docker image name
-    "tag": "latest", // Docker image tag
-    "host_port": "8080", // Port to bind from container to host,
-    "container_port": "8080" // Port to expose to the host,
+    "repo": "dockerhub.io",
+    "image": "app/backend-service-1",
+    "tag": "latest",
+    "host_port": "8080",
+    "container_port": "8080"
   }
 }
 ```
