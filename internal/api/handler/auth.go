@@ -9,7 +9,7 @@ import (
 
 	"github.com/biensupernice/krane/auth"
 	"github.com/biensupernice/krane/internal/api/http"
-	"github.com/biensupernice/krane/internal/data"
+	"github.com/biensupernice/krane/internal/store"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -57,7 +57,7 @@ func Login(c *gin.Context) {
 	key := reqID.String()
 	val := []byte(fmt.Sprintf("Hey krane, %s", key))
 
-	err := data.Put(data.AuthBucket, key, val)
+	err := store.Put(store.AuthBucket, key, val)
 	if err != nil {
 		http.BadRequest(c, err.Error())
 		return
@@ -77,7 +77,7 @@ func Auth(c *gin.Context) {
 	}
 
 	// Check if request id is valid, get phrase stored on the server
-	serverPhrase := string(data.Get(data.AuthBucket, req.RequestID))
+	serverPhrase := string(store.Get(store.AuthBucket, req.RequestID))
 	if serverPhrase == "" {
 		errMsg := "Unable to authenticate"
 		http.BadRequest(c, errMsg)
@@ -110,7 +110,7 @@ func Auth(c *gin.Context) {
 	// If reached here, authentication was succesful
 	// create a new token and assign it to a session
 	// Remove auth data from auth bucket
-	err = data.Remove(data.AuthBucket, req.RequestID)
+	err = store.Remove(store.AuthBucket, req.RequestID)
 	if err != nil {
 		errMsg := errors.Errorf("Something went wrong - %s", err.Error())
 		http.BadRequest(c, errMsg)
@@ -135,7 +135,7 @@ func Auth(c *gin.Context) {
 
 	// Store session into sessions bucket
 	sessionBytes, _ := json.Marshal(session)
-	data.Put(data.SessionsBucket, sessionID, sessionBytes)
+	store.Put(store.SessionsBucket, sessionID, sessionBytes)
 
 	http.Ok(c, &AuthResponse{Session: *session})
 }

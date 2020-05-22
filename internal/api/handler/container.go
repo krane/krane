@@ -3,10 +3,10 @@ package handler
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/biensupernice/krane/docker"
 	"github.com/biensupernice/krane/internal/api/http"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,13 +35,13 @@ func StopContainer(c *gin.Context) {
 
 	err := docker.StopContainer(&ctx, containerID)
 	if err != nil {
-		msg := fmt.Sprintf("Unable to stop container %s", containerID)
-		http.BadRequest(c, msg)
+		errMsg := fmt.Sprintf("Unable to stop container %s", containerID)
+		http.BadRequest(c, errMsg)
 		return
 	}
 
 	msg := fmt.Sprintf("Container %s stopped", containerID)
-	log.Printf(msg)
+	logger.Debug(msg)
 
 	http.Ok(c, map[string]string{"message": msg})
 }
@@ -59,12 +59,13 @@ func StartContainer(c *gin.Context) {
 
 	err := docker.StartContainer(&ctx, containerID)
 	if err != nil {
-		msg := fmt.Sprintf("Unable to start container %s - %s", containerID, err.Error())
-		http.BadRequest(c, msg)
+		errMsg := fmt.Sprintf("Unable to start container %s - %s", containerID, err.Error())
+		http.BadRequest(c, errMsg)
 		return
 	}
 
 	msg := fmt.Sprintf("Container %s started", containerID)
+	logger.Debug(msg)
 
 	http.Ok(c, map[string]string{"message": msg})
 }

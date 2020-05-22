@@ -3,7 +3,6 @@ package docker
 import (
 	"context"
 	"fmt"
-	"io"
 	"net"
 	"os"
 
@@ -44,17 +43,18 @@ func PullImage(ctx *context.Context, image string) error {
 	options := types.ImagePullOptions{
 		RegistryAuth: "", // RegistryAuth is the base64 encoded credentials for the registry
 	}
-	ioreader, err := dkrClient.ImagePull(*ctx, image, options)
-
+	_, err := dkrClient.ImagePull(*ctx, image, options)
 	if err != nil {
 		return err
 	}
 
-	io.Copy(os.Stdout, ioreader)
-	err = ioreader.Close()
-	if err != nil {
-		return err
-	}
+	// ImagePull return ioreader
+	// Commenting out for now to reduce the messages outputed to stdout
+	// io.Copy(os.Stdout, ioreader)
+	// err = ioreader.Close()
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }

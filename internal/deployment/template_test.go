@@ -4,7 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/biensupernice/krane/internal/data"
+	"github.com/biensupernice/krane/internal/logger"
+	"github.com/biensupernice/krane/internal/store"
 )
 
 // To signal failure in a test use `t.Error(), t.Errorf() t.Fail()`
@@ -47,14 +48,17 @@ var testTemplate = &Template{
 }
 
 // Setup resources
-func setup() { CreateLocalDB() }
+func setup() {
+	logger.NewLogger()
+	CreateLocalDB()
+}
 
 // Remove resources
 func shutdown() { RemoveLocalDB() }
 
 func TestMain(m *testing.M) {
 	setup()
-	defer data.DB.Close()
+	defer store.DB.Close()
 
 	code := m.Run()
 
@@ -122,7 +126,7 @@ func TestTemplateDefaultsAreNotAppliedIfAlreadySet(t *testing.T) {
 	}
 }
 
-func TestSaveTemplateToDatastore(t *testing.T) {
+func TestSaveTemplateTostorestore(t *testing.T) {
 	err := SaveDeployment(testTemplate)
 	if err != nil {
 		t.Errorf("Got error when saving template %s", err.Error())
@@ -155,12 +159,12 @@ func TestFindTemplate(t *testing.T) {
 
 // Create & Setup local db
 func CreateLocalDB() {
-	_, err := data.NewDB("krane.db")
+	_, err := store.NewDB("krane.db")
 	if err != nil {
 		panic("Unable start db")
 
 	}
-	err = data.SetupDB()
+	err = store.SetupDB()
 	if err != nil {
 		panic("Unable to start db")
 	}

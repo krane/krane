@@ -1,8 +1,7 @@
-package data
+package store
 
 /**
 Persistent key/value datastore using bolt
-
 Operations:
 - Get : get value by key
 - GetAll : get all values in a bucket
@@ -11,6 +10,7 @@ Operations:
 - CreateBucket: new bucket that collects relevant data
 - SetupDB : setup intial db buckets
 - StartDBMetrics:  start a gp routine to fetch bolt metrics
+
 **/
 
 import (
@@ -21,18 +21,19 @@ import (
 	"os/user"
 	"time"
 
+	"github.com/biensupernice/krane/internal/logger"
 	bolt "go.etcd.io/bbolt"
 )
 
 const (
 	// AuthBucket : bucket used for storing auth related key-value data
-	AuthBucket = "AuthBucket"
+	AuthBucket = "Auth"
 
 	// SessionsBucket : bucket used for storing session related key-value data
-	SessionsBucket = "SessionsBucket"
+	SessionsBucket = "Sessions"
 
 	// DeploymentsBucket : bucket used for storing deployment related key-value data
-	DeploymentsBucket = "DeploymentsBucket"
+	DeploymentsBucket = "Deployments"
 
 	// TemplatesBucket : bucket used for storing deployment templates
 	TemplatesBucket = "Templates"
@@ -63,6 +64,9 @@ func SetupDB() error {
 		if err != nil {
 			return err
 		}
+
+		msg := fmt.Sprintf("Created %s Bucket", bkts[i])
+		logger.Debug(msg)
 	}
 
 	return nil
@@ -84,6 +88,7 @@ func NewDB(dbName string) (*bolt.DB, error) {
 
 	// Make db directory
 	os.Mkdir(dbDir, 0777)
+	logger.Debug("Created db")
 
 	// Open the `dbName` data file in your current directory.
 	// It will be created if it doesn't exist.

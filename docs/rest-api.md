@@ -144,7 +144,7 @@ Create a new deployment
 
 **Response** 202 Accepted
 
-This route does not return any data, instead an accepted response is return if the server acknowleged the deployment request. The request starts on its own thread, to check the status see `/containers`.
+This route returns immedtely since the deployment may take some time, instead an accepted response is returned if the server acknowledges the deployment request. The request starts on its own thread, to check the status see `/containers`.
 
 ---
 

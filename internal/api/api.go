@@ -1,6 +1,8 @@
 package api
 
 import (
+	"strings"
+
 	"github.com/biensupernice/krane/internal/api/handler"
 	"github.com/biensupernice/krane/internal/api/middleware"
 	"github.com/gin-contrib/cors"
@@ -15,7 +17,7 @@ type Config struct {
 
 // Start : api server
 func Start(cnf Config) {
-	gin.SetMode(cnf.LogLevel)
+	gin.SetMode(strings.ToLower(cnf.LogLevel))
 
 	client := gin.New()
 
