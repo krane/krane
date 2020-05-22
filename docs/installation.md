@@ -7,7 +7,7 @@ docker run --rm --name=krane \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v ~/.ssh/authorized_keys:/root/.ssh/authorized_keys  \
     -v ~/.krane:/root/.krane \
-    -p 80:8080 krane --build
+    -p 80:8080 biensupernice/krane --build
 ```
 
 ## Creating authentication keys
