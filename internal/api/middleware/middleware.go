@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/biensupernice/krane/auth"
 	"github.com/biensupernice/krane/internal/api/handler"
 	"github.com/biensupernice/krane/internal/api/http"
+	"github.com/biensupernice/krane/internal/auth"
 	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/gin-gonic/gin"

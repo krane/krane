@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/biensupernice/krane/auth"
 	"github.com/biensupernice/krane/internal/api/http"
+	"github.com/biensupernice/krane/internal/auth"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

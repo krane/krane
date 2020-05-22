@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/biensupernice/krane/auth"
 	"github.com/biensupernice/krane/docker"
 	"github.com/biensupernice/krane/internal/api"
+	"github.com/biensupernice/krane/internal/auth"
 	"github.com/biensupernice/krane/internal/store"
 
 	"github.com/biensupernice/krane/internal/logger"
