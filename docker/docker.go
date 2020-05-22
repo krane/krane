@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"os"
 
@@ -60,7 +59,7 @@ func PullImage(ctx *context.Context, image string) error {
 	return nil
 }
 
-// CreateContainer blah
+// CreateContainer : create docker container
 func CreateContainer(
 	ctx *context.Context,
 	image string,
@@ -82,7 +81,6 @@ func CreateContainer(
 	// Configure Container Port
 	containerPort, err := nat.NewPort("tcp", cPort)
 	if err != nil {
-		log.Printf("Unable to configure container port %s - %s", cPort, err.Error())
 		return container.ContainerCreateCreatedBody{}, err
 	}
 
@@ -94,7 +92,7 @@ func CreateContainer(
 
 	// Setup container conf
 	containerConf := &container.Config{
-		Hostname: "blah",
+		Hostname: "bsn",
 		Image:    image,
 		Env:      []string{"TEST_ENV=pipi"},
 		Labels:   map[string]string{"TEST_LABEL": "poopoo"},
@@ -106,7 +104,7 @@ func CreateContainer(
 	return dkrClient.ContainerCreate(*ctx, containerConf, hostConf, networkConf, containerName)
 }
 
-// StartContainer blah
+// StartContainer : start docker container
 func StartContainer(ctx *context.Context, containerID string) error {
 	if dkrClient == nil {
 		err := fmt.Errorf("docker client not initialized")
