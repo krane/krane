@@ -29,9 +29,6 @@ func Start(cnf Config) {
 	client.POST("/auth", handler.Auth)
 	client.GET("/login", handler.Login)
 
-	client.POST("/keys", middleware.AuthSessionMiddleware(), handler.AddAuthorizedKey)
-	client.DELETE("/keys", middleware.AuthSessionMiddleware(), handler.RemoveAuthorizedKey)
-
 	client.GET("/sessions", middleware.AuthSessionMiddleware(), handler.GetSessions)
 
 	client.GET("/deployments", middleware.AuthSessionMiddleware(), handler.GetDeployments)
