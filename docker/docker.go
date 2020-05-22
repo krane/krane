@@ -3,8 +3,6 @@ package docker
 import (
 	"context"
 	"fmt"
-	"io"
-	"log"
 	"net"
 	"os"
 
@@ -45,22 +43,23 @@ func PullImage(ctx *context.Context, image string) error {
 	options := types.ImagePullOptions{
 		RegistryAuth: "", // RegistryAuth is the base64 encoded credentials for the registry
 	}
-	ioreader, err := dkrClient.ImagePull(*ctx, image, options)
-
+	_, err := dkrClient.ImagePull(*ctx, image, options)
 	if err != nil {
 		return err
 	}
 
-	io.Copy(os.Stdout, ioreader)
-	err = ioreader.Close()
-	if err != nil {
-		return err
-	}
+	// ImagePull return ioreader
+	// Commenting out for now to reduce the messages outputed to stdout
+	// io.Copy(os.Stdout, ioreader)
+	// err = ioreader.Close()
+	// if err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
 
-// CreateContainer blah
+// CreateContainer : create docker container
 func CreateContainer(
 	ctx *context.Context,
 	image string,
@@ -82,7 +81,6 @@ func CreateContainer(
 	// Configure Container Port
 	containerPort, err := nat.NewPort("tcp", cPort)
 	if err != nil {
-		log.Printf("Unable to configure container port %s - %s", cPort, err.Error())
 		return container.ContainerCreateCreatedBody{}, err
 	}
 
@@ -93,7 +91,12 @@ func CreateContainer(
 	hostConf := &container.HostConfig{PortBindings: portBinding}
 
 	// Setup container conf
-	containerConf := &container.Config{Image: image, Env: []string{"TEST_ENV=pipi"}}
+	containerConf := &container.Config{
+		Hostname: "bsn",
+		Image:    image,
+		Env:      []string{"TEST_ENV=pipi"},
+		Labels:   map[string]string{"TEST_LABEL": "poopoo"},
+	}
 
 	// Setup networking conf
 	networkConf := &network.NetworkingConfig{}
@@ -101,7 +104,7 @@ func CreateContainer(
 	return dkrClient.ContainerCreate(*ctx, containerConf, hostConf, networkConf, containerName)
 }
 
-// StartContainer blah
+// StartContainer : start docker container
 func StartContainer(ctx *context.Context, containerID string) error {
 	if dkrClient == nil {
 		err := fmt.Errorf("docker client not initialized")
@@ -131,6 +134,16 @@ func RemoveContainer(ctx *context.Context, containerID string) error {
 
 	options := types.ContainerRemoveOptions{}
 	return dkrClient.ContainerRemove(*ctx, containerID, options)
+}
+
+// ListContainers : get all containers
+func ListContainers(ctx *context.Context) (containers []types.Container, err error) {
+	if dkrClient == nil {
+		err = fmt.Errorf("docker client not initialized")
+		return
+	}
+	options := types.ContainerListOptions{}
+	return dkrClient.ContainerList(*ctx, options)
 }
 
 // FormatImageSourceURL : format into appropriate docker image url
