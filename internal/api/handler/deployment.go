@@ -28,7 +28,7 @@ func CreateDeployment(c *gin.Context) {
 	deployment.SaveDeployment(&t)
 
 	// Start new deployment thread
-	go deployment.Start2(t)
+	go deployment.Start(t)
 
 	http.Accepted(c)
 }
