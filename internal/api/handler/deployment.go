@@ -2,10 +2,10 @@ package handler
 
 import (
 	"errors"
-	"log"
 
 	"github.com/biensupernice/krane/internal/api/http"
 	"github.com/biensupernice/krane/internal/deployment"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,16 +37,17 @@ func CreateDeployment(c *gin.Context) {
 func GetDeployment(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
-		log.Println("pipi")
-		http.BadRequest(c, errors.New("Error getting deployment `name` from params"))
+		errMsg := errors.New("Error getting deployment `name` from params")
+		http.BadRequest(c, errMsg)
 		return
 	}
 
-	// Get deployment
+	// Get deployment by name
 	d := deployment.FindDeployment(name)
 
-	// Check if deployment was not found
+	// compare an empty deployment against the one found in the store
 	if *d == (deployment.Template{}) {
+		logger.Debug("Unable to find a deployment by that name")
 		http.Ok(c, nil)
 		return
 	}
@@ -55,9 +56,4 @@ func GetDeployment(c *gin.Context) {
 }
 
 // GetDeployments : get all deployments
-func GetDeployments(c *gin.Context) {
-	// Get deployments
-	deployments := deployment.FindAllDeployments()
-
-	http.Ok(c, deployments)
-}
+func GetDeployments(c *gin.Context) { http.Ok(c, deployment.FindAllDeployments()) }

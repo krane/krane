@@ -3,9 +3,9 @@ package deployment
 import (
 	"encoding/json"
 	"errors"
-	"log"
 
-	"github.com/biensupernice/krane/internal/data"
+	"github.com/biensupernice/krane/internal/logger"
+	"github.com/biensupernice/krane/internal/store"
 )
 
 // Template :
@@ -34,36 +34,41 @@ func SaveDeployment(t *Template) (err error) {
 	// Converts template to bytes
 	tBytes, err := json.Marshal(t)
 	if err != nil {
+		logger.Debugf("Unable to convert the deployment template into bytes - %s", err.Error())
 		return err
 	}
 
-	data.Put(data.DeploymentsBucket, t.Name, tBytes)
-
+	// Save deployment to the datastore
+	store.Put(store.DeploymentsBucket, t.Name, tBytes)
+	logger.Debugf("Deployment saved succesfuly to datastore")
 	return
 }
 
 // FindDeployment : from datastore by deployment name
 func FindDeployment(name string) *Template {
 	// Returns bytes
-	tBytes := data.Get(data.DeploymentsBucket, name)
+	tBytes := store.Get(store.DeploymentsBucket, name)
 
 	// Unmarshal bytes into template
 	var t Template
-	json.Unmarshal(tBytes, &t)
+	err := json.Unmarshal(tBytes, &t)
+	if err != nil {
+		logger.Debugf("Unable to find deployment - %s", err.Error())
+	}
 
 	return &t
 }
 
 // FindAllDeployments : from datastore
 func FindAllDeployments() []Template {
-	deploymentData := data.GetAll(data.DeploymentsBucket)
+	deploymentData := store.GetAll(store.DeploymentsBucket)
 
 	var deployments []Template
 	for v := 0; v < len(deploymentData); v++ {
 		var t Template
 		err := json.Unmarshal(*deploymentData[v], &t)
 		if err != nil {
-			log.Printf("Unable to parse deployment [skipping] - %s", err.Error())
+			logger.Debugf("Unable to parse deployment [skipping] - %s", err.Error())
 			continue
 		}
 		deployments = append(deployments, t)
@@ -75,12 +80,19 @@ func FindAllDeployments() []Template {
 // ParseTemplate : validates a template
 func ParseTemplate(t []byte) *Template {
 	var tmpl Template
-	json.Unmarshal(t, &tmpl)
+	err := json.Unmarshal(t, &tmpl)
+	if err != nil {
+		logger.Debugf("Unable to parse deployment template- %s", err.Error())
+	}
 
-	if tmpl.Name == "" ||
-		tmpl.Config.Image == "" {
+	// Compare with a zero value composite literal because all fields are comparable
+	// And check for empty name and image
+	if tmpl == (Template{}) || tmpl.Name == "" || tmpl.Config.Image == "" {
+		logger.Debug("Deployment template is missing values")
 		return nil
 	}
+
+	logger.Debugf("%v", tmpl)
 
 	return &tmpl
 }

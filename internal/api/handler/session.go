@@ -5,13 +5,13 @@ import (
 	"log"
 
 	"github.com/biensupernice/krane/internal/api/http"
-	"github.com/biensupernice/krane/internal/data"
+	"github.com/biensupernice/krane/internal/store"
 	"github.com/gin-gonic/gin"
 )
 
 // GetSessions : get current sessions
 func GetSessions(c *gin.Context) {
-	sessionData := data.GetAll(data.SessionsBucket)
+	sessionData := store.GetAll(store.SessionsBucket)
 
 	var sessions []Session
 	for v := 0; v < len(sessionData); v++ {
