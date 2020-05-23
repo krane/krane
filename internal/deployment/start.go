@@ -88,7 +88,7 @@ func deployWithDocker(t *Template) (err error) {
 	logger.Debugf("Container started with the name %s", containerName)
 
 	ctx.Done()
-
+  
 	return
 }
 
