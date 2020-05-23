@@ -3,8 +3,10 @@ package docker
 import (
 	"context"
 	"fmt"
+	"io"
 	"net"
 	"os"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
@@ -43,18 +45,16 @@ func PullImage(ctx *context.Context, image string) error {
 	options := types.ImagePullOptions{
 		RegistryAuth: "", // RegistryAuth is the base64 encoded credentials for the registry
 	}
-	_, err := dkrClient.ImagePull(*ctx, image, options)
+	ioreader, err := dkrClient.ImagePull(*ctx, image, options)
 	if err != nil {
 		return err
 	}
 
-	// ImagePull return ioreader
-	// Commenting out for now to reduce the messages outputed to stdout
-	// io.Copy(os.Stdout, ioreader)
-	// err = ioreader.Close()
-	// if err != nil {
-	// 	return err
-	// }
+	io.Copy(os.Stdout, ioreader)
+	err = ioreader.Close()
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -127,7 +127,8 @@ func StopContainer(ctx *context.Context, containerID string) error {
 		return err
 	}
 
-	return dkrClient.ContainerStop(*ctx, containerID, nil)
+	timeout := 60 * time.Second
+	return dkrClient.ContainerStop(*ctx, containerID, &timeout)
 }
 
 // RemoveContainer : remove docker container
@@ -206,6 +207,20 @@ func GetNetworkByName(ctx *context.Context, name string) (types.NetworkResource,
 	}
 
 	return kNet, nil
+}
+
+// RemoveImage : deletes docker image
+func RemoveImage(ctx *context.Context, imageID string) ([]types.ImageDelete, error) {
+	if dkrClient == nil {
+		err := fmt.Errorf("docker client not initialized")
+		return []types.ImageDelete{}, err
+	}
+
+	options := types.ImageRemoveOptions{
+		Force:         false,
+		PruneChildren: false,
+	}
+	return dkrClient.ImageRemove(*ctx, imageID, options)
 }
 
 // Helper to find the current host ip address - 0.0.0.0 binds to all ip's

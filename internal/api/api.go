@@ -36,6 +36,7 @@ func Start(cnf Config) {
 	client.GET("/deployments", middleware.AuthSessionMiddleware(), handler.GetDeployments)
 	client.GET("/deployments/:name", middleware.AuthSessionMiddleware(), handler.GetDeployment)
 	client.POST("/deployments", middleware.AuthSessionMiddleware(), handler.CreateDeployment)
+	client.DELETE("/deployments/:name", middleware.AuthSessionMiddleware(), handler.DeleteDeployment)
 
 	client.GET("/containers", middleware.AuthSessionMiddleware(), handler.ListContainers)
 	client.PUT("/containers/:containerID/stop", middleware.AuthSessionMiddleware(), handler.StopContainer)
