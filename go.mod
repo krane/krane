@@ -10,6 +10,7 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gin-contrib/cors v1.3.1
+	github.com/gin-contrib/sse v0.1.0
 	github.com/gin-gonic/gin v1.6.3
 	github.com/golang/protobuf v1.4.0 // indirect
 	github.com/google/uuid v1.1.1

@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"context"
 	"errors"
 
 	"github.com/biensupernice/krane/internal/api/http"
 	"github.com/biensupernice/krane/internal/deployment"
+	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/logger"
 	"github.com/gin-gonic/gin"
 )
@@ -47,8 +49,7 @@ func GetDeployment(c *gin.Context) {
 
 	// compare an empty deployment against the one found in the store
 	if *d == (deployment.Template{}) {
-		logger.Debug("Unable to find a deployment by that name")
-		http.Ok(c, nil)
+		http.BadRequest(c, "Unable to find a deployment by that name")
 		return
 	}
 
@@ -57,3 +58,32 @@ func GetDeployment(c *gin.Context) {
 
 // GetDeployments : get all deployments
 func GetDeployments(c *gin.Context) { http.Ok(c, deployment.FindAllDeployments()) }
+
+// DeleteDeployment : delete deployment and its resources
+func DeleteDeployment(c *gin.Context) {
+	name := c.Param("name")
+	if name == "" {
+		errMsg := errors.New("Error getting deployment `name` from params")
+		http.BadRequest(c, errMsg)
+		return
+	}
+
+	// Get deployment by name
+	d := deployment.FindDeployment(name)
+
+	// compare an empty deployment against the one found in the store
+	if *d == (deployment.Template{}) {
+		http.BadRequest(c, "Unable to find a deployment by that name")
+		return
+	}
+
+	ctx := context.Background()
+
+	// Delete a deployments docker resources
+	go deployment.DeleteDockerResources(&ctx, *d)
+
+	// Delete deployment from data store
+	store.Remove(store.DeploymentsBucket, name)
+
+	http.Accepted(c)
+}

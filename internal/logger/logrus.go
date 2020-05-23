@@ -43,3 +43,18 @@ func Debugf(message string, args ...interface{}) {
 func Info(message string) {
 	standardLogger.Info(message)
 }
+
+// Infof :
+func Infof(message string, args ...interface{}) {
+	standardLogger.Infof(message, args...)
+}
+
+// Error :
+func Error(message string) {
+	standardLogger.Error(message)
+}
+
+// Errorf :
+func Errorf(message string, args ...interface{}) {
+	standardLogger.Errorf(message, args...)
+}
