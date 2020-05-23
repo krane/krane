@@ -7,8 +7,6 @@ import (
 	"io"
 	"strconv"
 	"sync"
-	"context"
-	"fmt"
 
 	"github.com/biensupernice/krane/docker"
 	"github.com/biensupernice/krane/internal/api/http"

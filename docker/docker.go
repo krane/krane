@@ -51,8 +51,6 @@ func PullImage(ctx *context.Context, image string) error {
 		return err
 	}
 
-	ImagePull return ioreader
-	Commenting out for now to reduce the messages outputed to stdout
 	io.Copy(os.Stdout, ioreader)
 	err = ioreader.Close()
 	if err != nil {

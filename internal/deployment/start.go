@@ -65,7 +65,7 @@ func deployWithDocker(ctx *context.Context, t Template) (err error) {
 	if netID == "" {
 		return errors.New("Unable to create docker container, krane network not found")
 	}
-  
+
 	// Create docker container
 	dID := uuid.NewSHA1(uuid.New(), []byte(t.Name)) // deployment ID
 	shortID := dID.String()[0:8]
@@ -94,8 +94,6 @@ func deployWithDocker(ctx *context.Context, t Template) (err error) {
 	}
 	logger.Debugf("Container started with the name %s", containerName)
 
-	ctx.Done()
-    
 	return
 }
 
