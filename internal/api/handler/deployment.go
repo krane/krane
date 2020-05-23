@@ -7,6 +7,7 @@ import (
 	"github.com/biensupernice/krane/internal/api/http"
 	"github.com/biensupernice/krane/internal/deployment"
 	"github.com/biensupernice/krane/internal/store"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/gin-gonic/gin"
 )
 
