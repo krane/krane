@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -55,6 +56,12 @@ func init() {
 		os.Setenv("KRANE_PATH", KranePath)
 	}
 
+	// Set server configuration
+	config = &api.Config{
+		RestPort: RestPort,
+		LogLevel: LogLevel,
+	}
+
 	fmt.Printf("🏗 krane path: %s\n", KranePath)
 	fmt.Printf("🏗 krane log level: %s\n", LogLevel)
 	fmt.Printf("🏗 krane port: %s\n", RestPort)
@@ -71,17 +78,22 @@ func init() {
 		l.Fatalf("Unable to setup db - %s", err.Error())
 	}
 
-	// Set server configuration
-	config = &api.Config{
-		RestPort: RestPort,
-		LogLevel: LogLevel,
-	}
-
 	// Create docker client
 	_, err = docker.New()
 	if err != nil {
 		l.Fatalf("Error with docker - %s", err.Error())
 	}
+
+	// Create docker network for krane
+	ctx := context.Background()
+	netRes, err := docker.CreateBridgeNetwork(&ctx, "krane")
+	if err != nil {
+		l.Fatalf("Error with docker network- %s", err.Error())
+	}
+	os.Setenv("KRANE_NETWORK_ID", netRes.ID)
+	logger.Debugf("Create docker network - %s", netRes.ID)
+
+	ctx.Done()
 }
 
 func main() {

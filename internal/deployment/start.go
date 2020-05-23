@@ -3,6 +3,7 @@ package deployment
 import (
 	"context"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/biensupernice/krane/docker"
@@ -55,6 +56,9 @@ func deployWithDocker(t *Template) (err error) {
 		return err
 	}
 
+	// Krane Network ID to connect the container
+	netID := os.Getenv("KRANE_NETWORK_ID")
+
 	// Create docker container
 	dID := uuid.NewSHA1(uuid.New(), []byte(t.Name)) // deployment ID
 	shortID := dID.String()[0:8]
@@ -63,6 +67,7 @@ func deployWithDocker(t *Template) (err error) {
 		&ctx,
 		img,
 		containerName,
+		netID,
 		t.Config.HostPort,
 		t.Config.ContainerPort)
 	if err != nil {
@@ -81,6 +86,9 @@ func deployWithDocker(t *Template) (err error) {
 		return
 	}
 	logger.Debugf("Container started with the name %s", containerName)
+
+	ctx.Done()
+  
 	return
 }
 
