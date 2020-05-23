@@ -86,10 +86,12 @@ func init() {
 
 	// Create docker network for krane
 	ctx := context.Background()
-	_, err = docker.CreateBridgeNetwork(&ctx, "krane")
+	netRes, err := docker.CreateBridgeNetwork(&ctx, "krane")
 	if err != nil {
 		l.Fatalf("Error with docker network- %s", err.Error())
 	}
+	os.Setenv("KRANE_NETWORK_ID", netRes.ID)
+	logger.Debugf("Create docker network - %s", netRes.ID)
 
 	ctx.Done()
 }

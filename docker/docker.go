@@ -64,6 +64,7 @@ func CreateContainer(
 	ctx *context.Context,
 	image string,
 	containerName string,
+	networkID string,
 	hPort string,
 	cPort string,
 ) (container.ContainerCreateCreatedBody, error) {
@@ -88,7 +89,10 @@ func CreateContainer(
 	portBinding := nat.PortMap{containerPort: []nat.PortBinding{hostBinding}}
 
 	// Setup host conf
-	hostConf := &container.HostConfig{PortBindings: portBinding}
+	hostConf := &container.HostConfig{
+		PortBindings: portBinding,
+		AutoRemove:   false,
+	}
 
 	// Setup container conf
 	containerConf := &container.Config{
@@ -99,7 +103,8 @@ func CreateContainer(
 	}
 
 	// Setup networking conf
-	networkConf := &network.NetworkingConfig{}
+	endpointConf := map[string]*network.EndpointSettings{"krane": &network.EndpointSettings{NetworkID: networkID}}
+	networkConf := &network.NetworkingConfig{EndpointsConfig: endpointConf}
 
 	return dkrClient.ContainerCreate(*ctx, containerConf, hostConf, networkConf, containerName)
 }
@@ -152,6 +157,55 @@ func FormatImageSourceURL(
 	imageName string,
 	tag string) string {
 	return fmt.Sprintf("%s/%s:%s", repo, imageName, tag)
+}
+
+// CreateBridgeNetwork : creates docker bridge network with a given name
+func CreateBridgeNetwork(ctx *context.Context, name string) (types.NetworkCreateResponse, error) {
+	if dkrClient == nil {
+		err := fmt.Errorf("docker client not initialized")
+		return types.NetworkCreateResponse{}, err
+	}
+
+	// Check if krane network already exists
+	kNet, err := GetNetworkByName(ctx, name)
+	if err != nil {
+		return types.NetworkCreateResponse{}, err
+	}
+	if kNet.ID != "" {
+		return types.NetworkCreateResponse{ID: kNet.ID}, nil
+	}
+
+	// If no exisitng network, create it
+	options := types.NetworkCreate{
+		Driver:         "bridge",
+		CheckDuplicate: true,
+	}
+	return dkrClient.NetworkCreate(*ctx, name, options)
+}
+
+// GetNetworkByName : find a netwokr by name on this docker host
+func GetNetworkByName(ctx *context.Context, name string) (types.NetworkResource, error) {
+	if dkrClient == nil {
+		err := fmt.Errorf("docker client not initialized")
+		return types.NetworkResource{}, err
+	}
+
+	// Get all the networks
+	options := types.NetworkListOptions{}
+	nets, err := dkrClient.NetworkList(*ctx, options)
+	if err != nil {
+		return types.NetworkResource{}, err
+	}
+
+	var kNet types.NetworkResource
+	for i := 0; i < len(nets); i++ {
+		if nets[i].Name == name {
+			kNet = nets[i]
+			break
+		}
+	}
+
+	return kNet, nil
 }
 
 // Helper to find the current host ip address - 0.0.0.0 binds to all ip's

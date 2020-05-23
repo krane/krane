@@ -40,6 +40,8 @@ func StopContainer(c *gin.Context) {
 		return
 	}
 
+	ctx.Done()
+
 	msg := fmt.Sprintf("Container %s stopped", containerID)
 	logger.Debug(msg)
 
@@ -63,6 +65,8 @@ func StartContainer(c *gin.Context) {
 		http.BadRequest(c, errMsg)
 		return
 	}
+
+	ctx.Done()
 
 	msg := fmt.Sprintf("Container %s started", containerID)
 	logger.Debug(msg)
