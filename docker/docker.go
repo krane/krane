@@ -223,6 +223,23 @@ func RemoveImage(ctx *context.Context, imageID string) ([]types.ImageDelete, err
 	return dkrClient.ImageRemove(*ctx, imageID, options)
 }
 
+// ReadContainerLogs :
+func ReadContainerLogs(ctx *context.Context, containerID string) (reader io.Reader, err error) {
+	if dkrClient == nil {
+		err := fmt.Errorf("docker client not initialized")
+		return nil, err
+	}
+
+	options := types.ContainerLogsOptions{
+		ShowStdout: true,
+		ShowStderr: true,
+		Follow:     true,
+		Tail:       "50",
+	}
+
+	return dkrClient.ContainerLogs(*ctx, containerID, options)
+}
+
 // Helper to find the current host ip address - 0.0.0.0 binds to all ip's
 func getHostIP() string {
 	host, _ := os.Hostname()

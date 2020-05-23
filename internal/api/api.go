@@ -41,6 +41,7 @@ func Start(cnf Config) {
 	client.GET("/containers", middleware.AuthSessionMiddleware(), handler.ListContainers)
 	client.PUT("/containers/:containerID/stop", middleware.AuthSessionMiddleware(), handler.StopContainer)
 	client.PUT("/containers/:containerID/start", middleware.AuthSessionMiddleware(), handler.StartContainer)
+	client.GET("/containers/:containerID/logs", handler.StreamContainerLogs)
 
 	client.Run(":" + cnf.RestPort)
 }
