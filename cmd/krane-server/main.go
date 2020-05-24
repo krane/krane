@@ -15,10 +15,10 @@ import (
 
 // Env
 var (
-	RestPort        = os.Getenv("KRANE_REST_PORT") //  Defaults to 8080
-	LogLevel        = os.Getenv("KRANE_LOG_LEVEL") // Defaults to release
-	KranePath       = os.Getenv("KRANE_PATH")      // Defaults to ~/.krane
-	KranePrivateKey = os.Getenv("KRANE_PRIVATE_KEY")
+	RestPort        = os.Getenv("KRANE_REST_PORT")   //  Defaults to 8080
+	LogLevel        = os.Getenv("KRANE_LOG_LEVEL")   // Defaults to release
+	KranePath       = os.Getenv("KRANE_PATH")        // Defaults to ~/.krane
+	KranePrivateKey = os.Getenv("KRANE_PRIVATE_KEY") // Private key for signing server tokens
 
 	config *api.Config
 )
@@ -84,12 +84,14 @@ func init() {
 		l.Fatalf("Error with docker - %s", err.Error())
 	}
 
-	// Create docker network for krane
+	// Create docker network
 	ctx := context.Background()
-	netRes, err := docker.CreateBridgeNetwork(&ctx, "krane")
+	netName := "krane"
+	netRes, err := docker.CreateBridgeNetwork(&ctx, netName)
 	if err != nil {
 		l.Fatalf("Error with docker network- %s", err.Error())
 	}
+
 	os.Setenv("KRANE_NETWORK_ID", netRes.ID)
 	logger.Debugf("Create docker network - %s", netRes.ID)
 
