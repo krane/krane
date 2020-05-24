@@ -18,13 +18,12 @@ type Template struct {
 type Config struct {
 	Registry      string `json:"registry"`
 	Image         string `json:"image" binding:"required"`
-	Tag           string `json:"tag"`
 	ContainerPort string `json:"container_port"`
 	HostPort      string `json:"host_port"`
 }
 
-// SaveDeployment : to datastore
-func SaveDeployment(t *Template) (err error) {
+// SaveTemplate : save deployment template to datastore
+func SaveTemplate(t *Template) (err error) {
 	SetTemplateDefaults(t)
 
 	if t.Name == "" {
@@ -39,29 +38,27 @@ func SaveDeployment(t *Template) (err error) {
 	}
 
 	// Save deployment to the datastore
-	store.Put(store.DeploymentsBucket, t.Name, tBytes)
-	logger.Debugf("Deployment saved succesfuly to datastore")
+	store.Put(store.TemplatesBucket, t.Name, tBytes)
+	logger.Debugf("Template %s saved succesfuly", t.Name)
+
 	return
 }
 
-// FindDeployment : from datastore by deployment name
-func FindDeployment(name string) *Template {
+// FindTemplate : from datastore by template name
+func FindTemplate(name string) *Template {
 	// Returns bytes
-	tBytes := store.Get(store.DeploymentsBucket, name)
+	tBytes := store.Get(store.TemplatesBucket, name)
 
 	// Unmarshal bytes into template
 	var t Template
-	err := json.Unmarshal(tBytes, &t)
-	if err != nil {
-		logger.Debugf("Unable to find deployment - %s", err.Error())
-	}
+	json.Unmarshal(tBytes, &t)
 
 	return &t
 }
 
-// FindAllDeployments : from datastore
-func FindAllDeployments() []Template {
-	deploymentData := store.GetAll(store.DeploymentsBucket)
+// FindAllTemplates : from datastore
+func FindAllTemplates() []Template {
+	deploymentData := store.GetAll(store.TemplatesBucket)
 
 	var deployments []Template
 	for v := 0; v < len(deploymentData); v++ {
@@ -101,14 +98,9 @@ func ParseTemplate(t []byte) *Template {
 func SetTemplateDefaults(t *Template) {
 	const (
 		DefaultRegistry = "docker.io"
-		DefaultTag      = "latest"
 	)
 
 	if t.Config.Registry == "" {
 		t.Config.Registry = DefaultRegistry
-	}
-
-	if t.Config.Tag == "" {
-		t.Config.Tag = DefaultTag
 	}
 }

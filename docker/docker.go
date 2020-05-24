@@ -36,28 +36,25 @@ func New() (*client.Client, error) {
 }
 
 // PullImage : poll docker image from registry
-func PullImage(ctx *context.Context, image string) error {
+func PullImage(ctx *context.Context, image string) (err error) {
 	if dkrClient == nil {
-		err := fmt.Errorf("docker client not initialized")
-		return err
+		err = fmt.Errorf("docker client not initialized")
+		return
 	}
 
 	options := types.ImagePullOptions{
 		RegistryAuth: "", // RegistryAuth is the base64 encoded credentials for the registry
 	}
 
-	ioreader, err := dkrClient.ImagePull(*ctx, image, options)
+	reader, err := dkrClient.ImagePull(*ctx, image, options)
 	if err != nil {
 		return err
 	}
 
-	io.Copy(os.Stdout, ioreader)
-	err = ioreader.Close()
-	if err != nil {
-		return err
-	}
+	io.Copy(os.Stdout, reader)
+	err = reader.Close()
 
-	return nil
+	return
 }
 
 // CreateContainer : create docker container
@@ -234,6 +231,7 @@ func ReadContainerLogs(ctx *context.Context, containerID string) (reader io.Read
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
+		Timestamps: true,
 		Follow:     true,
 		Tail:       "50",
 	}

@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/biensupernice/krane/internal/api/http"
 	"github.com/biensupernice/krane/internal/deployment"
@@ -10,26 +11,52 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// CreateDeployment : using deployment spec
+// CreateDeployment : create a deployment with a template
 func CreateDeployment(c *gin.Context) {
-	var t deployment.Template
-	err := c.ShouldBindJSON(&t)
+	var deploymentTemplate deployment.Template
+	err := c.ShouldBindJSON(&deploymentTemplate)
 	if err != nil {
 		http.BadRequest(c, err.Error())
 		return
 	}
 
-	// Compare with a zero value composite literal because all fields are comparable
-	d := *deployment.FindDeployment(t.Name)
+	// Check if deployment already exist
+	d := *deployment.FindTemplate(deploymentTemplate.Name)
 	if d != (deployment.Template{}) {
-		http.BadRequest(c, "Deployment with that name already exists")
+		errMsg := fmt.Sprintf("Deployment %s already exist", d.Name)
+		http.BadRequest(c, errMsg)
 		return
 	}
 
-	deployment.SaveDeployment(&t)
+	// Save deployment
+	err = deployment.SaveTemplate(&deploymentTemplate)
+	if err != nil {
+		errMsg := fmt.Sprintf("Unable to save deployment - %s", err.Error())
+		http.BadRequest(c, errMsg)
+		return
+	}
 
-	// Start new deployment thread
-	go deployment.Start(t)
+	http.Created(c, deploymentTemplate)
+}
+
+// RunDeployment :
+func RunDeployment(c *gin.Context) {
+	name := c.Param("name")
+	tag := c.DefaultQuery("tag", "latest")
+
+	// Check if deployment exist
+	deploymentTemplate := *deployment.FindTemplate(name)
+	if deploymentTemplate == (deployment.Template{}) {
+		errMsg := fmt.Sprintf("Unable to find deployment %s", name)
+		http.BadRequest(c, errMsg)
+		return
+	}
+
+	// Start deployment context
+	ctx := context.Background()
+
+	// Start deployment using the deployment template and provided tag
+	go deployment.Start(&ctx, deploymentTemplate, tag)
 
 	http.Accepted(c)
 }
@@ -44,7 +71,7 @@ func GetDeployment(c *gin.Context) {
 	}
 
 	// Get deployment by name
-	d := deployment.FindDeployment(name)
+	d := deployment.FindTemplate(name)
 
 	// compare an empty deployment against the one found in the store
 	if *d == (deployment.Template{}) {
@@ -56,7 +83,7 @@ func GetDeployment(c *gin.Context) {
 }
 
 // GetDeployments : get all deployments
-func GetDeployments(c *gin.Context) { http.Ok(c, deployment.FindAllDeployments()) }
+func GetDeployments(c *gin.Context) { http.Ok(c, deployment.FindAllTemplates()) }
 
 // DeleteDeployment : delete deployment and its resources
 func DeleteDeployment(c *gin.Context) {
@@ -68,7 +95,7 @@ func DeleteDeployment(c *gin.Context) {
 	}
 
 	// Get deployment by name
-	d := deployment.FindDeployment(name)
+	d := deployment.FindTemplate(name)
 
 	// compare an empty deployment against the one found in the store
 	if *d == (deployment.Template{}) {
@@ -83,6 +110,8 @@ func DeleteDeployment(c *gin.Context) {
 
 	// Delete deployment from data store
 	store.Remove(store.DeploymentsBucket, name)
+
+	ctx.Done()
 
 	http.Accepted(c)
 }
