@@ -7,6 +7,7 @@ import (
 	"github.com/biensupernice/krane/internal/api/middleware"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 // Config : server config
@@ -36,12 +37,36 @@ func Start(cnf Config) {
 	client.GET("/deployments", middleware.AuthSessionMiddleware(), handler.GetDeployments)
 	client.GET("/deployments/:name", middleware.AuthSessionMiddleware(), handler.GetDeployment)
 	client.POST("/deployments", middleware.AuthSessionMiddleware(), handler.CreateDeployment)
+	client.POST("/deployments/:name/run", middleware.AuthSessionMiddleware(), handler.RunDeployment) // ex. /deployments/:name/run?tag=latest
 	client.DELETE("/deployments/:name", middleware.AuthSessionMiddleware(), handler.DeleteDeployment)
 
 	client.GET("/containers", middleware.AuthSessionMiddleware(), handler.ListContainers)
+	client.GET("/containers/:containerID/events", handler.ContainerEvents)
 	client.PUT("/containers/:containerID/stop", middleware.AuthSessionMiddleware(), handler.StopContainer)
 	client.PUT("/containers/:containerID/start", middleware.AuthSessionMiddleware(), handler.StartContainer)
-	client.GET("/containers/:containerID/logs", handler.StreamContainerLogs)
+
+	// --  Websockets -- //
 
 	client.Run(":" + cnf.RestPort)
 }
+
+var wsupgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
+
+// func wshandler(w http.ResponseWriter, r *http.Request) {
+// 	conn, err := wsupgrader.Upgrade(w, r, nil)
+// 	if err != nil {
+// 		fmt.Println("Failed to set websocket upgrade: %+v", err)
+// 		return
+// 	}
+
+// 	for {
+// 		t, msg, err := conn.ReadMessage()
+// 		if err != nil {
+// 			break
+// 		}
+// 		conn.WriteMessage(t, msg)
+// 	}
+// }

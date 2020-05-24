@@ -15,10 +15,10 @@ import (
 
 // Env
 var (
-	RestPort        = os.Getenv("KRANE_REST_PORT") //  Defaults to 8080
-	LogLevel        = os.Getenv("KRANE_LOG_LEVEL") // Defaults to release
-	KranePath       = os.Getenv("KRANE_PATH")      // Defaults to ~/.krane
-	KranePrivateKey = os.Getenv("KRANE_PRIVATE_KEY")
+	RestPort        = os.Getenv("KRANE_REST_PORT")   //  Defaults to 8080
+	LogLevel        = os.Getenv("KRANE_LOG_LEVEL")   // Defaults to release
+	KranePath       = os.Getenv("KRANE_PATH")        // Defaults to ~/.krane
+	KranePrivateKey = os.Getenv("KRANE_PRIVATE_KEY") // Private key for signing server tokens
 
 	config *api.Config
 )
@@ -27,24 +27,26 @@ func init() {
 	// Initialize logger
 	l := logger.NewLogger()
 
-	l.Debug("Starting krane server in debug mode")
+	l.Debugf("Starting krane server in [%s] mode", LogLevel)
 
 	// Verify private key is provided
 	if KranePrivateKey == "" {
-		l.Fatal("Private key [KRANE_PRIVATE_KEY] not set")
+		privK := "KbVHZLjpM3IUprwTSRvteRx+d8kmVecnEKvwAuJIaaw="
+		l.Debugf("[KRANE_PRIVATE_KEY] not set, defaulting to %s", privK)
+		KranePrivateKey = privK
 	}
 
 	// Set default port to `8080`
 	if RestPort == "" {
 		RestPort = "8080"
-		l.Debugf("[KRANE_REST_PORT] not set using %s", RestPort)
+		l.Debugf("[KRANE_REST_PORT] not set, defaulting to %s", RestPort)
 		os.Setenv("KRANE_REST_PORT", RestPort)
 	}
 
 	// Set default loglevel to `debug`
 	if LogLevel == "" {
 		LogLevel = "release"
-		l.Debugf("[LogLevel] not set using %s", LogLevel)
+		l.Debugf("[LogLevel] not set, defaulting to %s", LogLevel)
 		os.Setenv("KRANE_LOG_LEVEL", LogLevel)
 	}
 
@@ -52,7 +54,7 @@ func init() {
 	if KranePath == "" {
 		homeDir := auth.GetHomeDir()
 		KranePath = fmt.Sprintf("%s/.krane", homeDir)
-		l.Debugf("[KRANE_PATH] not set using %s", KranePath)
+		l.Debugf("[KRANE_PATH] not set, defaulting to %s", KranePath)
 		os.Setenv("KRANE_PATH", KranePath)
 	}
 
@@ -84,14 +86,16 @@ func init() {
 		l.Fatalf("Error with docker - %s", err.Error())
 	}
 
-	// Create docker network for krane
+	// Create docker network
 	ctx := context.Background()
-	netRes, err := docker.CreateBridgeNetwork(&ctx, "krane")
+	netName := "krane"
+	netRes, err := docker.CreateBridgeNetwork(&ctx, netName)
 	if err != nil {
 		l.Fatalf("Error with docker network- %s", err.Error())
 	}
+
 	os.Setenv("KRANE_NETWORK_ID", netRes.ID)
-	logger.Debugf("Create docker network - %s", netRes.ID)
+	logger.Debugf("Created docker network - %s", netRes.ID)
 
 	ctx.Done()
 }

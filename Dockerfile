@@ -23,7 +23,7 @@ COPY . .
 # Build Go app
 RUN go build -o /usr/local/bin/krane-server ./cmd/krane-server
 
-# Start fresh from smaller image image
+# Start fresh from smaller image
 FROM alpine:3.9
 
 # Install certs to establish secure communitcation via SSL/TLS
@@ -35,7 +35,7 @@ WORKDIR /bin
 # Copy executable from previous layer into this new layer which is smaller
 COPY --from=base /usr/local/bin/krane-server .
 
-# DEfault envars inside the container, can also be passed in as flags with docker run
+# Default envars inside the container, can also be passed in as flags with docker run
 # ie. docker run -e KRANE_REST_PORT=9292 -p 9292:9292 krane-server
 ENV KRANE_PATH /root/.krane
 ENV KRANE_REST_PORT 8080
@@ -50,3 +50,4 @@ VOLUME /var/run/docker.sock
 
 
 ENTRYPOINT ["krane-server"]
+

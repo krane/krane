@@ -50,21 +50,21 @@ func deleteDockerResources(ctx *context.Context, t Template) (err error) {
 				err = docker.StopContainer(ctx, containers[i].ID)
 				if err != nil {
 					logger.Debugf("Unable to stop %s - %s", name, err.Error())
-					return err
+					return
 				}
 
 				// Remove the container
 				err = docker.RemoveContainer(ctx, containers[i].ID)
 				if err != nil {
 					logger.Debugf("Unable to remove %s - %s", name, err.Error())
-					return err
+					return
 				}
 
 				// Delete docker image
 				_, err = docker.RemoveImage(ctx, c.ImageID)
 				if err != nil {
 					logger.Debugf("Unable to remove image %s - %s", c.Image, err.Error())
-					return err
+					return
 				}
 
 				logger.Debugf("Cleaned up docker resources for %s", name)

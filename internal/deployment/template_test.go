@@ -42,7 +42,6 @@ var testTemplate = &Template{
 	Name: "testing",
 	Config: *&Config{
 		Image:    "bsn/image",
-		Tag:      "sha-8475c1f",
 		Registry: "docker.pkg.github.com",
 	},
 }
@@ -105,10 +104,6 @@ func TestTemplateDefaultsAreApplied(t *testing.T) {
 
 	SetTemplateDefaults(testTemplate)
 
-	if testTemplate.Config.Tag == "" {
-		t.Error("Expected tag to be `latest`")
-	}
-
 	if testTemplate.Config.Registry == "" {
 		t.Error("Expected registry to be set to be `docker.io`")
 	}
@@ -117,24 +112,20 @@ func TestTemplateDefaultsAreApplied(t *testing.T) {
 func TestTemplateDefaultsAreNotAppliedIfAlreadySet(t *testing.T) {
 	SetTemplateDefaults(testTemplate)
 
-	if testTemplate.Config.Tag != "sha-8475c1f" {
-		t.Error("Expected tag to be `sha-8475c1f`")
-	}
-
 	if testTemplate.Config.Registry != "docker.pkg.github.com" {
 		t.Error("Expected registry to be set to be `docker.pkg.github.com`")
 	}
 }
 
-func TestSaveTemplateTostorestore(t *testing.T) {
-	err := SaveDeployment(testTemplate)
+func TestSaveTemplateTostore(t *testing.T) {
+	err := SaveTemplate(testTemplate)
 	if err != nil {
 		t.Errorf("Got error when saving template %s", err.Error())
 	}
 }
 
 func TestFindTemplate(t *testing.T) {
-	tmpl := FindDeployment(testTemplate.Name)
+	tmpl := FindTemplate(testTemplate.Name)
 
 	if tmpl == nil {
 		t.Error("Expected template got `nil`")
@@ -146,10 +137,6 @@ func TestFindTemplate(t *testing.T) {
 
 	if tmpl.Config.Image != testTemplate.Config.Image {
 		t.Errorf("Expected template image to be `%s` but got `%s`", testTemplate.Config.Image, tmpl.Config.Image)
-	}
-
-	if tmpl.Config.Tag != testTemplate.Config.Tag {
-		t.Errorf("Expected template tag to be `%s` but got `%s`", testTemplate.Config.Tag, tmpl.Config.Tag)
 	}
 
 	if tmpl.Config.Registry != testTemplate.Config.Registry {

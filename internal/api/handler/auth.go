@@ -59,6 +59,7 @@ func Login(c *gin.Context) {
 
 	err := store.Put(store.AuthBucket, key, val)
 	if err != nil {
+		store.Remove(store.AuthBucket, key)
 		http.BadRequest(c, err.Error())
 		return
 	}

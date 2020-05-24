@@ -1,12 +1,12 @@
 package handler
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"io"
 	"strconv"
-	"sync"
+
+	"github.com/biensupernice/krane/internal/channel"
 
 	"github.com/biensupernice/krane/docker"
 	"github.com/biensupernice/krane/internal/api/http"
@@ -79,17 +79,19 @@ func StartContainer(c *gin.Context) {
 	http.Ok(c, map[string]string{"message": msg})
 }
 
-// StreamContainerLogs : follow the container logs through server-sent-events(Sse)
-func StreamContainerLogs(c *gin.Context) {
+// ContainerEvents : stream container event, logs, errors using server-sent-events(Sse)
+func ContainerEvents(c *gin.Context) {
 	cID := c.Param("containerID")
 	if cID == "" {
+		http.BadRequest(c, "container id not provided")
 		return
 	}
 
 	// Start context
 	ctx := context.Background()
 
-	chanStream := make(chan string)
+	// Channel to stream
+	containerEvents := make(chan string)
 	done := make(chan bool)
 
 	ioreader, err := docker.ReadContainerLogs(&ctx, cID)
@@ -99,46 +101,28 @@ func StreamContainerLogs(c *gin.Context) {
 		return
 	}
 
-	reader := bufio.NewReader(ioreader)
-	var mu sync.RWMutex
-	go func() {
-		for {
-			mu.Lock()
-			// read lines from the reader
-			str, _, err := reader.ReadLine()
-			if err != nil {
-				logger.Debugf("Read Error: %s", err.Error())
-				done <- true
-				return
-			}
-			// send the lines to channel
-			chanStream <- string(str)
-			mu.Unlock()
-		}
-	}()
+	// Stream container events from the reader return from `ReadContainerLogs` to a streaming channel
+	// That gin can use to serve to the client a stream using server-sent-events (sse)
+	channel.Stream(&ioreader, containerEvents, done)
 
-	count := 0 // to indicate the message id
-	isStreaming := c.Stream(func(w io.Writer) bool {
+	msgCount := 0
+	c.Stream(func(w io.Writer) bool {
 		for {
 			select {
 			case <-done:
 				// when deadline is reached, send 'end' event
 				c.SSEvent("end", "end")
 				return false
-			case log := <-chanStream:
+			case event := <-containerEvents:
 				// send events to client
 				c.Render(-1, sse.Event{
-					Id:    strconv.Itoa(count),
-					Event: "log",
-					Data:  log,
+					Id:    strconv.Itoa(msgCount), // Current msg # is id
+					Event: "event",
+					Data:  event,
 				})
-				count++
+				msgCount++
 				return true
 			}
 		}
 	})
-
-	if !isStreaming {
-		logger.Debug("stream closed")
-	}
 }

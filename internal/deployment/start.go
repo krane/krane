@@ -25,17 +25,24 @@ const (
 	StatusInProgress = "InProgress"
 )
 
-// Start : a deployment using a template
-func Start(t Template) {
-	ctx := context.Background()
-
+// Start : a deployment using a template and the tag that will be used for
+// the image that will deployed
+func Start(ctx *context.Context, t Template, tag string) {
 	retries := 3
 	for i := 0; i < retries; i++ {
 		logger.Debugf("Attempt [%d] to deploy %s", i+1, t.Name)
-		err := deployWithDocker(&ctx, t)
+
+		containerID, err := deployWithDocker(ctx, t, tag)
 		if err != nil {
 			logger.Debugf("Unable to start deployment %s", err.Error())
 			logger.Debug("Waiting 10 seconds before retrying")
+			wait(10)
+			continue
+		}
+
+		// Check if container ID was returned
+		if containerID == "" {
+			logger.Debug("containerID not returned from deployment attempt, retrying")
 			wait(10)
 			continue
 		}
@@ -43,27 +50,25 @@ func Start(t Template) {
 	}
 
 	logger.Debugf("Deployment complete - %s", t.Name)
-
-	ctx.Done()
 }
 
 // deployWithDocker : workflow to deploy a docker container
-func deployWithDocker(ctx *context.Context, t Template) (err error) {
+func deployWithDocker(ctx *context.Context, t Template, tag string) (containerID string, err error) {
 	// create well formated url to fetch docker image
-	img := docker.FormatImageSourceURL(t.Config.Registry, t.Config.Image, t.Config.Tag)
-	logger.Debugf("Puling %s", img)
+	img := docker.FormatImageSourceURL(t.Config.Registry, t.Config.Image, tag)
+	logger.Debugf("Pulling %s", img)
 
 	// Pull docker image
 	err = docker.PullImage(ctx, img)
 	if err != nil {
 		logger.Debugf("Unable to pull the image - %s", err.Error())
-		return err
+		return
 	}
 
 	// Krane Network ID to connect the container
 	netID := os.Getenv("KRANE_NETWORK_ID")
 	if netID == "" {
-		return errors.New("Unable to create docker container, krane network not found")
+		return "", errors.New("Unable to create docker container, krane network not found")
 	}
 
 	// Create docker container
@@ -82,8 +87,8 @@ func deployWithDocker(ctx *context.Context, t Template) (err error) {
 		return
 	}
 
-	containerID := createContainerResp.ID
-	logger.Debugf("Container created with id %s", containerName)
+	containerID = createContainerResp.ID
+	logger.Debugf("Container created with id %s", containerID)
 
 	// Start docker container
 	err = docker.StartContainer(ctx, containerID)
