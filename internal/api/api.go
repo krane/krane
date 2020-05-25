@@ -5,9 +5,9 @@ import (
 
 	"github.com/biensupernice/krane/internal/api/handler"
 	"github.com/biensupernice/krane/internal/api/middleware"
+	"github.com/biensupernice/krane/internal/deployment"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 )
 
 // Config : server config
@@ -46,27 +46,8 @@ func Start(cnf Config) {
 	client.PUT("/containers/:containerID/start", middleware.AuthSessionMiddleware(), handler.StartContainer)
 
 	// --  Websockets -- //
+	client.GET("/deployments/:name/events", handler.WSDeploymentHandler)
+	go deployment.EchoEvents()
 
 	client.Run(":" + cnf.RestPort)
 }
-
-var wsupgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-}
-
-// func wshandler(w http.ResponseWriter, r *http.Request) {
-// 	conn, err := wsupgrader.Upgrade(w, r, nil)
-// 	if err != nil {
-// 		fmt.Println("Failed to set websocket upgrade: %+v", err)
-// 		return
-// 	}
-
-// 	for {
-// 		t, msg, err := conn.ReadMessage()
-// 		if err != nil {
-// 			break
-// 		}
-// 		conn.WriteMessage(t, msg)
-// 	}
-// }
