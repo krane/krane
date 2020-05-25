@@ -74,15 +74,24 @@ func GetDeployment(c *gin.Context) {
 	}
 
 	// Get deployment by name
-	d := deployment.FindTemplate(name)
-
-	// compare an empty deployment against the one found in the store
-	if *d == (deployment.Template{}) {
+	// and compare against empty struct
+	t := deployment.FindTemplate(name)
+	if *t == (deployment.Template{}) {
 		httpR.BadRequest(c, "Unable to find a deployment by that name")
 		return
 	}
 
-	httpR.Ok(c, &d)
+	ctx := context.Background()
+
+	// Get deployment containers
+	containers := deployment.GetContainers(&ctx, name)
+
+	ctx.Done()
+
+	httpR.Ok(c, &deployment.Deployment{
+		Template:   *t,
+		Containers: containers,
+	})
 }
 
 // GetDeployments : get all deployments
@@ -108,11 +117,11 @@ func DeleteDeployment(c *gin.Context) {
 
 	ctx := context.Background()
 
-	// Delete a deployments docker resources
-	go deployment.DeleteDockerResources(&ctx, *d)
+	// Delete a deployment
+	go deployment.Remove(&ctx, *d)
 
 	// Delete deployment from data store
-	store.Remove(store.DeploymentsBucket, name)
+	store.Remove(store.TemplatesBucket, name)
 
 	ctx.Done()
 
@@ -136,5 +145,5 @@ func WSDeploymentHandler(c *gin.Context) {
 	}
 
 	deployment.Subscribe(ws, name)
-	logger.Debugf("Registered new client - %s", ws)
+	logger.Debugf("Registered new client")
 }

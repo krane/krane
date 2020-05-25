@@ -6,14 +6,16 @@ You can also use [krane-cli](https://github.com/biensupernice/krane-cli) to comm
 
 ## Endpoints
 
-| Methods   | Path               | Auth |
-| --------- | ------------------ | ---- |
-| POST      | /auth              | No   |
-| GET       | /containers        | Yes  |
-| GET, POST | /deployments       | Yes  |
-| GET       | /deployments/:name | Yes  |
-| GET       | /sessions          | Yes  |
-| GET       | /login             | No   |
+| Methods     | Path                      | Auth |
+| ----------- | ------------------------- | ---- |
+| POST        | /auth                     | No   |
+| GET         | /containers               | Yes  |
+| GET, POST   | /deployments              | Yes  |
+| POST        | /deployments/:name/run    | Yes  |
+| GET, DELETE | /deployments/:name        | Yes  |
+| ws          | /deployments/:name/events | No   |
+| GET         | /sessions                 | Yes  |
+| GET         | /login                    | No   |
 
 ---
 
@@ -98,31 +100,6 @@ List of all the deployments
 
 ---
 
-`GET /deployments/:name`
-
-List a single deployment by name
-
-Assuming `:name` is app1, the response will look like the one below
-
-**Response**
-
-```json
-{
-  "data": {
-    "name": "app1",
-    "config": {
-      "registry": "",
-      "image": "",
-      "tag": "",
-      "container_port": "",
-      "host_port": ""
-    }
-  }
-}
-```
-
----
-
 `POST /deployments`
 
 Create a new deployment
@@ -132,19 +109,140 @@ Create a new deployment
 ```json
 {
   "data": {
-    "name": "node-app",
+    "name": "docker-to-node",
     "config": {
+      "registry": "docker.io",
       "image": "davidcasta/docker-to-node",
       "container_port": "8080",
-      "host_port": "80"
+      "host_port": "9002"
     }
   }
 }
 ```
 
+---
+
+`DELETE /deployments/:name`
+
+Delete a deployment by name. This will also remove any docker resources.
+
+---
+
+`POST /deployments/:name/run`
+
+Start a deployment by name
+
+**Query Params**
+
+- tag : The docker image tag used for this deployment, defaults to `latest`
+
+** Body **
+Empty
+
 **Response** 202 Accepted
 
-This route returns immedtely since the deployment may take some time, instead an accepted response is returned if the server acknowledges the deployment request. The request starts on its own thread, to check the status see `/containers`.
+This route returns immedtely since the deployment may take some time, instead an accepted response is returned if the server acknowledges the deployment request. The request starts on its own thread, to check the status see `/deployments/:name` which returns the deployment and the containers part of that deployment along with the containers status.
+
+---
+
+`GET /deployments/:name`
+
+Get a deployment by name. Returns the deployment template and the containers part of that deployment. The containers include the status.
+
+**Response**
+
+```json
+{
+  "data": {
+    "template": {
+      "name": "docker-to-node",
+      "config": {
+        "registry": "docker.io",
+        "image": "davidcasta/docker-to-node",
+        "container_port": "8080",
+        "host_port": "9002"
+      }
+    },
+    "containers": [
+      {
+        "Id": "3891e40a6c97aa8bb0ebfdf13045517f7035a26254fbe5c532f9fff9dd8a2f72",
+        "Names": ["/docker-to-node-9ca24de8"],
+        "Image": "docker.io/davidcasta/docker-to-node:latest",
+        "ImageID": "sha256:7177cc313686dad5edc09276ef4c86a3eba0e96bc8144bc3ebfba8f6ca58e7d4",
+        "Command": "npm run start",
+        "Created": 1590447256,
+        "Ports": [
+          {
+            "IP": "0.0.0.0",
+            "PrivatePort": 8080,
+            "PublicPort": 9002,
+            "Type": "tcp"
+          }
+        ],
+        "Labels": {
+          "deployment.name": "docker-to-node"
+        },
+        "State": "running",
+        "Status": "Up 39 minutes",
+        "HostConfig": {
+          "NetworkMode": "default"
+        },
+        "NetworkSettings": {
+          "Networks": {
+            "krane": {
+              "IPAMConfig": null,
+              "Links": null,
+              "Aliases": null,
+              "NetworkID": "0906655e3c38fad929bde35c6e23495c2c4436eb73375777a9d3da67fd7101f4",
+              "EndpointID": "9034b03d379d030692980355b78e50f9c88ed1b737a7bb4d7c0344c637078bf0",
+              "Gateway": "172.24.0.1",
+              "IPAddress": "172.24.0.2",
+              "IPPrefixLen": 16,
+              "IPv6Gateway": "",
+              "GlobalIPv6Address": "",
+              "GlobalIPv6PrefixLen": 0,
+              "MacAddress": "02:42:ac:18:00:02"
+            }
+          }
+        },
+        "Mounts": []
+      }
+    ]
+  }
+}
+```
+
+---
+
+`ws /deployments/:name/events`
+
+This connection returns live events for a deployment with the following structure
+
+**Event**
+
+```ts
+type Event {
+  Timestamp string
+  Message string
+  Deployment Template
+}
+```
+
+```ts
+type Template {
+  Name string
+  Config TemplateConfig
+}
+```
+
+```ts
+type TemplateConfig {
+  Registry string
+  Image string
+  ContainerPort string
+  HostPort string
+}
+```
 
 ---
 
@@ -221,3 +319,5 @@ List all the sessions for the server. A session is created when you log in.
   ]
 }
 ```
+
+---

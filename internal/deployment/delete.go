@@ -2,74 +2,62 @@ package deployment
 
 import (
 	"context"
-	"strings"
 
 	"github.com/biensupernice/krane/docker"
 
 	"github.com/biensupernice/krane/internal/logger"
 )
 
-// DeleteDockerResources : delete a deployments docker resources
-func DeleteDockerResources(ctx *context.Context, t Template) {
+// Remove : a deployments resources
+func Remove(ctx *context.Context, t Template) {
+	go EmitEvent("Removing deployment resources", t)
+
 	retries := 3
 	for i := 0; i < retries; i++ {
-		logger.Debugf("Attempt [%d] to delete deployment %s", i, t.Name)
+		logger.Debugf("Attempt [%d] to remove %s resources", i+1, t.Name)
 
-		// Delete docker resources
 		err := deleteDockerResources(ctx, t)
 		if err != nil {
-			logger.Debugf("Unable to remove containers for deployment %s - %s", t.Name, err.Error())
+			logger.Debugf("Unable to remove resouces for %s - %s", t.Name, err.Error())
+			logger.Debug("Waiting 10 seconds before retrying")
+			wait(10)
 			continue
 		}
-
-		logger.Debugf("Removed container resources for deployment %s", t.Name)
 		break
 	}
+
+	go EmitEvent("Finished removing resources", t)
+	logger.Debugf("Finished removing resources for - %s", t.Name)
 }
 
 func deleteDockerResources(ctx *context.Context, t Template) (err error) {
-	// Get all containers
-	containers, err := docker.ListContainers(ctx)
-	if err != nil {
-		return err
-	}
-
-	logger.Debugf("Received %d containers", len(containers))
-
-	// Find out which containers belong to the deployment
-	for i := 0; i < len(containers); i++ {
-		c := containers[i]
-
-		// Check the containers names and
-		// if the prefix matches with the deployment name
-		// remove that container
-		for n := 0; n < len(c.Names); n++ {
-			name := c.Names[n]
-			if strings.HasPrefix(name[1:len(name)], t.Name) {
-				// Stop the container
-				err = docker.StopContainer(ctx, containers[i].ID)
-				if err != nil {
-					logger.Debugf("Unable to stop %s - %s", name, err.Error())
-					return
-				}
-
-				// Remove the container
-				err = docker.RemoveContainer(ctx, containers[i].ID)
-				if err != nil {
-					logger.Debugf("Unable to remove %s - %s", name, err.Error())
-					return
-				}
-
-				// Delete docker image
-				_, err = docker.RemoveImage(ctx, c.ImageID)
-				if err != nil {
-					logger.Debugf("Unable to remove image %s - %s", c.Image, err.Error())
-					return
-				}
-
-				logger.Debugf("Cleaned up docker resources for %s", name)
-			}
+	containers := GetContainers(ctx, t.Name)
+	for _, container := range containers {
+		// Stop the container
+		err = docker.StopContainer(ctx, container.ID)
+		if err != nil {
+			logger.Debugf("Unable to stop %s - %s", container.ID, err.Error())
+			return
 		}
+		logger.Debugf("Stopped container %s", container.ID)
+
+		// Remove the container
+		err = docker.RemoveContainer(ctx, container.ID)
+		if err != nil {
+			logger.Debugf("Unable to remove %s - %s", container.ID, err.Error())
+			return
+		}
+		logger.Debugf("Removed container %s", container.ID)
+
+		// Delete docker image
+		_, err = docker.RemoveImage(ctx, container.ImageID)
+		if err != nil {
+			logger.Debugf("Unable to remove image %s - %s", container.Image, err.Error())
+			return
+		}
+		logger.Debugf("Removed image %s", container.Image)
 	}
+
+	logger.Debugf("Cleaned up docker resources for %s", t.Name)
 	return
 }

@@ -28,11 +28,12 @@ const (
 // Start : a deployment using a template and the tag that will be used for
 // the image that will deployed
 func Start(ctx *context.Context, t Template, tag string) {
+
 	go EmitEvent("Starting deployment", t)
 
 	retries := 3
 	for i := 0; i < retries; i++ {
-		logger.Debugf("Attempt [%d] to deploy %s", i+1, t.Name)
+		logger.Debugf("Attempt [%d] to create %s resources", i+1, t.Name)
 
 		containerID, err := deployWithDocker(ctx, t, tag)
 		if err != nil {
@@ -51,7 +52,7 @@ func Start(ctx *context.Context, t Template, tag string) {
 		break
 	}
 
-	go EmitEvent("Finished deployment", t)
+	go EmitEvent("Deployment complete", t)
 	logger.Debugf("Deployment complete - %s", t.Name)
 }
 
@@ -83,6 +84,7 @@ func deployWithDocker(ctx *context.Context, t Template, tag string) (containerID
 	createContainerResp, err := docker.CreateContainer(
 		ctx,
 		img,
+		t.Name,
 		containerName,
 		netID,
 		t.Config.HostPort,

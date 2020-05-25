@@ -9,11 +9,6 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Client :
-type Client struct {
-	Valid bool `json:"valid"`
-}
-
 // Clients currently connected
 var Clients = make(map[string][]*websocket.Conn)
 
@@ -26,14 +21,14 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// Event message structure for a deployment
+// Event message structure for a deployment event
 type Event struct {
 	Timestamp  time.Time `json:"timestamp"`
 	Message    string    `json:"message"`
 	Deployment Template  `json:"deployment"`
 }
 
-// EmitEvent send a message to the events channel for a deployment
+// EmitEvent send a message to the events channel about a deployment
 func EmitEvent(msg string, t Template) {
 	event := &Event{
 		Timestamp:  time.Now(),
@@ -43,7 +38,7 @@ func EmitEvent(msg string, t Template) {
 	eventsChannel <- event
 }
 
-// Subscribe to deployment events
+// Subscribe to deployment events for specific deployments
 func Subscribe(client *websocket.Conn, deployment string) {
 	Clients[deployment] = append(Clients[deployment], client)
 }
