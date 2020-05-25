@@ -218,6 +218,8 @@ Get a deployment by name. Returns the deployment template and the containers par
 
 This connection returns live events for a deployment with the following structure
 
+Example to listen to events: [gist](https://gist.github.com/david-castaneda/b5b2f05d3ea1080692f221fb423cd344)
+
 **Event**
 
 ```ts
