@@ -6,16 +6,17 @@ You can also use [krane-cli](https://github.com/biensupernice/krane-cli) to comm
 
 ## Endpoints
 
-| Methods     | Path                      | Auth |
-| ----------- | ------------------------- | ---- |
-| POST        | /auth                     | No   |
-| GET         | /containers               | Yes  |
-| GET, POST   | /deployments              | Yes  |
-| POST        | /deployments/:name/run    | Yes  |
-| GET, DELETE | /deployments/:name        | Yes  |
-| ws          | /deployments/:name/events | No   |
-| GET         | /sessions                 | Yes  |
-| GET         | /login                    | No   |
+| Methods     | Path                            | Auth |
+| ----------- | ------------------------------- | ---- |
+| POST        | /auth                           | No   |
+| GET         | /containers                     | Yes  |
+| SSE         | /containers/:containerID/events | No   |
+| GET, POST   | /deployments                    | Yes  |
+| POST        | /deployments/:name/run          | Yes  |
+| GET, DELETE | /deployments/:name              | Yes  |
+| ws          | /deployments/:name/events       | No   |
+| GET         | /sessions                       | Yes  |
+| GET         | /login                          | No   |
 
 ---
 
@@ -301,6 +302,14 @@ Example response, as you can see data contains the docker representation of the 
   ]
 }
 ```
+
+---
+
+`SSE /container/:containeID/events`
+
+This route emit [server-sent-events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events) for a container.
+
+Example html gist: [here](https://gist.github.com/david-castaneda/c6dd5f23c8c7fbdf792b478be78fcdd4)
 
 ---
 
