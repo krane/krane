@@ -61,6 +61,7 @@ func PullImage(ctx *context.Context, image string) (err error) {
 func CreateContainer(
 	ctx *context.Context,
 	image string,
+	deploymentName string,
 	containerName string,
 	networkID string,
 	hPort string,
@@ -97,7 +98,7 @@ func CreateContainer(
 		Hostname: "bsn",
 		Image:    image,
 		Env:      []string{"TEST_ENV=pipi"},
-		Labels:   map[string]string{"TEST_LABEL": "poopoo"},
+		Labels:   map[string]string{"deployment.name": deploymentName},
 	}
 
 	// Setup networking conf
@@ -148,6 +149,16 @@ func ListContainers(ctx *context.Context) (containers []types.Container, err err
 	}
 	options := types.ContainerListOptions{}
 	return dkrClient.ContainerList(*ctx, options)
+}
+
+// GetContainerStatus : get the status of a container
+func GetContainerStatus(ctx *context.Context, containerID string, stream bool) (stats types.ContainerStats, err error) {
+	if dkrClient == nil {
+		err = fmt.Errorf("docker client not initialized")
+		return
+	}
+
+	return dkrClient.ContainerStats(*ctx, containerID, stream)
 }
 
 // FormatImageSourceURL : format into appropriate docker image url

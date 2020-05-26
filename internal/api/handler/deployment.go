@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 
-	"github.com/biensupernice/krane/internal/api/http"
+	httpR "github.com/biensupernice/krane/internal/api/http"
 	"github.com/biensupernice/krane/internal/deployment"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
 // CreateDeployment : create a deployment with a template
@@ -16,7 +19,7 @@ func CreateDeployment(c *gin.Context) {
 	var deploymentTemplate deployment.Template
 	err := c.ShouldBindJSON(&deploymentTemplate)
 	if err != nil {
-		http.BadRequest(c, err.Error())
+		httpR.BadRequest(c, err.Error())
 		return
 	}
 
@@ -24,7 +27,7 @@ func CreateDeployment(c *gin.Context) {
 	d := *deployment.FindTemplate(deploymentTemplate.Name)
 	if d != (deployment.Template{}) {
 		errMsg := fmt.Sprintf("Deployment %s already exist", d.Name)
-		http.BadRequest(c, errMsg)
+		httpR.BadRequest(c, errMsg)
 		return
 	}
 
@@ -32,11 +35,11 @@ func CreateDeployment(c *gin.Context) {
 	err = deployment.SaveTemplate(&deploymentTemplate)
 	if err != nil {
 		errMsg := fmt.Sprintf("Unable to save deployment - %s", err.Error())
-		http.BadRequest(c, errMsg)
+		httpR.BadRequest(c, errMsg)
 		return
 	}
 
-	http.Created(c, deploymentTemplate)
+	httpR.Created(c, deploymentTemplate)
 }
 
 // RunDeployment :
@@ -48,7 +51,7 @@ func RunDeployment(c *gin.Context) {
 	deploymentTemplate := *deployment.FindTemplate(name)
 	if deploymentTemplate == (deployment.Template{}) {
 		errMsg := fmt.Sprintf("Unable to find deployment %s", name)
-		http.BadRequest(c, errMsg)
+		httpR.BadRequest(c, errMsg)
 		return
 	}
 
@@ -58,7 +61,7 @@ func RunDeployment(c *gin.Context) {
 	// Start deployment using the deployment template and provided tag
 	go deployment.Start(&ctx, deploymentTemplate, tag)
 
-	http.Accepted(c)
+	httpR.Accepted(c)
 }
 
 // GetDeployment : get single deployment by name
@@ -66,31 +69,40 @@ func GetDeployment(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
 		errMsg := errors.New("Error getting deployment `name` from params")
-		http.BadRequest(c, errMsg)
+		httpR.BadRequest(c, errMsg)
 		return
 	}
 
 	// Get deployment by name
-	d := deployment.FindTemplate(name)
-
-	// compare an empty deployment against the one found in the store
-	if *d == (deployment.Template{}) {
-		http.BadRequest(c, "Unable to find a deployment by that name")
+	// and compare against empty struct
+	t := deployment.FindTemplate(name)
+	if *t == (deployment.Template{}) {
+		httpR.BadRequest(c, "Unable to find a deployment by that name")
 		return
 	}
 
-	http.Ok(c, &d)
+	ctx := context.Background()
+
+	// Get deployment containers
+	containers := deployment.GetContainers(&ctx, name)
+
+	ctx.Done()
+
+	httpR.Ok(c, &deployment.Deployment{
+		Template:   *t,
+		Containers: containers,
+	})
 }
 
 // GetDeployments : get all deployments
-func GetDeployments(c *gin.Context) { http.Ok(c, deployment.FindAllTemplates()) }
+func GetDeployments(c *gin.Context) { httpR.Ok(c, deployment.FindAllTemplates()) }
 
 // DeleteDeployment : delete deployment and its resources
 func DeleteDeployment(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
 		errMsg := errors.New("Error getting deployment `name` from params")
-		http.BadRequest(c, errMsg)
+		httpR.BadRequest(c, errMsg)
 		return
 	}
 
@@ -99,19 +111,39 @@ func DeleteDeployment(c *gin.Context) {
 
 	// compare an empty deployment against the one found in the store
 	if *d == (deployment.Template{}) {
-		http.BadRequest(c, "Unable to find a deployment by that name")
+		httpR.BadRequest(c, "Unable to find a deployment by that name")
 		return
 	}
 
 	ctx := context.Background()
 
-	// Delete a deployments docker resources
-	go deployment.DeleteDockerResources(&ctx, *d)
+	// Delete a deployment
+	go deployment.Remove(&ctx, *d)
 
 	// Delete deployment from data store
-	store.Remove(store.DeploymentsBucket, name)
+	store.Remove(store.TemplatesBucket, name)
 
 	ctx.Done()
 
-	http.Accepted(c)
+	httpR.Accepted(c)
+}
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+// WSDeploymentHandler :  handler for incoming websocket requests
+func WSDeploymentHandler(c *gin.Context) {
+	name := c.Param("name")
+	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		logger.Debugf("Error registering client - %s", err.Error())
+		deployment.Unsubscribe(ws, name)
+		return
+	}
+
+	deployment.Subscribe(ws, name)
+	logger.Debugf("Registered new client")
 }

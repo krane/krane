@@ -28,9 +28,12 @@ const (
 // Start : a deployment using a template and the tag that will be used for
 // the image that will deployed
 func Start(ctx *context.Context, t Template, tag string) {
+
+	go EmitEvent("Starting deployment", t)
+
 	retries := 3
 	for i := 0; i < retries; i++ {
-		logger.Debugf("Attempt [%d] to deploy %s", i+1, t.Name)
+		logger.Debugf("Attempt [%d] to create %s resources", i+1, t.Name)
 
 		containerID, err := deployWithDocker(ctx, t, tag)
 		if err != nil {
@@ -49,6 +52,7 @@ func Start(ctx *context.Context, t Template, tag string) {
 		break
 	}
 
+	go EmitEvent("Deployment complete", t)
 	logger.Debugf("Deployment complete - %s", t.Name)
 }
 
@@ -59,6 +63,7 @@ func deployWithDocker(ctx *context.Context, t Template, tag string) (containerID
 	logger.Debugf("Pulling %s", img)
 
 	// Pull docker image
+	go EmitEvent("Pulling image", t)
 	err = docker.PullImage(ctx, img)
 	if err != nil {
 		logger.Debugf("Unable to pull the image - %s", err.Error())
@@ -72,12 +77,14 @@ func deployWithDocker(ctx *context.Context, t Template, tag string) (containerID
 	}
 
 	// Create docker container
+	go EmitEvent("Creating the container", t)
 	dID := uuid.NewSHA1(uuid.New(), []byte(t.Name)) // deployment ID
 	shortID := dID.String()[0:8]
 	containerName := fmt.Sprintf("%s-%s", t.Name, shortID)
 	createContainerResp, err := docker.CreateContainer(
 		ctx,
 		img,
+		t.Name,
 		containerName,
 		netID,
 		t.Config.HostPort,
@@ -91,12 +98,15 @@ func deployWithDocker(ctx *context.Context, t Template, tag string) (containerID
 	logger.Debugf("Container created with id %s", containerID)
 
 	// Start docker container
+	go EmitEvent("Starting container", t)
 	err = docker.StartContainer(ctx, containerID)
 	if err != nil {
 		logger.Debugf("Unable to start container - %s", err.Error())
 		docker.RemoveContainer(ctx, containerID)
 		return
 	}
+
+	go EmitEvent("Container started", t)
 	logger.Debugf("Container started with the name %s", containerName)
 
 	return
