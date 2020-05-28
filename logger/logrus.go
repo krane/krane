@@ -22,6 +22,8 @@ func NewLogger() *logrus.Logger {
 		standardLogger.SetLevel(logrus.InfoLevel)
 	case "debug":
 		standardLogger.SetLevel(logrus.DebugLevel)
+	case "release":
+		standardLogger.SetLevel(logrus.InfoLevel)
 	default:
 		standardLogger.SetLevel(logrus.InfoLevel)
 	}
