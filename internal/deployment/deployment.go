@@ -73,7 +73,7 @@ func Start(ctx *context.Context, s spec.Spec, tag string) {
 }
 
 // Remove : a deployments resources
-func Remove(ctx *context.Context, s spec.Spec) (success bool) {
+func Remove(ctx *context.Context, s spec.Spec) {
 	go event.Emit("Removing deployment resources", s)
 
 	status := DeletingStatus
@@ -95,19 +95,23 @@ func Remove(ctx *context.Context, s spec.Spec) (success bool) {
 		break
 	}
 
-	// If deployment errored out log failure event and success false
+	// If deployment errored out log failure event
 	if status != ReadyStatus {
 		errMsg := fmt.Sprintf("Unable to remove deployment %s", s.Name)
 		go event.Emit(errMsg, s)
 		logger.Debugf(errMsg)
-		return false
+		return
 	}
 
-	// If deployment resources succesfully got removed, log event and return true
+	// If deployment resources succesfully got removed, log event
 	successMsg := fmt.Sprintf("Succesfully deleted deployment %s", s.Name)
 	logger.Debugf(successMsg)
 	go event.Emit(successMsg, s)
-	return true
+
+	// Delete deployment spec ONLY if succesfully removed all deployment resources
+	s.Delete()
+
+	return
 }
 
 // deployWithDocker : workflow to deploy a docker container

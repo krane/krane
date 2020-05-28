@@ -60,12 +60,9 @@ func DeleteDeployment(c *gin.Context) {
 	ctx := context.Background()
 
 	// Remove deployment resources
-	deployment.Remove(&ctx, s)
+	go deployment.Remove(&ctx, s)
 
 	ctx.Done()
-
-	// Remove the spec
-	s.Delete()
 
 	response.Accepted(c)
 }
