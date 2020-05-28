@@ -1,4 +1,4 @@
-package deployment
+package container
 
 import (
 	"context"
@@ -8,8 +8,8 @@ import (
 	"github.com/docker/docker/api/types"
 )
 
-// GetContainers : for a deployment
-func GetContainers(ctx *context.Context, deploymentName string) (containers []types.Container) {
+// Get : container for a deployment
+func Get(ctx *context.Context, deploymentName string) (containers []types.Container) {
 	containers, err := docker.ListContainers(ctx)
 	if err != nil {
 		return

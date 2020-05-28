@@ -109,14 +109,27 @@ func CreateContainer(
 }
 
 // StartContainer : start docker container
-func StartContainer(ctx *context.Context, containerID string) error {
+func StartContainer(ctx *context.Context, containerID string) (err error) {
 	if dkrClient == nil {
-		err := fmt.Errorf("docker client not initialized")
+		err = fmt.Errorf("docker client not initialized")
 		return err
 	}
 
 	options := types.ContainerStartOptions{}
 	return dkrClient.ContainerStart(*ctx, containerID, options)
+}
+
+// ConnectContainerToNetwork : connect a container to a network
+func ConnectContainerToNetwork(ctx *context.Context, networkID string, containerID string) (err error) {
+	if dkrClient == nil {
+		err = fmt.Errorf("docker client not initialized")
+		return
+	}
+
+	config := network.EndpointSettings{
+		NetworkID: networkID,
+	}
+	return dkrClient.NetworkConnect(*ctx, networkID, containerID, &config)
 }
 
 // StopContainer : stop docker container
@@ -166,6 +179,9 @@ func FormatImageSourceURL(
 	repo string,
 	imageName string,
 	tag string) string {
+	if tag == "" {
+		tag = "latest"
+	}
 	return fmt.Sprintf("%s/%s:%s", repo, imageName, tag)
 }
 

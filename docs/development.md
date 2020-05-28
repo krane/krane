@@ -1,6 +1,6 @@
 ## Developing Krane
 
-We are actively seeking individuals who was contribute with the project. The below docs are a guide on getting started with developing on the krane ecosystem.
+We are actively seeking individuals who want to contribute with the project. The below docs are a guide on getting started with developing krane.
 
 ## PRs
 

@@ -5,14 +5,14 @@ import (
 
 	"github.com/biensupernice/krane/internal/api/handler"
 	"github.com/biensupernice/krane/internal/api/middleware"
-	"github.com/biensupernice/krane/internal/deployment"
+	"github.com/biensupernice/krane/internal/deployment/event"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 // Config : server config
 type Config struct {
-	RestPort string // port to use for rest api
+	RestPort string // port to expose rest api
 	LogLevel string // release | debug
 }
 
@@ -34,20 +34,18 @@ func Start(cnf Config) {
 
 	client.GET("/sessions", middleware.AuthSessionMiddleware(), handler.GetSessions)
 
+	client.POST("/deployments", middleware.AuthSessionMiddleware(), handler.CreateSpec)
 	client.GET("/deployments", middleware.AuthSessionMiddleware(), handler.GetDeployments)
 	client.GET("/deployments/:name", middleware.AuthSessionMiddleware(), handler.GetDeployment)
-	client.POST("/deployments", middleware.AuthSessionMiddleware(), handler.CreateDeployment)
-	client.POST("/deployments/:name/run", middleware.AuthSessionMiddleware(), handler.RunDeployment) // ex. /deployments/:name/run?tag=latest
 	client.DELETE("/deployments/:name", middleware.AuthSessionMiddleware(), handler.DeleteDeployment)
+	client.POST("/deployments/:name/run", middleware.AuthSessionMiddleware(), handler.RunDeployment)
 
-	client.GET("/containers", middleware.AuthSessionMiddleware(), handler.ListContainers)
-	client.GET("/containers/:containerID/events", handler.ContainerEvents)
-	client.PUT("/containers/:containerID/stop", middleware.AuthSessionMiddleware(), handler.StopContainer)
-	client.PUT("/containers/:containerID/start", middleware.AuthSessionMiddleware(), handler.StartContainer)
+	// -- SSE -- //
+	client.GET("/containers/:containerID/events", middleware.AuthSessionMiddleware(), handler.ContainerEvents)
 
 	// --  Websockets -- //
 	client.GET("/deployments/:name/events", handler.WSDeploymentHandler)
-	go deployment.EchoEvents()
+	go event.Echo()
 
 	client.Run(":" + cnf.RestPort)
 }
