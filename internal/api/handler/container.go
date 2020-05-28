@@ -5,10 +5,9 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/biensupernice/krane/internal/channel"
-
 	"github.com/biensupernice/krane/docker"
 	"github.com/biensupernice/krane/internal/api/http"
+	"github.com/biensupernice/krane/internal/deployment/event"
 	"github.com/biensupernice/krane/internal/logger"
 	"github.com/gin-contrib/sse"
 	"github.com/gin-gonic/gin"
@@ -38,7 +37,7 @@ func ContainerEvents(c *gin.Context) {
 
 	// Stream container events from the reader return from `ReadContainerLogs` to a streaming channel
 	// That gin can use to serve to the client a stream using server-sent-events (sse)
-	channel.Stream(&ioreader, containerEvents, done)
+	event.Stream(&ioreader, containerEvents, done)
 
 	msgCount := 0
 	c.Stream(func(w io.Writer) bool {

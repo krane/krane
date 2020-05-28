@@ -1,12 +1,12 @@
-package deployment
+package event
 
 import (
 	"encoding/json"
 	"net/http"
 	"time"
 
+	"github.com/biensupernice/krane/internal/deployment/spec"
 	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/spec"
 	"github.com/gorilla/websocket"
 )
 
@@ -29,8 +29,8 @@ type Event struct {
 	Spec      spec.Spec `json:"deployment"`
 }
 
-// EmitEvent send a message to the events channel about a deployment
-func EmitEvent(msg string, s spec.Spec) {
+// Emit : an event about a deployment
+func Emit(msg string, s spec.Spec) {
 	event := &Event{
 		Timestamp: time.Now(),
 		Message:   msg,
@@ -39,12 +39,12 @@ func EmitEvent(msg string, s spec.Spec) {
 	eventsChannel <- event
 }
 
-// Subscribe to deployment events for specific deployments
+// Subscribe : to deployment events
 func Subscribe(client *websocket.Conn, deployment string) {
 	Clients[deployment] = append(Clients[deployment], client)
 }
 
-// Unsubscribe client from events channel
+// Unsubscribe : from deployment events
 func Unsubscribe(client *websocket.Conn, deployment string) {
 	for i, c := range Clients[deployment] {
 		if c == client {
@@ -57,8 +57,8 @@ func Unsubscribe(client *websocket.Conn, deployment string) {
 	}
 }
 
-// EchoEvents listen and broadcast events to the deployment events channel
-func EchoEvents() {
+// Echo : broadcast deployment events
+func Echo() {
 	for {
 		event := <-eventsChannel
 		eventBytes, err := json.Marshal(event)

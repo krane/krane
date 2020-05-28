@@ -7,10 +7,11 @@ import (
 	"net/http"
 
 	httpR "github.com/biensupernice/krane/internal/api/http"
-	"github.com/biensupernice/krane/internal/container"
 	"github.com/biensupernice/krane/internal/deployment"
+	"github.com/biensupernice/krane/internal/deployment/container"
+	"github.com/biensupernice/krane/internal/deployment/event"
+	"github.com/biensupernice/krane/internal/deployment/spec"
 	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/spec"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -132,16 +133,16 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-// WSDeploymentHandler :  handler for incoming websocket requests
+// WSDeploymentHandler :  handler to handler clients listening to deployment events
 func WSDeploymentHandler(c *gin.Context) {
 	name := c.Param("name")
 	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		logger.Debugf("Error registering client - %s", err.Error())
-		deployment.Unsubscribe(ws, name)
+		event.Unsubscribe(ws, name)
 		return
 	}
 
-	deployment.Subscribe(ws, name)
+	event.Subscribe(ws, name)
 	logger.Debugf("Registered new client")
 }

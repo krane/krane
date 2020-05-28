@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/biensupernice/krane/docker"
+	"github.com/biensupernice/krane/internal/deployment/container"
+	"github.com/biensupernice/krane/internal/deployment/event"
+	"github.com/biensupernice/krane/internal/deployment/spec"
 	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/spec"
 	"github.com/docker/docker/api/types"
 	"github.com/google/uuid"
 )
@@ -35,7 +37,7 @@ const (
 // Start : a deployment using a template and the tag that will be used for
 // the image that will deployed
 func Start(ctx *context.Context, s spec.Spec, tag string) {
-	go EmitEvent("Starting deployment", s)
+	go event.Emit("Starting deployment", s)
 
 	status := InProgressStatus
 	retries := 3
@@ -66,8 +68,46 @@ func Start(ctx *context.Context, s spec.Spec, tag string) {
 	}
 
 	msg := fmt.Sprintf("Deployment %s", status)
-	go EmitEvent(msg, s)
+	go event.Emit(msg, s)
 	logger.Debugf(msg)
+}
+
+// Remove : a deployments resources
+func Remove(ctx *context.Context, s spec.Spec) (success bool) {
+	go event.Emit("Removing deployment resources", s)
+
+	status := DeletingStatus
+	retries := 5
+	for i := 0; i < retries; i++ {
+		logger.Debugf("Attempt [%d] to remove %s resources", i+1, s.Name)
+
+		err := deleteDockerResources(ctx, s)
+		if err != nil {
+			status = FailedStatus
+
+			logger.Debugf("Unable to remove resouces for %s - %s", s.Name, err.Error())
+			logger.Debug("Waiting 10 seconds before retrying")
+			wait(10)
+			continue
+		}
+
+		status = ReadyStatus
+		break
+	}
+
+	// If deployment errored out log failure event and success false
+	if status != ReadyStatus {
+		errMsg := fmt.Sprintf("Unable to remove deployment %s", s.Name)
+		go event.Emit(errMsg, s)
+		logger.Debugf(errMsg)
+		return false
+	}
+
+	// If deployment resources succesfully got removed, log event and return true
+	successMsg := fmt.Sprintf("Succesfully deleted deployment %s", s.Name)
+	logger.Debugf(successMsg)
+	go event.Emit(successMsg, s)
+	return true
 }
 
 // deployWithDocker : workflow to deploy a docker container
@@ -77,7 +117,7 @@ func deployWithDocker(ctx *context.Context, s spec.Spec, tag string) (containerI
 	logger.Debugf("Pulling %s", img)
 
 	// Pull docker image
-	go EmitEvent("Pulling image", s)
+	go event.Emit("Pulling image", s)
 	err = docker.PullImage(ctx, img)
 	if err != nil {
 		logger.Debugf("Unable to pull the image - %s", err.Error())
@@ -91,7 +131,7 @@ func deployWithDocker(ctx *context.Context, s spec.Spec, tag string) (containerI
 	}
 
 	// Create docker container
-	go EmitEvent("Creating the container", s)
+	go event.Emit("Creating the container", s)
 	dID := uuid.NewSHA1(uuid.New(), []byte(s.Name)) // deployment ID
 	shortID := dID.String()[0:8]
 	containerName := fmt.Sprintf("%s-%s", s.Name, shortID)
@@ -119,7 +159,7 @@ func deployWithDocker(ctx *context.Context, s spec.Spec, tag string) (containerI
 	}
 
 	// Start docker container
-	go EmitEvent("Starting container", s)
+	go event.Emit("Starting container", s)
 	err = docker.StartContainer(ctx, containerID)
 	if err != nil {
 		logger.Debugf("Unable to start container - %s", err.Error())
@@ -127,12 +167,43 @@ func deployWithDocker(ctx *context.Context, s spec.Spec, tag string) (containerI
 		return
 	}
 
-	go EmitEvent("Container started", s)
+	go event.Emit("Container started", s)
 	logger.Debugf("Container started with the name %s", containerName)
 
 	return
 }
 
-func wait(s time.Duration) {
-	time.Sleep(s * time.Second)
+func deleteDockerResources(ctx *context.Context, s spec.Spec) (err error) {
+	containers := container.Get(ctx, s.Name)
+	for _, container := range containers {
+		// Stop the container
+		err = docker.StopContainer(ctx, container.ID)
+		if err != nil {
+			logger.Debugf("Unable to stop %s - %s", container.ID, err.Error())
+			return
+		}
+		logger.Debugf("Stopped container %s", container.ID)
+
+		// Remove the container
+		err = docker.RemoveContainer(ctx, container.ID)
+		if err != nil {
+			logger.Debugf("Unable to remove %s - %s", container.ID, err.Error())
+			return
+		}
+		logger.Debugf("Removed container %s", container.ID)
+
+		// Delete docker image
+		_, err = docker.RemoveImage(ctx, container.ImageID)
+		if err != nil {
+			logger.Debugf("Unable to remove image %s - %s", container.Image, err.Error())
+			return
+		}
+		logger.Debugf("Removed image %s", container.Image)
+	}
+
+	logger.Debugf("Cleaned up docker resources for %s", s.Name)
+	return
 }
+
+// Helper to wait an X amount of seconds
+func wait(s time.Duration) { time.Sleep(s * time.Second) }
