@@ -5,5 +5,5 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// HealthHandler : returns 200
-func HealthHandler(c *gin.Context) { http.Ok(c, map[string]string{"status": "healthy"}) }
+// HealthHandler : returns 200, used for checking the servers health
+func HealthHandler(c *gin.Context) { http.Ok(c, map[string]string{"status": "Up"}) }

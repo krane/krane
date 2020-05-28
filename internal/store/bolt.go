@@ -37,6 +37,9 @@ const (
 
 	// TemplatesBucket : bucket used for storing deployment templates
 	TemplatesBucket = "Templates"
+
+	// SpecsBucket : bucket used for storing deployment spec
+	SpecsBucket = "Specs"
 )
 
 var (
@@ -56,6 +59,7 @@ func SetupDB() error {
 		SessionsBucket,
 		DeploymentsBucket,
 		TemplatesBucket,
+		SpecsBucket,
 	}
 
 	// Iterate and create buckets

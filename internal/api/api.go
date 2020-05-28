@@ -34,18 +34,15 @@ func Start(cnf Config) {
 
 	client.GET("/sessions", middleware.AuthSessionMiddleware(), handler.GetSessions)
 
+	client.POST("/deployments", middleware.AuthSessionMiddleware(), handler.CreateSpec)
 	client.GET("/deployments", middleware.AuthSessionMiddleware(), handler.GetDeployments)
 	client.GET("/deployments/:name", middleware.AuthSessionMiddleware(), handler.GetDeployment)
-	client.POST("/deployments", middleware.AuthSessionMiddleware(), handler.CreateDeployment)
-	client.POST("/deployments/:name/run", middleware.AuthSessionMiddleware(), handler.RunDeployment) // ex. /deployments/:name/run?tag=latest
 	client.DELETE("/deployments/:name", middleware.AuthSessionMiddleware(), handler.DeleteDeployment)
+	client.POST("/deployments/:name/run", middleware.AuthSessionMiddleware(), handler.RunDeployment)
 
-	client.GET("/containers", middleware.AuthSessionMiddleware(), handler.ListContainers)
 	client.GET("/containers/:containerID/events", handler.ContainerEvents)
-	client.PUT("/containers/:containerID/stop", middleware.AuthSessionMiddleware(), handler.StopContainer)
-	client.PUT("/containers/:containerID/start", middleware.AuthSessionMiddleware(), handler.StartContainer)
 
-	// --  Websockets -- //
+	// // --  Websockets -- //
 	client.GET("/deployments/:name/events", handler.WSDeploymentHandler)
 	go deployment.EchoEvents()
 

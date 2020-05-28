@@ -80,7 +80,7 @@ func Auth(c *gin.Context) {
 	// Check if request id is valid, get phrase stored on the server
 	serverPhrase := string(store.Get(store.AuthBucket, req.RequestID))
 	if serverPhrase == "" {
-		errMsg := "Unable to authenticate"
+		errMsg := "invalid request id"
 		http.BadRequest(c, errMsg)
 		return
 	}
@@ -96,7 +96,7 @@ func Auth(c *gin.Context) {
 	// If an authorized_key can parse incoming token, authClaims will be returned containing the phrase from the token
 	authClaims, err := auth.VerifyAuthTokenWithAuthorizedKeys(authorizedKeys, req.Token)
 	if err != nil {
-		errMsg := "Unable to verify"
+		errMsg := "Unable to verify token"
 		http.BadRequest(c, errMsg)
 		return
 	}

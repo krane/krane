@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/biensupernice/krane/internal/logger"
+	"github.com/biensupernice/krane/internal/spec"
 	"github.com/gorilla/websocket"
 )
 
@@ -23,17 +24,17 @@ var upgrader = websocket.Upgrader{
 
 // Event message structure for a deployment event
 type Event struct {
-	Timestamp  time.Time `json:"timestamp"`
-	Message    string    `json:"message"`
-	Deployment Template  `json:"deployment"`
+	Timestamp time.Time `json:"timestamp"`
+	Message   string    `json:"message"`
+	Spec      spec.Spec `json:"deployment"`
 }
 
 // EmitEvent send a message to the events channel about a deployment
-func EmitEvent(msg string, t Template) {
+func EmitEvent(msg string, s spec.Spec) {
 	event := &Event{
-		Timestamp:  time.Now(),
-		Message:    msg,
-		Deployment: t,
+		Timestamp: time.Now(),
+		Message:   msg,
+		Spec:      s,
 	}
 	eventsChannel <- event
 }
@@ -67,7 +68,7 @@ func EchoEvents() {
 		}
 
 		// Get all clients listening to the specific deployment
-		deployment := event.Deployment.Name
+		deployment := event.Spec.Name
 		clients := Clients[deployment]
 
 		// send to every client that is currently connected

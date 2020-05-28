@@ -9,7 +9,6 @@ You can also use [krane-cli](https://github.com/biensupernice/krane-cli) to comm
 | Methods     | Path                            | Auth |
 | ----------- | ------------------------------- | ---- |
 | POST        | /auth                           | No   |
-| GET         | /containers                     | Yes  |
 | SSE         | /containers/:containerID/events | No   |
 | GET, POST   | /deployments                    | Yes  |
 | POST        | /deployments/:name/run          | Yes  |
@@ -249,73 +248,17 @@ type TemplateConfig {
 
 ---
 
-`GET /containers`
-
-List all the containers on the server
-
-**Response**
-
-Example response, as you can see data contains the docker representation of the `Container` type. No reason to maintain our own container data type, this means we can leverage the data directly from the docker client on any of the krane interfaces even if the docker client used gets updates
-
-```json
-{
-  "data": [
-    {
-      "Id": "7683abd401579f2a4f2f97b267c6fa584447383e96db8b0f49473eebaf8abbee",
-      "Names": ["/app1-903c8479-05ae-5ca5-aa3d-a8e26e1ba148"],
-      "Image": "docker.io/biensupernice/docker-to-node:latest",
-      "ImageID": "sha256:7177cc313686dad5edc09276ef4c86a3eba0e96bc8144bc3ebfba8f6ca58e7d4",
-      "Command": "npm run start",
-      "Created": 1590099327,
-      "Ports": [
-        {
-          "PrivatePort": 8080,
-          "Type": "tcp"
-        }
-      ],
-      "Labels": {},
-      "State": "running",
-      "Status": "Up 2 hours",
-      "HostConfig": {
-        "NetworkMode": "default"
-      },
-      "NetworkSettings": {
-        "Networks": {
-          "bridge": {
-            "IPAMConfig": null,
-            "Links": null,
-            "Aliases": null,
-            "NetworkID": "a30d0e134ddde5616c0b6a3316877022bbe3c622099f79e8d8f1bca9c910a08b",
-            "EndpointID": "36d88ef2793cc185a0e4a2fe6aa58024cfa13960f71636cc1ebf27ddfe8f9dfc",
-            "Gateway": "172.17.0.1",
-            "IPAddress": "172.17.0.13",
-            "IPPrefixLen": 16,
-            "IPv6Gateway": "",
-            "GlobalIPv6Address": "",
-            "GlobalIPv6PrefixLen": 0,
-            "MacAddress": "02:42:ac:11:00:0d"
-          }
-        }
-      },
-      "Mounts": []
-    }
-  ]
-}
-```
-
----
-
 `SSE /container/:containeID/events`
 
-This route emit [server-sent-events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events) for a container.
+This route emits [server-sent-events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events) for a container.
 
-Example html gist: [here](https://gist.github.com/david-castaneda/c6dd5f23c8c7fbdf792b478be78fcdd4)
+Example html gist: [here](https://gist.github.com/david-castaneda/c6dd5f23c8c7fbdf792b478be78fcdd4) for listening to container events
 
 ---
 
 `GET /sessions`
 
-List all the sessions for the server. A session is created when you log in.
+List all the sessions for the server. A session is created when you log in and authenticate with the krane-server.
 
 **Response**
 
