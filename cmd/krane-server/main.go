@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/biensupernice/krane/api"
+	"github.com/biensupernice/krane/auth"
+	"github.com/biensupernice/krane/db"
 	"github.com/biensupernice/krane/docker"
-	"github.com/biensupernice/krane/internal/api"
-	"github.com/biensupernice/krane/internal/auth"
-	"github.com/biensupernice/krane/internal/store"
 
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/biensupernice/krane/logger"
 )
 
 // Env
@@ -64,18 +64,18 @@ func init() {
 		LogLevel: LogLevel,
 	}
 
-	fmt.Printf("🏗 krane path: %s\n", KranePath)
-	fmt.Printf("🏗 krane log level: %s\n", LogLevel)
-	fmt.Printf("🏗 krane port: %s\n", RestPort)
+	l.Infof("🏗 krane path: %s\n", KranePath)
+	l.Infof("🏗 krane log level: %s\n", LogLevel)
+	l.Infof("🏗 krane port: %s\n", RestPort)
 
-	// Start db
-	_, err := store.NewDB("krane.db")
+	// Create db
+	err := db.New("krane.db")
 	if err != nil {
 		l.Fatalf("Unable to start db - %s", err.Error())
 	}
 
-	// Setup db
-	err = store.SetupDB()
+	// Setup db - creates required buckets
+	err = db.Setup()
 	if err != nil {
 		l.Fatalf("Unable to setup db - %s", err.Error())
 	}
@@ -95,12 +95,12 @@ func init() {
 	}
 
 	os.Setenv("KRANE_NETWORK_ID", netRes.ID)
-	logger.Debugf("Created docker network - %s", netRes.ID)
+	logger.Debugf("Using docker network - %s", netRes.ID)
 
 	ctx.Done()
 }
 
 func main() {
-	defer store.DB.Close()
+	defer db.GetDB().Close()
 	api.Start(*config)
 }
