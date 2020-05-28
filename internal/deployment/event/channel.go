@@ -5,7 +5,7 @@ import (
 	"io"
 	"sync"
 
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/biensupernice/krane/logger"
 )
 
 // Stream messages from an ioreader to a channel

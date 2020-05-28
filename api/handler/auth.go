@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/biensupernice/krane/internal/api/http"
-	"github.com/biensupernice/krane/internal/auth"
-	"github.com/biensupernice/krane/internal/store"
+	"github.com/biensupernice/krane/api/response"
+	"github.com/biensupernice/krane/auth"
+	"github.com/biensupernice/krane/db"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/pkg/errors"
@@ -53,19 +53,19 @@ type LoginResponse struct {
 func Login(c *gin.Context) {
 	reqID := uuid.New()
 
-	// Store `reqID` in auth bucket
+	// store `reqID` in auth db
 	key := reqID.String()
 	val := []byte(fmt.Sprintf("Hey krane, %s", key))
 
-	err := store.Put(store.AuthBucket, key, val)
+	err := db.Put(db.AuthBucket, key, val)
 	if err != nil {
-		store.Remove(store.AuthBucket, key)
-		http.BadRequest(c, err.Error())
+		db.Remove(db.AuthBucket, key)
+		response.BadRequest(c, err.Error())
 		return
 	}
 
 	resp := &LoginResponse{RequestID: key, Phrase: string(val)}
-	http.Ok(c, resp)
+	response.Ok(c, resp)
 }
 
 // Auth : handle login attempt
@@ -73,22 +73,22 @@ func Auth(c *gin.Context) {
 	var req AuthRequest
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
-		http.BadRequest(c, err.Error())
+		response.BadRequest(c, err.Error())
 		return
 	}
 
 	// Check if request id is valid, get phrase stored on the server
-	serverPhrase := string(store.Get(store.AuthBucket, req.RequestID))
+	serverPhrase := string(db.Get(db.AuthBucket, req.RequestID))
 	if serverPhrase == "" {
 		errMsg := "invalid request id"
-		http.BadRequest(c, errMsg)
+		response.BadRequest(c, errMsg)
 		return
 	}
 
 	// Get authorized_keys on the server
 	authorizedKeys, err := auth.GetAuthorizedKeys("")
 	if err != nil {
-		http.BadRequest(c, err.Error())
+		response.BadRequest(c, err.Error())
 		return
 	}
 
@@ -97,24 +97,24 @@ func Auth(c *gin.Context) {
 	authClaims, err := auth.VerifyAuthTokenWithAuthorizedKeys(authorizedKeys, req.Token)
 	if err != nil {
 		errMsg := "Unable to verify token"
-		http.BadRequest(c, errMsg)
+		response.BadRequest(c, errMsg)
 		return
 	}
 
 	// Compare phrase from server against phrase from auth claims
 	if strings.Compare(serverPhrase, authClaims.Phrase) != 0 {
 		errMsg := "Invalid token"
-		http.BadRequest(c, errMsg)
+		response.BadRequest(c, errMsg)
 		return
 	}
 
 	// If reached here, authentication was succesful
 	// create a new token and assign it to a session
 	// Remove auth data from auth bucket
-	err = store.Remove(store.AuthBucket, req.RequestID)
+	err = db.Remove(db.AuthBucket, req.RequestID)
 	if err != nil {
 		errMsg := errors.Errorf("Something went wrong - %s", err.Error())
-		http.BadRequest(c, errMsg)
+		response.BadRequest(c, errMsg)
 		return
 	}
 
@@ -123,7 +123,7 @@ func Auth(c *gin.Context) {
 	signedataessionTkn, err := auth.CreateToken(serverPrivKey, sessionTkn)
 	if err != nil {
 		errMsg := errors.Errorf("Invalid request - %s", err.Error())
-		http.BadRequest(c, errMsg)
+		response.BadRequest(c, errMsg)
 		return
 	}
 
@@ -134,11 +134,11 @@ func Auth(c *gin.Context) {
 		ExpiresAt: UnixToDate(auth.OneYear),
 	}
 
-	// Store session into sessions bucket
+	// db session into sessions bucket
 	sessionBytes, _ := json.Marshal(session)
-	store.Put(store.SessionsBucket, sessionID, sessionBytes)
+	db.Put(db.SessionsBucket, sessionID, sessionBytes)
 
-	http.Ok(c, &AuthResponse{Session: *session})
+	response.Ok(c, &AuthResponse{Session: *session})
 }
 
 // UnixToDate : format MM/DD/YYYY

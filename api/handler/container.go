@@ -5,10 +5,10 @@ import (
 	"io"
 	"strconv"
 
+	"github.com/biensupernice/krane/api/response"
 	"github.com/biensupernice/krane/docker"
-	"github.com/biensupernice/krane/internal/api/http"
 	"github.com/biensupernice/krane/internal/deployment/event"
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/biensupernice/krane/logger"
 	"github.com/gin-contrib/sse"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +17,7 @@ import (
 func ContainerEvents(c *gin.Context) {
 	cID := c.Param("containerID")
 	if cID == "" {
-		http.BadRequest(c, "container id not provided")
+		response.BadRequest(c, "container id not provided")
 		return
 	}
 

@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"net/http"
 
-	httpR "github.com/biensupernice/krane/internal/api/http"
+	"github.com/biensupernice/krane/api/response"
 	"github.com/biensupernice/krane/internal/deployment"
 	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/deployment/event"
 	"github.com/biensupernice/krane/internal/deployment/spec"
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/biensupernice/krane/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -23,7 +23,7 @@ func CreateSpec(c *gin.Context) {
 	err := c.ShouldBindJSON(&spec)
 	if err != nil {
 		logger.Debugf("Unable to bind spec - %s", err.Error())
-		httpR.BadRequest(c, err.Error())
+		response.BadRequest(c, err.Error())
 		return
 	}
 
@@ -32,11 +32,11 @@ func CreateSpec(c *gin.Context) {
 	err = spec.Create()
 	if err != nil {
 		logger.Debugf("Unable to create spec %s- %s", spec.Name, err.Error())
-		httpR.BadRequest(c, err.Error())
+		response.BadRequest(c, err.Error())
 		return
 	}
 
-	httpR.Created(c, spec)
+	response.Created(c, spec)
 }
 
 // DeleteDeployment : delete a deployment spec and its resources
@@ -44,7 +44,7 @@ func DeleteDeployment(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
 		errMsg := errors.New("Error getting deployment `name` from params")
-		httpR.BadRequest(c, errMsg)
+		response.BadRequest(c, errMsg)
 		return
 	}
 
@@ -53,7 +53,7 @@ func DeleteDeployment(c *gin.Context) {
 
 	if s == (spec.Spec{}) {
 		errMsg := fmt.Sprintf("Unable to find deployment %s", name)
-		httpR.BadRequest(c, errMsg)
+		response.BadRequest(c, errMsg)
 		return
 	}
 
@@ -67,7 +67,7 @@ func DeleteDeployment(c *gin.Context) {
 	// Remove the spec
 	s.Delete()
 
-	httpR.Accepted(c)
+	response.Accepted(c)
 }
 
 // RunDeployment :
@@ -79,7 +79,7 @@ func RunDeployment(c *gin.Context) {
 	s := spec.Find(name)
 	if s == (spec.Spec{}) {
 		errMsg := fmt.Sprintf("Unable to find deployment %s", name)
-		httpR.BadRequest(c, errMsg)
+		response.BadRequest(c, errMsg)
 		return
 	}
 
@@ -91,7 +91,7 @@ func RunDeployment(c *gin.Context) {
 
 	ctx.Done()
 
-	httpR.Accepted(c)
+	response.Accepted(c)
 }
 
 // GetDeployment : get single deployment by name
@@ -99,7 +99,7 @@ func GetDeployment(c *gin.Context) {
 	name := c.Param("name")
 	if name == "" {
 		errMsg := errors.New("Error getting deployment `name` from params")
-		httpR.BadRequest(c, errMsg)
+		response.BadRequest(c, errMsg)
 		return
 	}
 
@@ -107,7 +107,7 @@ func GetDeployment(c *gin.Context) {
 	// and compare against empty struct
 	s := spec.Find(name)
 	if s == (spec.Spec{}) {
-		httpR.BadRequest(c, "Unable to find a deployment by that name")
+		response.BadRequest(c, "Unable to find a deployment by that name")
 		return
 	}
 
@@ -118,14 +118,14 @@ func GetDeployment(c *gin.Context) {
 
 	ctx.Done()
 
-	httpR.Ok(c, &deployment.Deployment{
+	response.Ok(c, &deployment.Deployment{
 		Spec:       s,
 		Containers: containers,
 	})
 }
 
 // GetDeployments : get all deployments
-func GetDeployments(c *gin.Context) { httpR.Ok(c, spec.FindAll()) }
+func GetDeployments(c *gin.Context) { response.Ok(c, spec.FindAll()) }
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {

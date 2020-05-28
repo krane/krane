@@ -15,9 +15,7 @@ import (
 	"github.com/docker/go-connections/nat"
 )
 
-var (
-	dkrClient *client.Client // Single docker client
-)
+var dkrClient *client.Client
 
 // New : create docker client
 func New() (*client.Client, error) {

@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/biensupernice/krane/internal/api/http"
-	"github.com/biensupernice/krane/internal/store"
+	"github.com/biensupernice/krane/api/response"
+	"github.com/biensupernice/krane/db"
 	"github.com/gin-gonic/gin"
 )
 
 // GetSessions : currently active on the krane-server, a session consists
 // of a user sucessfully authenticating and receiving a session token
 func GetSessions(c *gin.Context) {
-	sessionsBytes := store.GetAll(store.SessionsBucket)
+	sessionsBytes := db.GetAll(db.SessionsBucket)
 
 	var sessions []Session
 	for _, sessionBytes := range sessionsBytes {
@@ -26,5 +26,5 @@ func GetSessions(c *gin.Context) {
 		sessions = append(sessions, s)
 	}
 
-	http.Ok(c, sessions)
+	response.Ok(c, sessions)
 }

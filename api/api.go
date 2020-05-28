@@ -3,8 +3,8 @@ package api
 import (
 	"strings"
 
-	"github.com/biensupernice/krane/internal/api/handler"
-	"github.com/biensupernice/krane/internal/api/middleware"
+	"github.com/biensupernice/krane/api/handler"
+	"github.com/biensupernice/krane/api/middleware"
 	"github.com/biensupernice/krane/internal/deployment/event"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/biensupernice/krane/internal/deployment/spec"
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/biensupernice/krane/logger"
 	"github.com/gorilla/websocket"
 )
 

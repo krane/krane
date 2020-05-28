@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/store"
+	"github.com/biensupernice/krane/db"
+	"github.com/biensupernice/krane/logger"
 )
 
 // Spec : a spec that defines a deployment
@@ -33,17 +33,17 @@ func (s Spec) Create() (err error) {
 		return
 	}
 
-	// Save to datastore
+	// Save to db
 	return s.Save()
 }
 
-// Delete : spec from datastore
-func (s Spec) Delete() (err error) { return store.Remove(store.SpecsBucket, s.Name) }
+// Delete : spec from db
+func (s Spec) Delete() (err error) { return db.Remove(db.SpecsBucket, s.Name) }
 
-// Find : spec from datastore
+// Find : spec from db
 func Find(deploymentName string) Spec {
 	// Returns bytes
-	tBytes := store.Get(store.SpecsBucket, deploymentName)
+	tBytes := db.Get(db.SpecsBucket, deploymentName)
 
 	// Unmarshal bytes into Spec
 	var s Spec
@@ -52,9 +52,9 @@ func Find(deploymentName string) Spec {
 	return s
 }
 
-// FindAll : specs from datastore
+// FindAll : specs from db
 func FindAll() []Spec {
-	specsBytes := store.GetAll(store.SpecsBucket)
+	specsBytes := db.GetAll(db.SpecsBucket)
 
 	specs := make([]Spec, 0)
 	for v := 0; v < len(specsBytes); v++ {
@@ -70,7 +70,7 @@ func FindAll() []Spec {
 	return specs
 }
 
-// Save : spec to datastore
+// Save : spec to db
 func (s Spec) Save() (err error) {
 	sBytes, err := json.Marshal(s)
 	if err != nil {
@@ -78,8 +78,8 @@ func (s Spec) Save() (err error) {
 		return
 	}
 
-	// Save spec to the datastore
-	return store.Put(store.SpecsBucket, s.Name, sBytes)
+	// Save spec to the db
+	return db.Put(db.SpecsBucket, s.Name, sBytes)
 }
 
 // SetDefaults : for a spec

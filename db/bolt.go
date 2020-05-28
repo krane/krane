@@ -1,4 +1,4 @@
-package store
+package db
 
 /**
 Persistent key/value datastore using bolt
@@ -6,10 +6,10 @@ Operations:
 - Get : get value by key
 - GetAll : get all values in a bucket
 - Put: store key-value pait
-- NewDB: new instance of boltdb
+- Newdb: new instance of boltdb
 - CreateBucket: new bucket that collects relevant data
-- SetupDB : setup intial db buckets
-- StartDBMetrics:  start a gp routine to fetch bolt metrics
+- Setupdb : setup intial db buckets
+- StartdbMetrics:  start a gp routine to fetch bolt metrics
 
 **/
 
@@ -21,7 +21,7 @@ import (
 	"os/user"
 	"time"
 
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/biensupernice/krane/logger"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -35,21 +35,18 @@ const (
 	// DeploymentsBucket : bucket used for storing deployment related key-value data
 	DeploymentsBucket = "Deployments"
 
-	// TemplatesBucket : bucket used for storing deployment templates
-	TemplatesBucket = "Templates"
-
 	// SpecsBucket : bucket used for storing deployment spec
 	SpecsBucket = "Specs"
 )
 
-var (
-	// DB : refrence to an instance of bolt
-	DB *bolt.DB
-)
+var db *bolt.DB
 
-// SetupDB : initial db buckets
-func SetupDB() error {
-	if DB == nil {
+// GetDB : return instance of boltdb
+func GetDB() *bolt.DB { return db }
+
+// Setup : initial db buckets
+func Setup() error {
+	if db == nil {
 		return fmt.Errorf("Unable to setup db")
 	}
 
@@ -58,7 +55,6 @@ func SetupDB() error {
 		AuthBucket,
 		SessionsBucket,
 		DeploymentsBucket,
-		TemplatesBucket,
 		SpecsBucket,
 	}
 
@@ -76,10 +72,10 @@ func SetupDB() error {
 	return nil
 }
 
-// NewDB : instance of bolt
-func NewDB(dbName string) (*bolt.DB, error) {
-	if DB != nil {
-		return nil, nil
+// New : instance of bolt
+func New(dbName string) error {
+	if db != nil {
+		return nil
 	}
 
 	// Get base krane directory
@@ -99,14 +95,14 @@ func NewDB(dbName string) (*bolt.DB, error) {
 	options := &bolt.Options{Timeout: 1 * time.Second}
 
 	dbPath := fmt.Sprintf("%s/%s", dbDir, dbName)
-	db, err := bolt.Open(dbPath, 0600, options)
+	dbInstance, err := bolt.Open(dbPath, 0600, options)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	DB = db
+	db = dbInstance
 
-	return db, nil
+	return nil
 }
 
 // BoltPath : location of boltdb
@@ -122,11 +118,11 @@ func BoltPath() string {
 
 // CreateBucket : new bucket
 func CreateBucket(bktName string) error {
-	if DB == nil {
+	if db == nil {
 		return fmt.Errorf("db not initialized")
 	}
 
-	return DB.Update(func(tx *bolt.Tx) error {
+	return db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(bktName))
 		if err != nil {
 			return err
@@ -137,11 +133,11 @@ func CreateBucket(bktName string) error {
 
 // Put : a key/value pair
 func Put(bktName string, k string, v []byte) error {
-	if DB == nil {
+	if db == nil {
 		return fmt.Errorf("db not initialized")
 	}
 
-	return DB.Update(func(tx *bolt.Tx) error {
+	return db.Update(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(bktName))
 		return bkt.Put([]byte(k), v)
 	})
@@ -149,11 +145,11 @@ func Put(bktName string, k string, v []byte) error {
 
 // Get : a value by key
 func Get(bktName string, key string) (val []byte) {
-	if DB == nil {
+	if db == nil {
 		return nil
 	}
 
-	err := DB.View(func(tx *bolt.Tx) error {
+	err := db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(bktName))
 		if bkt == nil {
 			return fmt.Errorf("Bucket %s not found", bktName)
@@ -172,11 +168,11 @@ func Get(bktName string, key string) (val []byte) {
 
 // GetAll : the values in a bucket
 func GetAll(bktName string) (data []*[]byte) {
-	if DB == nil {
+	if db == nil {
 		return nil
 	}
 
-	err := DB.View(func(tx *bolt.Tx) error {
+	err := db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(bktName))
 
 		// Iterate all the keys in the bucket
@@ -197,28 +193,28 @@ func GetAll(bktName string) (data []*[]byte) {
 
 // Remove : item by key
 func Remove(bktName string, key string) error {
-	if DB == nil {
+	if db == nil {
 		return fmt.Errorf("db not initialized")
 	}
 
-	return DB.Update(func(tx *bolt.Tx) error {
+	return db.Update(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(bktName))
 		return bkt.Delete([]byte(key))
 	})
 }
 
-// StartDBMetrics : start a go routine capturing db metrics
+// StartDBMetrics : capture db metrics
 func StartDBMetrics() {
 	go func() {
 		// Grab the initial stats.
-		prev := DB.Stats()
+		prev := db.Stats()
 
 		for {
 			// Wait for 10s.
 			time.Sleep(10 * time.Second)
 
 			// Grab the current stats and diff them.
-			stats := DB.Stats()
+			stats := db.Stats()
 			diff := stats.Sub(&prev)
 
 			// Encode stats to JSON and print to STDERR.
