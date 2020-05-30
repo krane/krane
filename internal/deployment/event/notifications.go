@@ -76,7 +76,7 @@ func Echo() {
 			// Write the message to the events channel for deployments
 			err := client.WriteMessage(websocket.TextMessage, eventBytes)
 			if err != nil {
-				// May also want to remove client ???
+				// If error sending message to client, unsubscribe the client
 				logger.Debugf("Websocket error: %s", err)
 				Unsubscribe(client, deployment)
 			}

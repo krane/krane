@@ -45,12 +45,12 @@ var db *bolt.DB
 func GetDB() *bolt.DB { return db }
 
 // Setup : initial db buckets
-func Setup() error {
+func Setup() (err error) {
 	if db == nil {
-		return fmt.Errorf("Unable to setup db")
+		return fmt.Errorf("db not initiated")
 	}
 
-	// Bucket to create
+	// Buckets to create
 	bkts := []string{
 		AuthBucket,
 		SessionsBucket,
@@ -59,23 +59,23 @@ func Setup() error {
 	}
 
 	// Iterate and create buckets
-	for i := 0; i < len(bkts); i++ {
-		err := CreateBucket(bkts[i])
+	for _, bkt := range bkts {
+		err = CreateBucket(bkt)
 		if err != nil {
-			return err
+			return
 		}
 
-		msg := fmt.Sprintf("Created %s Bucket", bkts[i])
+		msg := fmt.Sprintf("Created %s Bucket", bkt)
 		logger.Debug(msg)
 	}
 
-	return nil
+	return
 }
 
 // New : instance of bolt
-func New(dbName string) error {
+func New(dbName string) (err error) {
 	if db != nil {
-		return nil
+		return
 	}
 
 	// Get base krane directory
@@ -97,12 +97,12 @@ func New(dbName string) error {
 	dbPath := fmt.Sprintf("%s/%s", dbDir, dbName)
 	dbInstance, err := bolt.Open(dbPath, 0600, options)
 	if err != nil {
-		return err
+		return
 	}
 
 	db = dbInstance
 
-	return nil
+	return
 }
 
 // BoltPath : location of boltdb
@@ -117,17 +117,14 @@ func BoltPath() string {
 }
 
 // CreateBucket : new bucket
-func CreateBucket(bktName string) error {
+func CreateBucket(bktName string) (err error) {
 	if db == nil {
 		return fmt.Errorf("db not initialized")
 	}
 
-	return db.Update(func(tx *bolt.Tx) error {
-		_, err := tx.CreateBucketIfNotExists([]byte(bktName))
-		if err != nil {
-			return err
-		}
-		return nil
+	return db.Update(func(tx *bolt.Tx) (err error) {
+		_, err = tx.CreateBucketIfNotExists([]byte(bktName))
+		return
 	})
 }
 

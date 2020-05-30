@@ -33,8 +33,8 @@ func New() (*client.Client, error) {
 	return dkrClient, nil
 }
 
-// PullImage : poll docker image from registry
-func PullImage(ctx *context.Context, image string) (err error) {
+// PullImage : from docker registry
+func PullImage(ctx *context.Context, image string) (reader io.Reader, err error) {
 	if dkrClient == nil {
 		err = fmt.Errorf("docker client not initialized")
 		return
@@ -44,15 +44,7 @@ func PullImage(ctx *context.Context, image string) (err error) {
 		RegistryAuth: "", // RegistryAuth is the base64 encoded credentials for the registry
 	}
 
-	reader, err := dkrClient.ImagePull(*ctx, image, options)
-	if err != nil {
-		return err
-	}
-
-	io.Copy(os.Stdout, reader)
-	err = reader.Close()
-
-	return
+	return dkrClient.ImagePull(*ctx, image, options)
 }
 
 // CreateContainer : create docker container
@@ -207,7 +199,7 @@ func CreateBridgeNetwork(ctx *context.Context, name string) (types.NetworkCreate
 	return dkrClient.NetworkCreate(*ctx, name, options)
 }
 
-// GetNetworkByName : find a netwokr by name on this docker host
+// GetNetworkByName : find a network by name on this docker host
 func GetNetworkByName(ctx *context.Context, name string) (types.NetworkResource, error) {
 	if dkrClient == nil {
 		err := fmt.Errorf("docker client not initialized")
@@ -221,10 +213,11 @@ func GetNetworkByName(ctx *context.Context, name string) (types.NetworkResource,
 		return types.NetworkResource{}, err
 	}
 
+	// Iterrate the networks and check if any match
 	var kNet types.NetworkResource
-	for i := 0; i < len(nets); i++ {
-		if nets[i].Name == name {
-			kNet = nets[i]
+	for _, net := range nets {
+		if net.Name == name {
+			kNet = net
 			break
 		}
 	}

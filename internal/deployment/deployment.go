@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"time"
 
@@ -122,10 +123,28 @@ func deployWithDocker(ctx *context.Context, s spec.Spec, tag string) (containerI
 
 	// Pull docker image
 	go event.Emit("Pulling image", s)
-	err = docker.PullImage(ctx, img)
+	reader, err := docker.PullImage(ctx, img)
+
 	if err != nil {
 		logger.Debugf("Unable to pull the image - %s", err.Error())
 		return
+	}
+
+	// Read & Emit pull image events to deployment channel -- TODO: abstract outside of here :D
+	p := make([]byte, 50)
+	for {
+		n, err := reader.Read(p)
+		if err != nil {
+			// If event ended, EOF error will be thrown, simply exit loop
+			if err == io.EOF {
+				break
+			}
+
+			logger.Debugf("Error - %s", err.Error())
+		}
+
+		pullEvent := string(p[:n])
+		go event.Emit(pullEvent, s)
 	}
 
 	// Krane Network ID to connect the container
