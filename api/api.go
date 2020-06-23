@@ -20,7 +20,7 @@ type Config struct {
 func Start(cnf Config) {
 	gin.SetMode(strings.ToLower(cnf.LogLevel))
 
-	client := gin.New()
+	client := gin.Default()
 
 	// Middleware
 	client.Use(gin.Recovery())
