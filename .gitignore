@@ -1,0 +1,11 @@
+# the executable
+krane
+
+# storage
+*.db
+
+# testing files
+*.test
+
+# jetbrains go land
+.idea
