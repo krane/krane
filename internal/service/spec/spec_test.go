@@ -47,7 +47,9 @@ func TestSpecNameValidation(t *testing.T) {
 	assert.True(t, Spec{Name: "example_-f9186962-c575-11ea-87d0-0242ac130003"}.isValidSpecName())
 	assert.True(t, Spec{Name: "small"}.isValidSpecName())
 	assert.True(t, Spec{Name: "tiny"}.isValidSpecName())
+	assert.True(t, Spec{Name: "api"}.isValidSpecName())
 
+	assert.False(t, Spec{Name: "up"}.isValidSpecName())
 	assert.False(t, Spec{Name: "-example"}.isValidSpecName())
 	assert.False(t, Spec{Name: "_-example"}.isValidSpecName())
 	assert.False(t, Spec{Name: "example_-"}.isValidSpecName())

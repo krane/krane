@@ -1,6 +1,0 @@
-{
-  "name": "whoami",
-  "config": {
-    "image": "containous/whoami"
-  }
-}

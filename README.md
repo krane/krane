@@ -24,7 +24,6 @@ Krane is a self-hosted container management solution that runs on your hardware,
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Ubuntu 18.04.3 (LTS) x64 | https://github.com/biensupernice/krane/releases/download/0.0.1/krane_0.0.1_linux_386.tar.gz https://github.com/biensupernice/krane/releases/download/0.0.1/krane_0.0.1_linux_amd64.tar.gz |
 | macOS Catalina           | https://github.com/biensupernice/krane/releases/download/0.0.1/krane_0.0.1_darwin_amd64.tar.gz                                                                                            |
-|                          |                                                                                                                                                                                           |
 
 Find the appropriate download link and use the below command to install the executable
 

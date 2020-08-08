@@ -1,8 +1,0 @@
-{
-  "name": "krane-ui",
-  "config": {
-    "image": "biensupernice/krane-ui",
-    "container_port": "3000",
-    "host_port": "3000"
-  }
-}
