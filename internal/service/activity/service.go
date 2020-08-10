@@ -33,7 +33,7 @@ func Capture(a *Activity) {
 		return
 	}
 
-	// The key is an RFC3339 encoded time and is required to do date range scans across the db
+	// The auth is an RFC3339 encoded time and is required to do date range scans across the db
 	// this way we can perform looks up for activity within a time range
 	err = storage.Put(ActivityCollectionName, a.CreatedAt, bytes)
 	if err != nil {

@@ -89,7 +89,7 @@ func (s *Spec) UpdateSpec(prevDeploymentName string) error {
 		return err
 	}
 
-	// Only remove the old spec if the names are variant. This is because the name is what is used as the key
+	// Only remove the old spec if the names are variant. This is because the name is what is used as the auth
 	if s.Name != prevDeploymentName {
 		err = storage.Remove(Collection, prevDeploymentName)
 		if err != nil {

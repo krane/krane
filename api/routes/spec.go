@@ -5,10 +5,11 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/biensupernice/krane/api/utils"
 	"github.com/biensupernice/krane/internal/service/spec"
 	"github.com/biensupernice/krane/internal/storage"
-	"github.com/gorilla/mux"
 )
 
 // CreateSpec : create a spec
