@@ -43,20 +43,15 @@ func withRoutes(router *mux.Router) {
 	router.HandleFunc("/", routes.GetServerStatus).Methods(http.MethodGet)
 	router.HandleFunc("/login", routes.RequestLoginPhrase).Methods(http.MethodGet)
 	router.HandleFunc("/auth", routes.AuthenticateClientJWT).Methods(http.MethodPost)
-
-	createSpec := http.HandlerFunc(routes.CreateSpec)
-	router.Handle("/spec", middlewares.AuthSessionMiddleware(createSpec)).Methods(http.MethodPost)
-
-	updateSpec := http.HandlerFunc(routes.UpdateSpec)
-	router.Handle("/spec/{name}", middlewares.AuthSessionMiddleware(updateSpec)).Methods(http.MethodPut)
-
-	router.HandleFunc("/deployments", routes.GetDeployments).Methods(http.MethodGet)
-	router.HandleFunc("/deployments/{name}", routes.GetDeployment).Methods(http.MethodGet)
-	router.HandleFunc("/deployments/{name}", routes.RunDeployment).Methods(http.MethodPost)
-	router.HandleFunc("/deployments/{name}", routes.DeleteDeployment).Methods(http.MethodDelete)
-	router.HandleFunc("/deployments/{name}/stop", routes.StopDeployment).Methods(http.MethodPost)
-	router.HandleFunc("/alias/{name}", routes.UpdateDeploymentAlias).Methods(http.MethodPost)
-	router.HandleFunc("/alias/{name}", routes.DeleteDeploymentAlias).Methods(http.MethodDelete)
-	router.HandleFunc("/activity", routes.GetRecentActivity).Methods(http.MethodGet)
+	router.Handle("/spec", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.CreateSpec))).Methods(http.MethodPost)
+	router.Handle("/spec/{name}", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.UpdateSpec))).Methods(http.MethodPut)
+	router.Handle("/deployments", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.GetDeployments))).Methods(http.MethodGet)
+	router.Handle("/deployments/{name}", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.GetDeployment))).Methods(http.MethodGet)
+	router.Handle("/deployments/{name}", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.RunDeployment))).Methods(http.MethodPost)
+	router.Handle("/deployments/{name}", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.DeleteDeployment))).Methods(http.MethodDelete)
+	router.Handle("/deployments/{name}/stop", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.StopDeployment))).Methods(http.MethodPost)
+	router.Handle("/alias/{name}", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.UpdateDeploymentAlias))).Methods(http.MethodPost)
+	router.Handle("/alias/{name}", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.DeleteDeploymentAlias))).Methods(http.MethodDelete)
+	router.Handle("/activity", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.GetRecentActivity))).Methods(http.MethodGet)
 	return
 }
