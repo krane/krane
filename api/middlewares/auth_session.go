@@ -19,6 +19,7 @@ func AuthSessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Get token from headers
 		tkn := r.Header.Get("Authorization")
+
 		isValidToken := isValidTokenFormat(tkn)
 		if !isValidToken {
 			utils.HTTPBad(w, errors.New("invalid token"))
@@ -28,6 +29,7 @@ func AuthSessionMiddleware(next http.Handler) http.Handler {
 		// Authenticate token using server private key
 		pk := auth.GetServerPrivateKey()
 		_, tknValue := parseToken(tkn)
+		logrus.Debug(tknValue)
 		decodedTkn := auth.DecodeJWTToken(pk, tknValue)
 		if decodedTkn == nil {
 			utils.HTTPBad(w, errors.New("unable to decode token"))

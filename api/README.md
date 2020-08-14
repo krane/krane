@@ -14,7 +14,7 @@ Open endpoints do not require Authentication.
 
 ## Authenticated Endpoints
 
-Authenticated endpoints require Authentication with the Krane server.
+Authenticated endpoints require a token issued by the Krane server.
 
 ### Spec
 

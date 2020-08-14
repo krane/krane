@@ -41,14 +41,14 @@ func (s *Spec) CreateSpec() error {
 	s.CreatedAt = utils.UTCDateString()
 	s.UpdateAt = utils.UTCDateString()
 
-	data, err := storage.Get(Collection, s.Name)
+	_, err = storage.Get(Collection, s.Name)
 	if err != nil {
 		return err
 	}
 
-	if data != nil {
-		return errors.New("spec already exists")
-	}
+	// if data != nil {
+	// 	return errors.New("spec already exists")
+	// }
 
 	bytes, err := json.Marshal(s)
 	if err != nil {

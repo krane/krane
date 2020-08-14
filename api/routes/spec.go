@@ -27,7 +27,8 @@ func CreateSpec(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.HTTPCreated(w)
+	createdSpec, _ := spec.GetOne(s.Name)
+	utils.HTTPOk(w, createdSpec)
 	return
 }
 
