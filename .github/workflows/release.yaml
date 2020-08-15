@@ -5,6 +5,9 @@ on:
     tags:
       - "*"
 
+env:
+  GO111MODULE: on
+
 jobs:
   version:
       name: Set release version
