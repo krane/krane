@@ -8,6 +8,12 @@ jobs:
       run:
         working-directory: ./cmd/krane
     steps:
+      - name: Setup env
+        run: |
+          echo "::set-env name=GOPATH::$(dirname $GITHUB_WORKSPACE)"
+          echo "::add-path::$(dirname $GITHUB_WORKSPACE)/bin"
+        shell: bash
+        
       - name: Set up go
         uses: actions/setup-go@v2
         with:
