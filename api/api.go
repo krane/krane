@@ -27,7 +27,7 @@ func Run() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	logrus.Infof("Krane server on %s", os.Getenv("LISTEN_ADDRESS"))
+	logrus.Infof("Krane server listening on %s", srv.Addr)
 	logrus.Fatal(srv.ListenAndServe())
 }
 
@@ -53,5 +53,4 @@ func withRoutes(router *mux.Router) {
 	router.Handle("/alias/{name}", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.UpdateDeploymentAlias))).Methods(http.MethodPost)
 	router.Handle("/alias/{name}", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.DeleteDeploymentAlias))).Methods(http.MethodDelete)
 	router.Handle("/activity", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.GetRecentActivity))).Methods(http.MethodGet)
-	return
 }

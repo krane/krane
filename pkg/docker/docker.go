@@ -25,6 +25,7 @@ var instance *DockerClient
 var once sync.Once
 
 // KraneNetworkName : every deployed container will be attached to this network
+// TODO: this should be configured somewhere else and passed down when creating docker client / network
 var KraneNetworkName = "krane"
 
 // GetClient : get docker client
@@ -32,11 +33,12 @@ func GetClient() *DockerClient { return instance }
 
 // Init : starts docker client
 func Init() {
+	logrus.Info("Connecting to Docker client...")
+
 	once.Do(func() {
-		// Initializes a new API client based on environment variables for docker host
 		client, err := client.NewEnvClient()
 		if err != nil {
-			logrus.Fatalf(err.Error())
+			logrus.Fatalf("Failed connecting to Docker client on host machine", err.Error())
 		}
 
 		instance = &DockerClient{client}
@@ -44,9 +46,10 @@ func Init() {
 		ctx := context.Background()
 
 		// Create krane docker network
+		logrus.Info("Creating Krane Docker network...")
 		_, err = instance.CreateBridgeNetwork(&ctx, KraneNetworkName)
 		if err != nil {
-			logrus.Fatalf(err.Error())
+			logrus.Fatalf("Failed to create Krane Docker network", err.Error())
 		}
 
 		ctx.Done()
