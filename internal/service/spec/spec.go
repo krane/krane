@@ -26,9 +26,9 @@ type Config struct {
 	Image         string            `json:"image" binding:"required"`
 	ContainerPort string            `json:"container_port"`
 	HostPort      string            `json:"host_port"`
-	Env           map[string]string `json:"env"` // The server -> container maping @env/myapp-1/API_KEY
+	Env           map[string]string `json:"env"`
 	Tag           string            `json:"tag"`
-	Volumes       map[string]string `json:"volumes"` // ["/vol1:/vol2"]
+	Volumes       map[string]string `json:"volumes"`
 }
 
 func (s *Spec) CreateSpec() error {
@@ -41,17 +41,25 @@ func (s *Spec) CreateSpec() error {
 	s.CreatedAt = utils.UTCDateString()
 	s.UpdateAt = utils.UTCDateString()
 
-	data, err := storage.Get(Collection, s.Name)
+	_, err = storage.Get(Collection, s.Name)
 	if err != nil {
 		return err
 	}
 
-	if data != nil {
-		return errors.New("Deployment with that name already exists")
+	// if data != nil {
+	// 	return errors.New("spec already exists")
+	// }
+
+	bytes, err := json.Marshal(s)
+	if err != nil {
+		return err
 	}
 
-	bytes, _ := json.Marshal(s)
-	storage.Put(Collection, s.Name, bytes)
+	err = storage.Put(Collection, s.Name, bytes)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -61,16 +69,27 @@ func (s *Spec) UpdateSpec(prevDeploymentName string) error {
 		return err
 	}
 
+	prevSpec, err := GetOne(prevDeploymentName)
+	if err != nil {
+		return err
+	}
+
+
 	s.setDefaults()
 	s.UpdateAt = utils.UTCDateString()
+	s.CreatedAt = prevSpec.CreatedAt;
 
-	bytes, _ := json.Marshal(s)
+	bytes, err := json.Marshal(s)
+	if err != nil {
+		return err
+	}
+
 	err = storage.Put(Collection, s.Name, bytes)
 	if err != nil {
 		return err
 	}
 
-	// Only remove the old spec if the names are variant. This is because the name is what is used as the key
+	// Only remove the old spec if the names are variant. This is because the name is what is used as the auth
 	if s.Name != prevDeploymentName {
 		err = storage.Remove(Collection, prevDeploymentName)
 		if err != nil {
@@ -88,7 +107,7 @@ func GetOne(name string) (Spec, error) {
 	}
 
 	if len(bytes) == 0 {
-		return Spec{}, fmt.Errorf("Deployment not found")
+		return Spec{}, fmt.Errorf("Spec not found")
 	}
 
 	// Unmarshal bytes into Spec
@@ -146,12 +165,8 @@ func (s Spec) isValidSpecName() bool {
 }
 
 func (s *Spec) setDefaults() {
-	const (
-		DefaultRegistry = "docker.io"
-	)
-
 	if s.Config.Registry == "" {
-		s.Config.Registry = DefaultRegistry
+		s.Config.Registry = "docker.io"
 	}
 
 	if s.Config.Env == nil {

@@ -13,6 +13,6 @@ WORKDIR /bin
 RUN curl -L https://github.com/biensupernice/krane/releases/download/${VERSION}/krane_${VERSION}_linux_386.tar.gz | tar xz && chmod +x krane 
 
 EXPOSE 8500
-VOLUME ["/var/run/docker.sock"]
+VOLUME "/var/run/docker.sock"
 
 ENTRYPOINT krane

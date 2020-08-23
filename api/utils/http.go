@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// HTTPResponse : response type
+// HTTPResponse :
 type HTTPResponse struct {
 	Success bool        `json:"success"`
 	Code    uint        `json:"code"`
@@ -23,19 +23,18 @@ func HTTPOk(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(payload)
-
-	return
-}
-
-// HTTPAccepted : response with status code 202
-func HTTPAccepted(w http.ResponseWriter) {
-	w.WriteHeader(http.StatusAccepted)
 	return
 }
 
 // HTTPCreated : response with status code 201
 func HTTPCreated(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusCreated)
+	return
+}
+
+// HTTPAccepted : response with status code 202
+func HTTPAccepted(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusAccepted)
 	return
 }
 
@@ -50,6 +49,5 @@ func HTTPBad(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
 	w.Write(payload)
-
 	return
 }

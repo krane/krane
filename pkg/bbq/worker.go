@@ -28,7 +28,6 @@ func NewWorker(workerPool chan chan Job) Worker {
 // Start method starts the run loop for the worker, listening for a quit channel in
 // case we need to stop it
 func (w Worker) Start() {
-
 	go func() {
 		for {
 			// register the current worker into the worker queue.
