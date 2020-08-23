@@ -38,7 +38,7 @@ func Init() {
 	once.Do(func() {
 		client, err := client.NewEnvClient()
 		if err != nil {
-			logrus.Fatalf("Failed connecting to Docker client on host machine", err.Error())
+			logrus.Fatalf("Failed connecting to Docker client on host machine %s", err.Error())
 		}
 
 		instance = &DockerClient{client}
@@ -49,7 +49,7 @@ func Init() {
 		logrus.Info("Creating Krane Docker network...")
 		_, err = instance.CreateBridgeNetwork(&ctx, KraneNetworkName)
 		if err != nil {
-			logrus.Fatalf("Failed to create Krane Docker network", err.Error())
+			logrus.Fatalf("Failed to create Krane Docker network %s", err.Error())
 		}
 
 		ctx.Done()
