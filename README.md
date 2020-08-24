@@ -14,26 +14,19 @@
 
 Krane is a self-hosted container management solution that runs on your hardware, whether its a linux server on any cloud provider or localhost, to interface with the Docker Engine and expose a simple API that the krane cli uses to manage your containers. The <a href="https://github.com/biensupernice/krane-cli">krane-cli</a> allows you to authenticate with krane to create container resources on the host machine.
 
-<b>Spec</b>: This represents the structure of a deployed application.
-
 ## Installing
 
----
-
-| Operating System         | Download Link                                                                                                                                                                             |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Ubuntu 18.04.3 (LTS) x64 | https://github.com/biensupernice/krane/releases/download/0.0.1/krane_0.0.1_linux_386.tar.gz https://github.com/biensupernice/krane/releases/download/0.0.1/krane_0.0.1_linux_amd64.tar.gz |
-| macOS Catalina           | https://github.com/biensupernice/krane/releases/download/0.0.1/krane_0.0.1_darwin_amd64.tar.gz                                                                                            |
-|                          |                                                                                                                                                                                           |
-
-Find the appropriate download link and use the below command to install the executable
-
+### Mac
 ```sh
-curl -L <download link> | tar xz && chmod +x krane
+curl -L https://github.com/biensupernice/krane/releases/download/{version}/krane_{version}_darwin_amd64.tar.gz | tar xz && chmod +x krane
 ```
 
-Alternatively you can run krane using docker. It uses a lightweight Alpine image to reduce security risks with enough functionality for developing and debugging.
-
+### Linux
 ```sh
-docker run -v /var/run/docker.sock:/var/run/docker.sock -p 8080:8080 biensupernice/krane
+curl -L https://github.com/biensupernice/krane/releases/download/{version}/krane_{version}_linux_386.tar.gz| tar xz && chmod +x krane
+```
+
+### Docker
+```sh
+docker run -v /var/run/docker.sock:/var/run/docker.sock -p 8500:8500 biensupernice/krane
 ```
