@@ -3,7 +3,8 @@ FROM alpine:3.9
 ARG VERSION
 
 ENV LOG_LEVEL ERROR
-ENV LISTEN_ADDRESS 0.0.0.0:8500 
+ENV LISTEN_ADDRESS 0.0.0.0:8500
+ENV KRANE_PRIVATE_KEY biensupernice
 
 RUN apk add curl ca-certificates
 
