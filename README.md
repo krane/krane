@@ -28,5 +28,8 @@ curl -L https://github.com/biensupernice/krane/releases/download/{version}/krane
 
 ### Docker
 ```sh
-docker run -v /var/run/docker.sock:/var/run/docker.sock -p 8500:8500 biensupernice/krane
+docker run -d --name=krane \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v ~/.ssh/authorized_keys:/root/.ssh/authorized_keys  \
+    -p 8500:8500 biensupernice/krane
 ```
