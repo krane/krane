@@ -241,8 +241,8 @@ func (c *DockerClient) GetNetworkByName(ctx *context.Context, name string) (type
 // RemoveImage : deletes docker image
 func (c *DockerClient) RemoveImage(ctx *context.Context, imageID string) ([]types.ImageDelete, error) {
 	options := types.ImageRemoveOptions{
-		Force:         false,
-		PruneChildren: false,
+		Force:         true, // TODO: was getting race conditions between removing a container and removing the image... couple possible fixes gotta get around to it for now just force remove the images
+		PruneChildren: true, // In hopes of keeping the host machine ask light as possible, all child images should be pruned
 	}
 	return c.ImageRemove(*ctx, imageID, options)
 }

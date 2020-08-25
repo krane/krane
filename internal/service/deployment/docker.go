@@ -35,9 +35,9 @@ func (d *Deployment) startDockerResources() error {
 
 	labels := map[string]string{
 		containers.KraneContainerLabelName: d.Spec.Name,
-		"traefik.enable": "true",
-		routingLabel:     routingValue,
-		ruleLabel:        ruleKey,
+		"traefik.enable":                   "true",
+		routingLabel:                       routingValue,
+		ruleLabel:                          ruleKey,
 	}
 
 	if d.Spec.Config.ContainerPort != "" {
@@ -140,6 +140,16 @@ func (d *Deployment) deleteDockerResources() error {
 			return err
 		}
 		logrus.Debugf("[%s] -> Removed container %s", d.Spec.Name, container.ID)
+	}
+
+	// Remove the image(s)
+	for _, container := range d.Containers {
+		_, err := client.RemoveImage(&ctx, container.ImageID)
+		if err != nil {
+			logrus.Errorf("[%s] -> Unable to remove image %s - %s", d.Spec.Name, container.ImageID, err.Error())
+			return err
+		}
+		logrus.Debugf("[%s] -> Removed image %s", d.Spec.Name, container.ImageID)
 	}
 
 	ctx.Done()
