@@ -16,20 +16,4 @@ Krane is a self-hosted container management solution that runs on your hardware,
 
 ## Installing
 
-### Mac
-```sh
-curl -L https://github.com/biensupernice/krane/releases/download/{version}/krane_{version}_darwin_amd64.tar.gz | tar xz && chmod +x krane
-```
-
-### Linux
-```sh
-curl -L https://github.com/biensupernice/krane/releases/download/{version}/krane_{version}_linux_386.tar.gz| tar xz && chmod +x krane
-```
-
-### Docker
-```sh
-docker run -d --name=krane \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v ~/.ssh/authorized_keys:/root/.ssh/authorized_keys  \
-    -p 8500:8500 biensupernice/krane
-```
+Wiki: https://github.com/biensupernice/krane/wiki/Installation
