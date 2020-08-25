@@ -1,9 +1,12 @@
 name: Publish executables & Docker image
 
 on:
-  push:
-    tags:
-      - "*"
+  release:
+    types:
+      - created
+#   push:
+#     tags:
+#       - "*"
 
 env:
   GO111MODULE: on
@@ -37,7 +40,7 @@ jobs:
     - name: Test
       run: go test -v ./...
 
-  # Create binary release
+  # Create Krane binary & attach it to the release
   build-binary-release:
     needs: [version, run-test]
     name: Publish the krane executable
@@ -69,7 +72,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Push release Docker as latest
+  # Build docker image and publish to registry
   publish-release-to-docker:
     needs: [version, run-test, build-binary-release]
     name: Publish Docker image
