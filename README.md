@@ -1,4 +1,4 @@
-# Krane - ![Test Krane](https://github.com/biensupernice/krane/workflows/Test%20Krane/badge.svg?branch=master)
+# Krane - ![test](https://github.com/biensupernice/krane/workflows/Test%20Krane/badge.svg?branch=master)
 
 <p align="center">
     <a href="https://github.com/biensupernice/krane">
