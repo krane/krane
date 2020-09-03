@@ -26,24 +26,27 @@ type BoltConfig struct {
 // (O)thers can't read, can't write and can't execute.
 var fileMode os.FileMode = 0600
 
-func Init() {
+func Init(path string) {
 	logrus.Info("Opening boltdb...")
 
-	options := &bolt.Options{Timeout: 10 * time.Second}
+	options := &bolt.Options{Timeout: 30 * time.Second}
 
-	db, err := bolt.Open("/tmp/krane.db", fileMode, options)
+	if path == "" {
+		path = "/tmp/krane.db"
+	}
+	db, err := bolt.Open(path, fileMode, options)
 
 	if err != nil {
-		logrus.Fatal("Failed to open to boltdb", err.Error())
+		logrus.Fatalf("Failed to open to boltdb at %s, %s", path, err.Error())
 	}
 
 	// set the instance for the current storage provider to boltdb
 	storage.SetInstance(&BoltDB{db})
-	logrus.Info("Successfully opened boltdb, ready for read/writes")
+	logrus.Infof("Successfully opened boltdb at %s, ready for read/writes", path)
 	return
 }
 
-func (b *BoltDB) Close() { b.Close() }
+func (b *BoltDB) Shutdown() { b.Close() }
 
 func (b *BoltDB) Put(collection string, key string, value []byte) error {
 	return b.Update(func(tx *bolt.Tx) error {

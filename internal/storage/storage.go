@@ -10,7 +10,7 @@ type Storage interface {
 	GetInRange(collection, minTime, maxTime string) ([][]byte, error)
 	Put(collection string, key string, value []byte) error
 	Remove(collection string, key string) error
-	Close()
+	Shutdown()
 }
 
 var once sync.Once
@@ -44,4 +44,4 @@ func Put(collection string, key string, value []byte) error {
 func Remove(collection string, key string) error { return GetInstance().Remove(collection, key) }
 
 // Close the connection to the storage instance
-func Close() { GetInstance().Close() }
+func Close() { GetInstance().Shutdown() }
