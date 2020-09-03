@@ -7,7 +7,6 @@ import (
 
 	"github.com/biensupernice/krane/api/utils"
 	"github.com/biensupernice/krane/internal/service/deployment"
-	"github.com/biensupernice/krane/internal/service/jobs"
 )
 
 // RunDeployment : run a deployment
@@ -16,16 +15,16 @@ func RunDeployment(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 
 	name := params["name"]
-	tag := query.Get("tag")
+	_ = query.Get("tag")
 
 	// Find the deployment
-	deployment, err := deployment.GetDeployment(name)
+	_, err := deployment.GetDeployment(name)
 	if err != nil {
 		utils.HTTPBad(w, err)
 		return
 	}
 
-	jobs.StartDeployment(deployment, tag)
+	// jobs.StartDeployment(deployment, tag)
 
 	utils.HTTPAccepted(w)
 	return
@@ -37,13 +36,13 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	name := params["name"]
 
 	// Find the deployment
-	d, err := deployment.GetDeployment(name)
+	_, err := deployment.GetDeployment(name)
 	if err != nil {
 		utils.HTTPBad(w, err)
 		return
 	}
 
-	jobs.DeleteDeployment(d)
+	// jobs.DeleteDeployment(d)
 
 	utils.HTTPAccepted(w)
 	return
@@ -55,13 +54,13 @@ func StopDeployment(w http.ResponseWriter, r *http.Request) {
 	name := params["name"]
 
 	// Find the deployment
-	d, err := deployment.GetDeployment(name)
+	_, err := deployment.GetDeployment(name)
 	if err != nil {
 		utils.HTTPBad(w, err)
 		return
 	}
 
-	jobs.StopDeployment(d)
+	// jobs.StopDeployment(d)
 
 	utils.HTTPAccepted(w)
 	return
@@ -93,19 +92,5 @@ func GetDeployments(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.HTTPOk(w, deployments)
-	return
-}
-
-// GetRunningJobs : get running jobs that are currently queue'd up
-func GetRunningJobs(w http.ResponseWriter, r *http.Request) {
-	jobs, err := jobs.GetRunningJobs()
-
-	if err != nil {
-		utils.HTTPBad(w, err)
-		return
-	}
-
-	utils.HTTPOk(w, jobs)
-	utils.HTTPOk(w, nil)
 	return
 }

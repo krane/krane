@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/gorilla/mux"
+
 	"github.com/biensupernice/krane/api/utils"
 	"github.com/biensupernice/krane/internal/service/deployment"
-	"github.com/biensupernice/krane/internal/service/jobs"
-	"github.com/gorilla/mux"
 )
 
 // UpdateDeploymentAlias : update an alias
@@ -28,13 +28,13 @@ func UpdateDeploymentAlias(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Find deployment
-	d, err := deployment.GetDeployment(deploymentName)
+	_, err = deployment.GetDeployment(deploymentName)
 	if err != nil {
 		utils.HTTPBad(w, err)
 		return
 	}
 
-	jobs.UpdateDeploymentAlias(d, body.Alias)
+	// jobs.UpdateDeploymentAlias(d, body.Alias)
 
 	utils.HTTPAccepted(w)
 	return
@@ -46,13 +46,13 @@ func DeleteDeploymentAlias(w http.ResponseWriter, r *http.Request) {
 	deploymentName := params["name"]
 
 	// Find deployment
-	d, err := deployment.GetDeployment(deploymentName)
+	_, err := deployment.GetDeployment(deploymentName)
 	if err != nil {
 		utils.HTTPBad(w, err)
 		return
 	}
 
-	jobs.DeleteDeploymentAlias(d)
+	// jobs.DeleteDeploymentAlias(d)
 
 	utils.HTTPAccepted(w)
 	return
