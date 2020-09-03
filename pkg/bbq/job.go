@@ -1,9 +1,10 @@
-package bbq
+package jobs
 
 import (
 	"github.com/docker/distribution/uuid"
 
 	"github.com/biensupernice/krane/internal/utils"
+	"github.com/biensupernice/krane/pkg/bbq"
 )
 
 type Job struct {
@@ -29,9 +30,9 @@ var JobQueue chan Job
 
 func InitJobQueue() {
 	// Create buffered job queue
-	JobQueue = make(chan Job, MaxQueue)
+	JobQueue = make(chan Job, bbq.MaxQueue)
 
-	dispatcher := NewDispatcher(MaxWorker)
+	dispatcher := bbq.NewDispatcher(bbq.MaxWorker)
 	dispatcher.Run()
 }
 
