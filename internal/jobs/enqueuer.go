@@ -65,12 +65,12 @@ func (e *Enqueuer) Enqueue(jobName string, args Args) (Job, error) {
 
 func (e *Enqueuer) WithHandler(jobName string, handler GenericHandler) {
 	if jobName == "" {
-		logrus.Infof("Unable to register job handler, missing jobName")
+		logrus.Info("Unable to register job handler, missing jobName")
 		return
 	}
 
 	if handler == nil {
-		logrus.Infof("Unable to register job handler, missing job handler")
+		logrus.Info("Unable to register job handler, missing job handler")
 		return
 	}
 
