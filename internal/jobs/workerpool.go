@@ -37,12 +37,12 @@ func NewWorkerPool(concurrency uint, jobChannel chan Job, store *storage.Storage
 	}
 
 	for i := uint(0); i < wp.concurrency; i++ {
-		logrus.Debugf("Appending new worker to worker pool %s", wp.workerPoolID)
+		logrus.Infof("Appending new worker to worker pool %s", wp.workerPoolID)
 		w := newWorker(wp.workerPool, wp.jobChannel)
 		wp.workers = append(wp.workers, w)
 	}
 
-	logrus.Infof("%d Worker in the worker pool", len(wp.workers))
+	logrus.Infof("%d worker(s) in the worker pool", len(wp.workers))
 
 	return wp
 }
@@ -94,5 +94,5 @@ func (wp *WorkerPool) Stop() {
 	}
 
 	wg.Wait()
-	logrus.Infof("%d workers stopped", workersStopped)
+	logrus.Infof("%d worker(s) stopped", workersStopped)
 }
