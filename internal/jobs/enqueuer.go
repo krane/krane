@@ -1,6 +1,7 @@
 package job
 
 import (
+	"errors"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -9,45 +10,71 @@ import (
 	"github.com/biensupernice/krane/internal/utils"
 )
 
-const PendingJobsCollections = "PJOBS"
-const QueuedJobsCollections = "QJOBS"
-const CompletedJobsCollection = "CJOBS"
+const QueuedJobsCollections = "queued_jobs"
 
-type enqueuer struct {
+type Handlers map[string]GenericHandler
+
+type Enqueuer struct {
 	store *storage.Storage
 
-	c *chan Job
+	jobQueue chan Job
+
+	Handlers Handlers
 }
 
-func NewEnqueuer(store *storage.Storage, c *chan Job) *enqueuer {
-	return &enqueuer{store, c}
+func NewEnqueuer(store *storage.Storage, jobQueue chan Job) Enqueuer {
+	return Enqueuer{store: store, jobQueue: jobQueue, Handlers: make(Handlers, 0)}
 }
 
-func (e *enqueuer) Enqueue(jobName string, args map[string]interface{}) (*Job, error) {
-	job := &Job{
+func (e *Enqueuer) Enqueue(jobName string, args Args) (Job, error) {
+	logrus.Infof("Enqueueing new job")
+	jobHandler := e.Handlers[jobName]
+	if jobHandler == nil {
+		logrus.Info("Unable to queue job, unknown handler")
+		return Job{}, errors.New("unable to queue job, unknown handler")
+	}
+
+	job := Job{
 		ID:         utils.MakeIdentifier(),
 		EnqueuedAt: time.Now().Unix(),
-		Name:       jobName,
+		JobName:    jobName,
 		Args:       args,
+
+		Run: jobHandler,
 	}
 
 	bytes, err := job.serialize()
 	if err != nil {
-		return nil, err
+		return Job{}, err
 	}
 
-	logrus.Debugf("[%s %s] Adding job with status pending", job.Name, job.ID)
+	logrus.Infof("Adding job %s to the store with status pending", job.ID)
 	store := *e.store
-	err = store.Put(PendingJobsCollections, job.ID, bytes)
+	err = store.Put(QueuedJobsCollections, job.ID, bytes)
 	if err != nil {
-		return nil, err
+		return Job{}, err
 	}
-	logrus.Debugf("[%s %s] Job added with status pending", job.Name, job.ID)
+	logrus.Infof("Job %s added to the store with status pending", job.ID)
 
-	logrus.Debugf("[%s %s] Sending to Job channel", job.Name, job.ID)
-	c := *e.c
-	c <- *job
-	logrus.Debugf("[%s %s] Job sent to channel", job.Name, job.ID)
+	logrus.Infof("Queueing new job %s", job.ID)
+	e.jobQueue <- job
+	logrus.Infof("Job %s Queued", job.ID)
 
 	return job, nil
+}
+
+func (e *Enqueuer) WithHandler(jobName string, handler GenericHandler) {
+	if jobName == "" {
+		logrus.Infof("Unable to register job handler, missing jobName")
+		return
+	}
+
+	if handler == nil {
+		logrus.Infof("Unable to register job handler, missing job handler")
+		return
+	}
+
+	logrus.Infof("Registering new job handler %s", jobName)
+	e.Handlers[jobName] = handler
+	logrus.Infof("Successfully registered new job handler %s", jobName)
 }
