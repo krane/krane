@@ -2,34 +2,34 @@
 
 Deploying containers using **Krane** starts with a configuration file that describes how Krane should run your containers.
 
-> A recommended pattern is to have a `krane.json` file at the root of you project. 
+> A recommended pattern is to have a `krane.json` file at the root of you project.
 
 An example of a `krane.json` for deploying the Krane UI.
 
 ```json
 {
-   "name": "krane-ui",
-   "config": {
-      "image": "biensupernice/krane-ui",
-      "container_port": "3000",
-      "host_port": "80",
-      "secrets": {
-          "KRANE_HOST": "@krane-host",
-          "KRANE_TOKEN": "@krane-token"
-      }
-   }
+  "name": "krane-ui",
+  "config": {
+    "image": "biensupernice/krane-ui",
+    "container_port": "3000",
+    "host_port": "80",
+    "secrets": {
+      "KRANE_HOST": "@krane-host",
+      "KRANE_TOKEN": "@krane-token"
+    }
+  }
 }
 ```
 
 # name
 
-The name of your deployment. 
+The name of your deployment.
 
 - required: `yes`
 
 # config
 
-The configuration properties used when creating and running a container. 
+The configuration properties used when creating and running a container.
 
 #### registry
 
@@ -46,7 +46,7 @@ The image used when pulling, creating and running your deployments containers.
 
 #### container_port
 
-The container port to expose. 
+The container port to expose.
 
 - required: `false`
 
@@ -58,26 +58,26 @@ The port to expose to the Docker host.
 
 #### env
 
-The enviornment variables passed to the containers part of a deployment. 
+The enviornment variables passed to the containers part of a deployment.
 
-> ⚠️  Enviornment variables should not contain any sensitive data, use `secrets` instead.
+> ⚠️ Enviornment variables should not contain any sensitive data, use `secrets` instead.
 
 - required: `false`
 
 ```json
 {
-   "env": {
-      "NODE_ENV": "dev",
-      "PORT": "8080"
-   }
+  "env": {
+    "NODE_ENV": "dev",
+    "PORT": "8080"
+  }
 }
 ```
 
 #### secrets
- 
+
 Secrets are used when you want to pass sensitive information to your deployment. Secrets are **not shared** across deployments, they are bounded and only provided to the containers part of the deployment.
 
-Secrets are created using the krane `cli` and referenced in your Krane configuration using the `@` symbol. 
+Secrets are created using the krane `cli` and referenced in your Krane configuration using the `@` symbol.
 
 - required: `false`
 
@@ -105,8 +105,8 @@ The volumes to mount from the container to the host.
 
 ```json
 {
-   "volumes": {
-      "/home/user/data": "/data/db"
-   }
+  "volumes": {
+    "/home/user/data": "/data/db"
+  }
 }
 ```

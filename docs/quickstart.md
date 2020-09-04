@@ -1,22 +1,14 @@
 # Quick start
 
-Krane is a self-hosted container management solution. It manages containers on remote servers so you dont have to.
+##### 1. Install Krane
 
-
-
-##### 1. Install
-
-Linux
-
-One a remote server install krane
+On a remote server
 
 ```bash
 curl -sL linux.krane.sh | tar xz && chmod +x krane
 ```
 
-##### 2. Run 
-
-Run Krane as a background process
+##### 2. Run Krane
 
 ```bash
 krane &
@@ -30,7 +22,7 @@ On your local machine
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
 ```
 
-This creates a `private` and `public` key. 
+This creates a `private` and `public` key.
 
 The private key stays on your local machine, the public key gets appended to `~/.ssh/authorized_keys` on the server where Krane is running.
 

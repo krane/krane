@@ -1,8 +1,8 @@
 # Krane CLI
 
-The Krane CLI provides an interface for interacting with Krane to create container resources. 
+The Krane CLI provides an interface for interacting with Krane to create container resources.
 
-## Installing 
+## Installing
 
 Mac
 
@@ -19,4 +19,3 @@ curl -fsL https://github.com/biensupernice/krane-cli/releases/download/{version}
 ---
 
 <img align="center" src="../assets/cli-commands.png" width="700"/>
-

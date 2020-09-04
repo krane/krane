@@ -28,8 +28,11 @@ func Run() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	logrus.Infof("Krane server listening on %s", srv.Addr)
-	logrus.Fatal(srv.ListenAndServe())
+	logrus.Infof("Krane api listening on %s", srv.Addr)
+	err := srv.ListenAndServe()
+	if err != nil {
+		logrus.Fatal(err.Error())
+	}
 }
 
 func withBaseMiddlewares(router *mux.Router) {
@@ -58,21 +61,20 @@ func withRoutes(router *mux.Router) {
 	// Open endpoints
 
 	noAuthRouter := router.PathPrefix("/").Subrouter()
-	withR(noAuthRouter, "/", routes.GetServerStatus).Methods(http.MethodGet)
-	withR(noAuthRouter, "/login", routes.RequestLoginPhrase).Methods(http.MethodGet)
-	withR(noAuthRouter, "/auth", routes.AuthenticateClientJWT).Methods(http.MethodPost)
+	withRoute(noAuthRouter, "/", routes.GetServerStatus).Methods(http.MethodGet)
+	withRoute(noAuthRouter, "/login", routes.RequestLoginPhrase).Methods(http.MethodGet)
+	withRoute(noAuthRouter, "/auth", routes.AuthenticateClientJWT).Methods(http.MethodPost)
 
-	// // Spec
-	// specRouter := router.PathPrefix("/spec").Subrouter()
-	// withR(specRouter, "/", routes.CreateSpec, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
-	// withR(specRouter, "/{name}", routes.CreateSpec, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
-
+	// Spec
+	specRouter := router.PathPrefix("/spec").Subrouter()
+	withRoute(specRouter, "/", routes.CreateSpec, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
+	// withRoute(specRouter, "/{name}", routes.Get, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 }
 
 type routeHandler func(http.ResponseWriter, *http.Request)
 
-func withR(r *mux.Router, path string, handler routeHandler, mwf ...mux.MiddlewareFunc) *mux.Route {
-	for _, mw := range mwf {
+func withRoute(r *mux.Router, path string, handler routeHandler, middlewares ...mux.MiddlewareFunc) *mux.Route {
+	for _, mw := range middlewares {
 		r.Use(mw)
 	}
 
