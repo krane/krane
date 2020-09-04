@@ -5,13 +5,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/biensupernice/krane/api/routes"
+	"github.com/biensupernice/krane/internal/api/routes"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/api/middlewares"
+	"github.com/biensupernice/krane/internal/api/middlewares"
 )
 
 func Run() {
@@ -28,7 +28,7 @@ func Run() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	logrus.Infof("Krane api listening on %s", srv.Addr)
+	logrus.Infof("Krane API listening on %s", srv.Addr)
 	err := srv.ListenAndServe()
 	if err != nil {
 		logrus.Fatal(err.Error())
@@ -58,17 +58,15 @@ func withRoutes(router *mux.Router) {
 	// router.Handle("/alias/{name}", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.DeleteDeploymentAlias))).Methods(http.MethodDelete)
 	// router.Handle("/activity", middlewares.AuthSessionMiddleware(http.HandlerFunc(routes.GetRecentActivity))).Methods(http.MethodGet)
 
-	// Open endpoints
-
 	noAuthRouter := router.PathPrefix("/").Subrouter()
 	withRoute(noAuthRouter, "/", routes.GetServerStatus).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/login", routes.RequestLoginPhrase).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/auth", routes.AuthenticateClientJWT).Methods(http.MethodPost)
 
-	// Spec
-	specRouter := router.PathPrefix("/spec").Subrouter()
-	withRoute(specRouter, "/", routes.CreateSpec, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
-	// withRoute(specRouter, "/{name}", routes.Get, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
+	authRouter := router.PathPrefix("/").Subrouter()
+	withRoute(authRouter, "/deployment", routes.CreateDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
+	withRoute(authRouter, "/deployment/{name}", routes.GetDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/deployment/{name}", routes.DeleteDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodDelete)
 }
 
 type routeHandler func(http.ResponseWriter, *http.Request)

@@ -10,7 +10,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/api/utils"
+	"github.com/biensupernice/krane/internal/api/utils"
 	"github.com/biensupernice/krane/internal/auth"
 )
 

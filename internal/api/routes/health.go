@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/biensupernice/krane/api/utils"
+	"github.com/biensupernice/krane/internal/api/utils"
 	time "github.com/biensupernice/krane/internal/utils"
 )
 

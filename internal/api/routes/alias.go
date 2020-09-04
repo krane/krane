@@ -6,8 +6,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/biensupernice/krane/api/utils"
-	"github.com/biensupernice/krane/internal/service/deployment"
+	"github.com/biensupernice/krane/internal/api/utils"
+	"github.com/biensupernice/krane/internal/deployment"
 )
 
 // UpdateDeploymentAlias : update an alias

@@ -10,13 +10,13 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/api"
+	"github.com/biensupernice/krane/internal/api"
+	"github.com/biensupernice/krane/internal/docker"
 	job "github.com/biensupernice/krane/internal/jobs"
 	"github.com/biensupernice/krane/internal/logging"
 	"github.com/biensupernice/krane/internal/scheduler"
 	"github.com/biensupernice/krane/internal/storage"
 	"github.com/biensupernice/krane/internal/storage/boltdb"
-	"github.com/biensupernice/krane/pkg/docker"
 )
 
 func init() {

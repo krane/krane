@@ -11,7 +11,7 @@ import (
 	"github.com/docker/distribution/uuid"
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/api/utils"
+	"github.com/biensupernice/krane/internal/api/utils"
 	"github.com/biensupernice/krane/internal/auth"
 	"github.com/biensupernice/krane/internal/storage"
 )

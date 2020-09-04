@@ -6,15 +6,15 @@ import (
 	"github.com/docker/distribution/uuid"
 	"github.com/sirupsen/logrus"
 
+	job "github.com/biensupernice/krane/internal/jobs"
 	"github.com/biensupernice/krane/internal/storage"
 	"github.com/biensupernice/krane/internal/utils"
-	"github.com/biensupernice/krane/pkg/bbq"
 )
 
 type Activity struct {
 	ID        string  `json:"activity_id"`
 	CreatedAt string  `json:"created_at"`
-	Job       bbq.Job `json:"job"`
+	Job       job.Job `json:"job"`
 	// Session
 }
 

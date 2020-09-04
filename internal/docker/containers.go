@@ -1,11 +1,9 @@
-package containers
+package docker
 
 import (
 	"context"
 
 	"github.com/docker/docker/api/types"
-
-	"github.com/biensupernice/krane/pkg/docker"
 )
 
 var (
@@ -13,10 +11,9 @@ var (
 	KraneContainerLabelName = "krane.deployment.name"
 )
 
-// GetContainers :  for a deployment
 func GetContainers(ctx *context.Context, deploymentName string) ([]types.Container, error) {
 
-	client := docker.GetClient()
+	client := GetClient()
 
 	// Find all containers
 	allContainers, err := client.GetAllContainers(ctx)
@@ -34,5 +31,3 @@ func GetContainers(ctx *context.Context, deploymentName string) ([]types.Contain
 
 	return deploymentContainers, nil
 }
-
-func UpdateContainerLabels(c types.Container) {}

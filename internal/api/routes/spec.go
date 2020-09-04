@@ -7,8 +7,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/biensupernice/krane/api/utils"
-	"github.com/biensupernice/krane/internal/service/spec"
+	"github.com/biensupernice/krane/internal/api/utils"
+	"github.com/biensupernice/krane/internal/spec"
 	"github.com/biensupernice/krane/internal/storage"
 )
 

@@ -85,7 +85,7 @@ Secrets are created using the krane `cli` and referenced in your Krane configura
 {
    "secrets": {
       "SECRET_TOKEN": "@my-secret-token",
-      "PROXY_API_URL": @proxy-api-url""
+      "PROXY_API_URL": "@proxy-api-url"
    }
 }
 ```

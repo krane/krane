@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/biensupernice/krane/api/utils"
-	"github.com/biensupernice/krane/internal/service/activity"
+	"github.com/biensupernice/krane/internal/activity"
+	"github.com/biensupernice/krane/internal/api/utils"
 )
 
 // GetRecentActivity : get recent activity

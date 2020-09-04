@@ -35,3 +35,4 @@ Mac
 ```bash
 curl -fL linux-cli.krane.sh -o krane-cli && chmod +x krane-cli
 ```
+

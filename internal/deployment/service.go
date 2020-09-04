@@ -6,8 +6,8 @@ import (
 
 	"github.com/docker/docker/api/types"
 
-	"github.com/biensupernice/krane/internal/service/containers"
-	"github.com/biensupernice/krane/internal/service/spec"
+	"github.com/biensupernice/krane/internal/docker"
+	"github.com/biensupernice/krane/internal/spec"
 )
 
 type Deployment struct {
@@ -91,7 +91,7 @@ func GetDeployment(deploymentId string) (Deployment, error) {
 	ctx := context.Background()
 
 	// Find containers
-	containers, err := containers.GetContainers(&ctx, deploymentId)
+	containers, err := docker.GetContainers(&ctx, deploymentId)
 	if err != nil {
 		return Deployment{}, err
 	}
@@ -119,7 +119,7 @@ func GetDeploymentContainers(deploymentId string) ([]types.Container, error) {
 	defer ctx.Done()
 
 	// Find containers
-	return containers.GetContainers(&ctx, deploymentId)
+	return docker.GetContainers(&ctx, deploymentId)
 }
 
 func GetDeployments() ([]Deployment, error) {

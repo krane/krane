@@ -6,8 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/service/containers"
-	"github.com/biensupernice/krane/pkg/docker"
+	"github.com/biensupernice/krane/internal/docker"
 )
 
 func (d *Deployment) startDockerResources() error {
@@ -34,10 +33,10 @@ func (d *Deployment) startDockerResources() error {
 	ruleKey := fmt.Sprintf("Host:%s", d.Alias)
 
 	labels := map[string]string{
-		containers.KraneContainerLabelName: d.Spec.Name,
-		"traefik.enable":                   "true",
-		routingLabel:                       routingValue,
-		ruleLabel:                          ruleKey,
+		docker.KraneContainerLabelName: d.Spec.Name,
+		"traefik.enable":               "true",
+		routingLabel:                   routingValue,
+		ruleLabel:                      ruleKey,
 	}
 
 	if d.Spec.Config.ContainerPort != "" {

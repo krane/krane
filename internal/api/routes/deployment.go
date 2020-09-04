@@ -5,8 +5,8 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/biensupernice/krane/api/utils"
-	"github.com/biensupernice/krane/internal/service/deployment"
+	"github.com/biensupernice/krane/internal/api/utils"
+	"github.com/biensupernice/krane/internal/deployment"
 )
 
 // RunDeployment : run a deployment
@@ -27,6 +27,11 @@ func RunDeployment(w http.ResponseWriter, r *http.Request) {
 	// jobs.StartDeployment(deployment, tag)
 
 	utils.HTTPAccepted(w)
+	return
+}
+
+func CreateDeployment(w http.ResponseWriter, r *http.Request) {
+	utils.HTTPOk(w, nil)
 	return
 }
 
