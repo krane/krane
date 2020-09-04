@@ -27,8 +27,8 @@ func (sc *Scheduler) Run() {
 	// sc.Enqueuer.WithHandler("DEPLOY_JOB", handleRunDeployment)
 	// sc.Enqueuer.WithHandler("DELETE_JOB", handleDeleteDeployment)
 
-	// sc.Enqueuer.Enqueue("DEPLOY_JOB", job.Args{"id": utils.MakeIdentifier()})
-	// sc.Enqueuer.Enqueue("DELETE_JOB", job.Args{"id": utils.MakeIdentifier()})
+	// sc.Enqueuer.Enqueue("DEPLOY_JOB", job.Args{"id": status.MakeIdentifier()})
+	// sc.Enqueuer.Enqueue("DELETE_JOB", job.Args{"id": status.MakeIdentifier()})
 	return
 }
 

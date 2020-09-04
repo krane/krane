@@ -58,7 +58,7 @@ func (wp *WorkerPool) Start() {
 
 	var workersStarted int
 	for _, w := range wp.workers {
-		logrus.Info("Starting new go routine for worker")
+		logrus.Info("Starting new worker")
 		w.start()
 		workersStarted++
 	}

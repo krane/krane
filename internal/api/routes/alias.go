@@ -6,7 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/biensupernice/krane/internal/api/utils"
+	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/deployment"
 )
 
@@ -23,20 +23,20 @@ func UpdateDeploymentAlias(w http.ResponseWriter, r *http.Request) {
 	var body Body
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
 	// Find deployment
 	_, err = deployment.GetDeployment(deploymentName)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
 	// jobs.UpdateDeploymentAlias(d, body.Alias)
 
-	utils.HTTPAccepted(w)
+	status.HTTPAccepted(w)
 	return
 }
 
@@ -48,12 +48,12 @@ func DeleteDeploymentAlias(w http.ResponseWriter, r *http.Request) {
 	// Find deployment
 	_, err := deployment.GetDeployment(deploymentName)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
 	// jobs.DeleteDeploymentAlias(d)
 
-	utils.HTTPAccepted(w)
+	status.HTTPAccepted(w)
 	return
 }

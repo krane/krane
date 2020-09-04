@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -33,22 +32,20 @@ type CustomClaims struct {
 }
 
 // ParseJWTToken : parse jwt using signing key
-func DecodeJWTToken(signKey string, tknStr string) *jwt.Token {
+func DecodeJWTToken(signKey string, tknStr string) (jwt.Token, error) {
 	tkn, err := jwt.ParseWithClaims(tknStr, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(signKey), nil
 	})
 
 	if err != nil {
-		logrus.Debugf("Unable to decode JWT - %s", err)
-		return nil
+		return jwt.Token{}, err
 	}
 
 	if !tkn.Valid {
-		logrus.Debugf("Invalid token")
-		return nil
+		return jwt.Token{}, errors.New("Token is not valid")
 	}
 
-	return tkn
+	return *tkn, nil
 }
 
 // ParseAuthTokenWithAuthKey : get the claims of a jwt auth token

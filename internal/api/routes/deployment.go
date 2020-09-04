@@ -5,7 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/biensupernice/krane/internal/api/utils"
+	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/deployment"
 )
 
@@ -20,18 +20,18 @@ func RunDeployment(w http.ResponseWriter, r *http.Request) {
 	// Find the deployment
 	_, err := deployment.GetDeployment(name)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
 	// jobs.StartDeployment(deployment, tag)
 
-	utils.HTTPAccepted(w)
+	status.HTTPAccepted(w)
 	return
 }
 
 func CreateDeployment(w http.ResponseWriter, r *http.Request) {
-	utils.HTTPOk(w, nil)
+	status.HTTPOk(w, nil)
 	return
 }
 
@@ -43,13 +43,13 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	// Find the deployment
 	_, err := deployment.GetDeployment(name)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
 	// jobs.DeleteDeployment(d)
 
-	utils.HTTPAccepted(w)
+	status.HTTPAccepted(w)
 	return
 }
 
@@ -61,13 +61,13 @@ func StopDeployment(w http.ResponseWriter, r *http.Request) {
 	// Find the deployment
 	_, err := deployment.GetDeployment(name)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
 	// jobs.StopDeployment(d)
 
-	utils.HTTPAccepted(w)
+	status.HTTPAccepted(w)
 	return
 }
 
@@ -79,11 +79,11 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	// Find deployment
 	d, err := deployment.GetDeployment(name)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
-	utils.HTTPOk(w, d)
+	status.HTTPOk(w, d)
 	return
 }
 
@@ -92,10 +92,10 @@ func GetDeployments(w http.ResponseWriter, r *http.Request) {
 	// Find deployments
 	deployments, err := deployment.GetDeployments()
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
-	utils.HTTPOk(w, deployments)
+	status.HTTPOk(w, deployments)
 	return
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/docker/distribution/uuid"
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/api/utils"
+	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/storage"
 )
 
@@ -29,14 +29,14 @@ func RequestLoginPhrase(w http.ResponseWriter, r *http.Request) {
 		err = storage.Remove(AuthCollection, reqID)
 		if err != nil {
 			logrus.Error(err)
-			utils.HTTPBad(w, err)
+			status.HTTPBad(w, err)
 			return
 		}
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
-	utils.HTTPOk(w, struct {
+	status.HTTPOk(w, struct {
 		RequestID string `json:"request_id"`
 		Phrase    string `json:"phrase"`
 	}{

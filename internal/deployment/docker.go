@@ -26,7 +26,7 @@ func (d *Deployment) startDockerResources() error {
 	}
 
 	// Container Labels added for identifying krane managed containers
-	routingLabel := fmt.Sprintf("traefik.http.routers.%s.rule", d.Spec.Name)
+	routingLabel := fmt.Sprintf("traefik.status.routers.%s.rule", d.Spec.Name)
 	routingValue := fmt.Sprintf("Host(`%s`)", d.Alias)
 
 	ruleLabel := fmt.Sprintf("traefik.%s.rule", d.Spec.Name)
@@ -40,7 +40,7 @@ func (d *Deployment) startDockerResources() error {
 	}
 
 	if d.Spec.Config.ContainerPort != "" {
-		loadBalancerPortLabel := fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.port", d.Spec.Name) // If the container exposes more than 2 ports this value should be set using the container_port property in krane.json to tell traefik to use a specific port for routing
+		loadBalancerPortLabel := fmt.Sprintf("traefik.status.services.%s.loadbalancer.server.port", d.Spec.Name) // If the container exposes more than 2 ports this value should be set using the container_port property in krane.json to tell traefik to use a specific port for routing
 		labels[loadBalancerPortLabel] = d.Spec.Config.ContainerPort
 	}
 

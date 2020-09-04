@@ -11,7 +11,7 @@ import (
 	"github.com/docker/distribution/uuid"
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/api/utils"
+	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/auth"
 	"github.com/biensupernice/krane/internal/storage"
 )
@@ -29,27 +29,27 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	var body AuthRequest
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
 	// Check if request id is valid, get phrase stored on the server
 	serverPhrase, err := storage.Get(AuthCollection, body.RequestID)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
 	if string(serverPhrase) == "" {
 		logrus.Debug("Invalid request id")
-		utils.HTTPBad(w, errors.New("unable to authenticate"))
+		status.HTTPBad(w, errors.New("unable to authenticate"))
 		return
 	}
 
 	authKeys := auth.GetAuthorizeKeys()
 	if len(authKeys) == 0 || authKeys[0] == "" {
 		logrus.Info("authorized keys not found on the server")
-		utils.HTTPBad(w, errors.New("unable to authenticate"))
+		status.HTTPBad(w, errors.New("unable to authenticate"))
 		return
 	}
 
@@ -57,7 +57,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	// the decode it, and use the phrase in the token with the one on the server
 	claims := auth.VerifyAuthTokenWithAuthorizedKeys(authKeys, body.Token)
 	if claims == nil || strings.Compare(string(serverPhrase), claims.Phrase) != 0 {
-		utils.HTTPBad(w, errors.New("invalid token"))
+		status.HTTPBad(w, errors.New("invalid token"))
 		return
 	}
 
@@ -65,14 +65,14 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	// Remove auth data from auth bucket
 	err = storage.Remove(AuthCollection, body.RequestID)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
 	sessionTkn := &auth.SessionToken{SessionID: uuid.Generate().String()}
 	signedTkn, err := auth.CreateSessionToken(auth.GetServerPrivateKey(), *sessionTkn)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
@@ -85,11 +85,11 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 
 	err = auth.SaveSession(*session)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
-	utils.HTTPOk(w, session)
+	status.HTTPOk(w, session)
 	return
 }
 

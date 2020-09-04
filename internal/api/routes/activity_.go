@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/biensupernice/krane/internal/activity"
-	"github.com/biensupernice/krane/internal/api/utils"
+	"github.com/biensupernice/krane/internal/api/status"
 )
 
 // GetRecentActivity : get recent activity
@@ -24,11 +24,11 @@ func GetRecentActivity(w http.ResponseWriter, r *http.Request) {
 
 	recentActivity, err := activity.GetInRange(start, end)
 	if err != nil {
-		utils.HTTPBad(w, err)
+		status.HTTPBad(w, err)
 		return
 	}
 
-	utils.HTTPOk(w, recentActivity)
+	status.HTTPOk(w, recentActivity)
 	return
 }
 

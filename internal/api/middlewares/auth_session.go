@@ -10,29 +10,32 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/api/utils"
+	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/auth"
 )
 
 // AuthSessionMiddleware : middleware to authenticate a client token against an active session
 func AuthSessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logrus.Infof("Authenticating session")
 		// Get token from headers
 		tkn := r.Header.Get("Authorization")
 
 		isValidToken := isValidTokenFormat(tkn)
 		if !isValidToken {
-			utils.HTTPBad(w, errors.New("invalid token"))
+			logrus.Infof("Invalid token provided")
+			status.HTTPBad(w, errors.New("invalid token"))
 			r.Context().Done()
 			return
 		}
+
 		// Authenticate token using server private key
 		pk := auth.GetServerPrivateKey()
 		_, tknValue := parseToken(tkn)
-		logrus.Debug(tknValue)
-		decodedTkn := auth.DecodeJWTToken(pk, tknValue)
-		if decodedTkn == nil {
-			utils.HTTPBad(w, errors.New("unable to decode token"))
+		decodedTkn, err := auth.DecodeJWTToken(pk, tknValue)
+		if err != nil {
+			logrus.Infof("Unable to decode token", err.Error())
+			status.HTTPBad(w, err)
 			r.Context().Done()
 			return
 		}
@@ -40,15 +43,16 @@ func AuthSessionMiddleware(next http.Handler) http.Handler {
 		// Parse token claims into custom claims
 		sessionTkn, err := parseSessionTokenFromJWTClaims(decodedTkn)
 		if err != nil {
-			utils.HTTPBad(w, err)
+			logrus.Infof("Unable to parse token claims", err.Error())
+			status.HTTPBad(w, err)
 			r.Context().Done()
 			return
 		}
 
 		session, err := auth.GetSessionByID(sessionTkn.SessionID)
 		if err != nil {
-			logrus.Debug("Unable to find a valid session")
-			utils.HTTPBad(w, err)
+			logrus.Infof("Unable to find a valid session", err.Error())
+			status.HTTPBad(w, err)
 			r.Context().Done()
 			return
 		}
@@ -60,7 +64,7 @@ func AuthSessionMiddleware(next http.Handler) http.Handler {
 
 }
 
-func parseSessionTokenFromJWTClaims(tkn *jwt.Token) (auth.SessionToken, error) {
+func parseSessionTokenFromJWTClaims(tkn jwt.Token) (auth.SessionToken, error) {
 	claims, ok := tkn.Claims.(*auth.CustomClaims)
 	if !ok {
 		return auth.SessionToken{}, errors.New("unable to parse the claims for the provided token")
@@ -86,7 +90,7 @@ func parseToken(tkn string) (string, string) {
 // Check if token is a well formatter Bearer token
 func isValidTokenFormat(tkn string) bool {
 	if tkn == "" {
-		logrus.Error("No token provided")
+		logrus.Info("No token provided")
 		return false
 	}
 
@@ -97,7 +101,7 @@ func isValidTokenFormat(tkn string) bool {
 
 	// Check token is a bearer token
 	if strings.Compare(jwtTknType, "Bearer") != 0 {
-		logrus.Debug("Not a `Bearer` token")
+		logrus.Info("Not a `Bearer` token")
 		return false
 	}
 
