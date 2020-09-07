@@ -9,14 +9,9 @@ import (
 	"fmt"
 	"math/big"
 	"strings"
-	"time"
 
 	"github.com/dgrijalva/jwt-go"
-)
-
-var (
-	// OneYear : unix time for 1 year
-	OneYear = time.Now().Add(time.Minute * 525600).Unix()
+	"github.com/sirupsen/logrus"
 )
 
 // AuthClaims : custom claims for user authentication
@@ -83,6 +78,7 @@ func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *AuthC
 	for _, key := range keys {
 		c, err := ParseAuthTokenWithAuthKey(key, tkn)
 		if err != nil {
+			logrus.Info(err.Error())
 			continue
 		}
 

@@ -5,16 +5,16 @@ import (
 	"github.com/sirupsen/logrus"
 
 	job "github.com/biensupernice/krane/internal/jobs"
-	"github.com/biensupernice/krane/internal/storage"
+	"github.com/biensupernice/krane/internal/store"
 )
 
 type Scheduler struct {
-	Store        storage.Storage
+	Store        store.Store
 	dockerClient *client.Client
 	Enqueuer     job.Enqueuer
 }
 
-func New(store storage.Storage, dockerClient *client.Client, jobEnqueuer job.Enqueuer) Scheduler {
+func New(store store.Store, dockerClient *client.Client, jobEnqueuer job.Enqueuer) Scheduler {
 	return Scheduler{store, dockerClient, jobEnqueuer}
 }
 

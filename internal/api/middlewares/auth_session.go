@@ -12,12 +12,12 @@ import (
 
 	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/auth"
+	"github.com/biensupernice/krane/internal/session"
 )
 
 // AuthSessionMiddleware : middleware to authenticate a client token against an active session
 func AuthSessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		logrus.Infof("Authenticating session")
 		// Get token from headers
 		tkn := r.Header.Get("Authorization")
 
@@ -34,7 +34,7 @@ func AuthSessionMiddleware(next http.Handler) http.Handler {
 		_, tknValue := parseToken(tkn)
 		decodedTkn, err := auth.DecodeJWTToken(pk, tknValue)
 		if err != nil {
-			logrus.Infof("Unable to decode token", err.Error())
+			logrus.Infof("Unable to decode token %s", err.Error())
 			status.HTTPBad(w, err)
 			r.Context().Done()
 			return
@@ -43,15 +43,15 @@ func AuthSessionMiddleware(next http.Handler) http.Handler {
 		// Parse token claims into custom claims
 		sessionTkn, err := parseSessionTokenFromJWTClaims(decodedTkn)
 		if err != nil {
-			logrus.Infof("Unable to parse token claims", err.Error())
+			logrus.Infof("Unable to parse token claims %s", err.Error())
 			status.HTTPBad(w, err)
 			r.Context().Done()
 			return
 		}
 
-		session, err := auth.GetSessionByID(sessionTkn.SessionID)
+		session, err := session.GetSessionByID(sessionTkn.SessionID)
 		if err != nil {
-			logrus.Infof("Unable to find a valid session", err.Error())
+			logrus.Infof("Unable to find a valid session %s", err.Error())
 			status.HTTPBad(w, err)
 			r.Context().Done()
 			return
@@ -64,13 +64,13 @@ func AuthSessionMiddleware(next http.Handler) http.Handler {
 
 }
 
-func parseSessionTokenFromJWTClaims(tkn jwt.Token) (auth.SessionToken, error) {
+func parseSessionTokenFromJWTClaims(tkn jwt.Token) (session.Token, error) {
 	claims, ok := tkn.Claims.(*auth.CustomClaims)
 	if !ok {
-		return auth.SessionToken{}, errors.New("unable to parse the claims for the provided token")
+		return session.Token{}, errors.New("unable to parse the claims for the provided token")
 	}
 
-	var sessionTkn auth.SessionToken
+	var sessionTkn session.Token
 	bytes, _ := json.Marshal(claims.Data)
 	_ = json.Unmarshal(bytes, &sessionTkn)
 	return sessionTkn, nil

@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	job "github.com/biensupernice/krane/internal/jobs"
-	"github.com/biensupernice/krane/internal/storage"
+	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
 
@@ -35,7 +35,7 @@ func Capture(a *Activity) {
 
 	// The auth is an RFC3339 encoded time and is required to do date range scans across the db
 	// this way we can perform looks up for activity within a time range
-	err = storage.Put(ActivityCollectionName, a.CreatedAt, bytes)
+	err = store.Instance().Put(ActivityCollectionName, a.CreatedAt, bytes)
 	if err != nil {
 		logrus.Error(err.Error())
 		return
@@ -46,7 +46,7 @@ func Capture(a *Activity) {
 
 func GetInRange(minDate, maxDate string) ([]Activity, error) {
 	// Find activity in the range
-	bytes, err := storage.GetInRange(ActivityCollectionName, minDate, maxDate)
+	bytes, err := store.Instance().GetInRange(ActivityCollectionName, minDate, maxDate)
 	if err != nil {
 		return make([]Activity, 0), err
 	}

@@ -7,6 +7,11 @@ import (
 	"time"
 )
 
+var (
+	// OneYear : unix time for 1 year
+	OneYear = time.Now().Add(time.Minute * 525600).Unix()
+)
+
 // UTCDateString : Get the current date time in RFC3339 format
 func UTCDateString() string {
 	t := time.Now().Local()

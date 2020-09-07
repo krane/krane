@@ -1,16 +1,14 @@
-package auth
+package session
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/dgrijalva/jwt-go"
 
-	"github.com/biensupernice/krane/internal/storage"
-)
-
-var (
-	SessionCollection = "Session"
+	"github.com/biensupernice/krane/internal/auth"
+	"github.com/biensupernice/krane/internal/collection"
+	"github.com/biensupernice/krane/internal/store"
+	"github.com/biensupernice/krane/internal/utils"
 )
 
 // Session : relevant data for authenticated sessions
@@ -21,21 +19,16 @@ type Session struct {
 	ExpiresAt string `json:"expires_at"`
 }
 
-// Token : for the authenticated session
-type SessionToken struct {
-	SessionID string `json:"session_id"`
-}
-
 // CreateSessionToken : new jwt token
-func CreateSessionToken(SigningKey string, sessionTkn SessionToken) (string, error) {
+func CreateSessionToken(SigningKey string, sessionTkn Token) (string, error) {
 	if SigningKey == "" {
 		return "", errors.New("cannot create token - signing key not provided")
 	}
 
-	customClaims := &CustomClaims{
+	customClaims := &auth.CustomClaims{
 		Data: sessionTkn,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: OneYear,
+			ExpiresAt: utils.OneYear,
 			Issuer:    "krane",
 		},
 	}
@@ -52,27 +45,36 @@ func CreateSessionToken(SigningKey string, sessionTkn SessionToken) (string, err
 	return signedTkn, nil
 }
 
-func SaveSession(session Session) error {
+func Save(session Session) error {
 	if session.ID == "" {
 		return errors.New("invalid session")
 	}
-	bytes, _ := json.Marshal(session)
-	return storage.Put(SessionCollection, session.ID, bytes)
+
+	bytes, err := store.Serialize(session)
+	if err != nil {
+		return err
+	}
+
+	return store.Instance().Put(collection.Sessions, session.ID, bytes)
 }
 
 func GetSessionByID(id string) (Session, error) {
-	bytes, err := storage.Get(SessionCollection, id)
+	bytes, err := store.Instance().Get(collection.Sessions, id)
 	if err != nil {
 		return Session{}, err
 	}
 
 	var session Session
-	_ = json.Unmarshal(bytes, &session)
+	err = store.Deserialize(bytes, &session)
+	if err != nil {
+		return Session{}, err
+	}
+
 	return session, nil
 }
 
 func GetAllSessions() ([]Session, error) {
-	bytes, err := storage.GetAll(SessionCollection)
+	bytes, err := store.Instance().GetAll(collection.Sessions)
 	if err != nil {
 		return make([]Session, 0), err
 	}
@@ -80,7 +82,11 @@ func GetAllSessions() ([]Session, error) {
 	sessions := make([]Session, 0)
 	for _, session := range bytes {
 		var s Session
-		_ = json.Unmarshal(session, &s)
+		err := store.Deserialize(session, &s)
+		if err != nil {
+			return make([]Session, 0), err
+		}
+
 		sessions = append(sessions, s)
 	}
 

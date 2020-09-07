@@ -15,8 +15,7 @@ import (
 	job "github.com/biensupernice/krane/internal/jobs"
 	"github.com/biensupernice/krane/internal/logging"
 	"github.com/biensupernice/krane/internal/scheduler"
-	"github.com/biensupernice/krane/internal/storage"
-	"github.com/biensupernice/krane/internal/storage/boltdb"
+	"github.com/biensupernice/krane/internal/store"
 )
 
 func init() {
@@ -31,34 +30,32 @@ func init() {
 
 	logging.ConfigureLogrus()
 	docker.Init()
-	boltdb.Init(os.Getenv("STORE_PATH"))
+	store.New(os.Getenv("STORE_PATH"))
 }
 
 func main() {
+	defer store.Instance().Shutdown()
+
 	// Docker Client
 	dockerClient, err := client.NewEnvClient()
 	if err != nil {
 		logrus.Fatalf("Unable to connect to Docker client %s", err.Error())
 	}
 
-	// Storage
-	store := storage.GetInstance()
-	defer store.Shutdown()
-
 	// Job Queue
 	jobQueueSize, _ := strconv.ParseUint(os.Getenv("JOBQUEUE_SIZE"), 10, 8)
 	jobQueue := job.NewJobQueue(uint(jobQueueSize))
 
 	// Job Enqueuer
-	jobEnqueuer := job.NewEnqueuer(&store, jobQueue)
+	jobEnqueuer := job.NewEnqueuer(store.Instance(), jobQueue)
 
 	// Job Worker Pool
 	wpSize, _ := strconv.ParseUint(os.Getenv("WORKERPOOL_SIZE"), 10, 8)
-	jobWorkers := job.NewWorkerPool(uint(wpSize), jobQueue, &store)
+	jobWorkers := job.NewWorkerPool(uint(wpSize), jobQueue, store.Instance())
 	jobWorkers.Start()
 
 	// Scheduler
-	jobScheduler := scheduler.New(store, dockerClient, jobEnqueuer)
+	jobScheduler := scheduler.New(store.Instance(), dockerClient, jobEnqueuer)
 	jobScheduler.Run()
 
 	go api.Run()

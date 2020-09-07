@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/storage"
+	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
 
@@ -17,7 +17,7 @@ type WorkerPool struct {
 
 	started bool
 
-	store *storage.Storage
+	store store.Store
 
 	workers    []*worker
 	workerPool chan chan Job
@@ -25,7 +25,7 @@ type WorkerPool struct {
 }
 
 // NewWorkerPool : create a concurrent pool of workers to process Jobs from the jobQueue
-func NewWorkerPool(concurrency uint, jobChannel chan Job, store *storage.Storage) WorkerPool {
+func NewWorkerPool(concurrency uint, jobChannel chan Job, store store.Store) WorkerPool {
 	logrus.Debugf("Creating new worker pool with %d worker(s)", concurrency)
 	wpID := utils.MakeIdentifier()
 	wp := WorkerPool{

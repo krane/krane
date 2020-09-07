@@ -1,4 +1,4 @@
-package boltdb
+package store
 
 import (
 	"encoding/json"
@@ -9,18 +9,18 @@ import (
 	"github.com/docker/distribution/uuid"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/biensupernice/krane/internal/storage"
+	"github.com/biensupernice/krane/internal/collection"
 )
 
-const boltpath = "./krane.db"
+const testBoltPath = "./krane.db"
 
 func teardown() {
-	os.Remove(boltpath)
+	os.Remove(testBoltPath)
 }
 
 func TestMain(m *testing.M) {
-	Init(boltpath)
-	defer storage.GetInstance().Shutdown()
+	New(testBoltPath)
+	defer Instance().Shutdown()
 
 	code := m.Run()
 
@@ -37,8 +37,7 @@ type Avenger struct {
 }
 
 func TestBoltGet(t *testing.T) {
-	db := storage.GetInstance()
-	bkt := "avengers"
+	bkt := collection.Deployments
 
 	// Setup
 	thor := &Avenger{
@@ -53,11 +52,11 @@ func TestBoltGet(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Act
-	err = db.Put(bkt, thor.ID.String(), bytes)
+	err = Instance().Put(bkt, thor.ID.String(), bytes)
 	assert.Nil(t, err)
 
 	// Assert
-	thorBytes, err := db.Get(bkt, thor.ID.String())
+	thorBytes, err := Instance().Get(bkt, thor.ID.String())
 	assert.Nil(t, err)
 
 	var hero Avenger
@@ -72,8 +71,7 @@ func TestBoltGet(t *testing.T) {
 }
 
 func TestBoltPut(t *testing.T) {
-	db := storage.GetInstance()
-	bkt := "avenger"
+	bkt := collection.Deployments
 
 	// Setup
 	blackwidow := &Avenger{
@@ -88,11 +86,11 @@ func TestBoltPut(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Act
-	err = db.Put(bkt, blackwidow.ID.String(), bytes)
+	err = Instance().Put(bkt, blackwidow.ID.String(), bytes)
 	assert.Nil(t, err)
 
 	// Assert
-	blackwidowBytes, err := db.Get(bkt, blackwidow.ID.String())
+	blackwidowBytes, err := Instance().Get(bkt, blackwidow.ID.String())
 
 	var hero Avenger
 	err = json.Unmarshal(blackwidowBytes, &hero)
@@ -106,8 +104,7 @@ func TestBoltPut(t *testing.T) {
 }
 
 func TestBoltGetAll(t *testing.T) {
-	db := storage.GetInstance()
-	bkt := "avengers"
+	bkt := collection.Deployments
 
 	// Setup
 	avengers := make([]Avenger, 0)
@@ -140,13 +137,13 @@ func TestBoltGetAll(t *testing.T) {
 		bytes, err := json.Marshal(thor)
 		assert.Nil(t, err)
 
-		err = db.Put(bkt, avenger.ID.String(), bytes)
+		err = Instance().Put(bkt, avenger.ID.String(), bytes)
 		assert.Nil(t, err)
 	}
 
 	// Assert
 	for _, avenger := range avengers {
-		bytes, err := db.Get(bkt, avenger.ID.String())
+		bytes, err := Instance().Get(bkt, avenger.ID.String())
 		assert.Nil(t, err)
 
 		var hero Avenger

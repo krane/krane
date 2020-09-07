@@ -7,8 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/biensupernice/krane/internal/storage"
-	"github.com/biensupernice/krane/internal/storage/boltdb"
+	"github.com/biensupernice/krane/internal/store"
 )
 
 const boltpath = "./krane.db"
@@ -16,8 +15,8 @@ const boltpath = "./krane.db"
 func teardown() { os.Remove(boltpath) }
 
 func TestMain(m *testing.M) {
-	boltdb.Init(boltpath)
-	defer storage.GetInstance().Shutdown()
+	store.New((boltpath))
+	defer store.Instance().Shutdown()
 
 	code := m.Run()
 
@@ -28,10 +27,10 @@ func TestMain(m *testing.M) {
 func mockJobHandler(args Args) error { return nil }
 
 func TestEnqueueNewJobs(t *testing.T) {
-	store := storage.GetInstance()
+	store := store.Instance()
 	jobQueue := make(chan Job)
 
-	e := NewEnqueuer(&store, jobQueue)
+	e := NewEnqueuer(store, jobQueue)
 	e.WithHandler("deploy", mockJobHandler)
 
 	// Act
@@ -49,10 +48,10 @@ func TestEnqueueNewJobs(t *testing.T) {
 }
 
 func TestNewEnqueuer(t *testing.T) {
-	store := storage.GetInstance()
+	store := store.Instance()
 	jobChannel := make(chan Job)
 
-	e := NewEnqueuer(&store, jobChannel)
+	e := NewEnqueuer(store, jobChannel)
 	e.WithHandler("deploy", mockJobHandler)
 	e.WithHandler("delete", mockJobHandler)
 

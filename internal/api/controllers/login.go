@@ -1,4 +1,4 @@
-package routes
+package controllers
 
 import (
 	"fmt"
@@ -8,11 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/api/status"
-	"github.com/biensupernice/krane/internal/storage"
-)
-
-const (
-	AuthCollection = "Auth"
+	"github.com/biensupernice/krane/internal/collection"
+	"github.com/biensupernice/krane/internal/store"
 )
 
 // RequestLoginPhrase : request a preliminary login request for authentication with the krane server.
@@ -22,11 +19,11 @@ func RequestLoginPhrase(w http.ResponseWriter, r *http.Request) {
 	reqID := uuid.Generate().String()
 	phrase := []byte(fmt.Sprintf("Authenticating with krane %s", reqID))
 
-	err := storage.Put(AuthCollection, reqID, phrase)
+	err := store.Instance().Put(collection.Authentication, reqID, phrase)
 	if err != nil {
 		logrus.Error(err)
 
-		err = storage.Remove(AuthCollection, reqID)
+		err = store.Instance().Remove(collection.Authentication, reqID)
 		if err != nil {
 			logrus.Error(err)
 			status.HTTPBad(w, err)

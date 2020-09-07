@@ -1,4 +1,4 @@
-package routes
+package controllers
 
 import (
 	"encoding/json"
@@ -13,7 +13,10 @@ import (
 
 	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/auth"
-	"github.com/biensupernice/krane/internal/storage"
+	"github.com/biensupernice/krane/internal/collection"
+	"github.com/biensupernice/krane/internal/session"
+	"github.com/biensupernice/krane/internal/store"
+	"github.com/biensupernice/krane/internal/utils"
 )
 
 // AuthRequest : the payload expected when authenticating with krane
@@ -34,11 +37,13 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if request id is valid, get phrase stored on the server
-	serverPhrase, err := storage.Get(AuthCollection, body.RequestID)
+	serverPhraseBytes, err := store.Instance().Get(collection.Authentication, body.RequestID)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
+
+	serverPhrase := string(serverPhraseBytes)
 
 	if string(serverPhrase) == "" {
 		logrus.Debug("Invalid request id")
@@ -56,40 +61,40 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	// If any public key can be used to parse the incoming jwt token
 	// the decode it, and use the phrase in the token with the one on the server
 	claims := auth.VerifyAuthTokenWithAuthorizedKeys(authKeys, body.Token)
-	if claims == nil || strings.Compare(string(serverPhrase), claims.Phrase) != 0 {
+	if claims == nil || strings.Compare(serverPhrase, claims.Phrase) != 0 {
 		status.HTTPBad(w, errors.New("invalid token"))
 		return
 	}
 
 	// Create a new token and assign it to a session
 	// Remove auth data from auth bucket
-	err = storage.Remove(AuthCollection, body.RequestID)
+	err = store.Instance().Remove(collection.Authentication, body.RequestID)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	sessionTkn := &auth.SessionToken{SessionID: uuid.Generate().String()}
-	signedTkn, err := auth.CreateSessionToken(auth.GetServerPrivateKey(), *sessionTkn)
+	sessionTkn := &session.Token{SessionID: uuid.Generate().String()}
+	signedTkn, err := session.CreateSessionToken(auth.GetServerPrivateKey(), *sessionTkn)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	session := &auth.Session{
+	newSession := session.Session{
 		ID:        sessionTkn.SessionID,
 		Token:     signedTkn,
-		ExpiresAt: UnixToDate(auth.OneYear),
+		ExpiresAt: UnixToDate(utils.OneYear),
 		Principal: "root",
 	}
 
-	err = auth.SaveSession(*session)
+	err = session.Save(newSession)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, session)
+	status.HTTPOk(w, newSession)
 	return
 }
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/storage"
+	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
 
@@ -15,14 +15,14 @@ const QueuedJobsCollections = "queued_jobs"
 type Handlers map[string]GenericHandler
 
 type Enqueuer struct {
-	store *storage.Storage
+	store store.Store
 
 	jobQueue chan Job
 
 	Handlers Handlers
 }
 
-func NewEnqueuer(store *storage.Storage, jobQueue chan Job) Enqueuer {
+func NewEnqueuer(store store.Store, jobQueue chan Job) Enqueuer {
 	return Enqueuer{store: store, jobQueue: jobQueue, Handlers: make(Handlers, 0)}
 }
 
@@ -49,8 +49,7 @@ func (e *Enqueuer) Enqueue(jobName string, args Args) (Job, error) {
 	}
 
 	logrus.Infof("Adding job %s to the store with status pending", job.ID)
-	store := *e.store
-	err = store.Put(QueuedJobsCollections, job.ID, bytes)
+	err = e.store.Put(QueuedJobsCollections, job.ID, bytes)
 	if err != nil {
 		return Job{}, err
 	}
