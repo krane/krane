@@ -9,54 +9,38 @@ An example of a `krane.json` for deploying the Krane UI.
 ```json
 {
   "name": "krane-ui",
-  "config": {
     "image": "biensupernice/krane-ui",
-    "container_port": "3000",
-    "host_port": "80",
+    "env": {
+      "NODE_ENV": "dev"
+    },
     "secrets": {
       "KRANE_HOST": "@krane-host",
       "KRANE_TOKEN": "@krane-token"
     }
-  }
 }
 ```
 
-# name
+### name
 
 The name of your deployment.
 
 - required: `yes`
 
-# config
 
-The configuration properties used when creating and running a container.
-
-#### registry
+## registry
 
 The container registry to use when pulling images.
 
 - required: `false`
 - default: `docker.io`
 
-#### image
+## image
 
 The image used when pulling, creating and running your deployments containers.
 
 - required: `true`
 
-#### container_port
-
-The container port to expose.
-
-- required: `false`
-
-#### host_port
-
-The port to expose to the Docker host.
-
-- required: `false`
-
-#### env
+## env
 
 The enviornment variables passed to the containers part of a deployment.
 
@@ -73,7 +57,7 @@ The enviornment variables passed to the containers part of a deployment.
 }
 ```
 
-#### secrets
+## secrets
 
 Secrets are used when you want to pass sensitive information to your deployment. Secrets are **not shared** across deployments, they are bounded and only provided to the containers part of the deployment.
 
@@ -90,14 +74,14 @@ Secrets are created using the krane `cli` and referenced in your Krane configura
 }
 ```
 
-#### tag
+## tag
 
 The tag used when pulling the image.
 
 - required: `false`
 - default: `latest`
 
-#### volumes
+## volumes
 
 The volumes to mount from the container to the host.
 
