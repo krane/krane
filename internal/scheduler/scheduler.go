@@ -29,26 +29,22 @@ func New(store store.Store, dockerClient *client.Client, jobEnqueuer job.Enqueue
 	return Scheduler{store, dockerClient, jobEnqueuer, ms}
 }
 
-// 1. TODO: Fetch current state
-// 2. TODO: Fetch desired state
-// 3. TODO: Queue required jobs
 func (sc *Scheduler) Run() {
 	logrus.Infof("Starting Scheduler")
-	logrus.Debugf("Polling every %s", sc.interval.String())
 
+	// TODO: abstract this to some registerJobHandlers factory
 	sc.Enqueuer.WithHandler("DEPLOY_JOB", handleRunDeployment)
 
 	for {
-		sc.poll(sc.interval)
+		sc.poll()
 		<-time.After(sc.interval)
 	}
 
-	// sc.Enqueuer.Enqueue("DEPLOY_JOB", job.Args{"id": status.MakeIdentifier()})
-	// sc.Enqueuer.Enqueue("DELETE_JOB", job.Args{"id": status.MakeIdentifier()})
+	logrus.Infof("Exiting Scheduler")
 	return
 }
 
-func (sc *Scheduler) poll(interval_ms time.Duration) {
+func (sc *Scheduler) poll() {
 	logrus.Infof("Scheduler polling")
 
 	// get deployments
