@@ -137,6 +137,38 @@ func GetContainers(ctx *context.Context, deploymentName string) ([]types.Contain
 	return deploymentContainers, nil
 }
 
+func FilterContainersByDeployment(deploymentName string, containers []types.Container) []types.Container {
+	deploymentContainers := make([]types.Container, 0)
+	for _, container := range containers {
+		kraneLabel := container.Labels[KraneContainerLabel]
+		if kraneLabel == deploymentName {
+			deploymentContainers = append(deploymentContainers, container)
+		}
+	}
+
+	return deploymentContainers
+}
+
+func GetKraneManagedContainers(ctx *context.Context) ([]types.Container, error) {
+	client := GetClient()
+
+	// Find all containers
+	allContainers, err := client.GetAllContainers(ctx)
+	if err != nil {
+		return make([]types.Container, 0), err
+	}
+
+	deploymentContainers := make([]types.Container, 0)
+	for _, container := range allContainers {
+		kraneLabel := container.Labels[KraneContainerLabel]
+		if kraneLabel != "" {
+			deploymentContainers = append(deploymentContainers, container)
+		}
+	}
+
+	return deploymentContainers, nil
+}
+
 // ReadContainerLogs :
 func (c *DockerClient) ReadContainerLogs(ctx *context.Context, containerID string) (reader io.Reader, err error) {
 	options := types.ContainerLogsOptions{

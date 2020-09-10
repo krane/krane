@@ -27,6 +27,7 @@ func init() {
 	envOrDefault("STORE_PATH", "/tmp/krane.db")
 	envOrDefault("WORKERPOOL_SIZE", "1")
 	envOrDefault("JOBQUEUE_SIZE", "1")
+	envOrDefault("SCHEDULER_INTERVAL_MS", "5000")
 
 	logging.ConfigureLogrus()
 	docker.Init()
@@ -55,7 +56,8 @@ func main() {
 	jobWorkers.Start()
 
 	// Scheduler
-	jobScheduler := scheduler.New(store.Instance(), dockerClient, jobEnqueuer)
+	interval := os.Getenv("SCHEDULER_INTERVAL_MS")
+	jobScheduler := scheduler.New(store.Instance(), dockerClient, jobEnqueuer, interval)
 	jobScheduler.Run()
 
 	go api.Run()

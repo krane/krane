@@ -26,6 +26,7 @@ func Add(key, value, deploymentName string, store store.Store) {
 
 	s := &Secret{key, value, deploymentName, alias}
 	bytes, _ := json.Marshal(s)
+
 	store.Put(SECRETS_COLLECTION, s.Alias, bytes)
 }
 

@@ -7,7 +7,6 @@ import (
 )
 
 // KraneNetworkName : every deployed container will be attached to this network
-// TODO: this should be configured somewhere else and passed down when creating docker client / network
 const KraneNetworkName = "krane"
 
 // CreateBridgeNetwork : creates docker bridge network with a given name
