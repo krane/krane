@@ -26,7 +26,7 @@ This creates a `private` and `public` key.
 
 The private key stays on your local machine, the public key gets appended to `~/.ssh/authorized_keys` on the server where Krane is running.
 
-> Refer to [Authentication](authentication.md) for more details
+> Refer to [Authentication](../components/authentication.md) for more details
 
 ##### 4. Download the Krane CLI
 

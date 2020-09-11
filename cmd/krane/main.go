@@ -58,7 +58,7 @@ func main() {
 	// Scheduler
 	interval := os.Getenv("SCHEDULER_INTERVAL_MS")
 	jobScheduler := scheduler.New(store.Instance(), dockerClient, jobEnqueuer, interval)
-	jobScheduler.Run()
+	go jobScheduler.Run()
 
 	go api.Run()
 
@@ -91,6 +91,6 @@ func envOrDefault(key string, fallback string) string {
 		return fallback
 	}
 
-	logrus.Infof("%s already set with value %s", key, val)
+	log.Printf("%s already set with value %s", key, val)
 	return os.Getenv(key)
 }

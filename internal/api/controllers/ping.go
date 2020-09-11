@@ -29,7 +29,7 @@ func PingController(w http.ResponseWriter, r *http.Request) {
 }
 
 func ping(args job.Args) error {
-	logrus.Info(args["message"])
 	time.Sleep(10 * time.Second)
+	logrus.Info(args["message"])
 	return nil
 }

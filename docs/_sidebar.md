@@ -1,9 +1,10 @@
-- Getting Started
+- Getting started
+- [Introduction](getting_started/introduction.md)
+- [Quick start](getting_started/quickstart.md)
 
-  - [Quick start](quickstart.md)
-  - [Installation](installation.md)
-  - [Authentication](authentication.md)
-
-- Components
-  - [Krane CLI](components/krane-cli.md)
-  - [Krane Config](components/krane-config.md)
+- Ecosystem
+- [Installation](components/installation.md)
+- [Authentication](components/authentication.md)
+- [Krane CLI](components/krane-cli.md)
+- [Krane Config](components/krane-config.md)
+- [REST API](/components/rest.md)

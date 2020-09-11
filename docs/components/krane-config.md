@@ -9,14 +9,14 @@ An example of a `krane.json` for deploying the Krane UI.
 ```json
 {
   "name": "krane-ui",
-    "image": "biensupernice/krane-ui",
-    "env": {
-      "NODE_ENV": "dev"
-    },
-    "secrets": {
-      "KRANE_HOST": "@krane-host",
-      "KRANE_TOKEN": "@krane-token"
-    }
+  "image": "biensupernice/krane-ui",
+  "env": {
+    "NODE_ENV": "dev"
+  },
+  "secrets": {
+    "KRANE_HOST": "@krane-host",
+    "KRANE_TOKEN": "@krane-token"
+  }
 }
 ```
 

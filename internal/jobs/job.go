@@ -8,10 +8,11 @@ import (
 )
 
 type Job struct {
-	ID         string `json:"id"`
-	Namespace  string `json:"namespace"`
-	EnqueuedAt int64  `json:"enqueued_at"`
-	Args       Args   `json:"args"`
+	ID          string `json:"id"`
+	Namespace   string `json:"namespace"`
+	EnqueuedAt  int64  `json:"enqueued_at"`
+	CompletedAt int64  `json:"completed_at"`
+	Args        Args   `json:"args"`
 
 	Run GenericHandler `json:"-"`
 }
