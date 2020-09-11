@@ -48,6 +48,7 @@ func withRoutes(router *mux.Router) {
 	withRoute(noAuthRouter, "/", controllers.GetServerStatus).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/login", controllers.RequestLoginPhrase).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/auth", controllers.AuthenticateClientJWT).Methods(http.MethodPost)
+	withRoute(noAuthRouter, "/ping", controllers.PingController).Methods(http.MethodGet)
 
 	authRouter := router.PathPrefix("/").Subrouter()
 	withRoute(authRouter, "/deployments", controllers.GetDeployments, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)

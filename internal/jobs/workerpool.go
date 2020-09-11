@@ -37,19 +37,19 @@ func NewWorkerPool(concurrency uint, jobChannel chan Job, store store.Store) Wor
 	}
 
 	for i := uint(0); i < wp.concurrency; i++ {
-		logrus.Infof("Appending new worker to worker pool %s", wp.workerPoolID)
+		logrus.Debugf("Appending new worker to worker pool %s", wp.workerPoolID)
 		w := newWorker(wp.workerPool, wp.jobChannel)
 		wp.workers = append(wp.workers, w)
 	}
 
-	logrus.Infof("%d worker(s) in the worker pool", len(wp.workers))
+	logrus.Debugf("%d worker(s) in the worker pool", len(wp.workers))
 
 	return wp
 }
 
 // Start : all the workers part of the worker pool
 func (wp *WorkerPool) Start() {
-	logrus.Infof("Worker pool started on pid: %d", os.Getppid())
+	logrus.Debugf("Worker pool started on pid: %d", os.Getppid())
 	if wp.started {
 		return
 	}
@@ -58,21 +58,21 @@ func (wp *WorkerPool) Start() {
 
 	var workersStarted int
 	for _, w := range wp.workers {
-		logrus.Info("Starting new worker")
+		logrus.Debugf("Starting new worker")
 		w.start()
 		workersStarted++
 	}
 
-	logrus.Infof("Started %d worker(s)", workersStarted)
+	logrus.Debugf("Started %d worker(s)", workersStarted)
 
 	return
 }
 
 func (wp *WorkerPool) Stop() {
-	logrus.Infof("Stopping worker pool %s", wp.workerPoolID)
+	logrus.Debugf("Stopping worker pool %s", wp.workerPoolID)
 
 	if !wp.started {
-		logrus.Info("Worker pool can't stop, it has not started")
+		logrus.Debugf("Worker pool can't stop, it has not started")
 		return
 	}
 
@@ -82,17 +82,17 @@ func (wp *WorkerPool) Stop() {
 
 	var wg sync.WaitGroup
 	for _, w := range wp.workers {
-		logrus.Info("Adding worker to waitgroup")
+		logrus.Debugf("Adding worker to waitgroup")
 		wg.Add(1)
 		go func(w *worker) {
-			logrus.Info("Attempting to stop Worker")
+			logrus.Debugf("Attempting to stop Worker")
 			w.stop()
 			wg.Done()
-			logrus.Info("Worker stopped, removing from waitgroup")
+			logrus.Debugf("Worker stopped, removing from waitgroup")
 		}(w)
 		workersStopped++
 	}
 
 	wg.Wait()
-	logrus.Infof("%d worker(s) stopped", workersStopped)
+	logrus.Debugf("%d worker(s) stopped", workersStopped)
 }

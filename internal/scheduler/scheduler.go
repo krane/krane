@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"context"
 	"encoding/json"
 	"time"
 
@@ -14,6 +13,7 @@ import (
 	job "github.com/biensupernice/krane/internal/jobs"
 	"github.com/biensupernice/krane/internal/kranecfg"
 	"github.com/biensupernice/krane/internal/store"
+	"github.com/biensupernice/krane/internal/utils"
 )
 
 type Scheduler struct {
@@ -32,9 +32,6 @@ func New(store store.Store, dockerClient *client.Client, jobEnqueuer job.Enqueue
 func (sc *Scheduler) Run() {
 	logrus.Infof("Starting Scheduler")
 
-	// TODO: abstract this to some registerJobHandlers factory
-	sc.Enqueuer.WithHandler("DEPLOY_JOB", handleRunDeployment)
-
 	for {
 		sc.poll()
 		<-time.After(sc.interval)
@@ -44,50 +41,51 @@ func (sc *Scheduler) Run() {
 	return
 }
 
-func (sc *Scheduler) poll() {
-	logrus.Infof("Scheduler polling")
-
-	// get deployments
-	deployments := sc.deployments()
-	logrus.Debugf("Got %d deployment", len(deployments))
+func (s *Scheduler) poll() {
+	logrus.Debugf("Scheduler polling")
 
 	// get docker containers
-	ctx := context.Background()
-	kcontainers, err := docker.GetKraneManagedContainers(&ctx)
+	containers, err := docker.GetKraneManagedContainers()
 	if err != nil {
 		logrus.Error("Scheduler error: %s", err)
 		return
 	}
-	ctx.Done()
-
-	if len(kcontainers) == 0 {
-		logrus.Debugf("Found 0 krane managed containers. Waiting for next poll.")
-	}
-
-	logrus.Debugf("Got %d krane managed containers", len(kcontainers))
+	logrus.Debugf("Got %d containers", len(containers))
 
 	// map deployments to containers
-	mapping := mapDeploymentsToContainers(deployments, kcontainers)
-	redeploymentJobs := make([]job.Args, 0)
-	for _, state := range mapping {
-		shouldRedeploy := !hasDesiredState(state.desiredState, kcontainers)
-
-		// TODO: check if pending job already exists
-
-		if shouldRedeploy {
-			var args map[string]interface{}
-			bytes, _ := json.Marshal(state)
-			json.Unmarshal(bytes, &args)
-
-			redeploymentJobs = append(redeploymentJobs, args)
+	deployments := mapDeploymentsToContainers(s.deployments(), containers)
+	for name, obj := range deployments {
+		if hasDesiredState(obj.config, obj.containers) {
+			continue
 		}
+
+		// Serialize the desired state (config) to pass to the Job handler
+		var args map[string]interface{}
+		bytes, _ := json.Marshal(obj.config)
+		json.Unmarshal(bytes, &args)
+
+		// Persist job with status pending
+		job := job.Job{
+			ID:         utils.MakeIdentifier(),
+			Namespace:  name,
+			EnqueuedAt: time.Now().Unix(),
+			Args:       args,
+
+			Run: func(args job.Args) error {
+				deployment := args["name"]
+				logrus.Infof("Scheduler Handler: %s", deployment)
+				return nil
+			},
+		}
+
+		go s.Enqueuer.Enqueue(job)
 	}
 
-	for _, jobArgs := range redeploymentJobs {
-		sc.Enqueuer.Enqueue("DEPLOY_JOB", jobArgs)
-	}
+	logrus.Debugf("Next poll in %s", s.interval.String())
+}
 
-	logrus.Debugf("Next poll in %s", sc.interval.String())
+func hasDesiredState(kcfg kranecfg.KraneConfig, containers []types.Container) bool {
+	return false
 }
 
 func (sc *Scheduler) deployments() []kranecfg.KraneConfig {
@@ -108,19 +106,4 @@ func (sc *Scheduler) deployments() []kranecfg.KraneConfig {
 		deployments = append(deployments, d)
 	}
 	return deployments
-}
-
-func hasDesiredState(kcfg kranecfg.KraneConfig, containers []types.Container) bool {
-	logrus.Infof("%v %v", kcfg, containers)
-	return false
-}
-
-func handleRunDeployment(args job.Args) error {
-	logrus.Infof("Running deployment job %v", args)
-	return nil
-}
-
-func handleDeleteDeployment(args job.Args) error {
-	logrus.Infof("Running deletion job %v", args)
-	return nil
 }

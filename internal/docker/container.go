@@ -149,11 +149,14 @@ func FilterContainersByDeployment(deploymentName string, containers []types.Cont
 	return deploymentContainers
 }
 
-func GetKraneManagedContainers(ctx *context.Context) ([]types.Container, error) {
+func GetKraneManagedContainers() ([]types.Container, error) {
 	client := GetClient()
 
 	// Find all containers
-	allContainers, err := client.GetAllContainers(ctx)
+	ctx := context.Background()
+	allContainers, err := client.GetAllContainers(&ctx)
+	ctx.Done()
+
 	if err != nil {
 		return make([]types.Container, 0), err
 	}

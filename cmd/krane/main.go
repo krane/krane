@@ -27,7 +27,7 @@ func init() {
 	envOrDefault("STORE_PATH", "/tmp/krane.db")
 	envOrDefault("WORKERPOOL_SIZE", "1")
 	envOrDefault("JOBQUEUE_SIZE", "1")
-	envOrDefault("SCHEDULER_INTERVAL_MS", "5000")
+	envOrDefault("SCHEDULER_INTERVAL_MS", "10000")
 
 	logging.ConfigureLogrus()
 	docker.Init()
@@ -66,7 +66,7 @@ func main() {
 
 	logrus.Info("Shutdown signal received")
 	jobWorkers.Stop()
-	logrus.Info("All workers done shutting down")
+	logrus.Info("Shutdown complete")
 }
 
 // wait : for a signal to quit

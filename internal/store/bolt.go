@@ -177,3 +177,12 @@ func (b *BoltDB) Remove(collection string, key string) error {
 		return bkt.Delete([]byte(key))
 	})
 }
+
+func (b *BoltDB) GetBucket(collection string) (bkt *bolt.Bucket) {
+	instance.View(func(tx *bolt.Tx) error {
+		bkt = tx.Bucket([]byte(collection))
+		return nil
+	})
+
+	return
+}

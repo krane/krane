@@ -18,25 +18,26 @@ func newWorker(workerPool chan chan Job, jobChannel chan Job) *worker {
 }
 
 func (w *worker) start() {
-	logrus.Infof("Worker starting with pid: %d", os.Getpid())
+	logrus.Debugf("Worker starting with pid: %d", os.Getpid())
 	go w.loop()
 }
 
 func (w *worker) stop() {
-	logrus.Info("Worker stopping")
+	logrus.Debug("Worker stopping")
 	w.quit <- true
 	return
 }
 
 func (w *worker) loop() {
-	logrus.Infof("Worker loop started")
+	logrus.Debug("Worker loop started")
 	for {
 		select {
 		case job := <-w.jobChannel:
-			logrus.Infof("Got job %s", job.JobName)
+			logrus.Infof("Got job for %s", job.Namespace)
+			logrus.Debugf("Got job for %s", job.Namespace)
 			job.Run(job.Args)
 		case <-w.quit:
-			logrus.Info("Quitting worker")
+			logrus.Debug("Quitting worker")
 			return
 		}
 	}
