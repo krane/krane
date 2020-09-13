@@ -1,41 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8"/>
+  <head>
     <title>Krane documentation</title>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-    <meta name="description" content="Description"/>
+    <link rel="icon" href="assets/favicon/favicon.ico" />
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="description" content="Toolset for working with containers" />
     <meta
-            name="viewport"
-            content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+      name="keywords"
+      content="docker,containers,container management,golang"
     />
-    <link
-            rel="stylesheet"
-            href="//cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css"
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
-</head>
-<style>
-    :root {
-        --theme-color: black;
-    }
 
-    body {
-        font-size: 17px !important;
-    }
-</style>
-<body>
-<div id="app"></div>
-<script>
-    window.$docsify = {
-        name: "Krane",
-        logo: "./assets/logo.png",
+    <!-- External styles -->
+    <link
+      rel="stylesheet"
+      href="//cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css"
+    />
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="main.css" />
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- App -->
+    <div id="app">Loading...</div>
+
+    <!-- Javascript -->
+    <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
+    <script>
+      window.$docsify = {
+        name: "KRANE",
+        // logo: "./assets/logo.png",
         loadSidebar: true,
-    };
-</script>
-<script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
-<link
-        rel="stylesheet"
-        href="//cdn.jsdelivr.net/npm/docsify/lib/themes/pure.css"
-/>
-</body>
+        coverpage: true,
+        auto2top: true,
+        maxLevel: 4,
+        subMaxLevel: 3,
+        search: {
+          noData: {
+            "/de-de/": "Keine Ergebnisse!",
+            "/zh-cn/": "没有结果!",
+            "/": "No results found",
+          },
+          paths: "auto",
+          placeholder: {
+            "/de-de/": "Suche",
+            "/zh-cn/": "搜索",
+            "/": "Search",
+          },
+        },
+        plugins: [
+          EditOnGithubPlugin.create(
+            "https://github.com/biensupernice/krane/tree/master/docs/",
+            null,
+            "Edit on github"
+          ),
+        ],
+        ga: "UA-177852138-1",
+        copyCode: {
+          buttonText: {
+            "/zh-cn/": "点击复制",
+            "/ru/": "Скопировать в буфер обмена",
+            "/de-de/": "Klicken Sie zum Kopieren",
+            "/es/": "Haga clic para copiar",
+            "/": "copy",
+          },
+          errorText: {
+            "/zh-cn/": "错误",
+            "/ru/": "ошибка",
+            "/": "Error",
+          },
+          successText: {
+            "/zh-cn/": "复制",
+            "/ru/": "Скопировано",
+            "/de-de/": "Kopiert",
+            "/es/": "Copiado",
+            "/": "Copied",
+          },
+        },
+      };
+    </script>
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/ga.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
+  </body>
 </html>

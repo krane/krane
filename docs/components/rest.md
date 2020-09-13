@@ -1,17 +1,17 @@
 # REST API
 
-- [Postman collection]("#")
-- [Postman collection env]("#")
+- [Postman collection](postman/collection)
+- [Postman collection env](postman/collection-env)
 
 ---
 
 ## Authentication
 
-`GET /login` 
+`GET /login`
 
-Make a login request. 
+### Login
 
-The phrase is a server generated phrase that the client must sign using their private key. The signed token is used when making an `/auth` request. 
+The phrase is a server generated phrase that the client must sign using their private key. The signed token is used when making an `/auth` request.
 
 **response**
 
@@ -28,16 +28,16 @@ The phrase is a server generated phrase that the client must sign using their pr
 
 `POST /auth`
 
-Authenticate with a Krane server. 
+### Authenticate
 
-The token is a JWT token containing the server phrase signed with the clients private key. 
+The token is a JWT token containing the server phrase signed with the clients private key.
 
 **request body**
 
 ```json
 {
-	"request_id": "<id from server>",
-	"token" :"<signed_token>"
+  "request_id": "<id from server>",
+  "token": "<signed_token>"
 }
 ```
 
@@ -63,11 +63,11 @@ The token is a JWT token containing the server phrase signed with the clients pr
 
 `POST /deployments`
 
-Create a deployment.
+### Create a deployment
 
 **request body**
 
-- A [Krane Config]("krane-config.md")
+- A [Krane Config](components/krane-config)
 
 **response**
 
@@ -75,19 +75,19 @@ Create a deployment.
 
 `GET /deployments`
 
-Get all deployments. 
-
-**response** 
-
-- A list of [Krane Config]("krane-config.md")
-
-`GET /deployments/{name}`
-
-Get a deployment.
+### Get all deployments
 
 **response**
 
-- A [Krane Configs]("krane-config.md")
+- A list of [Krane Configs](components/krane-config)
+
+`GET /deployments/{name}`
+
+### Get a deployment
+
+**response**
+
+- A [Krane Config](components/krane-config)
 
 `DELETE /deployment/{name}`
 

@@ -20,12 +20,11 @@ An example of a `krane.json` for deploying the Krane UI.
 }
 ```
 
-### name
+## name
 
 The name of your deployment.
 
 - required: `yes`
-
 
 ## registry
 
@@ -67,10 +66,10 @@ Secrets are created using the krane `cli` and referenced in your Krane configura
 
 ```json
 {
-   "secrets": {
-      "SECRET_TOKEN": "@my-secret-token",
-      "PROXY_API_URL": "@proxy-api-url"
-   }
+  "secrets": {
+    "SECRET_TOKEN": "@my-secret-token",
+    "PROXY_API_URL": "@proxy-api-url"
+  }
 }
 ```
 

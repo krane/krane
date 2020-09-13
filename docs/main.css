@@ -1,0 +1,74 @@
+:root {
+  --theme-color: black;
+}
+
+body {
+  font-size: 16px !important;
+  color: black;
+  /* font-family: "Inter", sans-serif !important;  */
+  /* font-family: "Roboto", sans-serif !important; */
+}
+
+.cover {
+  background: white !important;
+}
+
+.anchor span {
+  color: black !important;
+}
+
+/* Sidebar  Header text*/
+.sidebar {
+  color: black !important;
+}
+.sidebar > h1 a {
+  color: black;
+  font-weight: 800;
+  letter-spacing: 1px;
+  font-size: 20px;
+  text-align: start;
+}
+
+.app-name {
+  text-align: start !important;
+  padding: 0px 0px 0px 15px !important;
+}
+
+/* MD code section primary color */
+.markdown-section code {
+  color: black;
+}
+
+/* Custom subheader before pre-content. Example dash for subheaders ( - getting started) */
+.app-sub-sidebar li:before {
+  content: "";
+}
+
+/* Search bar styles */
+.search input:active {
+  padding: 0 7px !important;
+}
+
+.search input:focus {
+  padding: 0 7px !important;
+  box-shadow: 0 0 0px white !important;
+  border: 0px solid white !important;
+}
+
+/* Copy to clipboard button styles */
+section.cover .cover-main > p:last-child a:last-child:hover {
+  opacity: 1 !important;
+  color: white;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+pre:hover .docsify-copy-code-button {
+  color: #7e7e7e !important;
+}
+
+.docsify-copy-code-button {
+  background: #ececec !important;
+  border-radius: 3px !important;
+  font-size: 0.8em !important;
+  color: #7e7e7e !important;
+}
