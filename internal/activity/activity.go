@@ -6,7 +6,7 @@ import (
 	"github.com/docker/distribution/uuid"
 	"github.com/sirupsen/logrus"
 
-	job "github.com/biensupernice/krane/internal/jobs"
+	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )

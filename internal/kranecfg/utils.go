@@ -1,6 +1,7 @@
 package kranecfg
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -58,3 +59,5 @@ func (cfg KraneConfig) validateName() bool {
 	match := regexp.MustCompile(matchers)
 	return match.MatchString(cfg.Name)
 }
+
+func (cfg KraneConfig) Serialize() ([]byte, error) { return json.Marshal(cfg) }

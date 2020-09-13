@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/api/status"
-	job "github.com/biensupernice/krane/internal/jobs"
+	job "github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -17,7 +17,6 @@ func PingController(w http.ResponseWriter, r *http.Request) {
 	newJob := job.Job{
 		ID:         utils.MakeIdentifier(),
 		Namespace:  "Ping",
-		EnqueuedAt: time.Now().Unix(),
 		Args:       map[string]interface{}{"message": "pong"},
 		Run:        ping,
 	}

@@ -5,4 +5,5 @@ const (
 	Deployments    = "Deployments"
 	Jobs           = "Jobs"
 	Sessions       = "Sessions"
+	SECRETS        = "Secrets"
 )

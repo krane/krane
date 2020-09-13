@@ -7,12 +7,11 @@ import (
 	"strconv"
 	"syscall"
 
-	"github.com/docker/docker/client"
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/api"
 	"github.com/biensupernice/krane/internal/docker"
-	job "github.com/biensupernice/krane/internal/jobs"
+	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/logging"
 	"github.com/biensupernice/krane/internal/scheduler"
 	"github.com/biensupernice/krane/internal/store"
@@ -37,12 +36,6 @@ func init() {
 func main() {
 	defer store.Instance().Shutdown()
 
-	// Docker Client
-	dockerClient, err := client.NewEnvClient()
-	if err != nil {
-		logrus.Fatalf("Unable to connect to Docker client %s", err.Error())
-	}
-
 	// Job Queue
 	jobQueueSize, _ := strconv.ParseUint(os.Getenv("JOBQUEUE_SIZE"), 10, 8)
 	jobQueue := job.NewJobQueue(uint(jobQueueSize))
@@ -50,17 +43,17 @@ func main() {
 	// Job Enqueuer
 	jobEnqueuer := job.NewEnqueuer(store.Instance(), jobQueue)
 
+	// Scheduler
+	interval := os.Getenv("SCHEDULER_INTERVAL_MS")
+	jobScheduler := scheduler.New(store.Instance(), docker.GetClient(), jobEnqueuer, interval)
+	go jobScheduler.Run()
+
+	go api.Run()
+
 	// Job Worker Pool
 	wpSize, _ := strconv.ParseUint(os.Getenv("WORKERPOOL_SIZE"), 10, 8)
 	jobWorkers := job.NewWorkerPool(uint(wpSize), jobQueue, store.Instance())
 	jobWorkers.Start()
-
-	// Scheduler
-	interval := os.Getenv("SCHEDULER_INTERVAL_MS")
-	jobScheduler := scheduler.New(store.Instance(), dockerClient, jobEnqueuer, interval)
-	go jobScheduler.Run()
-
-	go api.Run()
 
 	wait()
 

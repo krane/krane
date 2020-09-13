@@ -11,10 +11,29 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/go-connections/nat"
+	"github.com/sirupsen/logrus"
 )
 
 // KraneContainerLabelName : used to identify krane managed containers
 const KraneContainerLabel = "krane.deployment.name"
+
+type Container struct {
+	ID      string            `json:"id"`
+	Names   []string          `json:"names"`
+	Image   string            `json:"image"`
+	ImageID string            `json:"image_id"`
+	Created int64             `json:"created"`
+	Labels  map[string]string `json:"labels"`
+	State   string            `json:"state"`
+	Status  string            `json:"status"`
+	Ports   []types.Port      `json:"ports"`
+}
+
+func (c Container) Start() {}
+
+func (c Container) Stop() {}
+
+func (c Container) Remove() {}
 
 // CreateContainerConfig : properties required to create a container
 type CreateContainerConfig struct {
@@ -29,7 +48,7 @@ type CreateContainerConfig struct {
 }
 
 // CreateContainer : create docker container
-func (c *DockerClient) CreateContainer(
+func (client *DockerClient) CreateContainer(
 	ctx *context.Context,
 	conf *CreateContainerConfig,
 ) (container.ContainerCreateCreatedBody, error) {
@@ -83,43 +102,41 @@ func (c *DockerClient) CreateContainer(
 	endpointConf := map[string]*network.EndpointSettings{"krane": &network.EndpointSettings{NetworkID: conf.NetworkID}}
 	networkConf := &network.NetworkingConfig{EndpointsConfig: endpointConf}
 
-	return c.ContainerCreate(*ctx, containerConf, hostConf, networkConf, conf.Name)
+	return client.ContainerCreate(*ctx, containerConf, hostConf, networkConf, conf.Name)
 }
 
 // StopContainer : stop docker container
-func (c *DockerClient) StopContainer(ctx *context.Context, containerID string) error {
+func (client *DockerClient) StopContainer(ctx *context.Context, containerID string) error {
 	timeout := 60 * time.Second
-	return c.ContainerStop(*ctx, containerID, &timeout)
+	return client.ContainerStop(*ctx, containerID, &timeout)
 }
 
 // RemoveContainer : remove docker container
-func (c *DockerClient) RemoveContainer(ctx *context.Context, containerID string) error {
+func (client *DockerClient) RemoveContainer(ctx *context.Context, containerID string) error {
 	options := types.ContainerRemoveOptions{}
-	return c.ContainerRemove(*ctx, containerID, options)
+	return client.ContainerRemove(*ctx, containerID, options)
 }
 
-func (c *DockerClient) GetOneContainer(ctx *context.Context, containerId string) (types.ContainerJSON, error) {
-	return c.ContainerInspect(*ctx, containerId)
+func (client *DockerClient) GetOneContainer(ctx *context.Context, containerId string) (types.ContainerJSON, error) {
+	return client.ContainerInspect(*ctx, containerId)
 }
 
 // GetAllContainers : gets all containers on the host machine
-func (c *DockerClient) GetAllContainers(ctx *context.Context) (containers []types.Container, err error) {
+func (client *DockerClient) GetAllContainers(ctx *context.Context) (containers []types.Container, err error) {
 	options := types.ContainerListOptions{
 		All:   true,
 		Quiet: false,
 	}
 
-	return c.ContainerList(*ctx, options)
+	return client.ContainerList(*ctx, options)
 }
 
 // GetContainerStatus : get the status of a container
-func (c *DockerClient) GetContainerStatus(ctx *context.Context, containerID string, stream bool) (stats types.ContainerStats, err error) {
-	return c.ContainerStats(*ctx, containerID, stream)
+func (client *DockerClient) GetContainerStatus(ctx *context.Context, containerID string, stream bool) (stats types.ContainerStats, err error) {
+	return client.ContainerStats(*ctx, containerID, stream)
 }
 
-func GetContainers(ctx *context.Context, deploymentName string) ([]types.Container, error) {
-	client := GetClient()
-
+func (client *DockerClient) GetContainers(ctx *context.Context, deploymentName string) ([]types.Container, error) {
 	// Find all containers
 	allContainers, err := client.GetAllContainers(ctx)
 	if err != nil {
@@ -137,8 +154,18 @@ func GetContainers(ctx *context.Context, deploymentName string) ([]types.Contain
 	return deploymentContainers, nil
 }
 
-func FilterContainersByDeployment(deploymentName string, containers []types.Container) []types.Container {
+func (client *DockerClient) FilterContainersByDeployment(deploymentName string) ([]types.Container, error) {
 	deploymentContainers := make([]types.Container, 0)
+
+	ctx := context.Background()
+	containers, err := client.GetAllContainers(&ctx)
+	ctx.Done()
+
+	if err != nil {
+		logrus.Errorf("Unable to filter container by deployment, %s", err.Error())
+		return make([]types.Container, 0), err
+	}
+
 	for _, container := range containers {
 		kraneLabel := container.Labels[KraneContainerLabel]
 		if kraneLabel == deploymentName {
@@ -146,13 +173,10 @@ func FilterContainersByDeployment(deploymentName string, containers []types.Cont
 		}
 	}
 
-	return deploymentContainers
+	return deploymentContainers, nil
 }
 
-func GetKraneManagedContainers() ([]types.Container, error) {
-	client := GetClient()
-
-	// Find all containers
+func (client *DockerClient) GetKraneManagedContainers() ([]types.Container, error) {
 	ctx := context.Background()
 	allContainers, err := client.GetAllContainers(&ctx)
 	ctx.Done()
@@ -173,7 +197,7 @@ func GetKraneManagedContainers() ([]types.Container, error) {
 }
 
 // ReadContainerLogs :
-func (c *DockerClient) ReadContainerLogs(ctx *context.Context, containerID string) (reader io.Reader, err error) {
+func (client *DockerClient) ReadContainerLogs(ctx *context.Context, containerID string) (reader io.Reader, err error) {
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
@@ -182,19 +206,17 @@ func (c *DockerClient) ReadContainerLogs(ctx *context.Context, containerID strin
 		Tail:       "50",
 	}
 
-	return c.ContainerLogs(*ctx, containerID, options)
+	return client.ContainerLogs(*ctx, containerID, options)
 }
 
 // StartContainer : start docker container
-func (c *DockerClient) StartContainer(ctx *context.Context, containerID string) (err error) {
+func (client *DockerClient) StartContainer(ctx *context.Context, containerID string) (err error) {
 	options := types.ContainerStartOptions{}
-	return c.ContainerStart(*ctx, containerID, options)
+	return client.ContainerStart(*ctx, containerID, options)
 }
 
 // ConnectContainerToNetwork : connect a container to a network
-func (c *DockerClient) ConnectContainerToNetwork(ctx *context.Context, networkID string, containerID string) (err error) {
-	config := network.EndpointSettings{
-		NetworkID: networkID,
-	}
-	return c.NetworkConnect(*ctx, networkID, containerID, &config)
+func (client *DockerClient) ConnectContainerToNetwork(ctx *context.Context, networkID string, containerID string) (err error) {
+	config := network.EndpointSettings{NetworkID: networkID}
+	return client.NetworkConnect(*ctx, networkID, containerID, &config)
 }

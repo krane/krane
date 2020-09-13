@@ -2,13 +2,14 @@ package job
 
 import (
 	"os"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
 
 type worker struct {
 	workerPool chan chan Job
-	jobChannel chan Job
+	channel    chan Job
 	quit       chan bool
 }
 
@@ -32,10 +33,17 @@ func (w *worker) loop() {
 	logrus.Debug("Worker loop started")
 	for {
 		select {
-		case job := <-w.jobChannel:
-			logrus.Infof("Got job for %s", job.Namespace)
-			logrus.Debugf("Got job for %s", job.Namespace)
-			job.Run(job.Args)
+		case job := <-w.channel:
+			job.startedAt = time.Now().Unix()
+			job.state = InProgress
+
+			err := job.Run(job.Args)
+			if err != nil {
+				logrus.Errorf("Error proceesing job %s", err.Error())
+			}
+
+			job.state = Complete
+			job.completedAt = time.Now().Unix()
 		case <-w.quit:
 			logrus.Debug("Quitting worker")
 			return
