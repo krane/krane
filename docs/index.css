@@ -55,12 +55,26 @@ body {
   border: 0px solid white !important;
 }
 
-/* Copy to clipboard button styles */
-section.cover .cover-main > p:last-child a:last-child:hover {
-  opacity: 1 !important;
-  color: white;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+/* Getting Started button (on homepage) */
+section.cover .cover-main > p:last-child a {
+  /* opacity: 0 !important;
+  color: white !important;
+  */
+  color: black !important;
+  font-size: 19px !important;
+  font-weight: 500;
+  letter-spacing: 0.5px !important;
+  background-color: white !important;
+  border: 0px !important;
+  border-radius: 0px !important;
+  /* box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); */
 }
+
+section.cover .cover-main > p:last-child a:last-child:hover {
+  text-decoration: underline;
+}
+
+/* Copy to clipboard button styles */
 
 pre:hover .docsify-copy-code-button {
   color: #7e7e7e !important;
