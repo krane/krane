@@ -2,4 +2,4 @@
 
 > Toolset for working with containers
 
-[Getting Started](#krane)
+[Get started](#krane)
