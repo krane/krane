@@ -16,7 +16,7 @@ import (
 type Job struct {
 	ID          string         `json:"id"`           // Unique job ID
 	Namespace   string         `json:"namespace"`    // The namespace used for scoping jobs. This is the same namespace used when fetching secrets.
-	Type        JobType        `json:"type"`         // The type of job
+	Type        Type           `json:"type"`         // The type of job
 	Status      Status         `json:"status"`       // The status of the current job with details for execution counts etc..
 	State       State          `json:"state"`        // Current state of a job (running | complete)
 	StartTime   int64          `json:"start_time"`   // Job start time - epoch in seconds since 1970
@@ -68,6 +68,31 @@ func (job *Job) capture() {
 		logrus.Errorf("Unhandled error when inserting activity, %s", err)
 		return
 	}
+}
+
+func (job *Job) validate() error {
+	if job.ID == "" {
+		return fmt.Errorf("id required to create job")
+	}
+
+	if job.Namespace == "" {
+		return fmt.Errorf("namespace required to create job %s", job.Type)
+	}
+
+	if !isAllowedJobType(job.Type) {
+		return fmt.Errorf("unknown job type %s", job.Type)
+	}
+
+	if job.Run == nil {
+		return fmt.Errorf("unkown job handler")
+	}
+
+	maxRetryPolicy := utils.GetUIntEnv("JOB_MAX_RETRY_POLICY")
+	if job.RetryPolicy > maxRetryPolicy {
+		return fmt.Errorf("retry policy %d exceeds max retry policy %d", job.RetryPolicy, maxRetryPolicy)
+	}
+
+	return nil
 }
 
 func GetJobs(daysAgo uint) ([]Job, error) {

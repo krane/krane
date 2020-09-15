@@ -58,5 +58,5 @@ func TestNewEnqueuer(t *testing.T) {
 
 	assert.NotNil(t, e)
 	assert.Equal(t, store, e.store)
-	assert.Equal(t, jobChannel, e.jobQueue)
+	assert.Equal(t, jobChannel, e.queue)
 }

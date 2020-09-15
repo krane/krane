@@ -24,7 +24,7 @@ type WorkerPool struct {
 	jobChannel chan Job
 }
 
-// NewWorkerPool : create a concurrent pool of workers to process Jobs from the jobQueue
+// NewWorkerPool : create a concurrent pool of workers to process Jobs from the queue
 func NewWorkerPool(concurrency uint, jobChannel chan Job, store store.Store) WorkerPool {
 	logrus.Debugf("Creating new worker pool with %d worker(s)", concurrency)
 	wpID := utils.MakeIdentifier()

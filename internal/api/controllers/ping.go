@@ -7,7 +7,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/api/status"
-	job "github.com/biensupernice/krane/internal/job"
+	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -15,10 +15,12 @@ import (
 func PingController(w http.ResponseWriter, r *http.Request) {
 
 	newJob := job.Job{
-		ID:         utils.MakeIdentifier(),
-		Namespace:  "Ping",
-		Args:       map[string]interface{}{"message": "pong"},
-		Run:        ping,
+		ID:          utils.MakeIdentifier(),
+		Namespace:   "Ping",
+		Type:        job.ContainerCreate,
+		Args:        map[string]interface{}{"message": "pong"},
+		RetryPolicy: 3,
+		Run:         ping,
 	}
 	jobEnqueuer := job.NewEnqueuer(store.Instance(), job.GetJobQueue())
 	go jobEnqueuer.Enqueue(newJob)

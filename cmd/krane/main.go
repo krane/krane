@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 
 	"github.com/sirupsen/logrus"
@@ -26,7 +25,8 @@ func init() {
 	utils.EnvOrDefault("LISTEN_ADDRESS", "127.0.0.1:8500")
 	utils.EnvOrDefault("STORE_PATH", "/tmp/krane.db")
 	utils.EnvOrDefault("WORKERPOOL_SIZE", "1")
-	utils.EnvOrDefault("JOBQUEUE_SIZE", "1")
+	utils.EnvOrDefault("JOB_QUEUE_SIZE", "1")
+	utils.EnvOrDefault("JOB_MAX_RETRY_POLICY", "10")
 	utils.EnvOrDefault("SCHEDULER_INTERVAL_MS", "10000")
 	logging.ConfigureLogrus()
 
@@ -40,8 +40,8 @@ func main() {
 	defer db.Shutdown()
 
 	// queue
-	qsize, _ := strconv.ParseUint(os.Getenv("JOBQUEUE_SIZE"), 10, 8)
-	queue := job.NewJobQueue(uint(qsize))
+	qsize := utils.GetUIntEnv("JOB_QUEUE_SIZE")
+	queue := job.NewJobQueue(qsize)
 
 	// enqueuer
 	enqueuer := job.NewEnqueuer(store.Instance(), queue)
