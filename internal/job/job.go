@@ -72,11 +72,11 @@ func (job *Job) capture() {
 
 func (job *Job) validate() error {
 	if job.ID == "" {
-		return fmt.Errorf("id required to create job")
+		return fmt.Error("id required to create job")
 	}
 
 	if job.Namespace == "" {
-		return fmt.Errorf("namespace required to create job %s", job.Type)
+		return fmt.Error("namespace required to create job")
 	}
 
 	if !isAllowedJobType(job.Type) {
