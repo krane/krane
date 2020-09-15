@@ -9,6 +9,11 @@ body {
   /* font-family: "Roboto", sans-serif !important; */
 }
 
+#cover-text {
+  font-size: 20px;
+  font-weight: 500;
+}
+
 .cover {
   background: white !important;
 }

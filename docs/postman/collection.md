@@ -57,7 +57,7 @@
       "name": "Activity",
       "item": [
         {
-          "name": "Get recent activity",
+          "name": "Get recent history",
           "request": {
             "auth": {
               "type": "bearer",
@@ -72,9 +72,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{host}}/activity",
+              "raw": "{{host}}/history",
               "host": ["{{host}}"],
-              "path": ["activity"]
+              "path": ["history"]
             }
           },
           "response": []
