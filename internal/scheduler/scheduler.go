@@ -32,7 +32,7 @@ func (sc *Scheduler) Run() {
 	logrus.Debugf("Starting Scheduler")
 
 	for {
-		sc.poll()
+		go sc.poll()
 		<-time.After(sc.interval)
 	}
 

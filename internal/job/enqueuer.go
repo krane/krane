@@ -1,8 +1,6 @@
 package job
 
 import (
-	"time"
-
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/store"
@@ -24,7 +22,6 @@ func NewEnqueuer(store store.Store, jobQueue chan Job) Enqueuer {
 
 func (e *Enqueuer) Enqueue(job Job) (Job, error) {
 	logrus.Debugf("Queueing new job %s", job.ID)
-	job.enqueuedAt = time.Now().Unix()
 	e.jobQueue <- job
 	logrus.Debugf("Job %s Queued", job.ID)
 

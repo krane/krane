@@ -19,9 +19,9 @@ var once sync.Once
 func GetClient() *DockerClient { return instance }
 
 // Init : starts docker client
-func Init() {
+func NewClient() *DockerClient {
 	if instance != nil {
-		return
+		return instance
 	}
 
 	logrus.Info("Connecting to Docker client...")
@@ -45,4 +45,6 @@ func Init() {
 
 		ctx.Done()
 	})
+
+	return instance
 }

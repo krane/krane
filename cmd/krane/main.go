@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
@@ -15,50 +15,56 @@ import (
 	"github.com/biensupernice/krane/internal/logging"
 	"github.com/biensupernice/krane/internal/scheduler"
 	"github.com/biensupernice/krane/internal/store"
+	"github.com/biensupernice/krane/internal/utils"
 )
 
 func init() {
-	log.Println("Starting Krane...")
+	fmt.Println("Starting Krane...")
 
-	requireEnv("KRANE_PRIVATE_KEY")
-	envOrDefault("LOG_LEVEL", logging.INFO)
-	envOrDefault("LISTEN_ADDRESS", "127.0.0.1:8500")
-	envOrDefault("STORE_PATH", "/tmp/krane.db")
-	envOrDefault("WORKERPOOL_SIZE", "1")
-	envOrDefault("JOBQUEUE_SIZE", "1")
-	envOrDefault("SCHEDULER_INTERVAL_MS", "10000")
-
+	utils.RequireEnv("KRANE_PRIVATE_KEY")
+	utils.EnvOrDefault("LOG_LEVEL", logging.INFO)
+	utils.EnvOrDefault("LISTEN_ADDRESS", "127.0.0.1:8500")
+	utils.EnvOrDefault("STORE_PATH", "/tmp/krane.db")
+	utils.EnvOrDefault("WORKERPOOL_SIZE", "1")
+	utils.EnvOrDefault("JOBQUEUE_SIZE", "1")
+	utils.EnvOrDefault("SCHEDULER_INTERVAL_MS", "10000")
 	logging.ConfigureLogrus()
-	docker.Init()
+
+	docker.NewClient()
 	store.New(os.Getenv("STORE_PATH"))
 }
 
 func main() {
-	defer store.Instance().Shutdown()
+	// store
+	db := store.Instance()
+	defer db.Shutdown()
 
-	// Job Queue
-	jobQueueSize, _ := strconv.ParseUint(os.Getenv("JOBQUEUE_SIZE"), 10, 8)
-	jobQueue := job.NewJobQueue(uint(jobQueueSize))
+	// queue
+	qsize, _ := strconv.ParseUint(os.Getenv("JOBQUEUE_SIZE"), 10, 8)
+	queue := job.NewJobQueue(uint(qsize))
 
-	// Job Enqueuer
-	jobEnqueuer := job.NewEnqueuer(store.Instance(), jobQueue)
+	// enqueuer
+	enqueuer := job.NewEnqueuer(store.Instance(), queue)
 
-	// Scheduler
+	// scheduler
 	interval := os.Getenv("SCHEDULER_INTERVAL_MS")
-	jobScheduler := scheduler.New(store.Instance(), docker.GetClient(), jobEnqueuer, interval)
-	go jobScheduler.Run()
+	scheduler := scheduler.New(db, docker.GetClient(), enqueuer, interval)
+	go scheduler.Run()
 
+	// api
 	go api.Run()
 
-	// Job Worker Pool
-	wpSize, _ := strconv.ParseUint(os.Getenv("WORKERPOOL_SIZE"), 10, 8)
-	jobWorkers := job.NewWorkerPool(uint(wpSize), jobQueue, store.Instance())
-	jobWorkers.Start()
+	// workers
+	wpSize := utils.GetUIntEnv("WORKERPOOL_SIZE")
+	workers := job.NewWorkerPool(wpSize, queue, store.Instance())
+	workers.Start()
 
+	// This wait statement will block until an exit signal is received by the program.
+	// The exit signal can be ctrl+c, any IDE stop, or any system termination signal.
+	// Once the signal is received it will shutdown all workers as gracefully as it can.
 	wait()
 
-	logrus.Info("Shutdown signal received")
-	jobWorkers.Stop()
+	workers.Stop()
 	logrus.Info("Shutdown complete")
 }
 
@@ -66,24 +72,5 @@ func main() {
 func wait() {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
-	<-signalChan // Blocks here until interrupted
-}
-
-func requireEnv(key string) {
-	_, hasEnv := os.LookupEnv(key)
-	if !hasEnv {
-		log.Fatalf("Missing required env %s", key)
-	}
-}
-
-func envOrDefault(key string, fallback string) string {
-	val, hasEnv := os.LookupEnv(key)
-	if !hasEnv {
-		log.Printf("%s not set, defaulting to %s", key, fallback)
-		os.Setenv(key, fallback)
-		return fallback
-	}
-
-	log.Printf("%s already set with value %s", key, val)
-	return os.Getenv(key)
+	<-signalChan
 }

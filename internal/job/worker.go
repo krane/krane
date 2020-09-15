@@ -2,7 +2,6 @@ package job
 
 import (
 	"os"
-	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -34,16 +33,18 @@ func (w *worker) loop() {
 	for {
 		select {
 		case job := <-w.channel:
-			job.startedAt = time.Now().Unix()
-			job.state = InProgress
+			job.start()
 
-			err := job.Run(job.Args)
-			if err != nil {
-				logrus.Errorf("Error proceesing job %s", err.Error())
+			for i := 0; i < int(job.RetryPolicy); i++ {
+				err := job.Run(job.Args)
+				if err != nil {
+					logrus.Errorf("Error proceesing job %s", err.Error())
+					job.CaptureError(err)
+				}
+				job.Status.ExecutionCount++
 			}
 
-			job.state = Complete
-			job.completedAt = time.Now().Unix()
+			job.end()
 		case <-w.quit:
 			logrus.Debug("Quitting worker")
 			return

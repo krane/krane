@@ -51,10 +51,16 @@ func withRoutes(router *mux.Router) {
 	withRoute(noAuthRouter, "/ping", controllers.PingController).Methods(http.MethodGet)
 
 	authRouter := router.PathPrefix("/").Subrouter()
+	// deployments
 	withRoute(authRouter, "/deployments", controllers.GetDeployments, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/deployments", controllers.SaveDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
 	withRoute(authRouter, "/deployments/{name}", controllers.GetDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/deployments/{name}", controllers.DeleteDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodDelete)
+	// jobs
+	withRoute(authRouter, "/jobs", controllers.GetRecentJobs, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/jobs/{namespace}", controllers.GetJobsByNamespace, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/jobs/{namespace}/jobs/{id}", controllers.GetJobByID, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
+	// session
 	withRoute(authRouter, "/sessions", controllers.GetSessions, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 }
 

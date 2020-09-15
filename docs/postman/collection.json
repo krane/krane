@@ -25,8 +25,12 @@
             "url": {
               "raw": "{{scheme}}://{{host}}/auth",
               "protocol": "{{scheme}}",
-              "host": ["{{host}}"],
-              "path": ["auth"]
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "auth"
+              ]
             }
           },
           "response": []
@@ -39,8 +43,12 @@
             "url": {
               "raw": "{{scheme}}://{{host}}/login",
               "protocol": "{{scheme}}",
-              "host": ["{{host}}"],
-              "path": ["login"]
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "login"
+              ]
             }
           },
           "response": []
@@ -68,8 +76,12 @@
             "header": [],
             "url": {
               "raw": "{{host}}/activity",
-              "host": ["{{host}}"],
-              "path": ["activity"]
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "activity"
+              ]
             }
           },
           "response": []
@@ -107,8 +119,12 @@
             "url": {
               "raw": "{{scheme}}://{{host}}/deployments",
               "protocol": "{{scheme}}",
-              "host": ["{{host}}"],
-              "path": ["deployments"]
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "deployments"
+              ]
             }
           },
           "response": []
@@ -131,8 +147,13 @@
             "url": {
               "raw": "{{scheme}}://{{host}}/deployments/{{name}}",
               "protocol": "{{scheme}}",
-              "host": ["{{host}}"],
-              "path": ["deployments", "{{name}}"]
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "deployments",
+                "{{name}}"
+              ]
             }
           },
           "response": []
@@ -155,8 +176,12 @@
             "url": {
               "raw": "{{scheme}}://{{host}}/deployments",
               "protocol": "{{scheme}}",
-              "host": ["{{host}}"],
-              "path": ["deployments"]
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "deployments"
+              ]
             }
           },
           "response": []
@@ -183,8 +208,13 @@
             "url": {
               "raw": "{{scheme}}://{{host}}/deployments/{{name}}",
               "protocol": "{{scheme}}",
-              "host": ["{{host}}"],
-              "path": ["deployments", "{{name}}"]
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "deployments",
+                "{{name}}"
+              ]
             }
           },
           "response": []
@@ -213,8 +243,105 @@
             "url": {
               "raw": "{{scheme}}://{{host}}/sessions",
               "protocol": "{{scheme}}",
-              "host": ["{{host}}"],
-              "path": ["sessions"]
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "sessions"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "protocolProfileBehavior": {}
+    },
+    {
+      "name": "Jobs",
+      "item": [
+        {
+          "name": "Get all jobs",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{scheme}}://{{host}}/jobs",
+              "protocol": "{{scheme}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "jobs"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get jobs by namespace",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{scheme}}://{{host}}/jobs/{{name}}",
+              "protocol": "{{scheme}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "jobs",
+                "{{name}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get job by id",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{scheme}}://{{host}}/jobs/{{name}}/{{jobId}}",
+              "protocol": "{{scheme}}",
+              "host": [
+                "{{host}}"
+              ],
+              "path": [
+                "jobs",
+                "{{name}}",
+                "{{jobId}}"
+              ]
             }
           },
           "response": []
