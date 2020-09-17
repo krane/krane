@@ -97,9 +97,9 @@ func (b *BoltDB) Shutdown() { b.Close() }
 
 func (b *BoltDB) Put(collection string, key string, value []byte) error {
 	return instance.Update(func(tx *bolt.Tx) error {
-		bkt := tx.Bucket([]byte(collection))
-		if bkt == nil {
-			return errors.New(fmt.Sprintf("Bucket %s does not exists", collection))
+		bkt, err := tx.CreateBucketIfNotExists([]byte(collection))
+		if err != nil {
+			return fmt.Errorf("unable to create bucket for %s", collection)
 		}
 
 		return bkt.Put([]byte(key), value)

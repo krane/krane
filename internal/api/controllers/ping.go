@@ -1,9 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
-	"time"
 
+	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/api/status"
@@ -13,24 +14,32 @@ import (
 )
 
 func PingController(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	namespace := params["namespace"]
+	message := params["message"]
 
 	newJob := job.Job{
 		ID:          utils.MakeIdentifier(),
-		Namespace:   "Ping",
+		Namespace:   namespace,
 		Type:        job.ContainerCreate,
-		Args:        map[string]interface{}{"message": "pong"},
+		Args:        map[string]interface{}{"message": message},
 		RetryPolicy: 3,
 		Run:         ping,
 	}
-	jobEnqueuer := job.NewEnqueuer(store.Instance(), job.GetJobQueue())
-	go jobEnqueuer.Enqueue(newJob)
+
+	enqueuer := job.NewEnqueuer(store.Instance(), job.GetJobQueue())
+	go func() {
+		_, err := enqueuer.Enqueue(newJob)
+		if err != nil {
+			logrus.Errorf(err.Error())
+		}
+	}()
 
 	status.HTTPOk(w, "Got message")
 	return
 }
 
 func ping(args job.Args) error {
-	time.Sleep(10 * time.Second)
-	logrus.Info(args["message"])
-	return nil
+	logrus.Infof("Got message %s", args["message"])
+	return fmt.Errorf("Test error with args %s", args["message"])
 }

@@ -1,10 +1,10 @@
 package job
 
 type Error struct {
-	Message string `json:"message"`
-
+	Execution uint   `json:"execution"`
+	Message   string `json:"message"`
 }
 
-func (job *Job) CaptureError(err error) {
-	job.Status.Failures = append(job.Status.Failures, Error{err.Error()})
+func (job *Job) WithError(err error) {
+	job.Status.Failures = append(job.Status.Failures, Error{job.Status.ExecutionCount, err.Error()})
 }

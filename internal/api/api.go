@@ -40,7 +40,7 @@ func withBaseMiddlewares(router *mux.Router) {
 	router.Use(handlers.RecoveryHandler())
 	router.Use(handlers.CORS(
 		handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost}),
-		handlers.AllowedOrigins([]string{"localhost", "*"})))
+		handlers.AllowedOrigins([]string{"localhost", "*"}))) // TODO: Not allowing wild card origins (*)
 }
 
 func withRoutes(router *mux.Router) {
@@ -48,7 +48,7 @@ func withRoutes(router *mux.Router) {
 	withRoute(noAuthRouter, "/", controllers.GetServerStatus).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/login", controllers.RequestLoginPhrase).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/auth", controllers.AuthenticateClientJWT).Methods(http.MethodPost)
-	withRoute(noAuthRouter, "/ping", controllers.PingController).Methods(http.MethodGet)
+	withRoute(noAuthRouter, "/ping/{namespace}/{message}", controllers.PingController).Methods(http.MethodGet)
 
 	authRouter := router.PathPrefix("/").Subrouter()
 	// deployments
@@ -59,7 +59,7 @@ func withRoutes(router *mux.Router) {
 	// jobs
 	withRoute(authRouter, "/jobs", controllers.GetRecentJobs, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/jobs/{namespace}", controllers.GetJobsByNamespace, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/jobs/{namespace}/jobs/{id}", controllers.GetJobByID, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/jobs/{namespace}/{id}", controllers.GetJobByID, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	// session
 	withRoute(authRouter, "/sessions", controllers.GetSessions, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 }

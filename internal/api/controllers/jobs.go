@@ -5,28 +5,24 @@ import (
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 
 	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/job"
+	"github.com/biensupernice/krane/internal/utils"
 )
 
 func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
-	query := r.URL.Query()
-	daysAgo := query.Get("days_ago")
-
-	//  Defaults to 1 day ago
-	if daysAgo == "" {
-		daysAgo = "1"
-	}
+	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
-	recentJobs, err := job.GetJobs(uint(daysAgoNum))
+	job, err := job.GetJobs(uint(daysAgoNum))
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, recentJobs)
+	status.HTTPOk(w, job)
 	return
 }
 
@@ -34,13 +30,12 @@ func GetJobsByNamespace(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	namespace := params["namespace"]
 
-	query := r.URL.Query()
-	daysAgo := query.Get("days_ago")
-
-	//  defaults to 1 day ago
-	if daysAgo == "" {
-		daysAgo = "1"
+	if namespace == "" {
+		status.HTTPBad(w, errors.New("namespace not provided"))
+		return
 	}
+
+	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
 	jobs, err := job.GetJobsByNamespace(namespace, uint(daysAgoNum))
@@ -54,12 +49,24 @@ func GetJobsByNamespace(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetJobByID(w http.ResponseWriter, r *http.Request) {
-	// deployment name
 	params := mux.Vars(r)
 	namespace := params["namespace"]
 	jobID := params["id"]
 
-	j, err := job.GetJobByID(namespace, jobID)
+	if namespace == "" {
+		status.HTTPBad(w, errors.New("namespace not provided"))
+		return
+	}
+
+	if jobID == "" {
+		status.HTTPBad(w, errors.New("job id not provided"))
+		return
+	}
+
+	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "365")
+	daysAgoNum, _ := strconv.Atoi(daysAgo)
+
+	j, err := job.GetJobByID(namespace, jobID, uint((daysAgoNum)))
 	if err != nil {
 		status.HTTPBad(w, err)
 		return

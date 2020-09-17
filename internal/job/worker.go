@@ -36,12 +36,14 @@ func (w *worker) loop() {
 			job.start()
 
 			for i := 0; i < int(job.RetryPolicy); i++ {
-				err := job.Run(job.Args)
-				if err != nil {
-					logrus.Errorf("Error proceesing job %s", err.Error())
-					job.CaptureError(err)
-				}
 				job.Status.ExecutionCount++
+				err := job.Run(job.Args)
+				if err == nil {
+					break
+				}
+				logrus.Errorf("Error procesing job %s", err.Error())
+				job.WithError(err)
+				job.Status.FailureCount++
 			}
 
 			job.end()

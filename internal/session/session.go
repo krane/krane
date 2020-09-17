@@ -2,6 +2,7 @@ package session
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/dgrijalva/jwt-go"
 
@@ -62,6 +63,10 @@ func GetSessionByID(id string) (Session, error) {
 	bytes, err := store.Instance().Get(collection.Sessions, id)
 	if err != nil {
 		return Session{}, err
+	}
+
+	if bytes == nil {
+		return Session{}, fmt.Errorf("session not found")
 	}
 
 	var session Session

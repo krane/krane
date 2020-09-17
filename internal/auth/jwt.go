@@ -78,7 +78,7 @@ func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *AuthC
 	for _, key := range keys {
 		c, err := ParseAuthTokenWithAuthKey(key, tkn)
 		if err != nil {
-			logrus.Info(err.Error())
+			logrus.Debug(err.Error())
 			continue
 		}
 

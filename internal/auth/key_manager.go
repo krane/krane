@@ -20,7 +20,7 @@ func GetAuthorizeKeys() []string {
 
 	kBytes, err := ioutil.ReadFile(authKeysDir)
 	if err != nil {
-		logrus.Debug(err)
+		logrus.Debugf("unable to read auth keys from %s, %s", authKeysDir, err.Error())
 		return make([]string, 0)
 	}
 

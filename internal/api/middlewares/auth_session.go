@@ -51,7 +51,6 @@ func AuthSessionMiddleware(next http.Handler) http.Handler {
 
 		session, err := session.GetSessionByID(sessionTkn.SessionID)
 		if err != nil {
-			logrus.Infof("Unable to find a valid session %s", err.Error())
 			status.HTTPBad(w, err)
 			r.Context().Done()
 			return

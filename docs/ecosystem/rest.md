@@ -7,9 +7,9 @@
 
 ## Authentication
 
-`GET /login`
-
 ### Login
+
+`GET /login`
 
 The phrase is a server generated phrase that the client must sign using their private key. The signed token is used when making an `/auth` request.
 
@@ -26,9 +26,9 @@ The phrase is a server generated phrase that the client must sign using their pr
 }
 ```
 
-`POST /auth`
-
 ### Authenticate
+
+`POST /auth`
 
 The token is a JWT token containing the server phrase signed with the clients private key.
 
@@ -61,9 +61,9 @@ The token is a JWT token containing the server phrase signed with the clients pr
 
 ## Deployments
 
-`POST /deployments`
-
 ### Create a deployment
+
+`POST /deployments`
 
 **request body**
 
@@ -81,9 +81,9 @@ The token is a JWT token containing the server phrase signed with the clients pr
 
 - A list of [Krane Configs](components/krane-config)
 
-`GET /deployments/{name}`
-
 ### Get a deployment
+
+`GET /deployments/{name}`
 
 **response**
 
@@ -96,3 +96,31 @@ Delete a deployment.
 **response**
 
 - 200 OK
+
+---
+
+## Jobs
+
+### Get all deployment jobs
+
+`GET /jobs`
+
+**response**
+
+Array of jobs.
+
+### Get jobs for a deployment
+
+`GET /jobs/{name}`
+
+**response**
+
+Array of jobs.
+
+### Get job by id
+
+`GET /jobs/{name}/{id}`
+
+**response**
+
+A single job.

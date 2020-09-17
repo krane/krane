@@ -1,8 +1,11 @@
 package job
 
 import (
+	"container/heap"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -72,11 +75,11 @@ func (job *Job) capture() {
 
 func (job *Job) validate() error {
 	if job.ID == "" {
-		return fmt.Error("id required to create job")
+		return fmt.Errorf("id required to create job")
 	}
 
 	if job.Namespace == "" {
-		return fmt.Error("namespace required to create job")
+		return fmt.Errorf("namespace required to create job")
 	}
 
 	if !isAllowedJobType(job.Type) {
@@ -92,7 +95,44 @@ func (job *Job) validate() error {
 		return fmt.Errorf("retry policy %d exceeds max retry policy %d", job.RetryPolicy, maxRetryPolicy)
 	}
 
+	// Every job should run under a namespace (the deployment scope).
+	// If a new job being created is not bounded to a namespace an error will be thrown.
+	ok, err := job.hasExistingNamespace()
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return fmt.Errorf("invalid job, %s", err.Error())
+	}
+
 	return nil
+}
+
+func (job *Job) hasExistingNamespace() (bool, error) {
+	deployments, err := store.Instance().GetAll(collection.Deployments)
+	if err != nil {
+		return false, fmt.Errorf("invalid job, %s", err.Error())
+	}
+
+	found := false
+	for _, deployment := range deployments {
+		var d kranecfg.KraneConfig
+		err := store.Deserialize(deployment, &d)
+		if err != nil {
+			return false, fmt.Errorf("invalid job, %s", err.Error())
+		}
+
+		if job.Namespace == d.Name {
+			found = true
+		}
+	}
+
+	if !found {
+		return false, errors.New("invalid job, namespace not found")
+	}
+
+	return true, nil
 }
 
 func GetJobs(daysAgo uint) ([]Job, error) {
@@ -115,12 +155,11 @@ func GetJobs(daysAgo uint) ([]Job, error) {
 		recentActivity = append(recentActivity, deploymentActivity)
 	}
 
-	// Merging the activity orders all the deployment activity by time range
-	return recentActivity.merge(), nil
+	return recentActivity.mergeAndSort(), nil
 }
 
-func GetJobByID(namespace, id string) (Job, error) {
-	jobs, err := GetJobsByNamespace(namespace, 365)
+func GetJobByID(namespace, id string, daysAgo uint) (Job, error) {
+	jobs, err := GetJobsByNamespace(namespace, daysAgo)
 	if err != nil {
 		return Job{}, fmt.Errorf("unable to fnd job with id %s", id)
 	}
@@ -135,8 +174,8 @@ func GetJobByID(namespace, id string) (Job, error) {
 }
 
 func GetJobsByNamespace(namespace string, daysAgo uint) ([]Job, error) {
-	// get start, end time range
-	minDate, maxDate := calculateTimeRange(daysAgo)
+	// get start, end time range to get jobs for
+	minDate, maxDate := calculateTimeRange(int(daysAgo))
 
 	// get activity in time range
 	collectionName := getNamespaceCollectionName(namespace)
@@ -158,53 +197,62 @@ func GetJobsByNamespace(namespace string, daysAgo uint) ([]Job, error) {
 	return recentActivity, nil
 }
 
-// K dimension Job array with a method merge that combines into a single array and returns timestamp sorted jobs.
+// K dimensional Job array
 type kJobs [][]Job
 
-func (kjobs kJobs) merge() []Job {
-	jobs := make([]Job, 0)
+// merge : combines kjobs into a single job array sorted in DESCENDING order based on timestamp.
+func (kjobs kJobs) mergeAndSort() []Job {
+	var JobHeap jobHeap
+	heap.Init(&JobHeap)
 
-	for _, k := range kjobs {
-		jobs = append(jobs, sort(jobs, k)...)
+	// flatten kjobs into a single un-sorted array
+	var flattened []Job
+	for i := 0; i < len(kjobs); i++ {
+		flattened = append(flattened, kjobs[i]...)
 	}
 
-	return jobs
-}
+	// push all job's into heap
+	for i := 0; i < len(flattened); i++ {
+		heap.Push(&JobHeap, flattened[i])
+	}
 
-func sort(arr1 []Job, arr2 []Job) []Job {
-	sorted := make([]Job, 0)
+	// TODO: document the rest
+	overlap := func(a, b Job) bool {
+		if a.StartTime > b.EndTime {
+			return false
+		}
+		if b.StartTime > a.EndTime {
+			return false
+		}
+		return true
+	}
 
-	i := 0
-	j := 0
+	temp := heap.Pop(&JobHeap).(Job)
+	var result []Job
 
-	for i < len(arr1) || j < len(arr2) {
-		// Compare using start timestamp
-		if arr1[i].StartTime < arr2[j].StartTime {
-			sorted = append(sorted, arr1[i])
-			i++
+	for JobHeap.Len() > 0 {
+		a := temp
+		b := heap.Pop(&JobHeap).(Job)
+
+		if overlap(a, b) {
+			if a.EndTime < b.EndTime {
+				temp = b
+			}
 		} else {
-			sorted = append(sorted, arr2[i])
-			j++
+			result = append(result, a)
+			temp = b
 		}
 	}
 
-	if i < len(arr1) {
-		sorted = append(sorted, arr2...)
-	}
-
-	if j < len(arr2) {
-		sorted = append(sorted, arr1...)
-	}
-
-	return sorted
+	return result
 }
 
 func getNamespaceCollectionName(namespace string) string {
-	return fmt.Sprintf("%s-%s", namespace, collection.Jobs)
+	return strings.ToLower(fmt.Sprintf("%s-%s", namespace, collection.Jobs))
 }
 
-func calculateTimeRange(daysAgo uint) (string, string) {
-	start := time.Now().Add(time.Duration(24*daysAgo) * time.Hour).Format(time.RFC3339)
+func calculateTimeRange(daysAgo int) (string, string) {
+	start := time.Now().AddDate(0, 0, -daysAgo).Format(time.RFC3339)
 	end := time.Now().Local().Format(time.RFC3339)
 
 	return start, end
