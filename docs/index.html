@@ -53,13 +53,17 @@
     <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
     <script>
       window.$docsify = {
-        name: "KRANE",
+        // name: "KRANE",
         // logo: "./assets/logo.png",
         loadSidebar: true,
         coverpage: true,
+        onlyCover: true,
         auto2top: true,
         maxLevel: 4,
         subMaxLevel: 3,
+        themeColor: "black",
+        ext: ".md",
+        // routerMode: "history",
         search: {
           noData: {
             "/de-de/": "Keine Ergebnisse!",
@@ -77,7 +81,7 @@
           EditOnGithubPlugin.create(
             "https://github.com/biensupernice/krane/tree/master/docs/",
             null,
-            "Edit page"
+            "Edit"
           ),
         ],
         ga: "UA-177852138-1",
@@ -105,7 +109,7 @@
       };
     </script>
     <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+    <!-- <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script> -->
     <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/ga.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
   </body>

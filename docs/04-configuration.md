@@ -1,4 +1,4 @@
-# Krane Config
+# Configuration
 
 Deploying containers using **Krane** starts with a configuration file that describes how Krane should run your containers.
 
@@ -20,26 +20,26 @@ An example of a `krane.json` for deploying the Krane UI.
 }
 ```
 
-## name
+### name
 
 The name of your deployment.
 
 - required: `yes`
 
-## registry
+### registry
 
 The container registry to use when pulling images.
 
 - required: `false`
 - default: `docker.io`
 
-## image
+### image
 
 The image used when pulling, creating and running your deployments containers.
 
 - required: `true`
 
-## env
+### env
 
 The enviornment variables passed to the containers part of a deployment.
 
@@ -56,7 +56,7 @@ The enviornment variables passed to the containers part of a deployment.
 }
 ```
 
-## secrets
+### secrets
 
 Secrets are used when you want to pass sensitive information to your deployment. Secrets are **not shared** across deployments, they are bounded and only provided to the containers part of the deployment.
 
@@ -73,14 +73,14 @@ Secrets are created using the krane `cli` and referenced in your Krane configura
 }
 ```
 
-## tag
+### tag
 
 The tag used when pulling the image.
 
 - required: `false`
 - default: `latest`
 
-## volumes
+### volumes
 
 The volumes to mount from the container to the host.
 

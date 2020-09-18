@@ -67,7 +67,7 @@ The token is a JWT token containing the server phrase signed with the clients pr
 
 **request body**
 
-- A [Krane Config](components/krane-config)
+- A [Krane Config](04-configuration.md)
 
 **response**
 
@@ -79,7 +79,7 @@ The token is a JWT token containing the server phrase signed with the clients pr
 
 **response**
 
-- A list of [Krane Configs](components/krane-config)
+- A list of [Krane Configs](04-configuration.md)
 
 ### Get a deployment
 
@@ -87,7 +87,7 @@ The token is a JWT token containing the server phrase signed with the clients pr
 
 **response**
 
-- A [Krane Config](components/krane-config)
+- A [Krane Config](04-configuration.md)
 
 `DELETE /deployment/{name}`
 

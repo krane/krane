@@ -3,9 +3,9 @@
 }
 
 body {
-  font-size: 16px !important;
+  font-size: 15px !important;
   color: black;
-  /* font-family: "Inter", sans-serif !important;  */
+  font-family: "Inter", sans-serif !important;
   /* font-family: "Roboto", sans-serif !important; */
 }
 
@@ -22,16 +22,36 @@ body {
   color: black !important;
 }
 
+.content {
+  width: 50%;
+  left: 0;
+  margin: auto;
+}
+
 /* Sidebar  Header text*/
 .sidebar {
   color: black !important;
+  border: 0px;
+  text-align: right;
+  padding: 150px 0 0;
+  width: fit-content;
+  left: 20%;
 }
+
+.sidebar-toggle {
+  display: none;
+}
+
 .sidebar > h1 a {
   color: black;
   font-weight: 800;
   letter-spacing: 1px;
   font-size: 20px;
   text-align: start;
+}
+
+.sidebar ul li.active > a {
+  border-right: 0px;
 }
 
 .app-name {
@@ -50,6 +70,10 @@ body {
 }
 
 /* Search bar styles */
+.search {
+  border-bottom: 0px !important;
+}
+
 .search input:active {
   padding: 0 7px !important;
 }

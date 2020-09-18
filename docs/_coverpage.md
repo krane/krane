@@ -2,4 +2,4 @@
 
 > Toolset for working with containers
 
-[Get started](#krane)
+[Explore](00-introduction.md)
