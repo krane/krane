@@ -33,7 +33,16 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func mockJobHandler(args Args) error { return nil }
+func TestNewEnqueuer(t *testing.T) {
+	store := store.Instance()
+	jobChannel := make(chan Job)
+
+	e := NewEnqueuer(store, jobChannel)
+
+	assert.NotNil(t, e)
+	assert.Equal(t, store, e.store)
+	assert.Equal(t, jobChannel, e.queue)
+}
 
 func TestEnqueueNewJobs(t *testing.T) {
 	store := store.Instance()
@@ -76,15 +85,4 @@ func TestEnqueueNewJobs(t *testing.T) {
 	}
 
 	assert.Equal(t, jobCount, jobHandlerCalls)
-}
-
-func TestNewEnqueuer(t *testing.T) {
-	store := store.Instance()
-	jobChannel := make(chan Job)
-
-	e := NewEnqueuer(store, jobChannel)
-
-	assert.NotNil(t, e)
-	assert.Equal(t, store, e.store)
-	assert.Equal(t, jobChannel, e.queue)
 }

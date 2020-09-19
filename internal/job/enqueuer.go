@@ -23,7 +23,7 @@ func (e *Enqueuer) Enqueue(job Job) (Job, error) {
 	}
 
 	logrus.Debugf("Queueing new job %s", job.ID)
-	e.queue <- job
+	e.queue <- job // Blocks here until space opens up in the queue
 	logrus.Debugf("Job %s Queued", job.ID)
 	return job, nil
 }

@@ -35,9 +35,7 @@ type Args map[string]interface{}
 // GenericHandler is a job handler without any custom context.
 type GenericHandler func(Args) error
 
-func (job *Job) serialize() ([]byte, error) {
-	return json.Marshal(job)
-}
+func (job *Job) serialize() ([]byte, error) { return json.Marshal(job) }
 
 func (job *Job) start() {
 	if job.State == Started {
@@ -46,6 +44,7 @@ func (job *Job) start() {
 	job.StartTime = time.Now().Unix()
 	job.State = Started
 }
+
 func (job *Job) end() {
 	if job.State != Started {
 		return
