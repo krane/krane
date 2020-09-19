@@ -23,15 +23,15 @@ func init() {
 	utils.RequireEnv("KRANE_PRIVATE_KEY")
 	utils.EnvOrDefault("LOG_LEVEL", logging.INFO)
 	utils.EnvOrDefault("LISTEN_ADDRESS", "127.0.0.1:8500")
-	utils.EnvOrDefault("STORE_PATH", "/tmp/krane.db")
+	utils.EnvOrDefault("DB_PATH", "/tmp/krane.db")
 	utils.EnvOrDefault("WORKERPOOL_SIZE", "1")
 	utils.EnvOrDefault("JOB_QUEUE_SIZE", "1")
-	utils.EnvOrDefault("JOB_MAX_RETRY_POLICY", "10")
-	utils.EnvOrDefault("SCHEDULER_INTERVAL_MS", "10000")
+	utils.EnvOrDefault("JOB_MAX_RETRY_POLICY", "5")
+	utils.EnvOrDefault("SCHEDULER_INTERVAL_MS", "30000")
 	logging.ConfigureLogrus()
 
 	docker.NewClient()
-	store.New(os.Getenv("STORE_PATH"))
+	store.New(os.Getenv("DB_PATH"))
 }
 
 func main() {

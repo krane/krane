@@ -32,3 +32,12 @@ func GetUIntEnv(key string) uint {
 	v, _ := strconv.ParseUint(value, 10, 8)
 	return uint(v)
 }
+
+func GetIntEnv(key string) int {
+	value, found := os.LookupEnv(key)
+	if !found {
+		return 0
+	}
+	v, _ := strconv.ParseInt(value, 10, 8)
+	return int(v)
+}
