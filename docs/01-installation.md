@@ -3,13 +3,13 @@
 Linux
 
 ```
-curl -L https://github.com/biensupernice/krane/releases/download/{version}/krane_{version}_linux_386.tar.gz | tar xz && chmod +x krane
+curl -L linux.krane.sh | tar xz && chmod +x krane
 ```
 
 Mac
 
 ```
-curl -L https://github.com/biensupernice/krane/releases/download/{version}/krane_{version}_darwin_amd64.tar.gz | tar xz && chmod +x krane
+curl -L mac.krane.sh | tar xz && chmod +x krane
 ```
 
 Docker

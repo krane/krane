@@ -9,11 +9,6 @@ body {
   /* font-family: "Roboto", sans-serif !important; */
 }
 
-#cover-text {
-  font-size: 20px;
-  font-weight: 500;
-}
-
 .cover {
   background: white !important;
 }
@@ -23,19 +18,25 @@ body {
 }
 
 .content {
-  width: 50%;
+  max-width: 60em;
   left: 0;
   margin: auto;
+  padding: 0;
 }
 
 /* Sidebar  Header text*/
 .sidebar {
   color: black !important;
   border: 0px;
-  text-align: right;
-  padding: 150px 0 0;
-  width: fit-content;
-  left: 20%;
+  /* text-align: right; */
+  padding: 100px 0 0;
+  /* width: fit-content; */
+  /* margin-left: 10em; */
+  display: none;
+  /* position: relative;
+  margin: 0 auto;
+  left: -40em;
+  padding-top: 90px; */
 }
 
 .sidebar-toggle {
@@ -57,6 +58,15 @@ body {
 .app-name {
   text-align: start !important;
   padding: 0px 0px 0px 15px !important;
+}
+
+.app-nav {
+  width: 50em;
+  margin: auto !important;
+  position: relative;
+  text-align: right;
+  z-index: 1;
+  padding: 40px 0px 0px 0px;
 }
 
 /* MD code section primary color */
