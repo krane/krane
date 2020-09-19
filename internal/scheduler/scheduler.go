@@ -80,7 +80,7 @@ func hasDesiredState(kcfg kranecfg.KraneConfig, containers []types.Container) bo
 func (sc *Scheduler) deployments() []kranecfg.KraneConfig {
 	bytes, err := sc.store.GetAll(collection.Deployments)
 	if err != nil {
-		logrus.Error("Scheduler error: %s", err)
+		logrus.Errorf("Scheduler error: %s", err)
 		return make([]kranecfg.KraneConfig, 0)
 	}
 
