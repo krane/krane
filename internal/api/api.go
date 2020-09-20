@@ -15,7 +15,7 @@ import (
 )
 
 func Run() {
-	logrus.Infof("Starting Krane API on pid: %d", os.Getpid())
+	logrus.Debugf("Starting Krane API on pid: %d", os.Getpid())
 	router := mux.NewRouter()
 
 	withBaseMiddlewares(router)
@@ -28,7 +28,7 @@ func Run() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	logrus.Infof("Krane API listening on %s", srv.Addr)
+	logrus.Infof("API on %s", srv.Addr)
 	err := srv.ListenAndServe()
 	if err != nil {
 		logrus.Fatal(err.Error())

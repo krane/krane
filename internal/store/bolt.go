@@ -61,7 +61,7 @@ func New(path string) *BoltDB {
 
 	once.Do(func() { instance = &BoltDB{db} })
 
-	logrus.Infof("Successfully opened store at %s", path)
+	logrus.Debugf("Successfully opened store at %s", path)
 
 	// Buckets to create
 	bkts := []string{
@@ -75,20 +75,20 @@ func New(path string) *BoltDB {
 }
 
 func (b *BoltDB) createBkts(bkts []string) {
-	logrus.Infof("Creating %d bucket(s)", len(bkts))
+	logrus.Debugf("Creating %d bucket(s)", len(bkts))
 	for _, bkt := range bkts {
 		err := b.Update(func(tx *bolt.Tx) error {
-			logrus.Infof("Creating %s bucket", bkt)
+			logrus.Debugf("Creating %s bucket", bkt)
 			_, err := tx.CreateBucket([]byte(bkt))
 			if err != nil {
 				return err
 			}
-			logrus.Infof("Successfully created %s bucket", bkt)
+			logrus.Debugf("Successfully created %s bucket", bkt)
 			return nil
 		})
 
 		if err != nil {
-			logrus.Infof("Unable to create %s bucket: %s", bkt, err)
+			logrus.Debugf("Unable to create %s bucket: %s", bkt, err)
 		}
 	}
 }
