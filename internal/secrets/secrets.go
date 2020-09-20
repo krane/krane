@@ -34,7 +34,7 @@ func Add(key, value, nspace string) (string, error) {
 		Namespace: nspace,
 		Key:       key,
 		Value:     value,
-		Alias:     createAlias(key),
+		Alias:     formatSecretAlias(key),
 	}
 	bytes, _ := s.serialize()
 	collection := getNamespaceCollectionName(nspace)
@@ -65,19 +65,19 @@ func Get(namespace string) ([]*Secret, error) {
 
 func (s *Secret) Redact() { s.Value = "<redacted>" }
 
-func createAlias(key string) string {
+func formatSecretAlias(key string) string {
 	asLowerCase := strings.ToUpper(key)
 	asUnderScore := strings.ReplaceAll(asLowerCase, "-", "_")
 	return fmt.Sprintf("@%s", asUnderScore)
 }
 
 func isValidSecretKey(secret string) bool {
-	startsWithLetter := "[a-zA-z]"
-	allowedCharacters := "[a-zA-z0-9_-]"
-	endWithLowerCaseAlphanumeric := "[0-9a-zA-z	]"
+	startsWithLetter := "[A-Za-z0-9]"
+	allowedCharacters := "[A-Za-z0-9_-]"
+	endWithLowerCaseAlphanumeric := "[0-9a-zA-z]"
 	characterLimit := "{1,}"
 
-	matchers := fmt.Sprintf(`^%s%s*%s%s$`, // ^[a - z][a - z0 - 9_ -]*[0-9a-z]$
+	matchers := fmt.Sprintf(`^%s%s*%s%s$`, // ^[A - z a - z 0 - 9][A - z a - z 0 - 9 _ -]*[0-9a-z]$
 		startsWithLetter,
 		allowedCharacters,
 		endWithLowerCaseAlphanumeric,

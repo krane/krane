@@ -1,25 +1,22 @@
-name: Publish executables & Docker image
+name: release
 
 on:
   release:
     types:
       - created
-#   push:
-#     tags:
-#       - "*"
 
 env:
   GO111MODULE: on
 
 jobs:
   version:
-      name: Set release version
-      runs-on: ubuntu-latest
-      outputs:
-        release-version: ${{ steps.release-version-step.outputs.RELEASE_VERSION }}
-      steps:
-        - id: release-version-step
-          run: echo "::set-output name=RELEASE_VERSION::${GITHUB_REF#refs/tags/}"
+    name: Set release version
+    runs-on: ubuntu-latest
+    outputs:
+      release-version: ${{ steps.release-version-step.outputs.RELEASE_VERSION }}
+    steps:
+      - id: release-version-step
+        run: echo "::set-output name=RELEASE_VERSION::${GITHUB_REF#refs/tags/}"
 
   # Run test
   run-test:
@@ -29,16 +26,16 @@ jobs:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Install Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: ${{ matrix.go-version }}
-        
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
 
-    - name: Test
-      run: go test -v ./...
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Test
+        run: go test -v ./...
 
   # Create Krane binary & attach it to the release
   build-binary-release:
@@ -51,7 +48,7 @@ jobs:
         run: echo "Publishing krane version ${{ env.RELEASE_VERSION }}"
         env:
           RELEASE_VERSION: ${{ needs.version.outputs.release-version }}
-        
+
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
         with:
@@ -87,5 +84,5 @@ jobs:
           repository: biensupernice/krane
           tags: latest, ${{ env.RELEASE_VERSION }}
           build_args: VERSION=${{ env.RELEASE_VERSION }}
-        env: 
-            RELEASE_VERSION: ${{ needs.version.outputs.release-version }}
+        env:
+          RELEASE_VERSION: ${{ needs.version.outputs.release-version }}
