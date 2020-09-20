@@ -50,7 +50,7 @@ func (job *Job) end() {
 		return
 	}
 	job.EndTime = time.Now().Unix()
-	job.State = Complete
+	job.State = Completed
 	job.capture()
 }
 

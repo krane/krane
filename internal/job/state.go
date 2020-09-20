@@ -3,6 +3,6 @@ package job
 type State string
 
 const (
-	Started  State = "STARTED"
-	Complete State = "COMPLETE"
+	Started   State = "STARTED"
+	Completed State = "COMPLETED"
 )

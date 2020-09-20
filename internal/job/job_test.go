@@ -22,7 +22,7 @@ func TestEndJob(t *testing.T) {
 	assert.True(t, time.Now().Unix() >= j.StartTime)
 
 	j.end()
-	assert.Equal(t, Complete, j.State)
+	assert.Equal(t, Completed, j.State)
 	assert.True(t, time.Now().Unix() >= j.EndTime)
 }
 
@@ -30,13 +30,13 @@ func TestJobNotStartedOnCallToJobEnd(t *testing.T) {
 	j := Job{}
 
 	j.end()
-	assert.NotEqual(t, Complete, j.State)
+	assert.NotEqual(t, Completed, j.State)
 
 	j.start()
 	assert.Equal(t, Started, j.State)
 	assert.True(t, time.Now().Unix() >= j.StartTime)
 
 	j.end()
-	assert.Equal(t, Complete, j.State)
+	assert.Equal(t, Completed, j.State)
 	assert.True(t, time.Now().Unix() >= j.EndTime)
 }
