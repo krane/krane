@@ -79,7 +79,7 @@ func TestAddNewSecret(t *testing.T) {
 func TestErrorWhenAddSecretToNonExistingNamespace(t *testing.T) {
 	_, err1 := Add("TOKEN", "biensupernice", "non-existing-namespace")
 	assert.Error(t, err1)
-	assert.Equal(t, "unable to find namespace xkrane-test", err1.Error())
+	assert.Equal(t, "unable to find namespace non-existing-namespace", err1.Error())
 
 	_, err2 := Add("TOKEN", "biensupernice", "")
 	assert.Error(t, err2)
