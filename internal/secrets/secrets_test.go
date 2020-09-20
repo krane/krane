@@ -136,6 +136,7 @@ func TestGetSecretsByNamespace(t *testing.T) {
 
 	secrets, err := GetAll(testNamespace)
 	assert.Nil(t, err)
+	assert.True(t, len(secrets) > 0)
 
 	var s Secret
 	for _, secret := range secrets {
