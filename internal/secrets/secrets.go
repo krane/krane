@@ -43,7 +43,7 @@ func Add(key, value, nspace string) (string, error) {
 	return s.Alias, nil
 }
 
-func Get(namespace string) ([]*Secret, error) {
+func GetAll(namespace string) ([]*Secret, error) {
 	collection := getNamespaceCollectionName(namespace)
 	bytes, err := store.Instance().GetAll(collection)
 	if err != nil {
@@ -63,6 +63,28 @@ func Get(namespace string) ([]*Secret, error) {
 	return secrets, nil
 }
 
+func Get(namespace, alias string) (*Secret, error) {
+	collection := getNamespaceCollectionName(namespace)
+	bytes, err := store.Instance().GetAll(collection)
+	if err != nil {
+		return &Secret{}, err
+	}
+
+	for _, secret := range bytes {
+		var s Secret
+		err := json.Unmarshal(secret, &s)
+		if err != nil {
+			return &Secret{}, err
+		}
+
+		if alias == s.Alias {
+			return &s, nil
+		}
+	}
+
+	return &Secret{}, fmt.Errorf("secret with alias %s not found", alias)
+}
+
 func (s *Secret) Redact() { s.Value = "<redacted>" }
 
 func formatSecretAlias(key string) string {
@@ -72,16 +94,18 @@ func formatSecretAlias(key string) string {
 }
 
 func isValidSecretKey(secret string) bool {
-	startsWithLetter := "[A-Za-z0-9]"
-	allowedCharacters := "[A-Za-z0-9_-]"
-	endWithLowerCaseAlphanumeric := "[0-9a-zA-z]"
-	characterLimit := "{1,}"
+	if len(secret) <= 1 || len(secret) > 20 {
+		return false
+	}
 
-	matchers := fmt.Sprintf(`^%s%s*%s%s$`, // ^[A - z a - z 0 - 9][A - z a - z 0 - 9 _ -]*[0-9a-z]$
+	startsWithLetter := "[a-zA-Z0-9]"
+	allowedCharacters := "[a-zA-Z0-9_-]"
+	endWithLowerCaseAlphanumeric := "[a-zA-Z0-9]"
+
+	matchers := fmt.Sprintf(`^%s%s*%s$`, // ^[a-zA-z0-9][a-zA-z0-9_-]*[a-zA-Z0-9]$
 		startsWithLetter,
 		allowedCharacters,
-		endWithLowerCaseAlphanumeric,
-		characterLimit)
+		endWithLowerCaseAlphanumeric)
 
 	match := regexp.MustCompile(matchers)
 	return match.MatchString(secret)

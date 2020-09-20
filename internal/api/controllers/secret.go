@@ -20,7 +20,7 @@ func GetSecrets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	secrets, err := secrets.Get(deploymentName)
+	secrets, err := secrets.GetAll(deploymentName)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
