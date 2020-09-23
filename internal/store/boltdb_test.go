@@ -9,7 +9,7 @@ import (
 	"github.com/docker/distribution/uuid"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/biensupernice/krane/internal/collection"
+	"github.com/biensupernice/krane/internal/constants"
 )
 
 const testBoltPath = "./krane.db"
@@ -37,7 +37,7 @@ type Avenger struct {
 }
 
 func TestBoltGet(t *testing.T) {
-	bkt := collection.Deployments
+	bkt := constants.DeploymentsCollectionName
 
 	// Setup
 	thor := &Avenger{
@@ -71,7 +71,7 @@ func TestBoltGet(t *testing.T) {
 }
 
 func TestBoltPut(t *testing.T) {
-	bkt := collection.Deployments
+	bkt := constants.DeploymentsCollectionName
 
 	// Setup
 	blackwidow := &Avenger{
@@ -104,7 +104,7 @@ func TestBoltPut(t *testing.T) {
 }
 
 func TestBoltGetAll(t *testing.T) {
-	bkt := collection.Deployments
+	bkt := constants.DeploymentsCollectionName
 
 	// Setup
 	avengers := make([]Avenger, 0)

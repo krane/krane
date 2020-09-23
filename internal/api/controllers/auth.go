@@ -13,7 +13,7 @@ import (
 
 	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/auth"
-	"github.com/biensupernice/krane/internal/collection"
+	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/session"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
@@ -37,7 +37,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if request id is valid, get phrase stored on the server
-	serverPhraseBytes, err := store.Instance().Get(collection.Authentication, body.RequestID)
+	serverPhraseBytes, err := store.Instance().Get(constants.AuthenticationCollectionName, body.RequestID)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
@@ -68,7 +68,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 
 	// Create a new token and assign it to a session
 	// Remove auth data from auth bucket
-	err = store.Instance().Remove(collection.Authentication, body.RequestID)
+	err = store.Instance().Remove(constants.AuthenticationCollectionName, body.RequestID)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return

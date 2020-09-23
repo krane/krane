@@ -7,12 +7,12 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/biensupernice/krane/internal/api/status"
-	"github.com/biensupernice/krane/internal/kranecfg"
+	"github.com/biensupernice/krane/internal/deployment/config"
 )
 
 // SaveDeployment :
 func SaveDeployment(w http.ResponseWriter, r *http.Request) {
-	var cfg kranecfg.KraneConfig
+	var cfg config.Config
 	err := json.NewDecoder(r.Body).Decode(&cfg)
 	if err != nil {
 		status.HTTPBad(w, err)
@@ -34,7 +34,7 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	err := kranecfg.Delete(name)
+	err := config.Delete(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
@@ -50,7 +50,7 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	name := params["name"]
 
 	// Find deployment
-	cfg, err := kranecfg.Get(name)
+	cfg, err := config.Get(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
@@ -62,7 +62,7 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 
 // GetDeployments : get all deployments
 func GetDeployments(w http.ResponseWriter, r *http.Request) {
-	deployments, err := kranecfg.GetAll()
+	deployments, err := config.GetAll()
 	if err != nil {
 		status.HTTPBad(w, err)
 		return

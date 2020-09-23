@@ -4,10 +4,18 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/network"
 )
 
 // KraneNetworkName : every deployed container will be attached to this network
 const KraneNetworkName = "krane"
+
+func makeNetworkingConfig(networkID string) network.NetworkingConfig {
+	endpointConf := map[string]*network.EndpointSettings{"krane": &network.EndpointSettings{NetworkID: networkID}}
+	return network.NetworkingConfig{
+		EndpointsConfig: endpointConf,
+	}
+}
 
 // CreateBridgeNetwork : creates docker bridge network with a given name
 func (c *DockerClient) CreateBridgeNetwork(ctx *context.Context, name string) (types.NetworkCreateResponse, error) {

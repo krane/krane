@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/api/status"
-	"github.com/biensupernice/krane/internal/collection"
+	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/store"
 )
 
@@ -19,11 +19,11 @@ func RequestLoginPhrase(w http.ResponseWriter, r *http.Request) {
 	reqID := uuid.Generate().String()
 	phrase := []byte(fmt.Sprintf("Authenticating with krane %s", reqID))
 
-	err := store.Instance().Put(collection.Authentication, reqID, phrase)
+	err := store.Instance().Put(constants.AuthenticationCollectionName, reqID, phrase)
 	if err != nil {
 		logrus.Error(err)
 
-		err = store.Instance().Remove(collection.Authentication, reqID)
+		err = store.Instance().Remove(constants.AuthenticationCollectionName, reqID)
 		if err != nil {
 			logrus.Error(err)
 			status.HTTPBad(w, err)

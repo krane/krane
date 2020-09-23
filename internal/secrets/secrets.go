@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/biensupernice/krane/internal/collection"
-	"github.com/biensupernice/krane/internal/namespace"
+	"github.com/biensupernice/krane/internal/constants"
+	"github.com/biensupernice/krane/internal/deployment/namespace"
 	"github.com/biensupernice/krane/internal/store"
 )
 
@@ -18,7 +18,7 @@ type Secret struct {
 	Alias     string `json:"alias"`
 }
 
-// Add : a secret to a deployment. Secrets are injected to the container during the container run step.
+// Add : a secret to a deployment. SecretsCollectionName are injected to the container during the container run step.
 // When a secret is created, an alias is returned and can be used to reference the secret in the `krane.json`
 // ie. SECRET_TOKEN=@secret-token (@secret-token was returned and how you reference the value for SECRET_TOKEN)
 func Add(key, value, nspace string) (string, error) {
@@ -114,5 +114,5 @@ func isValidSecretKey(secret string) bool {
 func (s Secret) serialize() ([]byte, error) { return json.Marshal(s) }
 
 func getNamespaceCollectionName(namespace string) string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", namespace, collection.SECRETS))
+	return strings.ToLower(fmt.Sprintf("%s-%s", namespace, constants.SecretsCollectionName))
 }

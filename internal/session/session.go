@@ -7,7 +7,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 
 	"github.com/biensupernice/krane/internal/auth"
-	"github.com/biensupernice/krane/internal/collection"
+	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -56,11 +56,11 @@ func Save(session Session) error {
 		return err
 	}
 
-	return store.Instance().Put(collection.Sessions, session.ID, bytes)
+	return store.Instance().Put(constants.SessionsCollectionName, session.ID, bytes)
 }
 
 func GetSessionByID(id string) (Session, error) {
-	bytes, err := store.Instance().Get(collection.Sessions, id)
+	bytes, err := store.Instance().Get(constants.SessionsCollectionName, id)
 	if err != nil {
 		return Session{}, err
 	}
@@ -79,7 +79,7 @@ func GetSessionByID(id string) (Session, error) {
 }
 
 func GetAllSessions() ([]Session, error) {
-	bytes, err := store.Instance().GetAll(collection.Sessions)
+	bytes, err := store.Instance().GetAll(constants.SessionsCollectionName)
 	if err != nil {
 		return make([]Session, 0), err
 	}

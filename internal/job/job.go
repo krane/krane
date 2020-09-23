@@ -10,8 +10,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/collection"
-	"github.com/biensupernice/krane/internal/kranecfg"
+	"github.com/biensupernice/krane/internal/constants"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -55,7 +55,7 @@ func (job *Job) end() {
 }
 
 func (job *Job) capture() {
-	// Unique collection to capture the jobs activity, format: {namespace}-Jobs
+	// Unique constants to capture the jobs activity, format: {namespace}-JobsCollectionName
 	collectionName := getNamespaceCollectionName(job.Namespace)
 	bytes, _ := job.serialize()
 
@@ -109,14 +109,14 @@ func (job *Job) validate() error {
 }
 
 func (job *Job) hasExistingNamespace() (bool, error) {
-	deployments, err := store.Instance().GetAll(collection.Deployments)
+	deployments, err := store.Instance().GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
 		return false, fmt.Errorf("invalid job, %s", err.Error())
 	}
 
 	found := false
 	for _, deployment := range deployments {
-		var d kranecfg.KraneConfig
+		var d config.Config
 		err := store.Deserialize(deployment, &d)
 		if err != nil {
 			return false, fmt.Errorf("invalid job, %s", err.Error())
@@ -136,7 +136,7 @@ func (job *Job) hasExistingNamespace() (bool, error) {
 
 func GetJobs(daysAgo uint) ([]Job, error) {
 	// get all deployments
-	deployments, err := kranecfg.GetAll()
+	deployments, err := config.GetAll()
 	if err != nil {
 		return make([]Job, 0), err
 	}
@@ -247,7 +247,7 @@ func (kjobs kJobs) mergeAndSort() []Job {
 }
 
 func getNamespaceCollectionName(namespace string) string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", namespace, collection.Jobs))
+	return strings.ToLower(fmt.Sprintf("%s-%s", namespace, constants.JobsCollectionName))
 }
 
 func calculateTimeRange(daysAgo int) (string, string) {

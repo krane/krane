@@ -7,10 +7,10 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/collection"
+	"github.com/biensupernice/krane/internal/constants"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
-	"github.com/biensupernice/krane/internal/kranecfg"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -28,12 +28,12 @@ func New(store store.Store, dockerClient *docker.DockerClient, jobEnqueuer job.E
 	return Scheduler{store, dockerClient, jobEnqueuer, ms}
 }
 
-func (sc *Scheduler) Run() {
+func (s *Scheduler) Run() {
 	logrus.Debugf("Starting Scheduler")
 
 	for {
-		go sc.poll()
-		<-time.After(sc.interval)
+		go s.poll()
+		<-time.After(s.interval)
 	}
 
 	logrus.Debugf("Exiting Scheduler")
@@ -73,20 +73,20 @@ func (s *Scheduler) poll() {
 	logrus.Debugf("Next poll in %s", s.interval.String())
 }
 
-func hasDesiredState(kcfg kranecfg.KraneConfig, containers []types.Container) bool {
+func hasDesiredState(kcfg config.Config, containers []types.Container) bool {
 	return false
 }
 
-func (sc *Scheduler) deployments() []kranecfg.KraneConfig {
-	bytes, err := sc.store.GetAll(collection.Deployments)
+func (s *Scheduler) deployments() []config.Config {
+	bytes, err := s.store.GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
 		logrus.Errorf("Scheduler error: %s", err)
-		return make([]kranecfg.KraneConfig, 0)
+		return make([]config.Config, 0)
 	}
 
-	deployments := make([]kranecfg.KraneConfig, 0)
+	deployments := make([]config.Config, 0)
 	for _, b := range bytes {
-		var d kranecfg.KraneConfig
+		var d config.Config
 		err := store.Deserialize(b, &d)
 		if err != nil {
 			logrus.Error("Unable to deserialize krane config", err.Error())

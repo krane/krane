@@ -7,7 +7,7 @@
   "info": {
     "_postman_id": "1588ecb0-a996-4286-a3d2-3faf1e3554a1",
     "name": "Krane API Collection",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/constants/v2.1.0/constants.json"
   },
   "item": [
     {

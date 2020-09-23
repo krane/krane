@@ -11,7 +11,7 @@ import (
 	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/collection"
+	"github.com/biensupernice/krane/internal/constants"
 )
 
 type BoltDB struct {
@@ -65,9 +65,9 @@ func New(path string) *BoltDB {
 
 	// Buckets to create
 	bkts := []string{
-		collection.Authentication,
-		collection.Deployments,
-		collection.Sessions,
+		constants.AuthenticationCollectionName,
+		constants.DeploymentsCollectionName,
+		constants.SessionsCollectionName,
 	}
 	instance.createBkts(bkts)
 

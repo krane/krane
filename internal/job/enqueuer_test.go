@@ -8,8 +8,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/biensupernice/krane/internal/collection"
-	"github.com/biensupernice/krane/internal/kranecfg"
+	"github.com/biensupernice/krane/internal/constants"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/store"
 )
 
@@ -23,9 +23,9 @@ func TestMain(m *testing.M) {
 	defer store.Instance().Shutdown()
 
 	// Create deployment (namespace)
-	deployment := kranecfg.KraneConfig{Name: namespace}
+	deployment := config.Config{Name: namespace}
 	bytes, _ := deployment.Serialize()
-	store.Instance().Put(collection.Deployments, deployment.Name, bytes)
+	store.Instance().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
 
 	code := m.Run()
 

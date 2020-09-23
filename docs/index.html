@@ -14,19 +14,18 @@
     <meta property="og:site_name" content="Krane" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1280" />
-    <meta property="og:image:height" content="640" />
+    <meta property="og:image:height" content="720" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image:alt" content="Ship from any CLI" />
     <meta
       name="keywords"
-      content="docker,containers,container management,golang"
+      content="docker,containers,container management,golang,toolset"
     />
     <meta
       name="viewport"
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
 
-    <!-- External styles -->
     <link
       rel="stylesheet"
       href="//cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css"
@@ -35,26 +34,19 @@
       rel="stylesheet"
       href="//cdn.jsdelivr.net/npm/docsify-dark-mode@latest/dist/style.min.css"
     />
-
-    <!-- Custom styles -->
     <link rel="stylesheet" href="index.css" />
-
-    <!-- Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <!-- App -->
     <div id="app">Loading...</div>
 
-    <!-- Javascript -->
     <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
     <script>
       window.$docsify = {
         name: "KRANE",
-        // logo: "./assets/logo.png",
         loadSidebar: true,
         loadNavbar: false,
         coverpage: true,
@@ -64,19 +56,10 @@
         subMaxLevel: 3,
         themeColor: "black",
         ext: ".md",
-        // routerMode: "history",
         search: {
-          noData: {
-            "/de-de/": "Keine Ergebnisse!",
-            "/zh-cn/": "没有结果!",
-            "/": "No results found",
-          },
+          noData: { "/": "No results found" },
           paths: "auto",
-          placeholder: {
-            "/de-de/": "Suche",
-            "/zh-cn/": "搜索",
-            "/": "Search",
-          },
+          placeholder: { "/": "Search" },
         },
         plugins: [
           EditOnGithubPlugin.create(
@@ -87,25 +70,9 @@
         ],
         ga: "UA-177852138-1",
         copyCode: {
-          buttonText: {
-            "/zh-cn/": "点击复制",
-            "/ru/": "Скопировать в буфер обмена",
-            "/de-de/": "Klicken Sie zum Kopieren",
-            "/es/": "Haga clic para copiar",
-            "/": "copy",
-          },
-          errorText: {
-            "/zh-cn/": "错误",
-            "/ru/": "ошибка",
-            "/": "Error",
-          },
-          successText: {
-            "/zh-cn/": "复制",
-            "/ru/": "Скопировано",
-            "/de-de/": "Kopiert",
-            "/es/": "Copiado",
-            "/": "Copied",
-          },
+          buttonText: { "/": "copy" },
+          errorText: { "/": "Error" },
+          successText: { "/": "Copied" },
           pagination: {
             previousText: "previous",
             nextText: "next",

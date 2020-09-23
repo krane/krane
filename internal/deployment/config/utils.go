@@ -1,4 +1,4 @@
-package kranecfg
+package config
 
 import (
 	"encoding/json"
@@ -7,7 +7,9 @@ import (
 	"regexp"
 )
 
-func (cfg KraneConfig) validate() error {
+func (cfg Config) Serialize() ([]byte, error) { return json.Marshal(cfg) }
+
+func (cfg Config) validate() error {
 	isValidName := cfg.validateName()
 	if !isValidName {
 		return errors.New("invalid name")
@@ -16,7 +18,7 @@ func (cfg KraneConfig) validate() error {
 	return nil
 }
 
-func (cfg *KraneConfig) applyDefaults() {
+func (cfg *Config) applyDefaults() {
 	if cfg.Registry == "" {
 		cfg.Registry = "docker.io"
 	}
@@ -44,7 +46,7 @@ func (cfg *KraneConfig) applyDefaults() {
 	return
 }
 
-func (cfg KraneConfig) validateName() bool {
+func (cfg Config) validateName() bool {
 	startsWithLetter := "[a-z]"
 	allowedCharacters := "[a-z0-9_-]"
 	endWithLowerCaseAlphanumeric := "[0-9a-z]"
@@ -59,5 +61,3 @@ func (cfg KraneConfig) validateName() bool {
 	match := regexp.MustCompile(matchers)
 	return match.MatchString(cfg.Name)
 }
-
-func (cfg KraneConfig) Serialize() ([]byte, error) { return json.Marshal(cfg) }
