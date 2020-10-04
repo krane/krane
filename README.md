@@ -6,8 +6,9 @@
 
 Krane is a self-hosted container management solution. It offers a simple and productive way to work with docker containers. Krane lets you deploy containers with a single configuration file and manage those containers using the Krane cli.
 
-* **Documentation:** https://krane.sh 
+* **Documentation:** https://krane.sh  
 * **Releases:** https://github.com/biensupernice/krane/releases
+* **CLI:** https://github.com/biensupernice/krane-cli
 
 ## Building from source
 
