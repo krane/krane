@@ -59,7 +59,7 @@ func TestEnqueueNewJobs(t *testing.T) {
 			job := Job{
 				ID:        string(i),
 				Namespace: namespace,
-				Type:      ContainerCreate,
+				Type:      "test",
 				Args:      Args{"name": "test"},
 				Run: func(args Args) error {
 					logrus.Printf("Job handler called, %v", args)

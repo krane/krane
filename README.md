@@ -4,7 +4,7 @@
 
 > ⚠️ Currently under construction
 
-Krane is a self-hosted container management solution. It offers a simple and productive way when working with docker containers. Krane lets you deploy containers with a single configuration file and manage containers using the Krane cli.
+Krane is a self-hosted container management solution. It offers a simple and productive way to work with docker containers. Krane lets you deploy containers with a single configuration file and manage those containers using the Krane cli.
 
 * **Documentation:** https://krane.sh 
 * **Releases:** https://github.com/biensupernice/krane/releases
@@ -35,12 +35,12 @@ The private key used by Krane for signing authentication requests.
 
 **KRANE_LOG_LEVEL**
 
-default: `info`
+- default: `info`
 
-values: `debug|info|warn|error`
+- values: `debug|info|warn|error`
 
 **DB_PATH**
 
-Krane uses boltdb as its backing store for storing configuration details. Boltdb is a single file, this is the path for that single file Krane will use.
+Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store for storing configuration details. Boltdb is represented as a single file on your disk, this is the path Krane will use to create/manage boltdb. Companies such as Shopify and Heroku use bolt within high-load production environments every day. 
 
-default: `/tmp/krane.db`   
+- default: `/tmp/krane.db`   
