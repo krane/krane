@@ -7,10 +7,16 @@ import (
 )
 
 func RequireEnv(key string) {
-	_, found := os.LookupEnv(key)
+	value, found := os.LookupEnv(key)
 	if !found {
 		log.Fatalf("Missing required env %s", key)
 	}
+
+	if value == "" {
+		log.Fatalf("Missing required env %s", key)
+	}
+
+	log.Printf("%s=%s", key, value)
 }
 
 func EnvOrDefault(key string, fallback string) string {
@@ -20,7 +26,7 @@ func EnvOrDefault(key string, fallback string) string {
 		os.Setenv(key, fallback)
 		return fallback
 	}
-	log.Printf("%s already set with value %s", key, value)
+	log.Printf("%s=%s", key, value)
 	return os.Getenv(key)
 }
 
@@ -40,4 +46,13 @@ func GetIntEnv(key string) int {
 	}
 	v, _ := strconv.ParseInt(value, 10, 8)
 	return int(v)
+}
+
+func GetBoolEnv(key string) bool {
+	value, found := os.LookupEnv(key)
+	if !found {
+		return false
+	}
+	v, _ := strconv.ParseBool(value)
+	return v
 }

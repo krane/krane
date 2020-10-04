@@ -15,7 +15,7 @@ import (
 )
 
 // AuthClaims : custom claims for user authentication
-type AuthClaims struct {
+type Claims struct {
 	Phrase string `json:"phrase"`
 	jwt.StandardClaims
 }
@@ -55,7 +55,7 @@ func ParseAuthTokenWithAuthKey(pubKey string, tknStr string) (claims jwt.Claims,
 	// Validate token signed with private key against rsa public key
 	tkn, err := jwt.ParseWithClaims(
 		tknStr,
-		&AuthClaims{},
+		&Claims{},
 		func(token *jwt.Token) (interface{}, error) {
 			return rsaPubKey, nil
 		},
@@ -74,7 +74,7 @@ func ParseAuthTokenWithAuthKey(pubKey string, tknStr string) (claims jwt.Claims,
 }
 
 // VerifyAuthTokenWithAuthorizedKeys : get auth claims from jwt token using an authorized key from server
-func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *AuthClaims) {
+func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *Claims) {
 	for _, key := range keys {
 		c, err := ParseAuthTokenWithAuthKey(key, tkn)
 		if err != nil {
@@ -83,7 +83,7 @@ func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *AuthC
 		}
 
 		// Map jwt claims into authclaims
-		claims, _ = c.(*AuthClaims)
+		claims, _ = c.(*Claims)
 		break
 	}
 

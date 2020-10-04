@@ -25,7 +25,7 @@ type CreateContainerConfig struct {
 }
 
 // create a docker container
-func (c *DockerClient) CreateContainer2(
+func (c *Client) CreateContainer2(
 	ctx context.Context,
 	config CreateContainerConfig,
 ) (container.ContainerCreateCreatedBody, error) {
@@ -118,23 +118,23 @@ func makeHostConfig(ports nat.PortMap, volumes []mount.Mount) container.HostConf
 // }
 
 // StopContainer : stop docker container
-func (c *DockerClient) StopContainer(ctx context.Context, containerID string) error {
+func (c *Client) StopContainer(ctx context.Context, containerID string) error {
 	timeout := 60 * time.Second
 	return c.ContainerStop(ctx, containerID, &timeout)
 }
 
 // RemoveContainer : remove docker container
-func (c *DockerClient) RemoveContainer(ctx context.Context, containerID string) error {
+func (c *Client) RemoveContainer(ctx context.Context, containerID string) error {
 	options := types.ContainerRemoveOptions{}
 	return c.ContainerRemove(ctx, containerID, options)
 }
 
-func (c *DockerClient) GetOneContainer(ctx *context.Context, containerId string) (types.ContainerJSON, error) {
+func (c *Client) GetOneContainer(ctx *context.Context, containerId string) (types.ContainerJSON, error) {
 	return c.ContainerInspect(*ctx, containerId)
 }
 
 // GetAllContainers : gets all containers on the host machine
-func (c *DockerClient) GetAllContainers(ctx *context.Context) (containers []types.Container, err error) {
+func (c *Client) GetAllContainers(ctx *context.Context) (containers []types.Container, err error) {
 	options := types.ContainerListOptions{
 		All:   true,
 		Quiet: false,
@@ -144,11 +144,11 @@ func (c *DockerClient) GetAllContainers(ctx *context.Context) (containers []type
 }
 
 // GetContainerStatus : get the status of a container
-func (c *DockerClient) GetContainerStatus(ctx *context.Context, containerID string, stream bool) (stats types.ContainerStats, err error) {
+func (c *Client) GetContainerStatus(ctx *context.Context, containerID string, stream bool) (stats types.ContainerStats, err error) {
 	return c.ContainerStats(*ctx, containerID, stream)
 }
 
-func (c *DockerClient) GetContainers(ctx *context.Context, deploymentName string) ([]types.Container, error) {
+func (c *Client) GetContainers(ctx *context.Context, deploymentName string) ([]types.Container, error) {
 	// Find all containers
 	allContainers, err := c.GetAllContainers(ctx)
 	if err != nil {
@@ -166,7 +166,7 @@ func (c *DockerClient) GetContainers(ctx *context.Context, deploymentName string
 	return deploymentContainers, nil
 }
 
-func (c *DockerClient) FilterContainersByDeployment(deploymentName string) ([]types.Container, error) {
+func (c *Client) FilterContainersByDeployment(deploymentName string) ([]types.Container, error) {
 	deploymentContainers := make([]types.Container, 0)
 
 	ctx := context.Background()
@@ -189,7 +189,7 @@ func (c *DockerClient) FilterContainersByDeployment(deploymentName string) ([]ty
 }
 
 // ReadContainerLogs :
-func (c *DockerClient) ReadContainerLogs(ctx *context.Context, containerID string) (reader io.Reader, err error) {
+func (c *Client) ReadContainerLogs(ctx *context.Context, containerID string) (reader io.Reader, err error) {
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
@@ -202,13 +202,13 @@ func (c *DockerClient) ReadContainerLogs(ctx *context.Context, containerID strin
 }
 
 // StartContainer : start docker container
-func (c *DockerClient) StartContainer(ctx context.Context, containerID string) error {
+func (c *Client) StartContainer(ctx context.Context, containerID string) error {
 	options := types.ContainerStartOptions{}
 	return c.ContainerStart(ctx, containerID, options)
 }
 
 // ConnectContainerToNetwork : connect a container to a network
-func (c *DockerClient) ConnectContainerToNetwork(ctx *context.Context, networkID string, containerID string) (err error) {
+func (c *Client) ConnectContainerToNetwork(ctx *context.Context, networkID string, containerID string) (err error) {
 	config := network.EndpointSettings{NetworkID: networkID}
 	return c.NetworkConnect(*ctx, networkID, containerID, &config)
 }

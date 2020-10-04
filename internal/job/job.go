@@ -19,7 +19,7 @@ import (
 type Job struct {
 	ID          string         `json:"id"`           // Unique job ID
 	Namespace   string         `json:"namespace"`    // The namespace used for scoping jobs. This is the same namespace used when fetching secrets.
-	Type        Type           `json:"type"`         // The type of job
+	Type        string         `json:"type"`         // The type of job
 	Status      Status         `json:"status"`       // The status of the current job with details for execution counts etc..
 	State       State          `json:"state"`        // Current state of a job (running | complete)
 	StartTime   int64          `json:"start_time"`   // Job start time - epoch in seconds since 1970
@@ -79,10 +79,6 @@ func (job *Job) validate() error {
 
 	if job.Namespace == "" {
 		return fmt.Errorf("job namespace required")
-	}
-
-	if !isAllowedJobType(job.Type) {
-		return fmt.Errorf("unknown job type %s", job.Type)
 	}
 
 	if job.Run == nil {

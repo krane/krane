@@ -17,13 +17,13 @@ import (
 
 type Scheduler struct {
 	store    store.Store
-	docker   *docker.DockerClient
+	docker   *docker.Client
 	enqueuer job.Enqueuer
 
 	interval time.Duration
 }
 
-func New(store store.Store, dockerClient *docker.DockerClient, jobEnqueuer job.Enqueuer, interval_ms string) Scheduler {
+func New(store store.Store, dockerClient *docker.Client, jobEnqueuer job.Enqueuer, interval_ms string) Scheduler {
 	ms, _ := time.ParseDuration(interval_ms + "ms")
 	return Scheduler{store, dockerClient, jobEnqueuer, ms}
 }

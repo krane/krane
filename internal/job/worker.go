@@ -39,6 +39,7 @@ func (w *worker) loop() {
 				job.Status.ExecutionCount++
 				err := job.Run(job.Args)
 				if err == nil {
+					logrus.Debugf("Completed job %s for %s", job.ID, job.Namespace)
 					break
 				}
 				logrus.Errorf("Error procesing job %s", err.Error())

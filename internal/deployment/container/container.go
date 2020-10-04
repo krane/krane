@@ -5,7 +5,6 @@ import (
 
 	"github.com/docker/docker/api/types"
 
-	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/secrets"
 )
@@ -52,32 +51,33 @@ func (k Kontainer) Remove() error {
 	return client.RemoveContainer(ctx, k.ID)
 }
 
-func create(cfg config.Config) (Kontainer, error) {
-	ctx := context.Background()
-	defer ctx.Done()
+// func create(cfg config.Config) (Kontainer, error) {
+// 	ctx := context.Background()
+// 	defer ctx.Done()
+//
+// 	client := docker.GetClient()
+// 	// TODO: figure out what to return
+// 	body, err := client.CreateContainer2(ctx, cfg)
+// 	if err != nil {
+// 		return Kontainer{}, err
+// 	}
+//
+// 	// get container
+// 	_, err = client.GetOneContainer(&ctx, body.ID)
+// 	if err != nil {
+// 		return Kontainer{}, err
+// 	}
+//
+// 	return Kontainer{}, err
+// }
 
-	client := docker.GetClient()
-	// TODO: figure out what to return
-	body, err := client.CreateContainer2(ctx, k)
-	if err != nil {
-		return Kontainer{}, err
-	}
-
-	// get container
-	_, err = client.GetOneContainer(&ctx, body.ID)
-	if err != nil {
-		return Kontainer{}, err
-	}
-
-	return Kontainer{}, err
-}
 func (k Kontainer) toContainer() types.Container { return types.Container{} }
 
 // convert docker container into a Kontainer
 func fromContainer(container types.Container) Kontainer { return Kontainer{} }
 
 // get krane managed containers
-func GetKontainers(client *docker.DockerClient) ([]Kontainer, error) {
+func GetKontainers(client *docker.Client) ([]Kontainer, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
@@ -98,7 +98,7 @@ func GetKontainers(client *docker.DockerClient) ([]Kontainer, error) {
 }
 
 // filter krane manage containers by namespace
-func GetKontainersByNamespace(client *docker.DockerClient, namespace string) ([]Kontainer, error) {
+func GetKontainersByNamespace(client *docker.Client, namespace string) ([]Kontainer, error) {
 	kontainers, err := GetKontainers(client)
 	if err != nil {
 		return make([]Kontainer, 0), err

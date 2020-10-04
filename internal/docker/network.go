@@ -18,7 +18,7 @@ func makeNetworkingConfig(networkID string) network.NetworkingConfig {
 }
 
 // CreateBridgeNetwork : creates docker bridge network with a given name
-func (c *DockerClient) CreateBridgeNetwork(ctx *context.Context, name string) (types.NetworkCreateResponse, error) {
+func (c *Client) CreateBridgeNetwork(ctx *context.Context, name string) (types.NetworkCreateResponse, error) {
 	// Check if krane network already exists
 	kNet, err := c.GetNetworkByName(ctx, name)
 	if err != nil {
@@ -37,7 +37,7 @@ func (c *DockerClient) CreateBridgeNetwork(ctx *context.Context, name string) (t
 }
 
 // GetNetworkByName : find a netwokr by name on this docker host
-func (c *DockerClient) GetNetworkByName(ctx *context.Context, name string) (types.NetworkResource, error) {
+func (c *Client) GetNetworkByName(ctx *context.Context, name string) (types.NetworkResource, error) {
 	// Get all the networks
 	options := types.NetworkListOptions{}
 	nets, err := c.NetworkList(*ctx, options)

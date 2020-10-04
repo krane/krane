@@ -8,31 +8,32 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type DockerClient struct {
+type Client struct {
 	*client.Client
 }
 
-var instance *DockerClient
+var instance *Client
 var once sync.Once
 
 // GetClient : get docker client
-func GetClient() *DockerClient { return instance }
+func GetClient() *Client { return instance }
 
 // Init : starts docker client
-func NewClient() *DockerClient {
+func NewClient() *Client {
 	if instance != nil {
 		return instance
 	}
 
 	logrus.Info("Connecting to Docker client...")
 	once.Do(func() {
-		client, err := client.NewEnvClient()
+		envClient,
+		err := client.NewEnvClient()
 		if err != nil {
-			logrus.Fatalf("Failed connecting to Docker client on host machine %s", err.Error())
+			logrus.Fatalf("Failed connecting to Docker envClient on host machine %s", err.Error())
 			return
 		}
 
-		instance = &DockerClient{client}
+		instance = &Client{envClient}
 
 		ctx := context.Background()
 

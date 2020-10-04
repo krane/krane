@@ -21,13 +21,14 @@ func init() {
 	fmt.Println("Starting Krane...")
 
 	utils.RequireEnv("KRANE_PRIVATE_KEY")
-	utils.EnvOrDefault("LOG_LEVEL", logging.INFO)
 	utils.EnvOrDefault("LISTEN_ADDRESS", "127.0.0.1:8500")
+	utils.EnvOrDefault("LOG_LEVEL", logging.INFO)
 	utils.EnvOrDefault("DB_PATH", "/tmp/krane.db")
 	utils.EnvOrDefault("WORKERPOOL_SIZE", "1")
 	utils.EnvOrDefault("JOB_QUEUE_SIZE", "1")
 	utils.EnvOrDefault("JOB_MAX_RETRY_POLICY", "5")
 	utils.EnvOrDefault("SCHEDULER_INTERVAL_MS", "30000")
+	utils.EnvOrDefault("WATCH_MODE", "false")
 	logging.ConfigureLogrus()
 
 	docker.NewClient()
@@ -35,26 +36,33 @@ func init() {
 }
 
 func main() {
-	// store
-	db := store.Instance()
-	defer db.Shutdown()
-
-	// queue
-	qsize := utils.GetUIntEnv("JOB_QUEUE_SIZE")
-	queue := job.NewJobQueue(qsize)
-
-	// enqueuer
-	enqueuer := job.NewEnqueuer(store.Instance(), queue)
-
-	// scheduler
-	interval := os.Getenv("SCHEDULER_INTERVAL_MS")
-	scheduler := scheduler.New(db, docker.GetClient(), enqueuer, interval)
-	go scheduler.Run()
-
 	// api
 	go api.Run()
 
-	// workers
+	// embedded key store for storing deployment configurations
+	db := store.Instance()
+	defer db.Shutdown()
+
+	// shared job queue used for deployment jobs
+	qsize := utils.GetUIntEnv("JOB_QUEUE_SIZE")
+	queue := job.NewJobQueue(qsize)
+
+	// if watch mode is enable, the scheduler will run
+	// in a go routine polling and queuing jobs to
+	// maintain the containers state in parity with desired deployment state
+	if utils.GetBoolEnv("WATCH_MODE") {
+		// enqueuer
+		enqueuer := job.NewEnqueuer(store.Instance(), queue)
+
+		// scheduler
+		interval := os.Getenv("SCHEDULER_INTERVAL_MS")
+		jobScheduler := scheduler.New(db, docker.GetClient(), enqueuer, interval)
+		go jobScheduler.Run()
+	}
+
+	// workers for executing jobs. If no workers are initiated
+	// the queued jobs will stay blocked until a worker frees up or
+	// is initiated
 	wpSize := utils.GetUIntEnv("WORKERPOOL_SIZE")
 	workers := job.NewWorkerPool(wpSize, queue, store.Instance())
 	workers.Start()
@@ -64,13 +72,16 @@ func main() {
 	// Once the signal is received it will shutdown all workers as gracefully as it can.
 	wait()
 
+	// workers run in background threads.
+	// When exit signal is received the workers
+	// are stopped and cleaned up
 	workers.Stop()
+
 	logrus.Info("Shutdown complete")
 }
 
-// wait : for a signal to quit
 func wait() {
 	signalChan := make(chan os.Signal, 1)
 	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
-	<-signalChan
+	<-signalChan // blocking
 }
