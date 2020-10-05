@@ -8,6 +8,11 @@ import (
 	"github.com/biensupernice/krane/internal/utils"
 )
 
+type action string
+
+// Following some conventions for docker,
+// Up is to create container resources
+// Down is to remove container resources
 const (
 	Up   action = "UP"
 	Down action = "DOWN"
@@ -25,6 +30,8 @@ func makeDockerDeploymentJob(config config.Config, action action) (job.Job, erro
 }
 
 func createContainersJob(config config.Config) job.Job {
+	retryPolicy := utils.GetUIntEnv("DEPLOYMENT_RETRY_POLICY")
+
 	jobsArgs := job.Args{"config": config}
 	return job.Job{
 		ID:          utils.MakeIdentifier(),
@@ -37,6 +44,8 @@ func createContainersJob(config config.Config) job.Job {
 }
 
 func deleteContainersJob(config config.Config) job.Job {
+	retryPolicy := utils.GetUIntEnv("DEPLOYMENT_RETRY_POLICY")
+
 	jobsArgs := job.Args{"namespace": config.Name}
 	return job.Job{
 		ID:          utils.MakeIdentifier(),

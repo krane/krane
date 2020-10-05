@@ -4,7 +4,9 @@ import (
 	"context"
 
 	"github.com/docker/docker/api/types"
+	"github.com/sirupsen/logrus"
 
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/secrets"
 )
@@ -25,6 +27,64 @@ type Kontainer struct {
 	Volumes   []Volume          `json:"volumes"`
 	Env       map[string]string `json:"env"`
 	Secrets   []secrets.Secret  `json:"secrets"`
+}
+
+func fromConfig(config config.Config) Kontainer {
+	return Kontainer{}
+}
+
+func Create(cfg config.Config) (Kontainer, error) {
+	ctx := context.Background()
+	defer ctx.Done()
+
+	client := docker.GetClient()
+
+	mappedConfig := mapConfigToCreateContainerConfig(cfg)
+	body, err := client.CreateContainer2(ctx, mappedConfig)
+	if err != nil {
+		return Kontainer{}, err
+	}
+
+	// get container
+	json, err := client.GetOneContainer(&ctx, body.ID)
+	if err != nil {
+		return Kontainer{}, err
+	}
+
+	return mapContainerJsonToKontainer(json), nil
+}
+
+func mapContainerJsonToKontainer(container types.ContainerJSON) Kontainer {
+	return Kontainer{
+		ID:        container.ID,
+		Name:      container.Name,
+		Namespace: container.Name,
+		NetworkID: container.NetworkSettings.EndpointID,
+		Image:     container.Image,
+		ImageID:   container.Image,
+		// TODO: resolve rest of the fields
+	}
+}
+
+func mapConfigToCreateContainerConfig(cfg config.Config) docker.CreateContainerConfig {
+	ctx := context.Background()
+	defer ctx.Done()
+
+	client := docker.GetClient()
+	ntw, err := client.GetNetworkByName(ctx, docker.KraneNetworkName)
+	if err != nil {
+		return docker.CreateContainerConfig{}
+	}
+
+	return docker.CreateContainerConfig{
+		ContainerName: cfg.Name,
+		Image:         cfg.Image,
+		NetworkID:     ntw.ID,
+		Labels:        map[string]string{},
+		Ports:         nil,
+		Volumes:       nil,
+		Env:           []string{},
+	}
 }
 
 func (k Kontainer) Start() error {
@@ -51,25 +111,20 @@ func (k Kontainer) Remove() error {
 	return client.RemoveContainer(ctx, k.ID)
 }
 
-// func create(cfg config.Config) (Kontainer, error) {
-// 	ctx := context.Background()
-// 	defer ctx.Done()
-//
-// 	client := docker.GetClient()
-// 	// TODO: figure out what to return
-// 	body, err := client.CreateContainer2(ctx, cfg)
-// 	if err != nil {
-// 		return Kontainer{}, err
-// 	}
-//
-// 	// get container
-// 	_, err = client.GetOneContainer(&ctx, body.ID)
-// 	if err != nil {
-// 		return Kontainer{}, err
-// 	}
-//
-// 	return Kontainer{}, err
-// }
+func (k Kontainer) Ok() (bool, error) {
+	ctx := context.Background()
+	defer ctx.Done()
+
+	client := docker.GetClient()
+	stats, err := client.GetContainerStatus(ctx, k.ID, false)
+	if err != nil {
+		return false, err
+	}
+
+	logrus.Debugf("Container stats %v", stats.Body)
+
+	return false, nil
+}
 
 func (k Kontainer) toContainer() types.Container { return types.Container{} }
 

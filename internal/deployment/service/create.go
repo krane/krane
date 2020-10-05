@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"time"
+	"errors"
 
 	"github.com/sirupsen/logrus"
 
@@ -55,29 +55,30 @@ func createContainerResources(args job.Args) error {
 	}
 
 	// 3. create containers
-	createContainerErr := createContainers()
+	kontainer, createContainerErr := container.Create(konfig)
 	if createContainerErr != nil {
 		return createContainerErr
 	}
-	// 4. createContainerResources containers
-	startContainerErr := startContainers()
+
+	// 4. start containers
+	startContainerErr := kontainer.Start()
 	if startContainerErr != nil {
 		return startContainerErr
 	}
 
 	// 5. check container health
+	// TODO: finish health check step
+	ok, err := kontainer.Ok()
+	if err != nil {
+		return err
+	}
+
+	if !ok {
+		return errors.New("container unhealthy")
+	}
 
 	// 6. cleanup
 
-	time.Sleep(30 * time.Second)
-	return nil
-}
-
-func createContainers() error {
-	return nil
-}
-
-func startContainers() error {
 	return nil
 }
 

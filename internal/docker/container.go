@@ -144,8 +144,8 @@ func (c *Client) GetAllContainers(ctx *context.Context) (containers []types.Cont
 }
 
 // GetContainerStatus : get the status of a container
-func (c *Client) GetContainerStatus(ctx *context.Context, containerID string, stream bool) (stats types.ContainerStats, err error) {
-	return c.ContainerStats(*ctx, containerID, stream)
+func (c *Client) GetContainerStatus(ctx context.Context, containerID string, stream bool) (stats types.ContainerStats, err error) {
+	return c.ContainerStats(ctx, containerID, stream)
 }
 
 func (c *Client) GetContainers(ctx *context.Context, deploymentName string) ([]types.Container, error) {

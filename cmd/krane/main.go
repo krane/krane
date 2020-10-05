@@ -27,6 +27,7 @@ func init() {
 	utils.EnvOrDefault("WORKERPOOL_SIZE", "1")
 	utils.EnvOrDefault("JOB_QUEUE_SIZE", "1")
 	utils.EnvOrDefault("JOB_MAX_RETRY_POLICY", "5")
+	utils.EnvOrDefault("DEPLOYMENT_RETRY_POLICY", "1")
 	utils.EnvOrDefault("SCHEDULER_INTERVAL_MS", "30000")
 	utils.EnvOrDefault("WATCH_MODE", "false")
 	logging.ConfigureLogrus()
@@ -47,22 +48,20 @@ func main() {
 	qsize := utils.GetUIntEnv("JOB_QUEUE_SIZE")
 	queue := job.NewJobQueue(qsize)
 
-	// if watch mode is enable, the scheduler will run
-	// in a go routine polling and queuing jobs to
+	// if watch mode is enabled, the scheduler will run
+	// in a separate thread polling and queuing jobs to
 	// maintain the containers state in parity with desired deployment state
 	if utils.GetBoolEnv("WATCH_MODE") {
-		// enqueuer
-		enqueuer := job.NewEnqueuer(store.Instance(), queue)
-
-		// scheduler
+		dockerClient := docker.GetClient()
+		enqueuer := job.NewEnqueuer(db, queue)
 		interval := os.Getenv("SCHEDULER_INTERVAL_MS")
-		jobScheduler := scheduler.New(db, docker.GetClient(), enqueuer, interval)
+
+		jobScheduler := scheduler.New(db, dockerClient, enqueuer, interval)
 		go jobScheduler.Run()
 	}
 
 	// workers for executing jobs. If no workers are initiated
-	// the queued jobs will stay blocked until a worker frees up or
-	// is initiated
+	// the queued jobs will stay blocked until a worker frees up or is initiated
 	wpSize := utils.GetUIntEnv("WORKERPOOL_SIZE")
 	workers := job.NewWorkerPool(wpSize, queue, store.Instance())
 	workers.Start()
@@ -73,8 +72,7 @@ func main() {
 	wait()
 
 	// workers run in background threads.
-	// When exit signal is received the workers
-	// are stopped and cleaned up
+	// When an exit signal is received, the workers are stopped and cleaned up
 	workers.Stop()
 
 	logrus.Info("Shutdown complete")

@@ -94,7 +94,7 @@ func formatSecretAlias(key string) string {
 }
 
 func isValidSecretKey(secret string) bool {
-	if len(secret) <= 1 || len(secret) > 20 {
+	if len(secret) <= 1 || len(secret) > 50 {
 		return false
 	}
 

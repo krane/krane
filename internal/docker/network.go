@@ -20,7 +20,7 @@ func makeNetworkingConfig(networkID string) network.NetworkingConfig {
 // CreateBridgeNetwork : creates docker bridge network with a given name
 func (c *Client) CreateBridgeNetwork(ctx *context.Context, name string) (types.NetworkCreateResponse, error) {
 	// Check if krane network already exists
-	kNet, err := c.GetNetworkByName(ctx, name)
+	kNet, err := c.GetNetworkByName(*ctx, name)
 	if err != nil {
 		return types.NetworkCreateResponse{}, err
 	}
@@ -28,7 +28,7 @@ func (c *Client) CreateBridgeNetwork(ctx *context.Context, name string) (types.N
 		return types.NetworkCreateResponse{ID: kNet.ID}, nil
 	}
 
-	// If no exisitng network, create it
+	// If no existing network, create it
 	options := types.NetworkCreate{
 		Driver:         "bridge",
 		CheckDuplicate: true,
@@ -36,11 +36,11 @@ func (c *Client) CreateBridgeNetwork(ctx *context.Context, name string) (types.N
 	return c.NetworkCreate(*ctx, name, options)
 }
 
-// GetNetworkByName : find a netwokr by name on this docker host
-func (c *Client) GetNetworkByName(ctx *context.Context, name string) (types.NetworkResource, error) {
+// GetNetworkByName : find a network by name on this docker host
+func (c *Client) GetNetworkByName(ctx context.Context, name string) (types.NetworkResource, error) {
 	// Get all the networks
 	options := types.NetworkListOptions{}
-	nets, err := c.NetworkList(*ctx, options)
+	nets, err := c.NetworkList(ctx, options)
 	if err != nil {
 		return types.NetworkResource{}, err
 	}

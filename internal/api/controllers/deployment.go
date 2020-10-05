@@ -25,7 +25,11 @@ func SaveDeployment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_ = service.StartDeployment(cfg)
+	err = service.StartDeployment(cfg)
+	if err != nil {
+		status.HTTPBad(w, err)
+		return
+	}
 
 	status.HTTPOk(w, cfg)
 	return

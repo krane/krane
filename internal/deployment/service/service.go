@@ -8,10 +8,6 @@ import (
 	"github.com/biensupernice/krane/internal/store"
 )
 
-const retryPolicy = 3
-
-type action string
-
 func StartDeployment(cfg config.Config) error {
 	j, err := makeDockerDeploymentJob(cfg, Up)
 	if err != nil {
