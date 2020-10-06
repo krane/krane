@@ -8,44 +8,50 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Client struct {
-	*client.Client
-}
+type Client struct{ *client.Client }
 
 var instance *Client
 var once sync.Once
 
-// GetClient : get docker client
 func GetClient() *Client { return instance }
 
-// Init : starts docker client
 func NewClient() *Client {
 	if instance != nil {
 		return instance
 	}
 
-	logrus.Info("Connecting to Docker client...")
-	once.Do(func() {
-		envClient,
-		err := client.NewEnvClient()
-		if err != nil {
-			logrus.Fatalf("Failed connecting to Docker envClient on host machine %s", err.Error())
-			return
-		}
-
-		instance = &Client{envClient}
-
-		ctx := context.Background()
-
-		// Create krane docker network
-		logrus.Info("Creating Krane Docker network...")
-		_, err = instance.CreateBridgeNetwork(&ctx, KraneNetworkName)
-		if err != nil {
-			logrus.Fatalf("Failed to create Krane Docker network %s", err.Error())
-		}
-
-		ctx.Done()
-	})
-
+	once.Do(func() { newClientFromEnv() })
 	return instance
+}
+
+func newClientFromEnv() {
+	logrus.Info("Connecting to Docker client...")
+
+	envClient, err := client.NewEnvClient()
+	if err != nil {
+		logrus.Fatalf("Failed creating Docker client %s", err.Error())
+		return
+	}
+
+	instance = &Client{envClient}
+
+	if err := createDockerNetwork(); err != nil {
+		logrus.Fatalf("Failed creating Docker network %s", err.Error())
+		return
+	}
+
+	return
+}
+
+func createDockerNetwork() error {
+	logrus.Debug("Creating Krane Docker network...")
+
+	ctx := context.Background()
+	defer ctx.Done()
+
+	_, err := instance.CreateBridgeNetwork(&ctx, KraneNetworkName)
+	if err != nil {
+		return err
+	}
+	return nil
 }
