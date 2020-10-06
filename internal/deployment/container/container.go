@@ -2,9 +2,11 @@ package container
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/docker/docker/api/types"
-	"github.com/sirupsen/logrus"
+	"github.com/lithammer/shortuuid/v3"
 
 	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
@@ -76,11 +78,12 @@ func mapConfigToCreateContainerConfig(cfg config.Config) docker.CreateContainerC
 		return docker.CreateContainerConfig{}
 	}
 
+	containerName := fmt.Sprintf("%s-%s", cfg.Name, shortuuid.New())
 	return docker.CreateContainerConfig{
-		ContainerName: cfg.Name,
+		ContainerName: containerName,
 		Image:         cfg.Image,
 		NetworkID:     ntw.ID,
-		Labels:        map[string]string{},
+		Labels:        map[string]string{KraneContainerNamespaceLabel: cfg.Name},
 		Ports:         nil,
 		Volumes:       nil,
 		Env:           []string{},
@@ -108,7 +111,12 @@ func (k Kontainer) Remove() error {
 	defer ctx.Done()
 
 	client := docker.GetClient()
-	return client.RemoveContainer(ctx, k.ID)
+
+	if err := client.RemoveContainer(ctx, k.ID, true); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (k Kontainer) Ok() (bool, error) {
@@ -116,20 +124,34 @@ func (k Kontainer) Ok() (bool, error) {
 	defer ctx.Done()
 
 	client := docker.GetClient()
-	stats, err := client.GetContainerStatus(ctx, k.ID, false)
+	status, err := client.GetOneContainer(&ctx, k.ID)
 	if err != nil {
 		return false, err
 	}
 
-	logrus.Debugf("Container stats %v", stats.Body)
+	if !status.State.Running {
+		return false, errors.New("container not in running state")
+	}
 
-	return false, nil
+	return true, nil
 }
 
 func (k Kontainer) toContainer() types.Container { return types.Container{} }
 
 // convert docker container into a Kontainer
-func fromContainer(container types.Container) Kontainer { return Kontainer{} }
+func fromContainer(container types.Container) Kontainer {
+	return Kontainer{
+		ID:        container.ID,
+		Namespace: container.Labels[KraneContainerNamespaceLabel],
+		Name:      container.Names[0],
+		Image:     container.Image,
+		ImageID:   container.ImageID,
+		CreatedAt: container.Created,
+		Labels:    container.Labels,
+		NetworkID: container.NetworkSettings.Networks[docker.KraneNetworkName].NetworkID,
+		// TODO: the rest
+	}
+}
 
 // get krane managed containers
 func GetKontainers(client *docker.Client) ([]Kontainer, error) {

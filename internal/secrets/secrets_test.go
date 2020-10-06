@@ -100,7 +100,7 @@ func TestErrorWhenInvalidSecretKey(t *testing.T) {
 	assert.False(t, isValidSecretKey(""))
 	assert.False(t, isValidSecretKey("X"))
 	assert.False(t, isValidSecretKey("X"))
-	assert.False(t, isValidSecretKey(utils.RandomString(21)))
+	assert.False(t, isValidSecretKey(utils.RandomString(51)))
 
 	illegalChars := []string{"!", "@", "#", "$", "%", "&", "*", ",", ".", "'", ":", "/", "\"", "=", "+", "?", ">", "<", "|", "}", "{", "-", "_", "^", "(", ")", "[", "]"}
 	for _, char := range illegalChars {

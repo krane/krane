@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/sirupsen/logrus"
 
@@ -35,50 +36,58 @@ import (
 
 // createContainerResources create containers deployment workfllow
 func createContainerResources(args job.Args) error {
-	konfig := args["config"].(config.Config)
-	logrus.Debugf("Starting deployment workflow for %s", konfig.Name)
+	cfg := args["config"].(config.Config)
+	logrus.Debugf("Starting deployment workflow for %s", cfg.Name)
 
 	client := docker.GetClient()
 
 	// 1. get curr containers
-	currContainer, err := container.GetKontainersByNamespace(client, konfig.Name)
+	currContainer, err := container.GetKontainersByNamespace(client, cfg.Name)
 	if err != nil {
 		return err
 	}
-	logrus.Debugf("Found %d existing containers for %s", len(currContainer), konfig.Name)
+	logrus.Debugf("Found %d existing containers for %s", len(currContainer), cfg.Name)
 
 	// 2. pull image
-	image := docker.FormatImageSourceURL(konfig.Registry, konfig.Image, konfig.Tag)
-	pullImageErr := pullImage(image)
-	if pullImageErr != nil {
-		return pullImageErr
+	image := docker.FormatImageSourceURL(cfg.Registry, cfg.Image, cfg.Tag)
+	if err := pullImage(image); err != nil {
+		return err
 	}
+	logrus.Debugf("Pulled %s for %s", image, cfg.Name)
 
 	// 3. create containers
-	kontainer, createContainerErr := container.Create(konfig)
+	kontainer, createContainerErr := container.Create(cfg)
 	if createContainerErr != nil {
 		return createContainerErr
 	}
+	logrus.Debugf("Created containers for %s", cfg.Name)
 
 	// 4. start containers
 	startContainerErr := kontainer.Start()
 	if startContainerErr != nil {
 		return startContainerErr
 	}
+	logrus.Debugf("Started containers for %s", cfg.Name)
 
 	// 5. check container health
-	// TODO: finish health check step
-	ok, err := kontainer.Ok()
-	if err != nil {
+	containerHealthCheckErr := pollContainerUntilHealthy(kontainer)
+	if containerHealthCheckErr != nil {
 		return err
 	}
+	logrus.Debugf("Healthy containers for %s", cfg.Name)
 
-	if !ok {
-		return errors.New("container unhealthy")
+	// 6. cleanup old containers
+	for _, c := range currContainer {
+		if err := c.Remove(); err != nil {
+			return err
+		}
 	}
+	logrus.Debugf("Removed %d containers for %s", len(currContainer), cfg.Name)
 
-	// 6. cleanup
+	// 7. cleanup old images
+	// TODO:
 
+	logrus.Debugf("Completed deployment workflow for %s", cfg.Name)
 	return nil
 }
 
@@ -88,4 +97,25 @@ func pullImage(image string) error {
 	err := client.PullImage(&ctx, image)
 	ctx.Done()
 	return err
+}
+
+func pollContainerUntilHealthy(container container.Kontainer) error {
+	pollRetry := 10
+	for i := 0; i <= pollRetry; i++ {
+		expBackOff := time.Duration(10 * i)
+		time.Sleep(expBackOff * time.Second)
+
+		ok, err := container.Ok()
+		if err != nil {
+			continue
+		}
+
+		if !ok {
+			continue
+		}
+
+		return nil
+	}
+
+	return errors.New("unable to determine container health")
 }

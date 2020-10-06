@@ -13,20 +13,22 @@ import (
 
 func SaveDeployment(w http.ResponseWriter, r *http.Request) {
 	var cfg config.Config
-	err := json.NewDecoder(r.Body).Decode(&cfg)
-	if err != nil {
+
+	// decode
+	json.NewDecoder(r.Body).Decode(&cfg)
+	if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	err = cfg.Save()
-	if err != nil {
+	// save
+	if err := cfg.Save(); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	err = service.StartDeployment(cfg)
-	if err != nil {
+	// start
+	if err := service.StartDeployment(cfg); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
