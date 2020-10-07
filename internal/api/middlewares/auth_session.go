@@ -23,7 +23,7 @@ func AuthSessionMiddleware(next http.Handler) http.Handler {
 
 		isValidToken := isValidTokenFormat(tkn)
 		if !isValidToken {
-			logrus.Infof("Invalid token provided")
+			logrus.Info("Invalid token provided")
 			status.HTTPBad(w, errors.New("invalid token"))
 			r.Context().Done()
 			return

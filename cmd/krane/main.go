@@ -32,7 +32,7 @@ func init() {
 	utils.EnvOrDefault("WATCH_MODE", "false")
 	logging.ConfigureLogrus()
 
-	docker.NewClient()
+	docker.ClientFromEnv()
 	store.New(os.Getenv("DB_PATH"))
 }
 

@@ -29,8 +29,7 @@ func Run() {
 	}
 
 	logrus.Infof("API on %s", srv.Addr)
-	err := srv.ListenAndServe()
-	if err != nil {
+	if err := srv.ListenAndServe(); err != nil {
 		logrus.Fatal(err.Error())
 	}
 }
@@ -40,7 +39,7 @@ func withBaseMiddlewares(router *mux.Router) {
 	router.Use(handlers.RecoveryHandler())
 	router.Use(handlers.CORS(
 		handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost}),
-		handlers.AllowedOrigins([]string{"localhost", "*"}))) // TODO: Not allowing wild card origins (*)
+		handlers.AllowedOrigins([]string{"*"}))) // TODO: Not allowing wild card origins (*) use envar LISTEN_ADDRESS
 }
 
 func withRoutes(router *mux.Router) {

@@ -15,7 +15,7 @@ var once sync.Once
 
 func GetClient() *Client { return instance }
 
-func NewClient() *Client {
+func ClientFromEnv() *Client {
 	if instance != nil {
 		return instance
 	}

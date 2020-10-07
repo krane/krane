@@ -58,7 +58,7 @@ func (wp *WorkerPool) Start() {
 
 	var workersStarted int
 	for _, w := range wp.workers {
-		logrus.Debugf("Starting new worker")
+		logrus.Debug("Starting new worker")
 		w.start()
 		workersStarted++
 	}
@@ -72,7 +72,7 @@ func (wp *WorkerPool) Stop() {
 	logrus.Info("Shutdown signal received")
 
 	if !wp.started {
-		logrus.Debugf("Worker pool can't stop, it has not started")
+		logrus.Debug("Worker pool can't stop, it has not started")
 		return
 	}
 
@@ -83,13 +83,13 @@ func (wp *WorkerPool) Stop() {
 	stopped := 0
 	var wg sync.WaitGroup
 	for _, w := range wp.workers {
-		logrus.Debugf("Adding worker to waitgroup")
+		logrus.Debug("Adding worker to waitgroup")
 		wg.Add(1)
 		go func(w *worker) {
-			logrus.Debugf("Attempting to stop Worker")
+			logrus.Debug("Attempting to stop Worker")
 			w.stop()
 			wg.Done()
-			logrus.Debugf("Worker stopped, removing from waitgroup")
+			logrus.Debug("Worker stopped, removing from waitgroup")
 		}(w)
 		stopped++
 	}

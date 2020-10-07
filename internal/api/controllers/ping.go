@@ -23,22 +23,22 @@ func PingController(w http.ResponseWriter, r *http.Request) {
 		Type:        "test-ping",
 		Args:        map[string]interface{}{"message": message},
 		RetryPolicy: 3,
-		Run:         ping,
+		Run:         pingHandler,
 	}
 
 	go func() {
-		enqueuer := job.NewEnqueuer(store.Instance(), job.GetJobQueue())
-		_, err := enqueuer.Enqueue(newJob)
+		enq := job.NewEnqueuer(store.Instance(), job.GetJobQueue())
+		_, err := enq.Enqueue(newJob)
 		if err != nil {
 			logrus.Errorf(err.Error())
 		}
 	}()
 
-	status.HTTPOk(w, "Got message")
+	status.HTTPOk(w, nil)
 	return
 }
 
-func ping(args job.Args) error {
+func pingHandler(args job.Args) error {
 	logrus.Infof("Got message %s", args["message"])
 	return nil
 }

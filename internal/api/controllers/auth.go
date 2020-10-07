@@ -30,8 +30,7 @@ type AuthRequest struct {
 // token this route is called and the token is validated against the clients public auth on the host machine.
 func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	var body AuthRequest
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
@@ -88,8 +87,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 		Principal: "root",
 	}
 
-	err = session.Save(newSession)
-	if err != nil {
+	if err := session.Save(newSession); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}

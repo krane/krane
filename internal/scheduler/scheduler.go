@@ -29,19 +29,19 @@ func New(store store.Store, dockerClient *docker.Client, jobEnqueuer job.Enqueue
 }
 
 func (s *Scheduler) Run() {
-	logrus.Debugf("Starting Scheduler")
+	logrus.Debug("Starting Scheduler")
 
 	for {
 		go s.poll()
 		<-time.After(s.interval)
 	}
 
-	logrus.Debugf("Exiting Scheduler")
+	logrus.Debug("Exiting Scheduler")
 	return
 }
 
 func (s *Scheduler) poll() {
-	logrus.Debugf("Scheduler polling")
+	logrus.Debug("Scheduler polling")
 	for _, deployment := range s.deployments() {
 		containers, err := s.docker.FilterContainersByDeployment(deployment.Name)
 		if err != nil {

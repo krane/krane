@@ -14,20 +14,16 @@ import (
 func SaveDeployment(w http.ResponseWriter, r *http.Request) {
 	var cfg config.Config
 
-	// decode
-	json.NewDecoder(r.Body).Decode(&cfg)
 	if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	// save
 	if err := cfg.Save(); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	// start
 	if err := service.StartDeployment(cfg); err != nil {
 		status.HTTPBad(w, err)
 		return
@@ -41,8 +37,7 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	err := config.Delete(name)
-	if err != nil {
+	if err := config.Delete(name); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
@@ -63,7 +58,6 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	// Find deployment
 	cfg, err := config.Get(name)
 	if err != nil {
 		status.HTTPBad(w, err)
@@ -74,7 +68,6 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// get all deployments
 func GetDeployments(w http.ResponseWriter, r *http.Request) {
 	deployments, err := config.GetAll()
 	if err != nil {
