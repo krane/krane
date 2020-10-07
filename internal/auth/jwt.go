@@ -78,7 +78,7 @@ func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *Claim
 	for _, key := range keys {
 		c, err := ParseAuthTokenWithAuthKey(key, tkn)
 		if err != nil {
-			logrus.Debug(err.Error())
+			logrus.Debugf("unable to decode JWT token with server private key %s", err.Error())
 			continue
 		}
 

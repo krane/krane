@@ -37,6 +37,14 @@ $ go test -coverprofile coverage.out ./...
 $ go tool cover -html=coverage.out
 ``` 
 
+## Viewing the database
+
+Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To view the contents in bolt, you can use [boltdbweb](https://github.com/evnix/boltdbweb).
+
+```
+$ boltdbweb --db-name=/path/to/krane.db --port=9000
+``` 
+
 ## Configuration
 
 Krane uses environment variables for its configuration

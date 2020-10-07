@@ -52,7 +52,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 
 	authKeys := auth.GetAuthorizeKeys()
 	if len(authKeys) == 0 || authKeys[0] == "" {
-		logrus.Info("authorized keys not found on the server")
+		logrus.Info("no authorized keys found on the server")
 		status.HTTPBad(w, errors.New("unable to authenticate"))
 		return
 	}
