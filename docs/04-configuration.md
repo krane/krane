@@ -41,9 +41,9 @@ The image used when pulling, creating and running your deployments containers.
 
 ### env
 
-The enviornment variables passed to the containers part of a deployment.
+The environment variables passed to the containers part of a deployment.
 
-> ⚠️ Enviornment variables should not contain any sensitive data, use `secrets` instead.
+> ⚠️ Environment variables should not contain any sensitive data, use `secrets` instead.
 
 - required: `false`
 

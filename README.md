@@ -13,16 +13,33 @@ Krane is a self-hosted container management solution. It offers a simple and pro
 ## Building from source
 
 ```
-git clone https://github.com/biensupernice/krane
-cd krane
-go build ./cmd/krane
-export KRANE_PRIVATE_KEY=changeme
-./krane
+$ git clone https://github.com/biensupernice/krane
+$ cd krane
+$ go build ./cmd/krane
+$ export KRANE_PRIVATE_KEY=changeme
+$ ./krane
 ```
+
+## Running tests
+
+In the root of the project
+
+```
+# run tests
+$ go test ./...
+
+or
+
+# run tests with coverage
+$ go test -coverprofile coverage.out ./... 
+ 
+# view coverage
+$ go tool cover -html=coverage.out
+``` 
 
 ## Configuration
 
-Krane uses environment variables for its configuration. 
+Krane uses environment variables for its configuration
 	
 **KRANE_PRIVATE_KEY**
 

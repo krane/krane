@@ -3,6 +3,7 @@
 
 # testing files
 *.test
+*.out
 
 # jetbrains go land
 .idea

@@ -10,8 +10,6 @@ import (
 
 	"github.com/boltdb/bolt"
 	"github.com/sirupsen/logrus"
-
-	"github.com/biensupernice/krane/internal/constants"
 )
 
 type BoltDB struct {
@@ -53,44 +51,13 @@ func New(path string) *BoltDB {
 	}
 
 	db, err := bolt.Open(path, fileMode, options)
-
 	if err != nil {
-		logrus.Fatalf("Failed to open to store at %s, %s", path, err.Error())
+		logrus.Fatalf("Failed to open store at %s: %s", path, err.Error())
 		return nil
 	}
 
 	once.Do(func() { instance = &BoltDB{db} })
-
-	logrus.Debugf("Successfully opened store at %s", path)
-
-	// Buckets to create
-	bkts := []string{
-		constants.AuthenticationCollectionName,
-		constants.DeploymentsCollectionName,
-		constants.SessionsCollectionName,
-	}
-	instance.createBkts(bkts)
-
 	return instance
-}
-
-func (b *BoltDB) createBkts(bkts []string) {
-	logrus.Debugf("Creating %d bucket(s)", len(bkts))
-	for _, bkt := range bkts {
-		err := b.Update(func(tx *bolt.Tx) error {
-			logrus.Debugf("Creating %s bucket", bkt)
-			_, err := tx.CreateBucket([]byte(bkt))
-			if err != nil {
-				return err
-			}
-			logrus.Debugf("Successfully created %s bucket", bkt)
-			return nil
-		})
-
-		if err != nil {
-			logrus.Debugf("Unable to create %s bucket: %s", bkt, err)
-		}
-	}
 }
 
 func (b *BoltDB) Shutdown() { b.Close() }
