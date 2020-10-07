@@ -12,22 +12,16 @@ func Exist(namespace string) bool {
 		return false
 	}
 
-	found := false
 	for _, deployment := range deployments {
 		var d config.Config
-		err := store.Deserialize(deployment, &d)
-		if err != nil {
+		if err := store.Deserialize(deployment, &d); err != nil {
 			return false
 		}
 
 		if namespace == d.Name {
-			found = true
+			return true
 		}
 	}
 
-	if !found {
-		return false
-	}
-
-	return true
+	return false
 }

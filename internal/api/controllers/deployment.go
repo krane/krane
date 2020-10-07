@@ -11,6 +11,7 @@ import (
 	"github.com/biensupernice/krane/internal/deployment/service"
 )
 
+// SaveDeployment: save a deployment creating container resources
 func SaveDeployment(w http.ResponseWriter, r *http.Request) {
 	var cfg config.Config
 
@@ -33,43 +34,46 @@ func SaveDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// DeleteDeployment: delete a deployment removing the container resources and configuration
 func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	if err := config.Delete(name); err != nil {
-		status.HTTPBad(w, err)
-		return
-	}
-
-	cfg, err := config.Get(name)
+	d, err := service.GetDeploymentByName(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	_ = service.DeleteDeployment(cfg)
+	if err := service.DeleteDeployment(d); err != nil {
+		status.HTTPBad(w, err)
+		return
+	}
 
+	// TODO: remove configuration
+	
 	status.HTTPOk(w, nil)
 	return
 }
 
+// GetDeployment: get deployment by name
 func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	cfg, err := config.Get(name)
+	d, err := service.GetDeploymentByName(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, cfg)
+	status.HTTPOk(w, d)
 	return
 }
 
-func GetDeployments(w http.ResponseWriter, r *http.Request) {
-	deployments, err := config.GetAll()
+// GetDeployment: get all deployments
+func GetAllDeployments(w http.ResponseWriter, r *http.Request) {
+	deployments, err := service.GetAllDeployments()
 	if err != nil {
 		status.HTTPBad(w, err)
 		return

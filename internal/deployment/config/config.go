@@ -19,8 +19,7 @@ type Config struct {
 }
 
 func (cfg *Config) Save() error {
-	err := cfg.validate()
-	if err != nil {
+	if err := cfg.validate(); err != nil {
 		return err
 	}
 
