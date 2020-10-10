@@ -39,6 +39,10 @@ func (cfg *Config) applyDefaults() {
 		cfg.Volumes = make(map[string]string, 0)
 	}
 
+	if cfg.Ports == nil {
+		cfg.Ports = make(map[string]string, 0)
+	}
+
 	if cfg.Tag == "" {
 		cfg.Tag = "latest"
 	}

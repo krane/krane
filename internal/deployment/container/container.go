@@ -6,6 +6,8 @@ import (
 	"fmt"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/mount"
+	"github.com/docker/go-connections/nat"
 	"github.com/lithammer/shortuuid/v3"
 	"github.com/sirupsen/logrus"
 
@@ -80,6 +82,8 @@ func mapConfigToCreateContainerConfig(cfg config.Config) docker.CreateContainerC
 
 	envars := makeContainerEnvars(cfg)
 	labels := makeContainerLabels(cfg)
+	volumes := makeContainerVolumes(cfg)
+	ports := makeContainerPorts(cfg)
 
 	containerName := fmt.Sprintf("%s-%s", cfg.Name, shortuuid.New())
 	return docker.CreateContainerConfig{
@@ -87,10 +91,43 @@ func mapConfigToCreateContainerConfig(cfg config.Config) docker.CreateContainerC
 		Image:         cfg.Image,
 		NetworkID:     knetwork.ID,
 		Labels:        labels,
-		Ports:         nil,
-		Volumes:       nil,
+		Ports:         ports,
+		Volumes:       volumes,
 		Env:           envars,
 	}
+}
+
+func makeContainerPorts(cfg config.Config) nat.PortMap {
+	bindings := nat.PortMap{}
+	for hostPort, containerPort := range cfg.Ports {
+		// host port
+		hostBinding := nat.PortBinding{HostPort: hostPort}
+
+		// container port
+		// TODO: figure out if we can bind ports of other types besides tcp
+		cPort, err := nat.NewPort("tcp", containerPort)
+		if err != nil {
+			continue
+		}
+
+		bindings[cPort] = []nat.PortBinding{hostBinding}
+	}
+
+	return bindings
+}
+
+func makeContainerVolumes(cfg config.Config) []mount.Mount {
+	volumes := make([]mount.Mount, 0)
+
+	for hostVolume, containerVolume := range cfg.Volumes {
+		volumes = append(volumes, mount.Mount{
+			Type:   mount.TypeBind,
+			Source: hostVolume,
+			Target: containerVolume,
+		})
+	}
+
+	return volumes
 }
 
 func makeContainerLabels(cfg config.Config) map[string]string {
@@ -142,13 +179,7 @@ func (k Kontainer) Remove() error {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	client := docker.GetClient()
-
-	if err := client.RemoveContainer(ctx, k.ID, true); err != nil {
-		return err
-	}
-
-	return nil
+	return docker.GetClient().RemoveContainer(ctx, k.ID, true)
 }
 
 func (k Kontainer) Ok() (bool, error) {

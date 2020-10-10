@@ -14,6 +14,7 @@ type Config struct {
 	Tag      string            `json:"tag"`
 	Alias    []string          `json:"alias"`
 	Env      map[string]string `json:"env"`
+	Ports    map[string]string `json:"ports"`
 	Secrets  map[string]string `json:"secrets"`
 	Volumes  map[string]string `json:"volumes"`
 }
@@ -27,15 +28,6 @@ func (cfg *Config) Save() error {
 
 	bytes, err := store.Serialize(cfg)
 	err = store.Instance().Put(constants.DeploymentsCollectionName, cfg.Name, bytes)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func Delete(name string) error {
-	err := store.Instance().Remove(constants.DeploymentsCollectionName, name)
 	if err != nil {
 		return err
 	}

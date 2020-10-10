@@ -125,7 +125,7 @@ func (c *Client) StopContainer(ctx context.Context, containerID string) error {
 
 // RemoveContainer : remove docker container
 func (c *Client) RemoveContainer(ctx context.Context, containerID string, force bool) error {
-	options := types.ContainerRemoveOptions{Force: force}
+	options := types.ContainerRemoveOptions{RemoveVolumes: true, RemoveLinks: true, Force: force}
 	return c.ContainerRemove(ctx, containerID, options)
 }
 
