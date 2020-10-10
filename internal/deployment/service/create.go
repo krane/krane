@@ -2,10 +2,8 @@ package service
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"time"
-
-	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/deployment/container"
@@ -13,109 +11,87 @@ import (
 	"github.com/biensupernice/krane/internal/job"
 )
 
-// Run: The handler in charge of creating new deployment container resources
-//
-// Args: Krane Config
-//
-// Signature: func Run(args Args) error
-//
-// 1. Fetch current container for the deployment. The deployment metadata is provided in the args.
-//
-// 2. Create new container(s)
-// - Every container is created suffixed with a unique id, format {name}-{shortuuid} for example api-Cekw67uyMpBGZLRP2HFVbe
-//
-// 3. Up new container(s)
-// - New containers are automatically attached to the traefick network
-// - Since cleanup has not occurred, traefik is load balancing between old container and new created containers
-//
-// 4. Poll new containers until (a) healthy | (b) unhealthy
-// a. if healthy, create a new job to deleteContainerResources previous containers if > 0
-// b. if unhealthy or state "unknown" for X amount of time, remove newly created containers and report failure.
-// - Note: when new containers are in "unhealthy" state the previous containers are not cleaned up unless
-// - previous containers are also unhealthy
-
-// createContainerResources create containers deployment workfllow
 func createContainerResources(args job.Args) error {
+	wf := newWorkflow("CreateContainerResources", args)
+
+	wf.with("GetCurrentContainers", getCurrentContainers)
+	wf.with("PullImage", pullImage)
+	wf.with("CreateContainers", createContainers)
+	wf.with("StartContainers", startContainers)
+	wf.with("CheckNewContainersHealth", checkNewContainersHealth)
+	wf.with("RemoveOldContainers", removeCurrContainers)
+
+	return wf.start()
+}
+
+func pullImage(args job.Args) error {
 	cfg := args["config"].(config.Config)
-	logrus.Debugf("Starting deployment workflow for %s", cfg.Name)
 
-	client := docker.GetClient()
+	ctx := context.Background()
+	defer ctx.Done()
 
-	// 1. get curr containers
-	currContainer, err := container.GetKontainersByNamespace(client, cfg.Name)
-	if err != nil {
-		return err
-	}
-	logrus.Debugf("Found %d existing containers for %s", len(currContainer), cfg.Name)
+	return docker.GetClient().PullImage(ctx, cfg.Registry, cfg.Image, cfg.Tag)
+}
 
-	// 2. pull image
-	image := docker.FormatImageSourceURL(cfg.Registry, cfg.Image, cfg.Tag)
-	if err := pullImage(image); err != nil {
-		return err
-	}
-	logrus.Debugf("Pulled %s for %s", image, cfg.Name)
+func createContainers(args job.Args) error {
+	cfg := args["config"].(config.Config)
 
-	// 3. create containers
-	kontainer, createContainerErr := container.Create(cfg)
-	if createContainerErr != nil {
-		return createContainerErr
-	}
-	logrus.Debugf("Created containers for %s", cfg.Name)
+	// TODO: move this up to the config when we
+	// can handle managing multiple containers for single namespace
+	scale := 1
 
-	// 4. start containers
-	startContainerErr := kontainer.Start()
-	if startContainerErr != nil {
-		return startContainerErr
-	}
-	logrus.Debugf("Started containers for %s", cfg.Name)
-
-	// 5. check container health
-	containerHealthCheckErr := pollContainerUntilHealthy(kontainer)
-	if containerHealthCheckErr != nil {
-		return err
-	}
-	logrus.Debugf("Healthy containers for %s", cfg.Name)
-
-	// 6. cleanup old containers
-	for _, c := range currContainer {
-		if err := c.Remove(); err != nil {
+	newContainers := make([]container.Kontainer, 0)
+	for i := 0; i < scale; i++ {
+		newContainer, err := container.Create(cfg)
+		if err != nil {
 			return err
 		}
+		newContainers = append(newContainers, newContainer)
 	}
-	logrus.Debugf("Removed %d containers for %s", len(currContainer), cfg.Name)
 
-	// 7. cleanup old images
-	// TODO:
-
-	logrus.Debugf("Completed deployment workflow for %s", cfg.Name)
+	args["newContainers"] = &newContainers
 	return nil
 }
 
-func pullImage(image string) error {
-	ctx := context.Background()
-	client := docker.GetClient()
-	err := client.PullImage(&ctx, image)
-	ctx.Done()
-	return err
+func startContainers(args job.Args) error {
+	newContainers := args["newContainers"].(*[]container.Kontainer)
+	for _, newContainer := range *newContainers {
+		err := newContainer.Start()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
-func pollContainerUntilHealthy(container container.Kontainer) error {
+func checkNewContainersHealth(args job.Args) error {
+	newContainers := args["newContainers"].(*[]container.Kontainer)
+
 	pollRetry := 10
-	for i := 0; i <= pollRetry; i++ {
-		expBackOff := time.Duration(10 * i)
-		time.Sleep(expBackOff * time.Second)
+	for _, newContainer := range *newContainers {
+		for i := 0; i <= pollRetry; i++ {
+			expBackOff := time.Duration(10 * i)
+			time.Sleep(expBackOff * time.Second)
 
-		ok, err := container.Ok()
-		if err != nil {
-			continue
+			ok, err := newContainer.Ok()
+			if err != nil {
+				if i == pollRetry {
+					return fmt.Errorf("container health unstable %v", err)
+				}
+				continue
+			}
+
+			if !ok {
+				if i == pollRetry {
+					return fmt.Errorf("container health unstable %v", err)
+				}
+				continue
+			}
+
+			// If here container health should be healthy
+			break
 		}
-
-		if !ok {
-			continue
-		}
-
-		return nil
 	}
 
-	return errors.New("unable to determine container health")
+	return nil
 }

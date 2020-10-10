@@ -17,16 +17,16 @@ import (
 )
 
 type Job struct {
-	ID          string         `json:"id"`           // Unique job ID
-	Namespace   string         `json:"namespace"`    // The namespace used for scoping jobs. This is the same namespace used when fetching secrets.
-	Type        string         `json:"type"`         // The type of job
-	Status      Status         `json:"status"`       // The status of the current job with details for execution counts etc..
-	State       State          `json:"state"`        // Current state of a job (running | complete)
-	StartTime   int64          `json:"start_time"`   // Job start time - epoch in seconds since 1970
-	EndTime     int64          `json:"end_time"`     // Job end time - epoch in seconds since 1970
-	RetryPolicy uint           `json:"retry_policy"` // Job retry policy
-	Args        Args           `json:"args"`         // Arguments passed down to the Job Handler
-	Run         GenericHandler `json:"-"`            // Executor function which receives the Args and returns an error if any
+	ID          string         `json:"id"`               // Unique job ID
+	Namespace   string         `json:"namespace"`        // The namespace used for scoping jobs. This is the same namespace used when fetching secrets.
+	Type        string         `json:"type"`             // The type of job
+	Status      Status         `json:"status"`           // The status of the current job with details for execution counts etc..
+	State       State          `json:"state"`            // Current state of a job (running | complete)
+	StartTime   int64          `json:"start_time_epoch"` // Job start time - epoch in seconds since 1970
+	EndTime     int64          `json:"end_time_epoch"`   // Job end time - epoch in seconds since 1970
+	RetryPolicy uint           `json:"retry_policy"`     // Job retry policy
+	Args        Args           `json:"-"`                // Arguments passed down to the Job Handler
+	Run         GenericHandler `json:"-"`                // Executor function which receives the Args and returns an error if any
 }
 
 // Args : is a shortcut to easily specify arguments for job when enqueueing them.

@@ -22,9 +22,9 @@ USAGE
 
 COMMANDS
   delete  Delete a deployment
-  deploy  Deploy a spec
+  deploy  Deploy an app
   help    display help for krane
   login   Authenticate to a Krane server
-  status  Get deployment status
+  status  Get deployments status
   ui      Deploy a local version of Krane UI
 ```

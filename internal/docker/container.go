@@ -129,8 +129,8 @@ func (c *Client) RemoveContainer(ctx context.Context, containerID string, force 
 	return c.ContainerRemove(ctx, containerID, options)
 }
 
-func (c *Client) GetOneContainer(ctx *context.Context, containerId string) (types.ContainerJSON, error) {
-	return c.ContainerInspect(*ctx, containerId)
+func (c *Client) GetOneContainer(ctx context.Context, containerId string) (types.ContainerJSON, error) {
+	return c.ContainerInspect(ctx, containerId)
 }
 
 // GetAllContainers : gets all containers on the host machine

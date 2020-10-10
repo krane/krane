@@ -65,24 +65,12 @@ func GetAll(namespace string) ([]*Secret, error) {
 
 func Get(namespace, alias string) (*Secret, error) {
 	collection := getNamespaceCollectionName(namespace)
-	bytes, err := store.Instance().GetAll(collection)
-	if err != nil {
-		return &Secret{}, err
-	}
+	bytes, err := store.Instance().Get(collection, alias)
 
-	for _, secret := range bytes {
-		var s Secret
-		err := json.Unmarshal(secret, &s)
-		if err != nil {
-			return &Secret{}, err
-		}
+	var s *Secret
+	json.Unmarshal(bytes, &s)
 
-		if alias == s.Alias {
-			return &s, nil
-		}
-	}
-
-	return &Secret{}, fmt.Errorf("secret with alias %s not found", alias)
+	return s, err
 }
 
 func (s *Secret) Redact() { s.Value = "<redacted>" }

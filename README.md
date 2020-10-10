@@ -47,7 +47,7 @@ $ boltdbweb --db-name=/path/to/krane.db --port=9000
 
 ## Configuration
 
-Krane uses environment variables for its configuration
+The following is a list of environment variables to configure Krane
 	
 **KRANE_PRIVATE_KEY**
 

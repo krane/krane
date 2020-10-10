@@ -7,6 +7,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/lithammer/shortuuid/v3"
+	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
@@ -48,7 +49,7 @@ func Create(cfg config.Config) (Kontainer, error) {
 	}
 
 	// get container
-	json, err := client.GetOneContainer(&ctx, body.ID)
+	json, err := client.GetOneContainer(ctx, body.ID)
 	if err != nil {
 		return Kontainer{}, err
 	}
@@ -72,22 +73,53 @@ func mapConfigToCreateContainerConfig(cfg config.Config) docker.CreateContainerC
 	ctx := context.Background()
 	defer ctx.Done()
 
-	client := docker.GetClient()
-	ntw, err := client.GetNetworkByName(ctx, docker.KraneNetworkName)
+	knetwork, err := docker.GetClient().GetNetworkByName(ctx, docker.KraneNetworkName)
 	if err != nil {
 		return docker.CreateContainerConfig{}
 	}
+
+	envars := makeContainerEnvars(cfg)
+	labels := makeContainerLabels(cfg)
 
 	containerName := fmt.Sprintf("%s-%s", cfg.Name, shortuuid.New())
 	return docker.CreateContainerConfig{
 		ContainerName: containerName,
 		Image:         cfg.Image,
-		NetworkID:     ntw.ID,
-		Labels:        map[string]string{KraneContainerNamespaceLabel: cfg.Name},
+		NetworkID:     knetwork.ID,
+		Labels:        labels,
 		Ports:         nil,
 		Volumes:       nil,
-		Env:           []string{},
+		Env:           envars,
 	}
+}
+
+func makeContainerLabels(cfg config.Config) map[string]string {
+	return map[string]string{
+		KraneContainerNamespaceLabel:     cfg.Name,
+		"traefik.http.routers.test.rule": "Host(`test.localhost`)",
+	}
+}
+
+// convert map of envars into formatted list of envars
+func makeContainerEnvars(cfg config.Config) []string {
+	envs := make([]string, 0)
+
+	// config environment variables
+	for k, v := range cfg.Env {
+		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
+	}
+
+	// resolve secret by alias
+	for key, alias := range cfg.Secrets {
+		secret, err := secrets.Get(cfg.Name, alias)
+		if err != nil || secret == nil {
+			logrus.Debugf("Unable to get resolve secret for %s with alias @%s", cfg.Name, alias)
+			continue
+		}
+		envs = append(envs, fmt.Sprintf("%s=%s", key, secret.Value))
+	}
+
+	return envs
 }
 
 func (k Kontainer) Start() error {
@@ -124,7 +156,7 @@ func (k Kontainer) Ok() (bool, error) {
 	defer ctx.Done()
 
 	client := docker.GetClient()
-	status, err := client.GetOneContainer(&ctx, k.ID)
+	status, err := client.GetOneContainer(ctx, k.ID)
 	if err != nil {
 		return false, err
 	}
@@ -175,7 +207,8 @@ func GetKontainers(client *docker.Client) ([]Kontainer, error) {
 }
 
 // filter krane manage containers by namespace
-func GetKontainersByNamespace(client *docker.Client, namespace string) ([]Kontainer, error) {
+func GetKontainersByNamespace(namespace string) ([]Kontainer, error) {
+	client := docker.GetClient()
 	kontainers, err := GetKontainers(client)
 	if err != nil {
 		return make([]Kontainer, 0), err

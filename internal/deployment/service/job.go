@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -32,7 +33,15 @@ func makeDockerDeploymentJob(config config.Config, action action) (job.Job, erro
 func createContainersJob(config config.Config) job.Job {
 	retryPolicy := utils.GetUIntEnv("DEPLOYMENT_RETRY_POLICY")
 
-	jobsArgs := job.Args{"config": config}
+	currContainers := make([]container.Kontainer, 0)
+	newContainers := make([]container.Kontainer, 0)
+
+	jobsArgs := job.Args{
+		"config":         config,
+		"currContainers": &currContainers,
+		"newContainers":  &newContainers,
+	}
+
 	return job.Job{
 		ID:          utils.MakeIdentifier(),
 		Namespace:   config.Name,
@@ -46,7 +55,12 @@ func createContainersJob(config config.Config) job.Job {
 func deleteContainersJob(config config.Config) job.Job {
 	retryPolicy := utils.GetUIntEnv("DEPLOYMENT_RETRY_POLICY")
 
-	jobsArgs := job.Args{"namespace": config.Name}
+	currContainers := make([]container.Kontainer, 0)
+
+	jobsArgs := job.Args{
+		"config":         config,
+		"currContainers": &currContainers,
+	}
 	return job.Job{
 		ID:          utils.MakeIdentifier(),
 		Namespace:   config.Name,

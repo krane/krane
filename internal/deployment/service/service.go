@@ -33,7 +33,7 @@ func enqueueDeploymentJob(deploymentJob job.Job) {
 	e := job.NewEnqueuer(store, queue)
 	_, err := e.Enqueue(deploymentJob)
 	if err != nil {
-		logrus.Errorf(err.Error())
+		logrus.Errorf("Error enqueuing deployment job %s", err.Error())
 		return
 	}
 }

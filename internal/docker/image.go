@@ -10,16 +10,19 @@ import (
 )
 
 // PullImage : poll docker image from registry
-func (c *Client) PullImage(ctx *context.Context, image string) (err error) {
+func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (err error) {
+	formattedImage := formatImageSourceURL(registry, image, tag)
+
 	options := types.ImagePullOptions{
-		RegistryAuth: "", // RegistryAuth is the base64 encoded credentials for the registry
+		RegistryAuth: "", // TODO: RegistryAuth is the base64 encoded credentials for the registry
 	}
 
-	reader, err := c.ImagePull(*ctx, image, options)
+	reader, err := c.ImagePull(ctx, formattedImage, options)
 	if err != nil {
 		return err
 	}
 
+	// TODO: dont sent output to stdout
 	io.Copy(os.Stdout, reader)
 	err = reader.Close()
 
@@ -35,13 +38,11 @@ func (c *Client) RemoveImage(ctx *context.Context, imageID string) ([]types.Imag
 	return c.ImageRemove(*ctx, imageID, options)
 }
 
-// FormatImageSourceURL : format into appropriate docker image url
-func FormatImageSourceURL(
-	repo string,
-	imageName string,
-	tag string) string {
+// formatImageSourceURL : format into appropriate docker image url
+func formatImageSourceURL(registry, image, tag string) string {
 	if tag == "" {
 		tag = "latest"
 	}
-	return fmt.Sprintf("%s/%s:%s", repo, imageName, tag)
+
+	return fmt.Sprintf("%s/%s:%s", registry, image, tag)
 }

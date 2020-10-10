@@ -1,21 +1,5 @@
 package deployment
 
-// func (d *Deployment) startDockerResources() error {
-//
-// 	ctx := context.Background()
-//
-// 	client := docker.GetClient()
-//
-// 	// Create formatted url to fetch docker image - http://registry/image:tag
-// 	image := docker.FormatImageSourceURL(d.Spec.Config.Registry, d.Spec.Config.Image, d.Spec.Config.Tag)
-//
-// 	logrus.Debugf("[%s] -> Pulling %s", d.Spec.Name, image)
-// 	err := client.PullImage(&ctx, image)
-// 	if err != nil {
-// 		logrus.Errorf("[%s] -> Error pulling %s: %s", d.Spec.Name, image, err.Error())
-// 		return err
-// 	}
-//
 // 	// Container Labels added for identifying krane managed containers
 // 	routingLabel := fmt.Sprintf("traefik.status.routers.%s.rule", d.Spec.Name)
 // 	routingValue := fmt.Sprintf("Host(`%s`)", d.Alias)
