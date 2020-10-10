@@ -14,6 +14,7 @@ import (
 	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/secrets"
+	"github.com/biensupernice/krane/internal/traefik"
 )
 
 // Krane custom container struct
@@ -131,10 +132,18 @@ func makeContainerVolumes(cfg config.Config) []mount.Mount {
 }
 
 func makeContainerLabels(cfg config.Config) map[string]string {
-	return map[string]string{
-		KraneContainerNamespaceLabel:     cfg.Name,
-		"traefik.http.routers.test.rule": "Host(`test.localhost`)",
+	labels := map[string]string{
+		KraneContainerNamespaceLabel: cfg.Name,
 	}
+
+	for _, alias := range cfg.Alias {
+		routingLabels := traefik.MakeContainerRoutingLabels(cfg.Name, alias)
+		for _, label := range routingLabels {
+			labels[label.Label] = label.Value
+		}
+	}
+
+	return labels
 }
 
 // convert map of envars into formatted list of envars

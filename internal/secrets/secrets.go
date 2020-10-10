@@ -36,9 +36,13 @@ func Add(key, value, nspace string) (string, error) {
 		Value:     value,
 		Alias:     formatSecretAlias(key),
 	}
+
 	bytes, _ := s.serialize()
 	collection := getNamespaceCollectionName(nspace)
-	store.Instance().Put(collection, s.Alias, bytes)
+	err := store.Instance().Put(collection, s.Alias, bytes)
+	if err != nil {
+		return "", err
+	}
 
 	return s.Alias, nil
 }
