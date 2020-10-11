@@ -46,7 +46,7 @@ func Create(cfg config.Config) (Kontainer, error) {
 	client := docker.GetClient()
 
 	mappedConfig := mapConfigToCreateContainerConfig(cfg)
-	body, err := client.CreateContainer2(ctx, mappedConfig)
+	body, err := client.CreateContainer(ctx, mappedConfig)
 	if err != nil {
 		return Kontainer{}, err
 	}
@@ -136,6 +136,8 @@ func makeContainerLabels(cfg config.Config) map[string]string {
 		KraneContainerNamespaceLabel: cfg.Name,
 	}
 
+	// TODO: theres a bug where it only applies a single label if aliases is greater than 1.
+	// This is because the labels key get overwritten
 	for _, alias := range cfg.Alias {
 		routingLabels := traefik.MakeContainerRoutingLabels(cfg.Name, alias)
 		for _, label := range routingLabels {

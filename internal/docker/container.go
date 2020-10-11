@@ -25,7 +25,7 @@ type CreateContainerConfig struct {
 }
 
 // create a docker container
-func (c *Client) CreateContainer2(
+func (c *Client) CreateContainer(
 	ctx context.Context,
 	config CreateContainerConfig,
 ) (container.ContainerCreateCreatedBody, error) {
@@ -58,64 +58,6 @@ func makeHostConfig(ports nat.PortMap, volumes []mount.Mount) container.HostConf
 		Mounts:       volumes,
 	}
 }
-
-// CreateContainer : create docker container
-// func (c *DockerClient) CreateContainer(
-// 	ctx *context.Context,
-// 	conf *CreateContainerConfig,
-// ) (container.ContainerCreateCreatedBody, error) {
-//
-// 	// Configure Host Port
-// 	hostBinding := nat.PortBinding{
-// 		// HostIP:   "localhost",
-// 		HostPort: conf.HostPort,
-// 	}
-//
-// 	// Configure Container Port
-// 	containerPort, err := nat.NewPort(string(container.TCP), conf.ContainerPort)
-// 	if err != nil {
-// 		return container.ContainerCreateCreatedBody{}, err
-// 	}
-//
-// 	// Bind host-to-container ports
-// 	portBinding := nat.PortMap{containerPort: []nat.PortBinding{hostBinding}}
-//
-// 	// Setup volumes
-// 	volumes := make([]mount.Mount, 0)
-// 	for s, t := range conf.Volumes {
-// 		volumes = append(volumes, mount.Mount{
-// 			Type:   mount.TypeBind,
-// 			Source: s,
-// 			Target: t,
-// 		})
-// 	}
-// 	hostConf := &container.HostConfig{
-// 		PortBindings: portBinding,
-// 		AutoRemove:   false,
-// 		Mounts:       volumes,
-// 	}
-//
-// 	// Normalize Env vars to be represented as an array of strings &  not a map
-// 	envars := make([]string, 0)
-// 	for k, v := range conf.Env {
-// 		envar := fmt.Sprintf("%s=%s", k, v) // ex. NODE_ENV=dev
-// 		envars = append(envars, envar)
-// 	}
-//
-// 	// Setup container conf
-// 	containerConf := &container.Config{
-// 		Hostname: conf.Name,
-// 		Image:    conf.Image,
-// 		Env:      envars,
-// 		Labels:   conf.Labels,
-// 	}
-//
-// 	// Setup networking conf
-// 	endpointConf := map[string]*network.EndpointSettings{"krane": &network.EndpointSettings{NetworkID: conf.NetworkID}}
-// 	networkConf := &network.NetworkingConfig{EndpointsConfig: endpointConf}
-//
-// 	return c.ContainerCreate(*ctx, containerConf, hostConf, networkConf, conf.Name)
-// }
 
 // StopContainer : stop docker container
 func (c *Client) StopContainer(ctx context.Context, containerID string) error {
