@@ -1,30 +1,17 @@
 # CLI
 
-The Krane CLI provides an interface for interacting with Krane to create container resources.
-
-Mac
+The Krane [CLI](https://github.com/krane/cli) provides an interface for interacting with Krane to create container resources.
 
 ```
-curl -fL https://github.com/biensupernice/krane-cli/releases/download/{version}/krane-cli-macos -o krane-cli && chmod +x krane-cli
+npm i -g @krane/cli
 ```
 
-Linux
-
 ```
-curl -fsL https://github.com/biensupernice/krane-cli/releases/download/{version}/krane-cli-linux -o krane-cli && chmod +x krane-cli
-```
-
----
-
-```
-USAGE
-  $ krane [COMMAND]
+$ krane [COMMAND]
 
 COMMANDS
-  delete  Delete a deployment
-  deploy  Deploy an app
-  help    display help for krane
-  login   Authenticate to a Krane server
-  status  Get deployments status
-  ui      Deploy a local version of Krane UI
+
+deploy  Deploy a service
+delete  Delete a deployment
+login   Authenticate to a Krane server
 ```
