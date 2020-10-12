@@ -132,7 +132,7 @@ func (job *Job) hasExistingNamespace() (bool, error) {
 
 func GetJobs(daysAgo uint) ([]Job, error) {
 	// get all deployments
-	deployments, err := config.GetAll()
+	deployments, err := config.GetAllDeploymentConfigs()
 	if err != nil {
 		return make([]Job, 0), err
 	}

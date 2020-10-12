@@ -5,7 +5,7 @@ import "github.com/docker/go-connections/nat"
 type Port struct {
 	IP            string `json:"ip"`
 	Type          string `json:"type"`
-	HostPort      string `json:"container_port"`
+	HostPort      string `json:"host_port"`
 	ContainerPort string `json:"container_port"`
 }
 

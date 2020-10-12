@@ -30,7 +30,7 @@ func SaveDeployment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	status.HTTPOk(w, cfg)
+	status.HTTPAccepted(w)
 	return
 }
 
@@ -39,20 +39,20 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	d, err := service.GetDeploymentByName(name)
+	cfg, err := config.GetConfigByDeploymentByName(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	if err := service.DeleteDeployment(d); err != nil {
+	if err := service.DeleteDeployment(cfg); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
 	// TODO: remove configuration
-	
-	status.HTTPOk(w, nil)
+
+	status.HTTPAccepted(w)
 	return
 }
 
@@ -61,19 +61,19 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	d, err := service.GetDeploymentByName(name)
+	cfg, err := config.GetConfigByDeploymentByName(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, d)
+	status.HTTPOk(w, cfg)
 	return
 }
 
 // GetDeployment: get all deployments
 func GetAllDeployments(w http.ResponseWriter, r *http.Request) {
-	deployments, err := service.GetAllDeployments()
+	deployments, err := config.GetAllDeploymentConfigs()
 	if err != nil {
 		status.HTTPBad(w, err)
 		return

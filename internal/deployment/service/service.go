@@ -27,11 +27,11 @@ func DeleteDeployment(cfg config.Config) error {
 }
 
 func enqueueDeploymentJob(deploymentJob job.Job) {
-	store := store.Instance()
+	db := store.Instance()
 	queue := job.GetJobQueue()
 
-	e := job.NewEnqueuer(store, queue)
-	_, err := e.Enqueue(deploymentJob)
+	enq := job.NewEnqueuer(db, queue)
+	_, err := enq.Enqueue(deploymentJob)
 	if err != nil {
 		logrus.Errorf("Error enqueuing deployment job %s", err.Error())
 		return

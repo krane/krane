@@ -1,4 +1,4 @@
-# Krane - Toolset for working with containers
+![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1602474802/Marketing_-_Krane_dj2y9e.png)
  
 ![CI](https://github.com/biensupernice/krane/workflows/CI/badge.svg?branch=master)
 
@@ -9,6 +9,12 @@ Krane is a self-hosted container management solution. It offers a simple and pro
 * **Documentation:** https://krane.sh  
 * **Releases:** https://github.com/biensupernice/krane/releases
 * **CLI:** https://github.com/biensupernice/krane-cli
+
+## Features
+
+* Reduce cost
+* Simple deployment configuration
+* Productive toolset
 
 ## Building from source
 

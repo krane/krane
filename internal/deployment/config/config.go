@@ -26,16 +26,11 @@ func (cfg *Config) Save() error {
 
 	cfg.applyDefaults()
 
-	bytes, err := store.Serialize(cfg)
-	err = store.Instance().Put(constants.DeploymentsCollectionName, cfg.Name, bytes)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	bytes, _ := cfg.Serialize()
+	return store.Instance().Put(constants.DeploymentsCollectionName, cfg.Name, bytes)
 }
 
-func Get(deploymentName string) (Config, error) {
+func GetConfigByDeploymentByName(deploymentName string) (Config, error) {
 	bytes, err := store.Instance().Get(constants.DeploymentsCollectionName, deploymentName)
 	if err != nil {
 		return Config{}, err
@@ -54,7 +49,7 @@ func Get(deploymentName string) (Config, error) {
 	return cfg, nil
 }
 
-func GetAll() ([]Config, error) {
+func GetAllDeploymentConfigs() ([]Config, error) {
 	bytes, err := store.Instance().GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
 		return make([]Config, 0), err
@@ -63,7 +58,7 @@ func GetAll() ([]Config, error) {
 	cfgs := make([]Config, 0)
 	for _, b := range bytes {
 		var cfg Config
-		store.Deserialize(b, &cfg)
+		_ = store.Deserialize(b, &cfg)
 		cfgs = append(cfgs, cfg)
 	}
 

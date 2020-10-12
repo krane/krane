@@ -3,8 +3,8 @@ package container
 import "github.com/docker/docker/api/types/mount"
 
 type Volume struct {
-	HostVolume      string `json:"host_volume"`
-	ContainerVolume string `json:"container_volume"`
+		HostVolume      string `json:"host_volume"`
+		ContainerVolume string `json:"container_volume"`
 }
 
 func makeVolumes(volumes []Volume) []mount.Mount {
