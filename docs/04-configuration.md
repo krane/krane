@@ -1,8 +1,8 @@
 # Configuration
 
-Deploying containers using **Krane** starts with a configuration file that describes how Krane should run your containers.
+Deploying containers using **Krane** starts with a configuration file that describes how Krane should run your deployments.
 
-> A recommended pattern is to have a `krane.json` file at the root of you project.
+> A recommended pattern is to have a `krane.json` file at the root of you project
 
 An example of a `krane.json` for deploying the Docker [hello-world](https://hub.docker.com/_/hello-world) example.
 
@@ -17,11 +17,8 @@ An example of a `krane.json` for deploying the Docker [hello-world](https://hub.
 The above deployment configuration:
 
 - Creates a deployment called **hello-world-app**
-
 - Uses the image **hello-world**
-
-- Has an alias **hello.localhost** that is automatically handled by Krane.
-
+- Has an alias **hello.localhost** that is automatically handled by Krane
 
 ### name
 
