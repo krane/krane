@@ -8,9 +8,9 @@ An example of a `krane.json` for deploying the Docker [hello-world](https://hub.
 
 ```json
 {
-  "name": "hello-world-app",       <- Deployment name
-  "image": "hello-world",          <- Docker image
-  "alias": ["hello.localhost"]     <- Custom aliases
+  "name": "hello-world-app",    
+  "image": "hello-world",       
+  "alias": ["hello.localhost"]  
 }
 ```
 
