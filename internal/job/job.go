@@ -72,6 +72,16 @@ func (job *Job) capture() {
 	}
 }
 
+func CreateCollection(namespace string) error {
+	collection := getNamespaceCollectionName(namespace)
+	return store.Instance().CreateCollection(collection)
+}
+
+func DeleteCollection(namespace string) error {
+	collection := getNamespaceCollectionName(namespace)
+	return store.Instance().DeleteCollection(collection)
+}
+
 func (job *Job) validate() error {
 	if job.ID == "" {
 		return fmt.Errorf("job id required")

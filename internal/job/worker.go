@@ -42,7 +42,7 @@ func (w *worker) loop() {
 					logrus.Debugf("Completed job %s for %s", job.ID, job.Namespace)
 					break
 				}
-				logrus.Errorf("Error procesing job %s", err.Error())
+				logrus.Errorf("Error processing job %s", err.Error())
 				job.WithError(err)
 				job.Status.FailureCount++
 			}

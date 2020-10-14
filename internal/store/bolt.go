@@ -74,7 +74,7 @@ func (b *BoltDB) Put(collection string, key string, value []byte) error {
 }
 
 func (b *BoltDB) Get(collection, key string) (data []byte, err error) {
-	instance.View(func(tx *bolt.Tx) error {
+	err = instance.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(collection))
 		if bkt == nil {
 			return errors.New(fmt.Sprintf("Bucket %s does not exists", collection))
@@ -98,7 +98,7 @@ func (b *BoltDB) GetAll(collection string) (data [][]byte, err error) {
 			return errors.New(fmt.Sprintf("Bucket %s does not exists", collection))
 		}
 
-		bkt.ForEach(func(k, v []byte) (err error) {
+		_ = bkt.ForEach(func(k, v []byte) (err error) {
 			data = append(data, v)
 			return
 		})
@@ -139,17 +139,22 @@ func (b *BoltDB) Remove(collection string, key string) error {
 	return instance.Update(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(collection))
 		if bkt == nil {
+			// dont return err if bkt does not exists
 			return nil
 		}
 		return bkt.Delete([]byte(key))
 	})
 }
 
-func (b *BoltDB) GetBucket(collection string) (bkt *bolt.Bucket) {
-	instance.View(func(tx *bolt.Tx) error {
-		bkt = tx.Bucket([]byte(collection))
-		return nil
+func (b *BoltDB) DeleteCollection(collection string) error {
+	return instance.Update(func(tx *bolt.Tx) error {
+		return tx.DeleteBucket([]byte(collection))
 	})
+}
 
-	return
+func (b *BoltDB) CreateCollection(collection string) error {
+	return instance.Update(func(tx *bolt.Tx) error {
+		_, err := tx.CreateBucketIfNotExists([]byte(collection))
+		return err
+	})
 }

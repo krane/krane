@@ -6,5 +6,7 @@ type Store interface {
 	GetInRange(collection, minTime, maxTime string) ([][]byte, error)
 	Put(collection string, key string, value []byte) error
 	Remove(collection string, key string) error
+	DeleteCollection(collection string) error
+	CreateCollection(collection string) error
 	Shutdown()
 }

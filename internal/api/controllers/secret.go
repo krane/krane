@@ -36,10 +36,10 @@ func GetSecrets(w http.ResponseWriter, r *http.Request) {
 
 func CreateSecret(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	namespace := params["name"]
+	deploymentName := params["name"]
 
-	if namespace == "" {
-		status.HTTPBad(w, errors.New("namespace required"))
+	if deploymentName == "" {
+		status.HTTPBad(w, errors.New("deployment name required"))
 		return
 	}
 
@@ -49,18 +49,43 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var body secretBody
-	err := json.NewDecoder(r.Body).Decode(&body)
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		status.HTTPBad(w, err)
+		return
+	}
+
+	s, err := secrets.Add(deploymentName, body.Key, body.Value)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	alias, err := secrets.Add(body.Key, body.Value, namespace)
-	if err != nil {
+	s.Redact()
+
+	status.HTTPOk(w, s)
+	return
+}
+
+func DeleteSecret(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	deploymentName := params["name"]
+	key := params["key"]
+
+	if deploymentName == "" {
+		status.HTTPBad(w, errors.New("deployment name required"))
+		return
+	}
+
+	if key == "" {
+		status.HTTPBad(w, errors.New("key required"))
+		return
+	}
+
+	if err := secrets.Delete(deploymentName, key); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, alias)
+	status.HTTPOk(w, nil)
 	return
 }

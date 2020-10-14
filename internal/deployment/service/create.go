@@ -9,17 +9,20 @@ import (
 	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
+	"github.com/biensupernice/krane/internal/secrets"
 )
 
 func createContainerResources(args job.Args) error {
 	wf := newWorkflow("CreateContainerResources", args)
 
 	wf.with("GetCurrentContainers", getCurrentContainers)
+	wf.with("CreateSecretsCollection", createSecretsCollection)
+	wf.with("CreateJobsCollection", createJobsCollection)
 	wf.with("PullImage", pullImage)
 	wf.with("CreateContainers", createContainers)
 	wf.with("StartContainers", startContainers)
 	wf.with("CheckNewContainersHealth", checkNewContainersHealth)
-	wf.with("RemoveOldContainers", removeCurrContainers)
+	wf.with("RemoveOldContainers", cleanupCurrentContainers)
 
 	return wf.start()
 }
@@ -94,4 +97,14 @@ func checkNewContainersHealth(args job.Args) error {
 	}
 
 	return nil
+}
+
+func createSecretsCollection(args job.Args) error {
+	cfg := args["config"].(config.Config)
+	return secrets.CreateCollection(cfg.Name)
+}
+
+func createJobsCollection(args job.Args) error {
+	cfg := args["config"].(config.Config)
+	return job.CreateCollection(cfg.Name)
 }

@@ -58,6 +58,7 @@ func withRoutes(router *mux.Router) {
 	// secrets
 	withRoute(authRouter, "/secrets/{name}", controllers.GetSecrets, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/secrets/{name}", controllers.CreateSecret, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
+	withRoute(authRouter, "/secrets/{name}/{key}", controllers.DeleteSecret, middlewares.AuthSessionMiddleware).Methods(http.MethodDelete)
 	// jobs
 	withRoute(authRouter, "/jobs", controllers.GetRecentJobs, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/jobs/{namespace}", controllers.GetJobsByNamespace, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)

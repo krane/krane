@@ -30,6 +30,10 @@ func (cfg *Config) Save() error {
 	return store.Instance().Put(constants.DeploymentsCollectionName, cfg.Name, bytes)
 }
 
+func Delete(deploymentName string) error {
+	return store.Instance().Remove(constants.DeploymentsCollectionName, deploymentName)
+}
+
 func GetConfigByDeploymentByName(deploymentName string) (Config, error) {
 	bytes, err := store.Instance().Get(constants.DeploymentsCollectionName, deploymentName)
 	if err != nil {

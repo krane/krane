@@ -21,30 +21,45 @@ type Secret struct {
 // Add : a secret to a deployment. SecretsCollectionName are injected to the container during the container run step.
 // When a secret is created, an alias is returned and can be used to reference the secret in the `krane.json`
 // ie. SECRET_TOKEN=@secret-token (@secret-token was returned and how you reference the value for SECRET_TOKEN)
-func Add(key, value, nspace string) (string, error) {
+func Add(deploymentName, key, value string) (*Secret, error) {
 	if !isValidSecretKey(key) {
-		return "", fmt.Errorf("invalid secret name %s", key)
+		return &Secret{}, fmt.Errorf("invalid secret name %s", key)
 	}
 
-	if !namespace.Exist(nspace) {
-		return "", fmt.Errorf("unable to find namespace %s", nspace)
+	if !namespace.Exist(deploymentName) {
+		return nil, fmt.Errorf("unable to find namespace %s", deploymentName)
 	}
 
 	s := &Secret{
-		Namespace: nspace,
+		Namespace: deploymentName,
 		Key:       key,
 		Value:     value,
 		Alias:     formatSecretAlias(key),
 	}
 
 	bytes, _ := s.serialize()
-	collection := getNamespaceCollectionName(nspace)
-	err := store.Instance().Put(collection, s.Alias, bytes)
+	collection := getNamespaceCollectionName(deploymentName)
+	err := store.Instance().Put(collection, s.Key, bytes)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return s.Alias, nil
+	return s, nil
+}
+
+func Delete(namespace, key string) error {
+	collection := getNamespaceCollectionName(namespace)
+	return store.Instance().Remove(collection, key)
+}
+
+func CreateCollection(namespace string) error {
+	collection := getNamespaceCollectionName(namespace)
+	return store.Instance().CreateCollection(collection)
+}
+
+func DeleteCollection(namespace string) error {
+	collection := getNamespaceCollectionName(namespace)
+	return store.Instance().DeleteCollection(collection)
 }
 
 func GetAll(namespace string) ([]*Secret, error) {
@@ -67,16 +82,16 @@ func GetAll(namespace string) ([]*Secret, error) {
 	return secrets, nil
 }
 
-func Get(namespace, alias string) (*Secret, error) {
+func Get(namespace, key string) (*Secret, error) {
 	collection := getNamespaceCollectionName(namespace)
-	bytes, err := store.Instance().Get(collection, alias)
+	bytes, err := store.Instance().Get(collection, key)
 
 	if err != nil {
 		return nil, err
 	}
 
 	if bytes == nil {
-		return nil, fmt.Errorf("secret with alias %s not found", alias)
+		return nil, fmt.Errorf("secret with key %s not found", key)
 	}
 
 	var s *Secret

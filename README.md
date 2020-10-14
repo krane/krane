@@ -12,9 +12,11 @@ Krane is a self-hosted container management solution. It offers a simple and pro
 
 ## Features
 
-* Reduce cost
-* Simple deployment configuration
-* Productive toolset
+* Your hardware
+* Single file deployments
+* CLI
+* UI
+* Deployment secrets
 
 ## Building from source
 

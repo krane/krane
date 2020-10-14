@@ -35,54 +35,56 @@ func TestMain(m *testing.M) {
 }
 
 func TestAddNewSecret(t *testing.T) {
-	alias1, err := Add("token", "biensupernice", testNamespace)
+	s1, err := Add(testNamespace, "token", "biensupernice")
 	assert.Nil(t, err)
-	assert.Equal(t, "@TOKEN", alias1)
+	assert.Equal(t, "token", s1.Key)
+	assert.Equal(t, "biensupernice", s1.Value)
+	assert.Equal(t, "@TOKEN", s1.Alias)
 
-	alias2, err := Add("api_token", "biensupernice", testNamespace)
+	s2, err := Add(testNamespace, "api_token", "biensupernice")
 	assert.Nil(t, err)
-	assert.Equal(t, "@API_TOKEN", alias2)
+	assert.Equal(t, "@API_TOKEN", s2.Alias)
 
-	alias3, err := Add("api-token", "biensupernice", testNamespace)
+	s3, err := Add(testNamespace, "api-token", "biensupernice")
 	assert.Nil(t, err)
-	assert.Equal(t, "@API_TOKEN", alias3)
+	assert.Equal(t, "@API_TOKEN", s3.Alias)
 
-	alias4, err := Add("api-token123", "biensupernice", testNamespace)
+	s4, err := Add(testNamespace, "api-token123", "biensupernice")
 	assert.Nil(t, err)
-	assert.Equal(t, "@API_TOKEN123", alias4)
+	assert.Equal(t, "@API_TOKEN123", s4.Alias)
 
-	alias5, err := Add("API_PORT_8080", "8080", testNamespace)
+	s5, err := Add(testNamespace, "API_PORT_8080", "8080")
 	assert.Nil(t, err)
-	assert.Equal(t, "@API_PORT_8080", alias5)
+	assert.Equal(t, "@API_PORT_8080", s5.Alias)
 
-	alias6, err := Add("API-PORT-8080", "8080", testNamespace)
+	s6, err := Add(testNamespace, "API-PORT-8080", "8080")
 	assert.Nil(t, err)
-	assert.Equal(t, "@API_PORT_8080", alias6)
+	assert.Equal(t, "@API_PORT_8080", s6.Alias)
 
-	alias7, err := Add("env", "dev", testNamespace)
+	s7, err := Add(testNamespace, "env", "dev")
 	assert.Nil(t, err)
-	assert.Equal(t, "@ENV", alias7)
+	assert.Equal(t, "@ENV", s7.Alias)
 
-	alias8, err := Add("8080_API_PORT", "8080", testNamespace)
+	s8, err := Add(testNamespace, "8080_API_PORT", "8080")
 	assert.Nil(t, err)
-	assert.Equal(t, "@8080_API_PORT", alias8)
+	assert.Equal(t, "@8080_API_PORT", s8.Alias)
 
-	alias9, err := Add("8080-API-PORT", "8080", testNamespace)
+	s9, err := Add(testNamespace, "8080-API-PORT", "8080")
 	assert.Nil(t, err)
-	assert.Equal(t, "@8080_API_PORT", alias9)
+	assert.Equal(t, "@8080_API_PORT", s9.Alias)
 
-	alias10, err := Add("aPi_ToKeN-1337", "8080", testNamespace)
+	s10, err := Add(testNamespace, "aPi_ToKeN-1337", "8080")
 	assert.Nil(t, err)
-	assert.Equal(t, "@API_TOKEN_1337", alias10)
+	assert.Equal(t, "@API_TOKEN_1337", s10.Alias)
 
 }
 
-func TestErrorWhenAddSecretToNonExistingNamespace(t *testing.T) {
-	_, err1 := Add("TOKEN", "biensupernice", "non-existing-namespace")
+func TestErrorWhenAddSecretToNonExistingDeployment(t *testing.T) {
+	_, err1 := Add("non-existing-namespace", "TOKEN", "biensupernice")
 	assert.Error(t, err1)
 	assert.Equal(t, "unable to find namespace non-existing-namespace", err1.Error())
 
-	_, err2 := Add("TOKEN", "biensupernice", "")
+	_, err2 := Add("", "TOKEN", "biensupernice")
 	assert.Error(t, err2)
 	assert.Equal(t, "unable to find namespace ", err2.Error())
 
@@ -131,7 +133,7 @@ func TestGetSecretsByNamespace(t *testing.T) {
 	secretKey := utils.RandomString(20)
 	secretValue := utils.RandomString(20)
 
-	alias, err := Add(secretKey, secretValue, testNamespace)
+	secr, err := Add(testNamespace, secretKey, secretValue)
 	assert.Nil(t, err)
 
 	secrets, err := GetAll(testNamespace)
@@ -140,7 +142,7 @@ func TestGetSecretsByNamespace(t *testing.T) {
 
 	var s Secret
 	for _, secret := range secrets {
-		if secret.Alias == alias {
+		if secret.Key == secr.Key {
 			s = *secret
 			break
 		}
@@ -151,14 +153,14 @@ func TestGetSecretsByNamespace(t *testing.T) {
 	assert.Equal(t, s.Value, secretValue)
 }
 
-func TestGetSecretByAlias(t *testing.T) {
+func TestGetSecret(t *testing.T) {
 	secretKey := utils.RandomString(20)
 	secretValue := utils.RandomString(20)
 
-	alias, err := Add(secretKey, secretValue, testNamespace)
+	secr, err := Add(testNamespace, secretKey, secretValue)
 	assert.Nil(t, err)
 
-	s, err := Get(testNamespace, alias)
+	s, err := Get(testNamespace, secr.Key)
 	assert.Nil(t, err)
 
 	assert.NotNil(t, s)
@@ -167,7 +169,33 @@ func TestGetSecretByAlias(t *testing.T) {
 }
 
 func TestErrorWhenGetSecretByNonExistingAlias(t *testing.T) {
-	_, err := Get(testNamespace, "@NON-EXISTING-ALIAS")
+	_, err := Get(testNamespace, "non-existing-key")
 	assert.NotNil(t, err)
-	assert.Equal(t, "secret with alias @NON-EXISTING-ALIAS not found", err.Error())
+	assert.Equal(t, "secret with key non-existing-key not found", err.Error())
+}
+
+func TestDeleteSecret(t *testing.T) {
+	secretKey := utils.RandomString(20)
+	secretValue := utils.RandomString(20)
+
+	// add
+	_, err := Add(testNamespace, secretKey, secretValue)
+	assert.Nil(t, err)
+
+	// get
+	s, err := Get(testNamespace, secretKey)
+	assert.Nil(t, err)
+
+	assert.NotNil(t, s)
+	assert.Equal(t, s.Key, secretKey)
+	assert.Equal(t, s.Value, secretValue)
+
+	// delete
+	err = Delete(s.Namespace, s.Key)
+	assert.Nil(t, err)
+
+	// get
+	_, err = Get(testNamespace, secretKey)
+	assert.NotNil(t, err)
+	assert.Equal(t, fmt.Sprintf("secret with key %s not found", secretKey), err.Error())
 }
