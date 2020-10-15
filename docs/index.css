@@ -18,6 +18,10 @@ body {
   padding: 0;
 }
 
+.pagination-item-title {
+  font-size: 1.4em;
+}
+
 /* Sidebar  Header text*/
 .sidebar {
   color: black !important;

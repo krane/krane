@@ -1,16 +1,16 @@
 # Introduction
 
-Krane is a self-hosted container management solution that interfaces with Docker and exposes a suite of tools for managing containers on remote servers.
+Krane is a self-hosted container management solution that interfaces with Docker and exposes a productive toolset for working with containers.
 
 ![Krane](https://user-images.githubusercontent.com/21694364/89133914-371a5900-d4ee-11ea-9e7d-3ff5282c30f5.png)
 
-The project, Its open-source, in its early stages, but its no replacement for production ready solutions. So why even use Krane? Chances are most of the time when developing on side projects we come across a moment in which we wish to grab our code, put it in a container and ship off somewhere. If this is you,  Krane might come in handy. 
+The project is open-source, in its early stages, and is no replacement for production ready solutions. So why even use Krane? Chances are most of the time when developing on side projects we come across a moment in which we wish to grab our code, put it in a container, and ship off to the cloud. If this is you,  Krane might come in handy. 
 
-Krane is self-hosted, this means you can run it on your own hardware - [localhost](http://localhost), digital ocean, aws, etc.. Theres obviously quite a lot to consider when managing and hosting your own service but we've tried to simplify the experience as much as we could. We simplified the language of describing containers just a bit, if your familiar with docker-compose then you are already more than qualified to use Krane.
+Krane is self-hosted, this means you can run it on your own hardware - localhost, digital ocean, aws, etc.. Theres obviously quite a lot to consider when managing and hosting your own Krane instance but we've tried to simplify the experience as much as we could. We simplified the language of describing containers just a bit, if your familiar with docker-compose then you are already more than qualified to use Krane.
 
 Lets go over some of the basic:
 
-Deployments:
+**Deployments**
 
 You can think of a single deployment as an instance of your application. For example, lets pretend we're making an app that recommends restaurants to users based on their location. Our app is gonna have a frontend, backend, database, and a recommendations service. We'll name our app *Locally*,  in Krane we can model each component of Locally as a deployment, it might look something like
 
@@ -18,20 +18,20 @@ Insert image:
 
 The diagram above would then look like this when configuring it with Krane
 
-frontend.krane.json
+`frontend.krane.json`
 
 ```json
 {
 	"name": "locally-web",
 	"image": "locally/web",
 	"alias": ["locally.com"],
-  "env": {
+    "env": {
 		"API_URL": "https://api.locally.com"
 	}
 }
 ```
 
-backend.krane.json
+`backend.krane.json`
 
 ```json
 {
@@ -39,7 +39,7 @@ backend.krane.json
 	"image": "locally/api",
 	"alias": ["api.locally.com"],
 	"env": {
-		"RECOMMENDATION_API_URL": "https://re.locally.com",
+		"RECOMMENDATION_API_URL": "https://re.locally.com"
 	},
 	"secrets": {
 		"DB_HOST": "@DB_HOST",
@@ -49,24 +49,24 @@ backend.krane.json
 }
 ```
 
-database.krane.json
+`database.krane.json`
 
 ```json
 {
 	"name": "locally-db",
 	"image": "mongo",
-	"tag": "3.6.20-xenial"
-	"alias": ["db.locally.com"],
+	"tag": "3.6.20-xenial",
+	"alias": ["db.locally.com"]
 }
 ```
 
-recommendation.krane.json
+`recommendation.krane.json`
 
 ```json
 {
 	"name": "locally-recommendation",
 	"image": "locally/re",
-	"tag": "0.1.5"
+	"tag": "0.1.5",
 	"alias": ["re.locally.com"]
 }
 ```
@@ -98,4 +98,4 @@ We can even add secrets to through the CLI
 $ krane secrets add locally-api -key DB_PASSWORD -value p@ssword 
 ```
 
-Simple, it might not cover all use cases, but the goal is to provide a simple and enjoyable experience.
+Simple, it might not cover all use cases, but the goal is to provide a simple and productive toolset.
