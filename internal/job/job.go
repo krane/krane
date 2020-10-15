@@ -249,6 +249,9 @@ func (kjobs kJobs) mergeAndSort() []Job {
 		}
 	}
 
+	// Add the last item in the heap
+	result = append(result, temp)
+
 	return result
 }
 

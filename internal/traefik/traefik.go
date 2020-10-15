@@ -1,32 +1,84 @@
 package traefik
 
-import "fmt"
+import (
+	"fmt"
 
-var (
-	// Rules are a set of matchers configured with values, that determine if a particular
-	// request matches specific criteria. If the rule is verified, the router becomes active, calls
-	// middlewares, and then forwards the request to the service.
-	RuleRoutingConfigName  = "traefik.http.routers.%s.rule" // "traefik.status.routers.any_name.rule"
-	RuleRoutingConfigValue = "Host(`%s`)"                   // "Host(`example.com`)"
-
-	// Registers a port. Useful when the container exposes multiples ports.
-	ServiceRouterConfig = "traefik.status.services.%s.loadbalancer.server.port" // traefik.status.services.myservice.loadbalancer.server.port=80
-
-	// TODO: Complete adding all possible labels available
+	"github.com/biensupernice/krane/internal/docker"
+	"github.com/biensupernice/krane/internal/utils"
 )
 
-type RoutingLabel struct {
+var Secure = utils.GetBoolEnv("SECURE")
+
+type TraefikLabel struct {
 	Label string
 	Value string
 }
 
-func MakeContainerRoutingLabels(namespace, alias string) []RoutingLabel {
-	labels := make([]RoutingLabel, 0)
+func MakeContainerRoutingLabels(namespace, alias string) []TraefikLabel {
+	labels := make([]TraefikLabel, 0)
 
-	labels = append(labels, RoutingLabel{
-		Label: fmt.Sprintf(RuleRoutingConfigName, namespace),
-		Value: fmt.Sprintf(RuleRoutingConfigValue, alias),
+	labels = append(labels, TraefikLabel{
+		Label: "traefik.enabled",
+		Value: "true",
 	})
 
+	labels = append(labels, TraefikLabel{
+		Label: "traefik.docker.network",
+		Value: docker.KraneNetworkName,
+	})
+
+	labels = append(labels, traefikEntryPointsLabels()...)
+	labels = append(labels, traefikMiddlewareLabels(namespace)...)
+	labels = append(labels, traefikRouterLabels(namespace, alias)...)
+	labels = append(labels, traefikServiceLabels(namespace, alias)...)
 	return labels
+}
+
+func traefikRouterLabels(namespace, alias string) []TraefikLabel {
+	routerLabels := make([]TraefikLabel, 0)
+
+	routerLabels = append(routerLabels, TraefikLabel{
+		Label: fmt.Sprintf("traefik.http.routers.%s.rule", namespace),
+		Value: fmt.Sprintf("Host(`%s`)", alias),
+	})
+
+	if Secure {
+		routerLabels = append(routerLabels, TraefikLabel{
+			Label: fmt.Sprintf("traefik.http.routers.%s.entrypoints", namespace),
+			Value: "websecure",
+		})
+	}
+
+	return routerLabels
+}
+
+func traefikServiceLabels(namespace, alias string) []TraefikLabel {
+	serviceLabels := make([]TraefikLabel, 0)
+	return serviceLabels
+}
+
+func traefikEntryPointsLabels() []TraefikLabel {
+	entryPointLabels := make([]TraefikLabel, 0)
+
+	if Secure {
+		entryPointLabels = append(entryPointLabels, TraefikLabel{
+			Label: "entryPoints.websecure.address",
+			Value: "443",
+		})
+	}
+
+	return entryPointLabels
+}
+
+func traefikMiddlewareLabels(namespace string) []TraefikLabel {
+	middlewareLabels := make([]TraefikLabel, 0)
+
+	if Secure {
+		middlewareLabels = append(middlewareLabels, TraefikLabel{
+			Label: fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.scheme", namespace),
+			Value: "https",
+		})
+	}
+
+	return middlewareLabels
 }

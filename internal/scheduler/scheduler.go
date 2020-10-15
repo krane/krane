@@ -74,7 +74,8 @@ func (s *Scheduler) poll() {
 }
 
 func hasDesiredState(kcfg config.Config, containers []types.Container) bool {
-	return false
+	// TODO:
+	return true
 }
 
 func (s *Scheduler) deployments() []config.Config {
