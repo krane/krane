@@ -14,7 +14,7 @@ import (
 	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/secrets"
-	"github.com/biensupernice/krane/internal/traefik"
+	"github.com/biensupernice/krane/internal/proxy"
 )
 
 // Krane custom container struct
@@ -139,7 +139,7 @@ func makeContainerLabels(cfg config.Config) map[string]string {
 	// TODO: theres a bug where it only applies a single label if aliases is greater than 1.
 	// This is because the labels key get overwritten
 	for _, alias := range cfg.Alias {
-		routingLabels := traefik.MakeContainerRoutingLabels(cfg.Name, alias)
+		routingLabels := proxy.MakeContainerRoutingLabels(cfg.Name, alias)
 		for _, label := range routingLabels {
 			labels[label.Label] = label.Value
 		}

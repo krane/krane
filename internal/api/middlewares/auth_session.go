@@ -72,6 +72,7 @@ func parseSessionTokenFromJWTClaims(tkn jwt.Token) (session.Token, error) {
 	var sessionTkn session.Token
 	bytes, _ := json.Marshal(claims.Data)
 	_ = json.Unmarshal(bytes, &sessionTkn)
+
 	return sessionTkn, nil
 }
 
@@ -83,24 +84,26 @@ func parseToken(tkn string) (string, string) {
 	}
 
 	splitTkn := strings.Split(tkn, " ")
-	return splitTkn[0], splitTkn[1]
+
+	tknType := splitTkn[0]
+	tknValue := splitTkn[1]
+	return tknType, tknValue
 }
 
 // Check if token is a well formatter Bearer token
 func isValidTokenFormat(tkn string) bool {
 	if tkn == "" {
-		logrus.Info("No token provided")
 		return false
 	}
 
 	// Split on the space of the token ex. Bearer XXXXX
 	splitTkn := strings.Split(tkn, " ")
 
-	jwtTknType := splitTkn[0]
+	jwtTknType := splitTkn[0] // Bearer
 
 	// Check token is a bearer token
 	if strings.Compare(jwtTknType, "Bearer") != 0 {
-		logrus.Info("Not a `Bearer` token")
+		logrus.Debugf("Not a `Bearer` token, token type = %s", jwtTknType)
 		return false
 	}
 

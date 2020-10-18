@@ -1,4 +1,4 @@
-package traefik
+package proxy
 
 import (
 	"fmt"
@@ -7,7 +7,9 @@ import (
 	"github.com/biensupernice/krane/internal/utils"
 )
 
-var Secure = utils.GetBoolEnv("SECURE")
+// Flag to indicate containers should be
+// labeled with security labels for secure communication over TLS
+var Secured = utils.GetBoolEnv("SECURED")
 
 type TraefikLabel struct {
 	Label string
@@ -18,12 +20,12 @@ func MakeContainerRoutingLabels(namespace, alias string) []TraefikLabel {
 	labels := make([]TraefikLabel, 0)
 
 	labels = append(labels, TraefikLabel{
-		Label: "traefik.enabled",
+		Label: "proxy.enabled",
 		Value: "true",
 	})
 
 	labels = append(labels, TraefikLabel{
-		Label: "traefik.docker.network",
+		Label: "proxy.docker.network",
 		Value: docker.KraneNetworkName,
 	})
 
@@ -38,13 +40,13 @@ func traefikRouterLabels(namespace, alias string) []TraefikLabel {
 	routerLabels := make([]TraefikLabel, 0)
 
 	routerLabels = append(routerLabels, TraefikLabel{
-		Label: fmt.Sprintf("traefik.http.routers.%s.rule", namespace),
+		Label: fmt.Sprintf("proxy.http.routers.%s.rule", namespace),
 		Value: fmt.Sprintf("Host(`%s`)", alias),
 	})
 
-	if Secure {
+	if Secured {
 		routerLabels = append(routerLabels, TraefikLabel{
-			Label: fmt.Sprintf("traefik.http.routers.%s.entrypoints", namespace),
+			Label: fmt.Sprintf("proxy.http.routers.%s.entrypoints", namespace),
 			Value: "websecure",
 		})
 	}
@@ -60,7 +62,7 @@ func traefikServiceLabels(namespace, alias string) []TraefikLabel {
 func traefikEntryPointsLabels() []TraefikLabel {
 	entryPointLabels := make([]TraefikLabel, 0)
 
-	if Secure {
+	if Secured {
 		entryPointLabels = append(entryPointLabels, TraefikLabel{
 			Label: "entryPoints.websecure.address",
 			Value: "443",
@@ -73,9 +75,9 @@ func traefikEntryPointsLabels() []TraefikLabel {
 func traefikMiddlewareLabels(namespace string) []TraefikLabel {
 	middlewareLabels := make([]TraefikLabel, 0)
 
-	if Secure {
+	if Secured {
 		middlewareLabels = append(middlewareLabels, TraefikLabel{
-			Label: fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.scheme", namespace),
+			Label: fmt.Sprintf("proxy.http.middlewares.%s.redirectscheme.scheme", namespace),
 			Value: "https",
 		})
 	}

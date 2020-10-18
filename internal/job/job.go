@@ -216,6 +216,10 @@ func (kjobs kJobs) mergeAndSort() []Job {
 		flattened = append(flattened, kjobs[i]...)
 	}
 
+	if flattened == nil {
+		return make([]Job, 0)
+	}
+
 	// push all job's into heap
 	for i := 0; i < len(flattened); i++ {
 		heap.Push(&JobHeap, flattened[i])

@@ -22,6 +22,7 @@ func init() {
 
 	utils.RequireEnv("KRANE_PRIVATE_KEY")
 	utils.EnvOrDefault("LISTEN_ADDRESS", "127.0.0.1:8500")
+	utils.EnvOrDefault("SECURED", "false")
 	utils.EnvOrDefault("LOG_LEVEL", logging.INFO)
 	utils.EnvOrDefault("DB_PATH", "/tmp/krane.db")
 	utils.EnvOrDefault("WORKERPOOL_SIZE", "1")
