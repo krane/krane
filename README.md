@@ -1,5 +1,7 @@
-![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1602474802/Marketing_-_Krane_dj2y9e.png)
- 
+# Krane
+
+![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1604263808/krane-logo_eudwhv.png)
+
 ![CI](https://github.com/biensupernice/krane/workflows/CI/badge.svg?branch=master)
 
 > ⚠️ Currently under construction
@@ -12,11 +14,9 @@ Krane is a self-hosted container management solution. It offers a simple and pro
 
 ## Features
 
-* Your hardware
-* Single file deployments
-* CLI
-* UI
+* Simple deployments
 * Deployment secrets
+* HTTPS/TLS 
 
 ## Building from source
 
@@ -62,6 +62,14 @@ The following is a list of environment variables to configure Krane
 The private key used by Krane for signing authentication requests.
 
 - required: `true`
+
+**SECURED**
+
+Enable HTTPS/TLS communication
+
+- required: `false`
+
+- default: `false`
 
 **LISTEN_ADDRESS**
 
