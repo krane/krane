@@ -11,21 +11,16 @@ import (
 // labeled with security labels for secure communication over TLS
 var Secured = utils.GetBoolEnv("SECURED")
 
-type TraefikLabel struct {
-	Label string
-	Value string
-}
+func MakeContainerRoutingLabels(namespace, alias string) []ProxyLabel {
+	labels := make([]ProxyLabel, 0)
 
-func MakeContainerRoutingLabels(namespace, alias string) []TraefikLabel {
-	labels := make([]TraefikLabel, 0)
+	// labels = append(labels, ProxyLabel{
+	// 	Label: "traefik.enabled",
+	// 	Value: "true",
+	// })
 
-	labels = append(labels, TraefikLabel{
-		Label: "proxy.enabled",
-		Value: "true",
-	})
-
-	labels = append(labels, TraefikLabel{
-		Label: "proxy.docker.network",
+	labels = append(labels, ProxyLabel{
+		Label: "traefik.docker.network",
 		Value: docker.KraneNetworkName,
 	})
 
@@ -36,35 +31,43 @@ func MakeContainerRoutingLabels(namespace, alias string) []TraefikLabel {
 	return labels
 }
 
-func traefikRouterLabels(namespace, alias string) []TraefikLabel {
-	routerLabels := make([]TraefikLabel, 0)
+func traefikRouterLabels(namespace, alias string) []ProxyLabel {
+	routerLabels := make([]ProxyLabel, 0)
 
-	routerLabels = append(routerLabels, TraefikLabel{
-		Label: fmt.Sprintf("proxy.http.routers.%s.rule", namespace),
+	routerLabels = append(routerLabels, ProxyLabel{
+		Label: fmt.Sprintf("traefik.http.routers.%s.rule", namespace),
 		Value: fmt.Sprintf("Host(`%s`)", alias),
 	})
 
 	if Secured {
-		routerLabels = append(routerLabels, TraefikLabel{
-			Label: fmt.Sprintf("proxy.http.routers.%s.entrypoints", namespace),
-			Value: "websecure",
+		routerLabels = append(routerLabels, ProxyLabel{
+			Label: fmt.Sprintf("traefik.http.routers.%s.entrypoints", namespace),
+			Value: "web-secure",
+		})
+		routerLabels = append(routerLabels, ProxyLabel{
+			Label: fmt.Sprintf("traefik.http.routers.%s.tls", namespace),
+			Value: "true",
+		})
+		routerLabels = append(routerLabels, ProxyLabel{
+			Label: fmt.Sprintf("traefik.http.routers.%s.tls.certresolver", namespace),
+			Value: "krane",
 		})
 	}
 
 	return routerLabels
 }
 
-func traefikServiceLabels(namespace, alias string) []TraefikLabel {
-	serviceLabels := make([]TraefikLabel, 0)
+func traefikServiceLabels(namespace, alias string) []ProxyLabel {
+	serviceLabels := make([]ProxyLabel, 0)
 	return serviceLabels
 }
 
-func traefikEntryPointsLabels() []TraefikLabel {
-	entryPointLabels := make([]TraefikLabel, 0)
+func traefikEntryPointsLabels() []ProxyLabel {
+	entryPointLabels := make([]ProxyLabel, 0)
 
 	if Secured {
-		entryPointLabels = append(entryPointLabels, TraefikLabel{
-			Label: "entryPoints.websecure.address",
+		entryPointLabels = append(entryPointLabels, ProxyLabel{
+			Label: "entryPoints.https.address",
 			Value: "443",
 		})
 	}
@@ -72,13 +75,23 @@ func traefikEntryPointsLabels() []TraefikLabel {
 	return entryPointLabels
 }
 
-func traefikMiddlewareLabels(namespace string) []TraefikLabel {
-	middlewareLabels := make([]TraefikLabel, 0)
+func traefikMiddlewareLabels(namespace string) []ProxyLabel {
+	middlewareLabels := make([]ProxyLabel, 0)
 
 	if Secured {
-		middlewareLabels = append(middlewareLabels, TraefikLabel{
-			Label: fmt.Sprintf("proxy.http.middlewares.%s.redirectscheme.scheme", namespace),
+		middlewareLabels = append(middlewareLabels, ProxyLabel{
+			Label: fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.scheme", namespace),
 			Value: "https",
+		})
+
+		middlewareLabels = append(middlewareLabels, ProxyLabel{
+			Label: fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.port", namespace),
+			Value: "443",
+		})
+
+		middlewareLabels = append(middlewareLabels, ProxyLabel{
+			Label: fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.permanent", namespace),
+			Value: "true",
 		})
 	}
 

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/constants"
@@ -37,7 +38,6 @@ func (s *Scheduler) Run() {
 	}
 
 	logrus.Debug("Exiting Scheduler")
-	return
 }
 
 func (s *Scheduler) poll() {
@@ -45,7 +45,7 @@ func (s *Scheduler) poll() {
 	for _, deployment := range s.deployments() {
 		containers, err := s.docker.FilterContainersByDeployment(deployment.Name)
 		if err != nil {
-			logrus.Errorf("Unhandled error when polling: %s", err)
+			logrus.Error(errors.Wrap(err, "Unhandled error when polling"))
 			continue
 		}
 
@@ -56,7 +56,7 @@ func (s *Scheduler) poll() {
 		// Serialize the deployment into a generic interface to pass as args to the Job handler
 		var args map[string]interface{}
 		bytes, _ := deployment.Serialize()
-		json.Unmarshal(bytes, &args)
+		_ = json.Unmarshal(bytes, &args)
 
 		job := job.Job{
 			ID:        utils.MakeIdentifier(),
@@ -73,21 +73,21 @@ func (s *Scheduler) poll() {
 	logrus.Debugf("Next poll in %s", s.interval.String())
 }
 
-func hasDesiredState(kcfg config.Config, containers []types.Container) bool {
-	// TODO:
+func hasDesiredState(kcfg config.Kconfig, containers []types.Container) bool {
+	// TODO: implmentation not defined always returning true to avoid doing anything
 	return true
 }
 
-func (s *Scheduler) deployments() []config.Config {
+func (s *Scheduler) deployments() []config.Kconfig {
 	bytes, err := s.store.GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
 		logrus.Errorf("Scheduler error: %s", err)
-		return make([]config.Config, 0)
+		return make([]config.Kconfig, 0)
 	}
 
-	deployments := make([]config.Config, 0)
+	deployments := make([]config.Kconfig, 0)
 	for _, b := range bytes {
-		var d config.Config
+		var d config.Kconfig
 		err := store.Deserialize(b, &d)
 		if err != nil {
 			logrus.Error("Unable to deserialize krane config", err.Error())

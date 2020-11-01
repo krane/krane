@@ -19,11 +19,11 @@ const namespace = "krane_test"
 func teardown() { os.Remove(boltpath) }
 
 func TestMain(m *testing.M) {
-	store.New((boltpath))
+	store.NewInstance((boltpath))
 	defer store.Instance().Shutdown()
 
 	// Create deployment (namespace)
-	deployment := config.Config{Name: namespace}
+	deployment := config.Kconfig{Name: namespace}
 	bytes, _ := deployment.Serialize()
 	store.Instance().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
 

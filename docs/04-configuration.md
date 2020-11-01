@@ -119,3 +119,16 @@ The volumes to mount from the container to the host.
 }
 
 ```
+
+### command
+
+A custom command to start the containers
+
+- required: `false`
+- default: `[]`
+
+```json
+{
+   "command": ["npm run start --prod"]
+}
+```

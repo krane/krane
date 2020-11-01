@@ -23,7 +23,9 @@ func EnvOrDefault(key string, fallback string) string {
 	value, found := os.LookupEnv(key)
 	if !found {
 		log.Printf("%s not set, defaulting to %s", key, fallback)
-		os.Setenv(key, fallback)
+		if err := os.Setenv(key, fallback); err != nil {
+			log.Printf("Error setting %s, %v", key, err)
+		}
 		return fallback
 	}
 	log.Printf("%s=%s", key, value)

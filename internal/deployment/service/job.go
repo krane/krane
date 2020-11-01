@@ -19,7 +19,7 @@ const (
 	Down action = "DOWN"
 )
 
-func makeDockerDeploymentJob(config config.Config, action action) (job.Job, error) {
+func makeDockerDeploymentJob(config config.Kconfig, action action) (job.Job, error) {
 	switch action {
 	case Up:
 		return createContainersJob(config), nil
@@ -30,11 +30,11 @@ func makeDockerDeploymentJob(config config.Config, action action) (job.Job, erro
 	}
 }
 
-func createContainersJob(config config.Config) job.Job {
+func createContainersJob(config config.Kconfig) job.Job {
 	retryPolicy := utils.GetUIntEnv("DEPLOYMENT_RETRY_POLICY")
 
-	currContainers := make([]container.Kontainer, 0)
-	newContainers := make([]container.Kontainer, 0)
+	currContainers := make([]container.Kcontainer, 0)
+	newContainers := make([]container.Kcontainer, 0)
 
 	jobsArgs := job.Args{
 		"config":         config,
@@ -52,10 +52,10 @@ func createContainersJob(config config.Config) job.Job {
 	}
 }
 
-func deleteContainersJob(config config.Config) job.Job {
+func deleteContainersJob(config config.Kconfig) job.Job {
 	retryPolicy := utils.GetUIntEnv("DEPLOYMENT_RETRY_POLICY")
 
-	currContainers := make([]container.Kontainer, 0)
+	currContainers := make([]container.Kcontainer, 0)
 
 	jobsArgs := job.Args{
 		"config":         config,

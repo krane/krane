@@ -8,7 +8,7 @@ import (
 	"github.com/biensupernice/krane/internal/store"
 )
 
-func StartDeployment(cfg config.Config) error {
+func StartDeployment(cfg config.Kconfig) error {
 	j, err := makeDockerDeploymentJob(cfg, Up)
 	if err != nil {
 		return err
@@ -17,7 +17,7 @@ func StartDeployment(cfg config.Config) error {
 	return nil
 }
 
-func DeleteDeployment(cfg config.Config) error {
+func DeleteDeployment(cfg config.Kconfig) error {
 	j, err := makeDockerDeploymentJob(cfg, Down)
 	if err != nil {
 		return err

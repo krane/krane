@@ -6,10 +6,12 @@ import (
 	"strings"
 
 	"github.com/sirupsen/logrus"
+
+	"github.com/biensupernice/krane/internal/constants"
 )
 
 func GetServerPrivateKey() string {
-	return os.Getenv("KRANE_PRIVATE_KEY")
+	return os.Getenv(constants.EnvKranePrivateKey)
 }
 
 func GetAuthorizeKeys() []string {

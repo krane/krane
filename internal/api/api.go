@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/biensupernice/krane/internal/api/controllers"
+	"github.com/biensupernice/krane/internal/constants"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -23,7 +24,7 @@ func Run() {
 
 	srv := &http.Server{
 		Handler:      router,
-		Addr:         os.Getenv("LISTEN_ADDRESS"),
+		Addr:         os.Getenv(constants.EnvListenAddress),
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
@@ -47,7 +48,6 @@ func withRoutes(router *mux.Router) {
 	withRoute(noAuthRouter, "/", controllers.GetServerStatus).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/login", controllers.RequestLoginPhrase).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/auth", controllers.AuthenticateClientJWT).Methods(http.MethodPost)
-	withRoute(noAuthRouter, "/ping/{namespace}/{message}", controllers.PingController).Methods(http.MethodGet)
 
 	authRouter := router.PathPrefix("/").Subrouter()
 	// deployments
@@ -55,6 +55,7 @@ func withRoutes(router *mux.Router) {
 	withRoute(authRouter, "/deployments", controllers.SaveDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
 	withRoute(authRouter, "/deployments/{name}", controllers.GetDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/deployments/{name}", controllers.DeleteDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodDelete)
+	withRoute(authRouter, "/deployments/{name}/containers", controllers.GetDeploymentContainers, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	// secrets
 	withRoute(authRouter, "/secrets/{name}", controllers.GetSecrets, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/secrets/{name}", controllers.CreateSecret, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)

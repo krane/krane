@@ -7,9 +7,9 @@ import (
 	"regexp"
 )
 
-func (cfg Config) Serialize() ([]byte, error) { return json.Marshal(cfg) }
+func (cfg Kconfig) Serialize() ([]byte, error) { return json.Marshal(cfg) }
 
-func (cfg Config) validate() error {
+func (cfg Kconfig) validate() error {
 	isValidName := cfg.validateName()
 	if !isValidName {
 		return errors.New("invalid name")
@@ -18,7 +18,7 @@ func (cfg Config) validate() error {
 	return nil
 }
 
-func (cfg *Config) applyDefaults() {
+func (cfg *Kconfig) applyDefaults() {
 	if cfg.Registry == "" {
 		cfg.Registry = "docker.io"
 	}
@@ -47,10 +47,14 @@ func (cfg *Config) applyDefaults() {
 		cfg.Tag = "latest"
 	}
 
+	if cfg.Command == nil {
+		cfg.Command = make([]string, 0)
+	}
+
 	return
 }
 
-func (cfg Config) validateName() bool {
+func (cfg Kconfig) validateName() bool {
 	startsWithLetter := "[a-z]"
 	allowedCharacters := "[a-z0-9_-]"
 	endWithLowerCaseAlphanumeric := "[0-9a-z]"

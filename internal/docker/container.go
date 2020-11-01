@@ -22,6 +22,7 @@ type CreateContainerConfig struct {
 	Ports         nat.PortMap
 	Volumes       []mount.Mount
 	Env           []string // Comma separated, formatted NODE_ENV=dev
+	Cmd           []string
 }
 
 // create a docker container
@@ -30,7 +31,8 @@ func (c *Client) CreateContainer(
 	config CreateContainerConfig,
 ) (container.ContainerCreateCreatedBody, error) {
 	networkingConfig := makeNetworkingConfig(config.NetworkID)
-	containerConfig := makeContainerConfig(config.ContainerName, config.Image, config.Env, config.Labels)
+	containerConfig := makeContainerConfig(
+		config.ContainerName, config.Image, config.Env, config.Labels, config.Cmd)
 	hostConfig := makeHostConfig(config.Ports, config.Volumes)
 
 	return c.ContainerCreate(
@@ -42,12 +44,13 @@ func (c *Client) CreateContainer(
 	)
 }
 
-func makeContainerConfig(hostname string, image string, env []string, labels map[string]string) container.Config {
+func makeContainerConfig(hostname string, image string, env []string, labels map[string]string, cmd []string) container.Config {
 	return container.Config{
 		Hostname: hostname,
 		Image:    image,
 		Env:      env,
 		Labels:   labels,
+		Cmd:      cmd,
 	}
 }
 

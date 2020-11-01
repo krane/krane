@@ -13,7 +13,7 @@ func Exist(namespace string) bool {
 	}
 
 	for _, deployment := range deployments {
-		var d config.Config
+		var d config.Kconfig
 		if err := store.Deserialize(deployment, &d); err != nil {
 			return false
 		}

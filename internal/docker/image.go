@@ -14,6 +14,7 @@ func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (er
 	formattedImage := formatImageSourceURL(registry, image, tag)
 
 	options := types.ImagePullOptions{
+		All:          true,
 		RegistryAuth: "", // TODO: RegistryAuth is the base64 encoded credentials for the registry
 	}
 

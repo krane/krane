@@ -20,7 +20,7 @@ func deleteContainerResources(args job.Args) error {
 }
 
 func cleanupCurrentContainers(args job.Args) error {
-	currContainers := args["currContainers"].(*[]container.Kontainer)
+	currContainers := args["currContainers"].(*[]container.Kcontainer)
 	for _, oldContainer := range *currContainers {
 		err := oldContainer.Remove()
 		if err != nil {
@@ -31,16 +31,16 @@ func cleanupCurrentContainers(args job.Args) error {
 }
 
 func deleteDeploymentSecrets(args job.Args) error {
-	cfg := args["config"].(config.Config)
+	cfg := args["config"].(config.Kconfig)
 	return secrets.DeleteCollection(cfg.Name)
 }
 
 func deleteDeploymentJobs(args job.Args) error {
-	cfg := args["config"].(config.Config)
+	cfg := args["config"].(config.Kconfig)
 	return job.DeleteCollection(cfg.Name)
 }
 
 func deleteDeploymentConfig(args job.Args) error {
-	cfg := args["config"].(config.Config)
+	cfg := args["config"].(config.Kconfig)
 	return config.Delete(cfg.Name)
 }

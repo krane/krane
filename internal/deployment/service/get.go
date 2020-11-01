@@ -7,7 +7,7 @@ import (
 )
 
 func getCurrentContainers(args job.Args) error {
-	cfg := args["config"].(config.Config)
+	cfg := args["config"].(config.Kconfig)
 	containers, err := container.GetKontainersByNamespace(cfg.Name)
 	if err != nil {
 		return err

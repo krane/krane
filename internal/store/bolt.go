@@ -36,7 +36,7 @@ var (
 
 func Instance() Store { return instance }
 
-func New(path string) *BoltDB {
+func NewInstance(path string) *BoltDB {
 	if instance != nil {
 		logrus.Info("Bolt instance already exists...")
 		return instance
@@ -95,7 +95,7 @@ func (b *BoltDB) GetAll(collection string) (data [][]byte, err error) {
 	err = instance.View(func(tx *bolt.Tx) (err error) {
 		bkt := tx.Bucket([]byte(collection))
 		if bkt == nil {
-			return errors.New(fmt.Sprintf("Bucket %s does not exists", collection))
+			return
 		}
 
 		_ = bkt.ForEach(func(k, v []byte) (err error) {

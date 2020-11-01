@@ -122,7 +122,7 @@ func (job *Job) hasExistingNamespace() (bool, error) {
 
 	found := false
 	for _, deployment := range deployments {
-		var d config.Config
+		var d config.Kconfig
 		err := store.Deserialize(deployment, &d)
 		if err != nil {
 			return false, fmt.Errorf("invalid job, %s", err.Error())

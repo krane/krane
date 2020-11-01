@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/api"
+	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/logging"
@@ -20,21 +21,22 @@ import (
 func init() {
 	fmt.Println("Starting Krane...")
 
-	utils.RequireEnv("KRANE_PRIVATE_KEY")
-	utils.EnvOrDefault("LISTEN_ADDRESS", "127.0.0.1:8500")
-	utils.EnvOrDefault("SECURED", "false")
-	utils.EnvOrDefault("LOG_LEVEL", logging.INFO)
-	utils.EnvOrDefault("DB_PATH", "/tmp/krane.db")
-	utils.EnvOrDefault("WORKERPOOL_SIZE", "1")
-	utils.EnvOrDefault("JOB_QUEUE_SIZE", "1")
-	utils.EnvOrDefault("JOB_MAX_RETRY_POLICY", "5")
-	utils.EnvOrDefault("DEPLOYMENT_RETRY_POLICY", "1")
-	utils.EnvOrDefault("SCHEDULER_INTERVAL_MS", "30000")
-	utils.EnvOrDefault("WATCH_MODE", "false")
-	logging.ConfigureLogrus()
+	utils.RequireEnv(constants.EnvKranePrivateKey)
 
+	utils.EnvOrDefault(constants.EnvListenAddress, "127.0.0.1:8500")
+	utils.EnvOrDefault(constants.EnvSecured, "false")
+	utils.EnvOrDefault(constants.EnvLogLevel, logging.INFO)
+	utils.EnvOrDefault(constants.EnvDatabasePath, "/tmp/krane.db")
+	utils.EnvOrDefault(constants.EnvWorkerPoolSize, "1")
+	utils.EnvOrDefault(constants.EnvJobQueueSize, "1")
+	utils.EnvOrDefault(constants.EnvJobMaxRetryPolicy, "5")
+	utils.EnvOrDefault(constants.EnvDeploymentRetryPolicy, "1")
+	utils.EnvOrDefault(constants.EnvSchedulerIntervalMs, "30000")
+	utils.EnvOrDefault(constants.EnvWatchMode, "false")
+
+	logging.ConfigureLogrus()
 	docker.ClientFromEnv()
-	store.New(os.Getenv("DB_PATH"))
+	store.NewInstance(os.Getenv(constants.EnvDatabasePath))
 }
 
 func main() {
@@ -46,24 +48,24 @@ func main() {
 	defer db.Shutdown()
 
 	// shared job queue used for deployment jobs
-	qsize := utils.GetUIntEnv("JOB_QUEUE_SIZE")
+	qsize := utils.GetUIntEnv(constants.EnvJobQueueSize)
 	queue := job.NewJobQueue(qsize)
 
 	// if watch mode is enabled, the scheduler will run
 	// in a separate thread polling and queuing jobs to
 	// maintain the containers state in parity with desired deployment state
-	if utils.GetBoolEnv("WATCH_MODE") {
-		dockerClient := docker.GetClient()
+	if utils.GetBoolEnv(constants.EnvWatchMode) {
+		logrus.Warn("This feature is experimental, dont use unless ")
 		enqueuer := job.NewEnqueuer(db, queue)
-		interval := os.Getenv("SCHEDULER_INTERVAL_MS")
+		interval := utils.EnvOrDefault(constants.EnvSchedulerIntervalMs, "30000")
 
-		jobScheduler := scheduler.New(db, dockerClient, enqueuer, interval)
+		jobScheduler := scheduler.New(db, docker.GetClient(), enqueuer, interval)
 		go jobScheduler.Run()
 	}
 
 	// workers for executing jobs. If no workers are initiated
 	// the queued jobs will stay blocked until a worker frees up or is initiated
-	wpSize := utils.GetUIntEnv("WORKERPOOL_SIZE")
+	wpSize := utils.GetUIntEnv(constants.EnvWorkerPoolSize)
 	workers := job.NewWorkerPool(wpSize, queue, store.Instance())
 	workers.Start()
 

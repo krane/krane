@@ -7,7 +7,7 @@ import (
 	"github.com/biensupernice/krane/internal/store"
 )
 
-type Config struct {
+type Kconfig struct {
 	Name     string            `json:"name" binding:"required"`
 	Registry string            `json:"registry"`
 	Image    string            `json:"image" binding:"required"`
@@ -17,9 +17,10 @@ type Config struct {
 	Ports    map[string]string `json:"ports"`
 	Secrets  map[string]string `json:"secrets"`
 	Volumes  map[string]string `json:"volumes"`
+	Command  []string          `json:"command"`
 }
 
-func (cfg *Config) Save() error {
+func (cfg *Kconfig) Save() error {
 	if err := cfg.validate(); err != nil {
 		return err
 	}
@@ -34,34 +35,34 @@ func Delete(deploymentName string) error {
 	return store.Instance().Remove(constants.DeploymentsCollectionName, deploymentName)
 }
 
-func GetConfigByDeploymentByName(deploymentName string) (Config, error) {
+func GetConfigByDeploymentByName(deploymentName string) (Kconfig, error) {
 	bytes, err := store.Instance().Get(constants.DeploymentsCollectionName, deploymentName)
 	if err != nil {
-		return Config{}, err
+		return Kconfig{}, err
 	}
 
 	if bytes == nil {
-		return Config{}, errors.New("Deployment not found")
+		return Kconfig{}, errors.New("Deployment not found")
 	}
 
-	var cfg Config
+	var cfg Kconfig
 	err = store.Deserialize(bytes, &cfg)
 	if err != nil {
-		return Config{}, err
+		return Kconfig{}, err
 	}
 
 	return cfg, nil
 }
 
-func GetAllDeploymentConfigs() ([]Config, error) {
+func GetAllDeploymentConfigs() ([]Kconfig, error) {
 	bytes, err := store.Instance().GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
-		return make([]Config, 0), err
+		return make([]Kconfig, 0), err
 	}
 
-	cfgs := make([]Config, 0)
+	cfgs := make([]Kconfig, 0)
 	for _, b := range bytes {
-		var cfg Config
+		var cfg Kconfig
 		_ = store.Deserialize(b, &cfg)
 		cfgs = append(cfgs, cfg)
 	}
