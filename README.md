@@ -1,7 +1,5 @@
-# Krane
-
-![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1604263808/krane-logo_eudwhv.png)
-
+![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1602474802/Marketing_-_Krane_dj2y9e.png)
+ 
 ![CI](https://github.com/biensupernice/krane/workflows/CI/badge.svg?branch=master)
 
 > ⚠️ Currently under construction
@@ -14,7 +12,7 @@ Krane is a self-hosted container management solution. It offers a simple and pro
 
 ## Features
 
-* Simple deployments
+* Simple container deployments
 * Deployment secrets
 * HTTPS/TLS 
 
