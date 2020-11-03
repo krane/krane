@@ -1,4 +1,4 @@
-# Introduction
+# Getting Started
 
 Krane is a container deployment tool that makes it easy to create and manage small development workloads. Krane sits on any server and interfaces with Docker exposing a productive toolset for managing containers. The Krane CLI allows you to create, configure, and automate application resources from any machine - Actions, CI, localhost.
 
