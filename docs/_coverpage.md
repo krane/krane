@@ -2,4 +2,4 @@
 
 > Toolset for working with containers
 
-[Explore](00-introduction.md)
+[Explore](getting-started)

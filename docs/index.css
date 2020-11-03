@@ -1,3 +1,14 @@
+:root {
+  /* Tabs */
+  --docsifytabs-border-color: white;
+  --docsifytabs-tab-background: white;
+  --docsifytabs-tab-highlight-color: black;
+}
+
+.docsify-tabs__tab {
+  outline: none !important;
+}
+
 body {
   font-size: 15px !important;
   color: black;
@@ -61,21 +72,6 @@ body {
 /* Custom subheader before pre-content. Example dash for subheaders ( - getting started) */
 .app-sub-sidebar li:before {
   content: "";
-}
-
-/* Search bar styles */
-.search {
-  border-bottom: 0px !important;
-}
-
-.search input:active {
-  padding: 0 7px !important;
-}
-
-.search input:focus {
-  padding: 0 7px !important;
-  box-shadow: 0 0 0px white !important;
-  border: 0px solid white !important;
 }
 
 /* Getting Started button (on homepage) */
