@@ -17,7 +17,7 @@ type Kconfig struct {
 	Ports    map[string]string `json:"ports"`
 	Secrets  map[string]string `json:"secrets"`
 	Volumes  map[string]string `json:"volumes"`
-	Command  []string          `json:"command"`
+	Command  string            `json:"command"`
 }
 
 func (cfg *Kconfig) Save() error {

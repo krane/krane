@@ -22,7 +22,7 @@ type CreateContainerConfig struct {
 	Ports         nat.PortMap
 	Volumes       []mount.Mount
 	Env           []string // Comma separated, formatted NODE_ENV=dev
-	Cmd           []string
+	Command       string
 }
 
 // create a docker container
@@ -32,7 +32,7 @@ func (c *Client) CreateContainer(
 ) (container.ContainerCreateCreatedBody, error) {
 	networkingConfig := makeNetworkingConfig(config.NetworkID)
 	containerConfig := makeContainerConfig(
-		config.ContainerName, config.Image, config.Env, config.Labels, config.Cmd)
+		config.ContainerName, config.Image, config.Env, config.Labels, config.Command)
 	hostConfig := makeHostConfig(config.Ports, config.Volumes)
 
 	return c.ContainerCreate(
@@ -44,13 +44,13 @@ func (c *Client) CreateContainer(
 	)
 }
 
-func makeContainerConfig(hostname string, image string, env []string, labels map[string]string, cmd []string) container.Config {
+func makeContainerConfig(hostname string, image string, env []string, labels map[string]string, command string) container.Config {
 	return container.Config{
 		Hostname: hostname,
 		Image:    image,
 		Env:      env,
 		Labels:   labels,
-		Cmd:      cmd,
+		// TODO: resolve CMD
 	}
 }
 
@@ -79,13 +79,28 @@ func (c *Client) GetOneContainer(ctx context.Context, containerId string) (types
 }
 
 // GetAllContainers : gets all containers on the host machine
-func (c *Client) GetAllContainers(ctx *context.Context) (containers []types.Container, err error) {
+func (c *Client) GetAllContainers(ctx *context.Context) ([]types.ContainerJSON, error) {
 	options := types.ContainerListOptions{
 		All:   true,
 		Quiet: false,
 	}
 
-	return c.ContainerList(*ctx, options)
+	containers, err := c.ContainerList(*ctx, options)
+	if err != nil {
+		return make([]types.ContainerJSON, 0), err
+	}
+
+	toJsonContainers := make([]types.ContainerJSON, 0)
+	for _, container := range containers {
+		containerJson, err := c.ContainerInspect(*ctx, container.ID)
+		if err != nil {
+			return make([]types.ContainerJSON, 0), err
+		}
+
+		toJsonContainers = append(toJsonContainers, containerJson)
+
+	}
+	return toJsonContainers, nil
 }
 
 // GetContainerStatus : get the status of a container
@@ -93,38 +108,37 @@ func (c *Client) GetContainerStatus(ctx context.Context, containerID string, str
 	return c.ContainerStats(ctx, containerID, stream)
 }
 
-func (c *Client) GetContainers(ctx *context.Context, deploymentName string) ([]types.Container, error) {
+func (c *Client) GetContainers(ctx *context.Context, deploymentName string) ([]types.ContainerJSON, error) {
 	// Find all containers
 	allContainers, err := c.GetAllContainers(ctx)
 	if err != nil {
-		return make([]types.Container, 0), err
+		return make([]types.ContainerJSON, 0), err
 	}
 
-	deploymentContainers := make([]types.Container, 0)
-	for _, container := range allContainers {
-		kraneLabel := container.Labels["TODO"]
+	deploymentContainers := make([]types.ContainerJSON, 0)
+	for _, currContainer := range allContainers {
+		kraneLabel := currContainer.Config.Labels["TODO"]
 		if kraneLabel == deploymentName {
-			deploymentContainers = append(deploymentContainers, container)
+			deploymentContainers = append(deploymentContainers, currContainer)
 		}
 	}
 
 	return deploymentContainers, nil
 }
 
-func (c *Client) FilterContainersByDeployment(deploymentName string) ([]types.Container, error) {
-	deploymentContainers := make([]types.Container, 0)
-
+func (c *Client) FilterContainersByDeployment(deploymentName string) ([]types.ContainerJSON, error) {
 	ctx := context.Background()
 	containers, err := c.GetAllContainers(&ctx)
 	ctx.Done()
 
 	if err != nil {
 		logrus.Errorf("Unable to filter container by deployment, %s", err.Error())
-		return make([]types.Container, 0), err
+		return make([]types.ContainerJSON, 0), err
 	}
 
+	deploymentContainers := make([]types.ContainerJSON, 0)
 	for _, container := range containers {
-		kraneLabel := container.Labels["TODO"]
+		kraneLabel := container.Config.Labels["TODO"]
 		if kraneLabel == deploymentName {
 			deploymentContainers = append(deploymentContainers, container)
 		}

@@ -73,7 +73,7 @@ func (s *Scheduler) poll() {
 	logrus.Debugf("Next poll in %s", s.interval.String())
 }
 
-func hasDesiredState(kcfg config.Kconfig, containers []types.Container) bool {
+func hasDesiredState(kcfg config.Kconfig, containers []types.ContainerJSON) bool {
 	// TODO: implmentation not defined always returning true to avoid doing anything
 	return true
 }

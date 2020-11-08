@@ -52,6 +52,23 @@ func fromDockerToKcontainerPorts(ports []types.Port) []Port {
 	return kPorts
 }
 
+func fromDockerToKconfigPortMap(pMap nat.PortMap) []Port {
+	bindings := make([]Port, 0)
+
+	for container, hostBindings := range pMap {
+		for _, hostB := range hostBindings {
+			bindings = append(bindings, Port{
+				IP:            hostB.HostIP,
+				HostPort:      hostB.HostPort,
+				Type:          container.Proto(),
+				ContainerPort: container.Port(),
+			})
+		}
+	}
+
+	return bindings
+}
+
 // from Kconfig to Docker container port map
 func fromKconfigToDockerPortMap(cfg config.Kconfig) nat.PortMap {
 	bindings := nat.PortMap{}
@@ -61,7 +78,8 @@ func fromKconfigToDockerPortMap(cfg config.Kconfig) nat.PortMap {
 
 		// container port
 		// TODO: figure out if we can bind ports of other types besides tcp
-		cPort, err := nat.NewPort("tcp", containerPort)
+		protocol := "tcp"
+		cPort, err := nat.NewPort(protocol, containerPort)
 		if err != nil {
 			continue
 		}

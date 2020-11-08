@@ -51,7 +51,7 @@ List the deployment configuration for a deployment.
 krane config <deployment>
 ```
 
-### Delete
+### delete
 
 Delete a deployment
 

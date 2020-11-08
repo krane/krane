@@ -1,4 +1,4 @@
 - [Getting Started](getting-started)
+- [Installation](installation)
 - [Configuration](deployment-configuration)
 - [CLI](cli)
-- [Installation](installation)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/docker/docker/api/types"
 	"github.com/lithammer/shortuuid/v3"
@@ -29,15 +30,23 @@ type Kcontainer struct {
 	Volumes   []Volume          `json:"volumes"`
 	Env       map[string]string `json:"env"`
 	Secrets   []secrets.Secret  `json:"secrets"`
-	Command   string            `json:"command"`
+	Command   []string          `json:"command"`
 }
 
-type State string
-
-const (
-	Running State = "running"
-	Unknown State = "unknown"
-)
+type State struct {
+	Status     string
+	Running    bool
+	Paused     bool
+	Restarting bool
+	OOMKilled  bool
+	Dead       bool
+	Pid        int
+	ExitCode   int
+	Error      string
+	StartedAt  string
+	FinishedAt string
+	Health     *types.Health `json:",omitempty"`
+}
 
 func Create(cfg config.Kconfig) (Kcontainer, error) {
 	ctx := context.Background()
@@ -46,12 +55,13 @@ func Create(cfg config.Kconfig) (Kcontainer, error) {
 	client := docker.GetClient()
 
 	mappedConfig := fromKconfigToCreateContainerConfig(cfg)
-	body, err := client.CreateContainer(ctx, mappedConfig)
+	body, err := docker.GetClient().CreateContainer(ctx, mappedConfig)
 	if err != nil {
 		return Kcontainer{}, err
 	}
 
-	// get container
+	// the response from creating a container doesnt provide enough information
+	// about the resources it created, we need to fetch the containers for full details
 	json, err := client.GetOneContainer(ctx, body.ID)
 	if err != nil {
 		return Kcontainer{}, err
@@ -97,7 +107,7 @@ func fromKconfigToCreateContainerConfig(cfg config.Kconfig) docker.CreateContain
 		Ports:         ports,
 		Volumes:       volumes,
 		Env:           envars,
-		Cmd:           cfg.Command,
+		Command:       cfg.Command,
 	}
 }
 
@@ -142,18 +152,14 @@ func (k Kcontainer) Ok() (bool, error) {
 func (k Kcontainer) toContainer() types.Container { return types.Container{} }
 
 // convert docker container into a Kcontainer
-func fromDockerContainerToKcontainer(container types.Container) Kcontainer {
-	// Map container state
-	var containerState State
-	switch container.State {
-	case "running":
-		containerState = Running
-	default:
-		containerState = Unknown
-	}
+func fromDockerContainerToKcontainer(container types.ContainerJSON) Kcontainer {
+	ctx := context.Background()
+	defer ctx.Done()
 
-	// Map ports
-	ports := fromDockerToKcontainerPorts(container.Ports)
+	createdAt, _ := strconv.ParseInt(container.ContainerJSONBase.Created, 10, 64)
+	ports := fromDockerToKconfigPortMap(container.NetworkSettings.Ports)
+
+	// volumes
 
 	// Map Env
 
@@ -161,17 +167,19 @@ func fromDockerContainerToKcontainer(container types.Container) Kcontainer {
 
 	return Kcontainer{
 		ID:        container.ID,
-		Namespace: container.Labels[KraneContainerNamespaceLabel],
-		Name:      container.Names[0],
-		Image:     container.Image,
-		ImageID:   container.ImageID,
-		CreatedAt: container.Created,
-		Labels:    container.Labels,
+		Namespace: container.Config.Labels[KraneContainerNamespaceLabel],
+		Name:      container.Name,
+		Image:     container.Config.Image,
+		ImageID:   container.ContainerJSONBase.Image,
+		CreatedAt: createdAt,
+		Labels:    container.Config.Labels,
 		NetworkID: container.NetworkSettings.Networks[docker.KraneNetworkName].NetworkID,
-		State:     containerState,
-		Status:    container.Status,
-		Ports:     ports,
-		Command:   container.Command,
+		// State:     container.ContainerJSONBase.State,
+		Status:  container.ContainerJSONBase.State.Status,
+		Ports:   ports,
+		Command: container.Config.Cmd,
+		// Env:
+		// Volumes:
 		// TODO: the rest
 	}
 }
@@ -221,8 +229,8 @@ func GetKontainersByNamespace(namespace string) ([]Kcontainer, error) {
 // Container label for krane managed containers
 const KraneContainerNamespaceLabel = "krane.deployment.namespace"
 
-func isKraneManagedContainer(container types.Container) bool {
-	namespaceLabel := container.Labels[KraneContainerNamespaceLabel]
+func isKraneManagedContainer(container types.ContainerJSON) bool {
+	namespaceLabel := container.Config.Labels[KraneContainerNamespaceLabel]
 	if namespaceLabel == "" {
 		return false
 	}

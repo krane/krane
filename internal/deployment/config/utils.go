@@ -47,10 +47,6 @@ func (cfg *Kconfig) applyDefaults() {
 		cfg.Tag = "latest"
 	}
 
-	if cfg.Command == nil {
-		cfg.Command = make([]string, 0)
-	}
-
 	return
 }
 
