@@ -1,4 +1,4 @@
-package config
+package kconfig
 
 import (
 	"testing"
@@ -23,9 +23,9 @@ var (
 )
 
 func TestKraneConfigValidation(t *testing.T) {
-	assert.Nil(t, validKConfig1.validate())
-	assert.Nil(t, validKConfig2.validate())
-	assert.NotNil(t, invalidKConfig1.validate())
+	assert.Nil(t, validKConfig1.isValid())
+	assert.Nil(t, validKConfig2.isValid())
+	assert.NotNil(t, invalidKConfig1.isValid())
 }
 
 func TestKraneConfigNameValidation(t *testing.T) {

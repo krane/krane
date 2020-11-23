@@ -5,11 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/lithammer/shortuuid/v3"
 
-	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/secrets"
 )
@@ -34,21 +35,21 @@ type Kcontainer struct {
 }
 
 type State struct {
-	Status     string
-	Running    bool
-	Paused     bool
-	Restarting bool
-	OOMKilled  bool
-	Dead       bool
-	Pid        int
-	ExitCode   int
-	Error      string
-	StartedAt  string
-	FinishedAt string
+	Status     string        `json:"status"`
+	Running    bool          `json:"running"`
+	Paused     bool          `json:"paused"`
+	Restarting bool          `json:"restarting"`
+	OOMKilled  bool          `json:"oom_killed"`
+	Dead       bool          `json:"dead"`
+	Pid        int           `json:"pid"`
+	ExitCode   int           `json:"exit_code"`
+	Error      string        `json:"error"`
+	StartedAt  string        `json:"started"`
+	FinishedAt string        `json:"finished_at"`
 	Health     *types.Health `json:",omitempty"`
 }
 
-func Create(cfg config.Kconfig) (Kcontainer, error) {
+func Create(cfg kconfig.Kconfig) (Kcontainer, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
@@ -61,30 +62,34 @@ func Create(cfg config.Kconfig) (Kcontainer, error) {
 	}
 
 	// the response from creating a container doesnt provide enough information
-	// about the resources it created, we need to fetch the containers for full details
+	// about the resources it created, we need to inspect the containers for full details
 	json, err := client.GetOneContainer(ctx, body.ID)
 	if err != nil {
 		return Kcontainer{}, err
 	}
 
-	return mapContainerJsonToKontainer(json), nil
+	return mapContainerJsonToKcontainer(json), nil
 }
 
-func mapContainerJsonToKontainer(container types.ContainerJSON) Kcontainer {
+func mapContainerJsonToKcontainer(container types.ContainerJSON) Kcontainer {
+	createdAt, _ := time.Parse(time.RFC3339, container.Created)
 	envs := fromDockerToEnvMap(container.Config.Env)
+
 	return Kcontainer{
 		ID:        container.ID,
 		Name:      container.Name,
-		Namespace: container.Name,
 		NetworkID: container.NetworkSettings.EndpointID,
-		Image:     container.Image,
+		Image:     container.Config.Image,
 		ImageID:   container.Image,
 		Env:       envs,
+		CreatedAt: createdAt.Unix(),
+		Command:   container.Config.Cmd,
+		Labels:    container.Config.Labels,
 		// TODO: resolve rest of the fields
 	}
 }
 
-func fromKconfigToCreateContainerConfig(cfg config.Kconfig) docker.CreateContainerConfig {
+func fromKconfigToCreateContainerConfig(cfg kconfig.Kconfig) docker.CreateContainerConfig {
 	ctx := context.Background()
 	defer ctx.Done()
 
@@ -194,15 +199,14 @@ func GetAllContainers(client *docker.Client) ([]Kcontainer, error) {
 		return make([]Kcontainer, 0), err
 	}
 
-	kontainers := make([]Kcontainer, 0)
+	kcontainers := make([]Kcontainer, 0)
 	for _, container := range containers {
-		// For krane managed containers map to a Kcontainer
 		if isKraneManagedContainer(container) {
-			kontainers = append(kontainers, fromDockerContainerToKcontainer(container))
+			kcontainers = append(kcontainers, fromDockerContainerToKcontainer(container))
 		}
 	}
 
-	return kontainers, nil
+	return kcontainers, nil
 }
 
 // filter krane manage containers by namespace
@@ -234,6 +238,5 @@ func isKraneManagedContainer(container types.ContainerJSON) bool {
 	if namespaceLabel == "" {
 		return false
 	}
-
 	return true
 }

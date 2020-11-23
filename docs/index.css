@@ -69,6 +69,14 @@ body {
   color: black;
 }
 
+.markdown-section h2 {
+  font-size: 1.5rem !important;
+}
+
+.markdown-section h3 {
+    font-size: 1.3rem !important;
+}
+
 /* Custom subheader before pre-content. Example dash for subheaders ( - getting started) */
 .app-sub-sidebar li:before {
   content: "";

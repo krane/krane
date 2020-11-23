@@ -56,7 +56,7 @@ func main() {
 	// maintain the containers state in parity with desired deployment state
 	if utils.GetBoolEnv(constants.EnvWatchMode) {
 		logrus.Warn("This feature is experimental, dont use unless ")
-		enqueuer := job.NewEnqueuer(db, queue)
+		enqueuer := job.NewEnqueuer(queue)
 		interval := utils.EnvOrDefault(constants.EnvSchedulerIntervalMs, "30000")
 
 		jobScheduler := scheduler.New(db, docker.GetClient(), enqueuer, interval)

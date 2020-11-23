@@ -3,7 +3,7 @@ package service
 import (
 	"fmt"
 
-	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/utils"
@@ -19,7 +19,7 @@ const (
 	Down action = "DOWN"
 )
 
-func makeDockerDeploymentJob(config config.Kconfig, action action) (job.Job, error) {
+func makeDockerDeploymentJob(config kconfig.Kconfig, action action) (job.Job, error) {
 	switch action {
 	case Up:
 		return createContainersJob(config), nil
@@ -30,14 +30,14 @@ func makeDockerDeploymentJob(config config.Kconfig, action action) (job.Job, err
 	}
 }
 
-func createContainersJob(config config.Kconfig) job.Job {
+func createContainersJob(config kconfig.Kconfig) job.Job {
 	retryPolicy := utils.GetUIntEnv("DEPLOYMENT_RETRY_POLICY")
 
 	currContainers := make([]container.Kcontainer, 0)
 	newContainers := make([]container.Kcontainer, 0)
 
 	jobsArgs := job.Args{
-		"config":         config,
+		"kconfig":         config,
 		"currContainers": &currContainers,
 		"newContainers":  &newContainers,
 	}
@@ -52,13 +52,13 @@ func createContainersJob(config config.Kconfig) job.Job {
 	}
 }
 
-func deleteContainersJob(config config.Kconfig) job.Job {
+func deleteContainersJob(config kconfig.Kconfig) job.Job {
 	retryPolicy := utils.GetUIntEnv("DEPLOYMENT_RETRY_POLICY")
 
 	currContainers := make([]container.Kcontainer, 0)
 
 	jobsArgs := job.Args{
-		"config":         config,
+		"kconfig":         config,
 		"currContainers": &currContainers,
 	}
 	return job.Job{

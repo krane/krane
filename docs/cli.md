@@ -10,20 +10,25 @@ npm i -g @krane/cli
 
 ## Authenticating
 
-Krane uses private and public key authentication. Both keys are used for ensuring authenticity of incoming request.
+Krane uses [private and public key authentication](https://en.wikipedia.org/wiki/Public-key_cryptography). Both keys are used for ensuring authenticity of incoming request.
 
-To create both a public and private key, use the following command.
+1. Create the public and private key 
 
 ```
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f $HOME/.ssh/krane -m 'PEM'
 
 -t type
 -b bytes
 -C comments
 -m key format
+-f output file
 ```
 
 This will generate 2 different keys, a `private` & `public (.pub)` key.
+
+2. 
+
+Place the public key on the host machine where Krane is running appended to `~/.ssh/authorized_keys`.
 
 The `private key` is kept on the user's machine, the `public key` is stored where Krane is running and appended to `~/.ssh/authorized_keys`
 
@@ -37,7 +42,7 @@ krane login
 
 ### login
 
-Authenticate with Krane.
+Authenticate with Krane
 
 ```
 krane login
@@ -45,7 +50,7 @@ krane login
 
 ### config
 
-List the deployment configuration for a deployment.
+List the deployment configuration
 
 ```
 krane config <deployment>
@@ -61,7 +66,7 @@ krane delete <deployment>
 
 ### describe
 
-Describe a deployment. This provides details on the running containers for a single deployment.
+Describe a deployment. This provides details on the containers part of the deployment.
 
 ```
 krane describe <deployment>
@@ -72,12 +77,12 @@ krane describe <deployment>
 Deploy or update an application.
 
 ```
-krane deploy -f /path/to/krane.json
+krane deploy -f </path/to/krane.json>
 ```
 
 ### list
 
-List all deployments.
+List all deployments
 
 ```
 krane list
@@ -85,20 +90,20 @@ krane list
 
 ### secrets
 
-List all deployment secrets.
+List all deployment secrets
 
 ```
 krane secrets list <deployment>
 ```
 
-Add a deployment secret.
+Add a deployment secret
 
 ```
-krane secrets add <deployment> -k token -v my-secret-token
+krane secrets add <deployment> -k <key> -v <value>
 ```
 
-Delete a deployment secrets
+Delete a deployment secret
 
 ```
-krane secrets delete <deployment> -k token
+krane secrets delete <deployment> -k <key>
 ```

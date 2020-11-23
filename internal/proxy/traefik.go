@@ -14,11 +14,6 @@ var Secured = utils.GetBoolEnv("SECURED")
 func MakeContainerRoutingLabels(namespace, alias string) []ProxyLabel {
 	labels := make([]ProxyLabel, 0)
 
-	// labels = append(labels, ProxyLabel{
-	// 	Label: "traefik.enabled",
-	// 	Value: "true",
-	// })
-
 	labels = append(labels, ProxyLabel{
 		Label: "traefik.docker.network",
 		Value: docker.KraneNetworkName,
@@ -59,6 +54,19 @@ func traefikRouterLabels(namespace, alias string) []ProxyLabel {
 
 func traefikServiceLabels(namespace, alias string) []ProxyLabel {
 	serviceLabels := make([]ProxyLabel, 0)
+
+	// serviceLabels = append(serviceLabels, ProxyLabel{
+	// 	Label: "traefik.http.services.myservice.loadbalancer.server.port",
+	// 	Value: "TODO",
+	// })
+
+	if Secured {
+		serviceLabels = append(serviceLabels, ProxyLabel{
+			Label: fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.scheme", namespace),
+			Value: "https",
+		})
+	}
+
 	return serviceLabels
 }
 

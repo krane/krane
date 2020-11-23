@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/secrets"
@@ -31,16 +31,16 @@ func cleanupCurrentContainers(args job.Args) error {
 }
 
 func deleteDeploymentSecrets(args job.Args) error {
-	cfg := args["config"].(config.Kconfig)
+	cfg := args["kconfig"].(kconfig.Kconfig)
 	return secrets.DeleteCollection(cfg.Name)
 }
 
 func deleteDeploymentJobs(args job.Args) error {
-	cfg := args["config"].(config.Kconfig)
+	cfg := args["kconfig"].(kconfig.Kconfig)
 	return job.DeleteCollection(cfg.Name)
 }
 
 func deleteDeploymentConfig(args job.Args) error {
-	cfg := args["config"].(config.Kconfig)
-	return config.Delete(cfg.Name)
+	cfg := args["kconfig"].(kconfig.Kconfig)
+	return kconfig.Delete(cfg.Name)
 }

@@ -3,37 +3,35 @@ package service
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/job"
-	"github.com/biensupernice/krane/internal/store"
 )
 
-func StartDeployment(cfg config.Kconfig) error {
-	j, err := makeDockerDeploymentJob(cfg, Up)
+func StartDeployment(cfg kconfig.Kconfig) error {
+	deploymentJob, err := makeDockerDeploymentJob(cfg, Up)
 	if err != nil {
 		return err
 	}
-	go enqueueDeploymentJob(j)
+	go enqueueDeploymentJob(deploymentJob)
 	return nil
 }
 
-func DeleteDeployment(cfg config.Kconfig) error {
-	j, err := makeDockerDeploymentJob(cfg, Down)
+func DeleteDeployment(cfg kconfig.Kconfig) error {
+	deploymentJob, err := makeDockerDeploymentJob(cfg, Down)
 	if err != nil {
 		return err
 	}
-	go enqueueDeploymentJob(j)
+	go enqueueDeploymentJob(deploymentJob)
 	return nil
 }
 
 func enqueueDeploymentJob(deploymentJob job.Job) {
-	db := store.Instance()
 	queue := job.GetJobQueue()
-
-	enq := job.NewEnqueuer(db, queue)
-	_, err := enq.Enqueue(deploymentJob)
+	enqueuer := job.NewEnqueuer(queue)
+	queuedJob, err := enqueuer.Enqueue(deploymentJob)
 	if err != nil {
-		logrus.Errorf("Error enqueuing deployment job %s", err.Error())
+		logrus.Errorf("Error enqueuing deployment job for %s, %v", deploymentJob.Namespace, err)
 		return
 	}
+	logrus.Debugf("Queued job for %s", queuedJob.Namespace)
 }

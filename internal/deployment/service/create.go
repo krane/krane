@@ -7,24 +7,14 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/deployment/container"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/secrets"
 )
 
 func createContainerResources(args job.Args) error {
-	// steps := []stepFn{
-	// 	getCurrentContainers,
-	// 	createSecretsCollection,
-	// 	createJobsCollection,
-	// 	pullImage,
-	// 	createContainers,
-	// 	startContainers,
-	// 	checkNewContainersHealth,
-	// 	cleanupCurrentContainers,
-	// }
 	wf := newWorkflow("CreateContainerResources", args)
 
 	wf.with("GetCurrentContainers", getCurrentContainers)
@@ -36,17 +26,11 @@ func createContainerResources(args job.Args) error {
 	wf.with("CheckNewContainersHealth", checkNewContainersHealth)
 	wf.with("RemoveOldContainers", cleanupCurrentContainers)
 
-	// for _, step := range steps {
-	// 	if err := step(args); err != nil {
-	// 		return err
-	// 	}
-	// }
-
 	return wf.start()
 }
 
 func pullImage(args job.Args) error {
-	cfg := args["config"].(config.Kconfig)
+	cfg := args["kconfig"].(kconfig.Kconfig)
 
 	ctx := context.Background()
 	defer ctx.Done()
@@ -55,14 +39,10 @@ func pullImage(args job.Args) error {
 }
 
 func createContainers(args job.Args) error {
-	cfg := args["config"].(config.Kconfig)
-
-	// TODO: move this up to the config when we
-	// can handle managing multiple containers for single namespace
-	scale := 1
+	cfg := args["kconfig"].(kconfig.Kconfig)
 
 	newContainers := make([]container.Kcontainer, 0)
-	for i := 0; i < scale; i++ {
+	for i := 0; i < cfg.Scale; i++ {
 		newContainer, err := container.Create(cfg)
 		if err != nil {
 			return err
@@ -121,11 +101,11 @@ func checkNewContainersHealth(args job.Args) error {
 }
 
 func createSecretsCollection(args job.Args) error {
-	cfg := args["config"].(config.Kconfig)
+	cfg := args["kconfig"].(kconfig.Kconfig)
 	return secrets.CreateCollection(cfg.Name)
 }
 
 func createJobsCollection(args job.Args) error {
-	cfg := args["config"].(config.Kconfig)
+	cfg := args["kconfig"].(kconfig.Kconfig)
 	return job.CreateCollection(cfg.Name)
 }

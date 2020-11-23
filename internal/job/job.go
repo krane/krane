@@ -11,7 +11,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -122,7 +122,7 @@ func (job *Job) hasExistingNamespace() (bool, error) {
 
 	found := false
 	for _, deployment := range deployments {
-		var d config.Kconfig
+		var d kconfig.Kconfig
 		err := store.Deserialize(deployment, &d)
 		if err != nil {
 			return false, fmt.Errorf("invalid job, %s", err.Error())
@@ -142,7 +142,7 @@ func (job *Job) hasExistingNamespace() (bool, error) {
 
 func GetJobs(daysAgo uint) ([]Job, error) {
 	// get all deployments
-	deployments, err := config.GetAllDeploymentConfigs()
+	deployments, err := kconfig.GetAllDeploymentConfigs()
 	if err != nil {
 		return make([]Job, 0), err
 	}

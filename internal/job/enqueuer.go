@@ -2,18 +2,15 @@ package job
 
 import (
 	"github.com/sirupsen/logrus"
-
-	"github.com/biensupernice/krane/internal/store"
 )
 
 type Enqueuer struct {
-	store   store.Store
 	queue   chan Job
 	Handler GenericHandler
 }
 
-func NewEnqueuer(store store.Store, jobQueue chan Job) Enqueuer {
-	return Enqueuer{store: store, queue: jobQueue, Handler: nil}
+func NewEnqueuer(jobQueue chan Job) Enqueuer {
+	return Enqueuer{queue: jobQueue, Handler: nil}
 }
 
 func (e *Enqueuer) Enqueue(job Job) (Job, error) {

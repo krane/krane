@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -24,7 +24,7 @@ func TestMain(m *testing.M) {
 	defer store.Instance().Shutdown()
 
 	// Create deployment (namespace)
-	deployment := config.Kconfig{Name: testNamespace}
+	deployment := kconfig.Kconfig{Name: testNamespace}
 	bytes, _ := deployment.Serialize()
 	store.Instance().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
 

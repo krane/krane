@@ -8,7 +8,7 @@ import (
 	"github.com/biensupernice/krane/internal/constants"
 )
 
-// ConfigureLogrus : config a logrus logger
+// ConfigureLogrus : kconfig a logrus logger
 func ConfigureLogrus() {
 	hostname, _ := os.Hostname()
 

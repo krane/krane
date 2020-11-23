@@ -52,10 +52,10 @@ func withRoutes(router *mux.Router) {
 	authRouter := router.PathPrefix("/").Subrouter()
 	// deployments
 	withRoute(authRouter, "/deployments", controllers.GetAllDeployments, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/deployments", controllers.SaveDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
+	withRoute(authRouter, "/deployments", controllers.ApplyDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
 	withRoute(authRouter, "/deployments/{name}", controllers.GetDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/deployments/{name}", controllers.DeleteDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodDelete)
-	withRoute(authRouter, "/deployments/{name}/containers", controllers.GetDeploymentContainers, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/deployments/{name}/containers", controllers.GetContainers, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	// secrets
 	withRoute(authRouter, "/secrets/{name}", controllers.GetSecrets, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/secrets/{name}", controllers.CreateSecret, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)

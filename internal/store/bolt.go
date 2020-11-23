@@ -42,7 +42,7 @@ func NewInstance(path string) *BoltDB {
 		return instance
 	}
 
-	logrus.Info("Opening store...")
+	logrus.Info("Opening boltdb...")
 
 	options := &bolt.Options{Timeout: 30 * time.Second}
 
@@ -60,7 +60,12 @@ func NewInstance(path string) *BoltDB {
 	return instance
 }
 
-func (b *BoltDB) Shutdown() { b.Close() }
+func (b *BoltDB) Shutdown() {
+	logrus.Debug("Closing boltdb...")
+	if err := b.Close(); err != nil {
+		logrus.Error("Error closing boltdb %v", err)
+	}
+}
 
 func (b *BoltDB) Put(collection string, key string, value []byte) error {
 	return instance.Update(func(tx *bolt.Tx) error {

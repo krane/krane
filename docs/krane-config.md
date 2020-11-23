@@ -1,6 +1,6 @@
-# Deployment Configuration
+# Krane Config
 
-Creating a deployment in Krane starts with a **single file**, this file contains the deployment configuration used when creating container resources. The deployment configuration can be stored at the root of your project, a ci repository or directory on your local machine. When using the [CLI](cli) you can reference the location of this deployment configuration so location. The simplest configuration file could look like:
+Creating a deployment using Krane starts with a **single file**, this file contains the deployment configuration used when creating container resources. The deployment configuration can be stored at the root of your project, a ci repository or directory on your local machine. When using the [CLI](cli) you can reference the location of this deployment configuration so location. The simplest configuration file could look like:
 
 ```json
 {
@@ -116,6 +116,8 @@ The volumes to mount from the container to the host.
 
 ### alias
 
+Ingress alias for your deployment 
+
 required: `false`
 
 ```json
@@ -130,7 +132,7 @@ required: `false`
 
 ### command
 
-A custom command to start the containers
+A custom command to start the containers.
 
 - required: `false`
 

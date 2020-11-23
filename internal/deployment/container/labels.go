@@ -1,12 +1,12 @@
 package container
 
 import (
-	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/proxy"
 )
 
 // from Kconfig to Docker label map
-func fromKconfigToDockerLabelMap(cfg config.Kconfig) map[string]string {
+func fromKconfigToDockerLabelMap(cfg kconfig.Kconfig) map[string]string {
 	labels := map[string]string{
 		KraneContainerNamespaceLabel: cfg.Name,
 	}

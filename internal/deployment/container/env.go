@@ -6,15 +6,15 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/secrets"
 )
 
 // from Kconfig to Docker environment variables string formatted list
-func fromKconfigDockerEnvList(cfg config.Kconfig) []string {
+func fromKconfigDockerEnvList(cfg kconfig.Kconfig) []string {
 	envs := make([]string, 0)
 
-	// config environment variables
+	// kconfig environment variables
 	for k, v := range cfg.Env {
 		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
 	}

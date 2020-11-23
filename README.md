@@ -12,9 +12,10 @@ Krane is a self-hosted container management solution. It offers a simple and pro
 
 ## Features
 
-* Simple container deployments
+* Single file deployments
+* Provides HTTPS/TLS to your containers via [Let's Encrypt](https://letsencrypt.org/) 
 * Deployment secrets
-* HTTPS/TLS 
+* Deployment scaling
 
 ## Building from source
 
@@ -51,7 +52,7 @@ Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To v
 $ boltdbweb --db-name=/path/to/krane.db --port=9000
 ``` 
 
-## Configuration
+## Environment Configuration
 
 The following is a list of environment variables to configure Krane
 	

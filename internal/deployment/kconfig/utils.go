@@ -1,4 +1,4 @@
-package config
+package kconfig
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 
 func (cfg Kconfig) Serialize() ([]byte, error) { return json.Marshal(cfg) }
 
-func (cfg Kconfig) validate() error {
+func (cfg Kconfig) isValid() error {
 	isValidName := cfg.validateName()
 	if !isValidName {
 		return errors.New("invalid name")

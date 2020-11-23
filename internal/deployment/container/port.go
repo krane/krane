@@ -6,7 +6,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
 
-	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 )
 
 type Port struct {
@@ -70,7 +70,7 @@ func fromDockerToKconfigPortMap(pMap nat.PortMap) []Port {
 }
 
 // from Kconfig to Docker container port map
-func fromKconfigToDockerPortMap(cfg config.Kconfig) nat.PortMap {
+func fromKconfigToDockerPortMap(cfg kconfig.Kconfig) nat.PortMap {
 	bindings := nat.PortMap{}
 	for hostPort, containerPort := range cfg.Ports {
 		// host port

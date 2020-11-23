@@ -9,7 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/store"
@@ -73,24 +73,24 @@ func (s *Scheduler) poll() {
 	logrus.Debugf("Next poll in %s", s.interval.String())
 }
 
-func hasDesiredState(kcfg config.Kconfig, containers []types.ContainerJSON) bool {
-	// TODO: implmentation not defined always returning true to avoid doing anything
+func hasDesiredState(kcfg kconfig.Kconfig, containers []types.ContainerJSON) bool {
+	// TODO: implementation not defined - always returning true to avoid doing anything
 	return true
 }
 
-func (s *Scheduler) deployments() []config.Kconfig {
+func (s *Scheduler) deployments() []kconfig.Kconfig {
 	bytes, err := s.store.GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
 		logrus.Errorf("Scheduler error: %s", err)
-		return make([]config.Kconfig, 0)
+		return make([]kconfig.Kconfig, 0)
 	}
 
-	deployments := make([]config.Kconfig, 0)
+	deployments := make([]kconfig.Kconfig, 0)
 	for _, b := range bytes {
-		var d config.Kconfig
+		var d kconfig.Kconfig
 		err := store.Deserialize(b, &d)
 		if err != nil {
-			logrus.Error("Unable to deserialize krane config", err.Error())
+			logrus.Error("Unable to deserialize krane kconfig", err.Error())
 		}
 
 		deployments = append(deployments, d)

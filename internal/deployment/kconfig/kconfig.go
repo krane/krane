@@ -1,4 +1,4 @@
-package config
+package kconfig
 
 import (
 	"errors"
@@ -18,10 +18,11 @@ type Kconfig struct {
 	Secrets  map[string]string `json:"secrets"`
 	Volumes  map[string]string `json:"volumes"`
 	Command  string            `json:"command"`
+	Scale    int               `json:"scale"`
 }
 
-func (cfg *Kconfig) Save() error {
-	if err := cfg.validate(); err != nil {
+func (cfg *Kconfig) Apply() error {
+	if err := cfg.isValid(); err != nil {
 		return err
 	}
 
