@@ -19,10 +19,10 @@ func MakeContainerRoutingLabels(namespace, alias string) []ProxyLabel {
 		Value: docker.KraneNetworkName,
 	})
 
-	labels = append(labels, traefikEntryPointsLabels()...)
-	labels = append(labels, traefikMiddlewareLabels(namespace)...)
+	// labels = append(labels, traefikEntryPointsLabels()...)
+	// labels = append(labels, traefikMiddlewareLabels(namespace)...)
 	labels = append(labels, traefikRouterLabels(namespace, alias)...)
-	labels = append(labels, traefikServiceLabels(namespace, alias)...)
+	// labels = append(labels, traefikServiceLabels(namespace, alias)...)
 	return labels
 }
 
@@ -45,7 +45,7 @@ func traefikRouterLabels(namespace, alias string) []ProxyLabel {
 		})
 		routerLabels = append(routerLabels, ProxyLabel{
 			Label: fmt.Sprintf("traefik.http.routers.%s.tls.certresolver", namespace),
-			Value: "krane",
+			Value: "lets-encrypt",
 		})
 	}
 
