@@ -92,7 +92,7 @@ func (job *Job) validate() error {
 	}
 
 	if job.Run == nil {
-		return fmt.Errorf("unkown job handler")
+		return fmt.Errorf("unknown job handler")
 	}
 
 	maxRetryPolicy := utils.GetUIntEnv("JOB_MAX_RETRY_POLICY")

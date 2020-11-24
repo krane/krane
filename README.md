@@ -1,6 +1,8 @@
-![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1602474802/Marketing_-_Krane_dj2y9e.png)
- 
-![CI](https://github.com/biensupernice/krane/workflows/CI/badge.svg?branch=master)
+[![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1602474802/Marketing_-_Krane_dj2y9e.png)](https://krane.sh)
+
+[![CI](https://github.com/biensupernice/krane/workflows/CI/badge.svg?branch=master)](https://github.com/biensupernice/krane/actions)
+[![Docker Pulls](https://img.shields.io/docker/pulls/biensupernice/krane?label=Docker%20Pulls)](https://store.docker.com/community/images/biensupernice/krane)
+[![Go Report Card](https://goreportcard.com/badge/github.com/biensupernice/krane)](https://goreportcard.com/report/github.com/biensupernice/krane)
 
 > ⚠️ Currently under construction
 
@@ -8,14 +10,14 @@ Krane is a self-hosted container management solution. It offers a simple and pro
 
 * **Documentation:** https://krane.sh  
 * **Releases:** https://github.com/biensupernice/krane/releases
-* **CLI:** https://github.com/biensupernice/krane-cli
+* **CLI:** https://github.com/krane/cli
 
 ## Features
 
 * Single file deployments
 * Provides HTTPS/TLS to your containers via [Let's Encrypt](https://letsencrypt.org/) 
 * Deployment secrets
-* Deployment scaling
+* Deployment scaling w/ container discovery
 
 ## Building from source
 

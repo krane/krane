@@ -32,7 +32,7 @@ func fromKconfigDockerEnvList(cfg kconfig.Kconfig) []string {
 	return envs
 }
 
-// from Docker envrionment variables string list to environment variable map
+// from Docker environment variables string list to environment variable map
 func fromDockerToEnvMap(envs []string) map[string]string {
 	envMap := make(map[string]string, 0)
 	for _, env := range envs {
