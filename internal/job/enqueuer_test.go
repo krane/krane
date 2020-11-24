@@ -25,7 +25,7 @@ func TestMain(m *testing.M) {
 	// Create deployment (namespace)
 	deployment := kconfig.Kconfig{Name: namespace}
 	bytes, _ := deployment.Serialize()
-	store.Instance().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
+	_ = store.Instance().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
 
 	code := m.Run()
 
@@ -34,21 +34,18 @@ func TestMain(m *testing.M) {
 }
 
 func TestNewEnqueuer(t *testing.T) {
-	store := store.Instance()
 	jobChannel := make(chan Job)
 
-	e := NewEnqueuer(store, jobChannel)
+	e := NewEnqueuer(jobChannel)
 
 	assert.NotNil(t, e)
-	assert.Equal(t, store, e.store)
 	assert.Equal(t, jobChannel, e.queue)
 }
 
 func TestEnqueueNewJobs(t *testing.T) {
-	store := store.Instance()
 	jobQueue := make(chan Job)
 
-	e := NewEnqueuer(store, jobQueue)
+	e := NewEnqueuer(jobQueue)
 
 	jobCount := 10
 	var jobHandlerCalls int

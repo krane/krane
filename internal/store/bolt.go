@@ -63,7 +63,7 @@ func NewInstance(path string) *BoltDB {
 func (b *BoltDB) Shutdown() {
 	logrus.Debug("Closing boltdb...")
 	if err := b.Close(); err != nil {
-		logrus.Error("Error closing boltdb %v", err)
+		logrus.Errorf("Error closing boltdb %v", err)
 	}
 }
 
