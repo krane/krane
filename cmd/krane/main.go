@@ -22,9 +22,7 @@ func init() {
 	fmt.Println("Starting Krane...")
 
 	utils.RequireEnv(constants.EnvKranePrivateKey)
-
 	utils.EnvOrDefault(constants.EnvListenAddress, "127.0.0.1:8500")
-	utils.EnvOrDefault(constants.EnvSecured, "false")
 	utils.EnvOrDefault(constants.EnvLogLevel, logging.INFO)
 	utils.EnvOrDefault(constants.EnvDatabasePath, "/tmp/krane.db")
 	utils.EnvOrDefault(constants.EnvWorkerPoolSize, "1")
@@ -33,6 +31,8 @@ func init() {
 	utils.EnvOrDefault(constants.EnvDeploymentRetryPolicy, "1")
 	utils.EnvOrDefault(constants.EnvSchedulerIntervalMs, "30000")
 	utils.EnvOrDefault(constants.EnvWatchMode, "false")
+	utils.EnvOrDefault(constants.EnvDockerBasicAuthUsername, "")
+	utils.EnvOrDefault(constants.EnvDockerBasicAuthPassword, "")
 
 	logging.ConfigureLogrus()
 	docker.ClientFromEnv()

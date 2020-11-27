@@ -11,14 +11,15 @@ type Kconfig struct {
 	Name     string            `json:"name" binding:"required"`
 	Registry string            `json:"registry"`
 	Image    string            `json:"image" binding:"required"`
-	Tag      string            `json:"tag"`
-	Alias    []string          `json:"alias"`
+	Tag      string            `json:"tag"`   // docker image tag
+	Alias    []string          `json:"alias"` // custom domain aliases
 	Env      map[string]string `json:"env"`
 	Ports    map[string]string `json:"ports"`
 	Secrets  map[string]string `json:"secrets"`
 	Volumes  map[string]string `json:"volumes"`
 	Command  string            `json:"command"`
-	Scale    int               `json:"scale"`
+	Scale    int               `json:"scale"`   // number of containers for a deployment
+	Secured  bool              `json:"secured"` // for secure communication over TLS
 }
 
 func (cfg *Kconfig) Apply() error {

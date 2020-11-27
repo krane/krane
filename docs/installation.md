@@ -1,6 +1,6 @@
 # Installation
 
-Krane should be installed on a machine with Docker running. 
+Krane should be installed on a machine with Docker running.
 
 > ⚠️ If you're not sure if Docker is running, run `docker -v` and verify the output
 
@@ -51,12 +51,12 @@ krane &
 #### Environment Configuration
 
 The following properties can be set as environment variables when running Krane
-	
 
-| Env               | Description                                                         | Required | Default        |
-|-------------------|---------------------------------------------------------------------|----------|----------------|
-| KRANE_PRIVATE_KEY | The private key used by Krane for signing authentication requests.  | true     |                |
-| LISTEN_ADDRESS    | Address and port Krane will listen on                               | false    | 127.0.0.1:8500 |
-| SECURED           | Enable HTTPS/TLS communication. Should be set to false on localhost | false    | false          |
-| LOG_LEVEL         | Can only be debug\|info\|warn\|error                                | false    | info           |
-| DB_PATH           | Path to boltdb                                                      | false    | /tmp/krane.db  |
+| Env                        | Description                                                        | Required | Default        |
+| -------------------------- | ------------------------------------------------------------------ | -------- | -------------- |
+| KRANE_PRIVATE_KEY          | The private key used by Krane for signing authentication requests. | true     |                |
+| LISTEN_ADDRESS             | Address and port Krane will listen on                              | false    | 127.0.0.1:8500 |
+| LOG_LEVEL                  | Can only be debug\|info\|warn\|error                               | false    | info           |
+| DB_PATH                    | Path to boltdb                                                     | false    | /tmp/krane.db  |
+| DOCKER_BASIC_AUTH_USERNAME | Username used when authenticating with Docker                      | false    |                |
+| DOCKER_BASIC_AUTH_PASSWORD | Password used when authenticating with Docker                      | false    |                |

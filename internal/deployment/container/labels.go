@@ -11,13 +11,9 @@ func fromKconfigToDockerLabelMap(cfg kconfig.Kconfig) map[string]string {
 		KraneContainerNamespaceLabel: cfg.Name,
 	}
 
-	// TODO: theres a bug where it only applies a single label if aliases is greater than 1.
-	// This is because the labels key get overwritten
-	for _, alias := range cfg.Alias {
-		routingLabels := proxy.MakeContainerRoutingLabels(cfg.Name, alias)
-		for _, label := range routingLabels {
-			labels[label.Label] = label.Value
-		}
+	routingLabels := proxy.MakeContainerRoutingLabels(cfg)
+	for _, label := range routingLabels {
+		labels[label.Key] = label.Value
 	}
 
 	return labels

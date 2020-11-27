@@ -1,4 +1,4 @@
-# Krane Config
+# Deployment Config
 
 Creating a deployment using Krane starts with a **single file**, this file contains the deployment configuration used when creating container resources. The deployment configuration can be stored at the root of your project, a ci repository or directory on your local machine. When using the [CLI](cli) you can reference the location of this deployment configuration so location. The simplest configuration file could look like:
 
@@ -22,7 +22,7 @@ See all deployment configuration [options](deployment-configuration?id=options)
 
 The different properties you can specificy in a deployment configuration file.
 
-> A common pattern is to have a `krane.json` at the root of your project
+> A common pattern is to have a `deployment.json` at the root of your project
 
 ### name
 
@@ -45,16 +45,16 @@ The image used when pulling, creating and running your deployments containers.
 
 ### ports
 
-The ports to expose from the container to the host machine.
+Ports exposed from the container to the host machine. 
 
-> ⚠️ Ports are discouraged since port conflicts can become an uwanted side-effect. Instead, Krane uses a reverse proxy that handles exposing your containers using [`aliases`](deployment-configuration?id=alias)
+> "80": "9000" - The left port (80) refers to the host port, the right port (9000) refers to the host port. 
 
 - required: `false`
 
 ```json
 {
   "ports": {
-    "80": "8080"
+    "80": "9000"
   }
 }
 ```
@@ -139,5 +139,32 @@ A custom command to start the containers.
 ```json
 {
   "command": "npm run start --prod"
+}
+```
+
+### secured
+
+Enable HTTPS/TLS communication to your deployment. Should be set to false on localhost
+
+- required: `false`
+- default: `false`
+
+```json
+{
+  "secured": true
+}
+```
+
+
+### scale
+
+Number of containers created for a deployment. Containers are load balanced and discovered automatically by Krane. 
+
+- required: `false`
+- default: `1`
+
+```json
+{
+  "scale": 3
 }
 ```

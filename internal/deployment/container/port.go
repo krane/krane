@@ -1,10 +1,12 @@
 package container
 
 import (
+	"net"
 	"strconv"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
+	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
 )
@@ -73,14 +75,23 @@ func fromDockerToKconfigPortMap(pMap nat.PortMap) []Port {
 func fromKconfigToDockerPortMap(cfg kconfig.Kconfig) nat.PortMap {
 	bindings := nat.PortMap{}
 	for hostPort, containerPort := range cfg.Ports {
-		// host port
+		if hostPort == "" {
+			// randomly assign a host port if no explicit host port to bind to was provided
+			freePort, err := getFreePort()
+			if err != nil {
+				logrus.Errorf("Error when looking for a free host port %v", err)
+				continue
+			}
+			hostPort = freePort
+		}
+
 		hostBinding := nat.PortBinding{HostPort: hostPort}
 
-		// container port
 		// TODO: figure out if we can bind ports of other types besides tcp
-		protocol := "tcp"
+		protocol := string(TCP)
 		cPort, err := nat.NewPort(protocol, containerPort)
 		if err != nil {
+			logrus.Errorf("Unable to create new container port %v", err)
 			continue
 		}
 
@@ -94,4 +105,21 @@ func fromKconfigToDockerPortMap(cfg kconfig.Kconfig) nat.PortMap {
 func fromContainerPortMap(ports types.Port) map[string]string {
 	portMap := make(map[string]string)
 	return portMap
+}
+
+// asks the kernel for a free open port that is ready to use.
+func getFreePort() (string, error) {
+	addr, err := net.ResolveTCPAddr(string(TCP), "localhost:0")
+	if err != nil {
+		return "", err
+	}
+
+	listener, err := net.ListenTCP(string(TCP), addr)
+	if err != nil {
+		return "", err
+	}
+	defer listener.Close()
+
+	port := listener.Addr().(*net.TCPAddr).Port
+	return strconv.Itoa(port), nil
 }

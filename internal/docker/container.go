@@ -92,13 +92,12 @@ func (c *Client) GetAllContainers(ctx *context.Context) ([]types.ContainerJSON, 
 
 	toJsonContainers := make([]types.ContainerJSON, 0)
 	for _, container := range containers {
-		containerJson, err := c.ContainerInspect(*ctx, container.ID)
+		containerJson, err := c.GetOneContainer(*ctx, container.ID)
 		if err != nil {
 			return make([]types.ContainerJSON, 0), err
 		}
 
 		toJsonContainers = append(toJsonContainers, containerJson)
-
 	}
 	return toJsonContainers, nil
 }

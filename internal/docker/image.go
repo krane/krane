@@ -2,12 +2,28 @@ package docker
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/docker/docker/api/types"
+
+	"github.com/biensupernice/krane/internal/constants"
 )
+
+type RegistryBasicAuth struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+func getRegistryCredentials() string {
+	bytes, _ := json.Marshal(RegistryBasicAuth{
+		Username: os.Getenv(constants.EnvDockerBasicAuthUsername),
+		Password: os.Getenv(constants.EnvDockerBasicAuthPassword),
+	})
+	return base64.StdEncoding.EncodeToString(bytes)
+}
 
 // PullImage : poll docker image from registry
 func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (err error) {
@@ -15,7 +31,7 @@ func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (er
 
 	options := types.ImagePullOptions{
 		All:          true,
-		RegistryAuth: "", // TODO: RegistryAuth is the base64 encoded credentials for the registry
+		RegistryAuth: getRegistryCredentials(),
 	}
 
 	reader, err := c.ImagePull(ctx, formattedImage, options)
@@ -23,8 +39,10 @@ func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (er
 		return err
 	}
 
-	// TODO: dont sent output to stdout
-	io.Copy(os.Stdout, reader)
+	// _, err = io.Copy(nil, reader)
+	// if err != nil {
+	// 	logrus.Error("Error copying image pull reader to nil dest")
+	// }
 	err = reader.Close()
 
 	return
@@ -44,6 +62,5 @@ func formatImageSourceURL(registry, image, tag string) string {
 	if tag == "" {
 		tag = "latest"
 	}
-
 	return fmt.Sprintf("%s/%s:%s", registry, image, tag)
 }
