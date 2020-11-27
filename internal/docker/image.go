@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/docker/docker/api/types"
@@ -39,10 +40,9 @@ func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (er
 		return err
 	}
 
-	// _, err = io.Copy(nil, reader)
-	// if err != nil {
-	// 	logrus.Error("Error copying image pull reader to nil dest")
-	// }
+	// TODO: dont output to standard out
+	io.Copy(os.Stdout, reader)
+
 	err = reader.Close()
 
 	return

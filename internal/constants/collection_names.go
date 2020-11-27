@@ -1,5 +1,6 @@
 package constants
 
+// List of the database collections being used by Krane
 const (
 	AuthenticationCollectionName = "authentication"
 	DeploymentsCollectionName    = "deployments"
