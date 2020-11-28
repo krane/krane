@@ -17,7 +17,73 @@ Krane is a self-hosted container management solution. It offers a simple and pro
 * Single file deployments
 * Provides HTTPS/TLS to your containers via [Let's Encrypt](https://letsencrypt.org/) 
 * Deployment secrets
-* Deployment scaling w/ container discovery
+* Deployment scaling w/ container discovery 
+* Round Robin load-balancing provided by [Traefik](https://doc.traefik.io/traefik/routing/services/#load-balancing)
+
+## Getting Started
+
+![Install Krane](./docs/assets/1-install-krane.png)
+
+```
+docker run -d --name=krane \
+    -e KRANE_PRIVATE_KEY='changeme' \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v ~/.ssh/authorized_keys:/root/.ssh/authorized_keys  \
+    -p 8500:8500 biensupernice/krane
+```
+
+Other [installation](https://www.krane.sh/#/installation) methods and configurations.
+
+
+2. Download CLI
+
+Download the Krane [CLI](https://www.krane.sh/#/cli) to execute commands on a Krane instance.
+
+```
+npm i -g @krane/cli
+```
+
+Full list of [commands](https://www.krane.sh/#/cli?id=commands).
+
+3. Setup Authentication
+
+Create public and private keys used for authentication.
+
+```
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
+```
+
+The private key is kept on the user's machine, the public key is stored where Krane is running and appended to `~/.ssh/authorized_keys`
+
+4. Authenticate
+
+When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated successfully you'll be able to execute any command on that Krane instance. 
+
+To switch between Krane instances you'll have to login again.
+
+```
+krane login
+```
+
+5. Deploy
+
+Create a deployment configuration file `deployment.json` 
+
+For example:
+
+```
+{
+  "name": "hello-world-app",
+  "image": "hello-world",
+  "alias": ["hello.example.com"]
+}
+```
+
+```
+krane deploy -f /path/to/deployment.json
+```
+
+For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/deployment-config).
 
 ## Building from source
 
@@ -53,37 +119,3 @@ Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To v
 ```
 $ boltdbweb --db-name=/path/to/krane.db --port=9000
 ``` 
-
-## Environment Configuration
-
-The following is a list of environment variables to configure Krane
-	
-**KRANE_PRIVATE_KEY**
-
-The private key used by Krane for signing authentication requests.
-
-- required: `true`
-
-**SECURED**
-
-Enable HTTPS/TLS communication
-
-- required: `false`
-
-- default: `false`
-
-**LISTEN_ADDRESS**
-
-- default: `127.0.0.1:8500`
-
-**KRANE_LOG_LEVEL**
-
-- default: `info`
-
-- values: `debug|info|warn|error`
-
-**DB_PATH**
-
-Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store for storing configuration details. Boltdb is represented as a single file on your disk, this is the path Krane will use to create/manage boltdb. Companies such as Shopify and Heroku use bolt within high-load production environments every day. 
-
-- default: `/tmp/krane.db`   

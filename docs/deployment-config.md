@@ -8,7 +8,7 @@ A simple deployment configuration file might look like:
 {
   "name": "hello-world-app",
   "image": "hello-world",
-  "alias": ["hello.localhost"]
+  "alias": ["hello.example.com"]
 }
 ```
 
@@ -16,7 +16,7 @@ The above **deployment configuration** sets up:
 
 1. A deployment called **hello-world-app**
 2. A container running the image **hello-world**
-3. An alias **hello.localhost**
+3. An alias **hello.example.com**
 
 See all deployment configuration [options](deployment-configuration?id=options)
 
@@ -41,7 +41,7 @@ The container registry to use when pulling images.
 
 ### image
 
-The image used when pulling, creating and running your deployments containers.
+Image to use for you deployment.
 
 - required: `true`
 
@@ -60,6 +60,21 @@ Ports exposed from the container to the host machine.
   }
 }
 ```
+
+You can optionally leave the host port __blank__ and Krane will find a free port and assign it. This is especially handy to avoid **port conflicts** when scaling out a deployment. 
+
+For example to load-balance a deployment with multiple instances on a specific port
+
+```json
+{
+  "scale": 3,
+  "ports": {
+    "": "9000"
+  }
+}
+``` 
+
+In the above configuration you'll have 3 instances of your deployment load-balanced on port **9000**. A round-robin strategy occurs when load-balancing between multiple instances. 
 
 ### env
 
@@ -118,16 +133,18 @@ The volumes to mount from the container to the host.
 
 ### alias
 
-Ingress alias for your deployment 
+Ingress alias for your deployment.
+
+> ⚠️ Aliases require an [A Record](https://www.digitalocean.com/docs/networking/dns/how-to/manage-records/#a-records) to be created in order for redirects to work.
 
 required: `false`
 
 ```json
 {
   "alias": [
-    "app2.example.com",
-    "app2-dev.example.com",
-    "app2-mybranch.example.com"
+    "my-app.example.com",
+    "my-app-dev.example.com",
+    "my-app-mybranch.example.com"
   ]
 }
 ```
@@ -146,7 +163,7 @@ A custom command to start the containers.
 
 ### secured
 
-Enable HTTPS/TLS communication to your deployment. Should be set to false on localhost
+Enable HTTPS/TLS communication to your deployment.
 
 - required: `false`
 - default: `false`
@@ -157,10 +174,9 @@ Enable HTTPS/TLS communication to your deployment. Should be set to false on loc
 }
 ```
 
-
 ### scale
 
-Number of containers created for a deployment. Containers are load balanced and discovered automatically by Krane. 
+Number of containers created for a deployment.
 
 > Tip: You can set the scale to 0 to remove all containers for a deployment without deleting the deployment.
 

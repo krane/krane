@@ -1,12 +1,12 @@
 # Installation
 
-Krane should be installed on a machine with Docker running.
+Krane should be installed on a machine running Docker
 
-> ⚠️ If you're not sure if Docker is running, run `docker -v` and verify the output
+> ⚠️ If you're not sure if Docker is running, run `docker -v` and verify the output (ex: `Docker version 19.03.13, build 4484c46d9d`)
 
 ## Docker
 
-Docker container to run a Krane instance
+Run Krane using Docker
 
 ```
 docker run -d --name=krane \
@@ -18,7 +18,7 @@ docker run -d --name=krane \
 
 ## Linux
 
-Executable you can directly install on linux
+Run Krane using the executable for Linux
 
 ```
 # set Krane private key
@@ -33,7 +33,7 @@ krane &
 
 ## Mac
 
-Executable you can directly install on mac
+Run Krane using the executable for Mac
 
 ```
 # set Krane private key
@@ -50,7 +50,7 @@ krane &
 
 #### Environment Configuration
 
-The following properties can be set as environment variables when running Krane
+The following properties can be set as environment variables when running Krane.
 
 | Env                        | Description                                                        | Required | Default        |
 | -------------------------- | ------------------------------------------------------------------ | -------- | -------------- |

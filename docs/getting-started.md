@@ -8,11 +8,12 @@ Krane is a container deployment tool that makes it easy to create and manage sma
 
 # ** Install Krane **
 
-Install Krane on any machine that has Docker.
+Install and run Krane using Docker.
 
 ```
 docker run -d --name=krane \
-    -v /var/run/docker.sock:/var/run/docker.sock \
+    -e KRANE_PRIVATE_KEY='changeme' \
+    -v /var/run/docker.soc  k:/var/run/docker.sock \
     -v ~/.ssh/authorized_keys:/root/.ssh/authorized_keys  \
     -p 8500:8500 biensupernice/krane
 ```
@@ -21,7 +22,7 @@ Other [installation](installation) methods and configurations.
 
 # ** Download CLI **
 
-Download the Krane [CLI](cli) to communicate with Krane.
+Download the Krane [CLI](cli) to execute commands on a Krane instance.
 
 ```
 npm i -g @krane/cli
@@ -47,18 +48,18 @@ krane login
 
 #### ** Deploy **
 
-Create a deployment configuration file `krane.json`, example hello world deployment.
+Create a deployment configuration file `deployment.json`, example hello world deployment.
 
 ```
 {
   "name": "hello-world-app",
   "image": "hello-world",
-  "alias": ["hello.localhost"]
+  "alias": ["hello.example.com"]
 }
 ```
 
 ```
-krane deploy -f /path/to/krane.json
+krane deploy -f /path/to/deployment.json
 ```
 
 Awe yea, first deployment 🥳
