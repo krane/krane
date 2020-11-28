@@ -16,6 +16,11 @@ func MakeContainerRoutingLabels(config kconfig.Kconfig) []ProxyLabel {
 	labels := make([]ProxyLabel, 0)
 
 	labels = append(labels, ProxyLabel{
+		Key:   "traefik.enable",
+		Value: "true",
+	})
+
+	labels = append(labels, ProxyLabel{
 		Key:   "traefik.docker.network",
 		Value: docker.KraneNetworkName,
 	})
@@ -37,17 +42,22 @@ func traefikRouterLabels(namespace string, aliases []string, secured bool) []Pro
 		})
 	}
 
+	routerLabels = append(routerLabels, ProxyLabel{
+		Key:   fmt.Sprintf("traefik.http.routers.%s.entrypoints", namespace),
+		Value: "web",
+	})
+
 	if secured {
 		routerLabels = append(routerLabels, ProxyLabel{
-			Key:   fmt.Sprintf("traefik.http.routers.%s.entrypoints", namespace),
+			Key:   fmt.Sprintf("traefik.http.routers.%s-secured.entrypoints", namespace),
 			Value: "web-secure",
 		})
 		routerLabels = append(routerLabels, ProxyLabel{
-			Key:   fmt.Sprintf("traefik.http.routers.%s.tls", namespace),
+			Key:   fmt.Sprintf("traefik.http.routers.%s-secured.tls", namespace),
 			Value: "true",
 		})
 		routerLabels = append(routerLabels, ProxyLabel{
-			Key:   fmt.Sprintf("traefik.http.routers.%s.tls.certresolver", namespace),
+			Key:   fmt.Sprintf("traefik.http.routers.%s-secured.tls.certresolver", namespace),
 			Value: "lets-encrypt",
 		})
 	}
@@ -69,7 +79,7 @@ func traefikServiceLabels(namespace string, ports map[string]string, secured boo
 
 	if secured {
 		serviceLabels = append(serviceLabels, ProxyLabel{
-			Key:   fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.scheme", namespace),
+			Key:   fmt.Sprintf("traefik.http.services.%s-secured.loadbalancer.server.scheme", namespace),
 			Value: "https",
 		})
 	}
@@ -80,9 +90,14 @@ func traefikServiceLabels(namespace string, ports map[string]string, secured boo
 func traefikEntryPointsLabels(secured bool) []ProxyLabel {
 	entryPointLabels := make([]ProxyLabel, 0)
 
+	entryPointLabels = append(entryPointLabels, ProxyLabel{
+		Key:   "entryPoints.web.address",
+		Value: "80",
+	})
+
 	if secured {
 		entryPointLabels = append(entryPointLabels, ProxyLabel{
-			Key:   "entryPoints.https.address",
+			Key:   "entryPoints.web-secure.address",
 			Value: "443",
 		})
 	}

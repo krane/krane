@@ -30,9 +30,9 @@ This will generate 2 different keys, a `private` & `public (.pub)` key.
 
 Place the public key on the host machine where Krane is running appended to `~/.ssh/authorized_keys`.
 
-The `private key` is kept on the user's machine, the `public key` is stored where Krane is running and appended to `~/.ssh/authorized_keys`
+The `private key` is kept on the user's machine.
 
-Now you can try logging in. The CLI will prompt you to select the public key your just created. This will be used for authenticating with the private key from the Krane server.
+Now you can try authenticating. The CLI will prompt you to select the public key you just created. This will be used for authenticating with the private key located on the Krane server.
 
 ```
 krane login
@@ -48,14 +48,6 @@ Authenticate with Krane
 krane login
 ```
 
-### config
-
-List the deployment configuration
-
-```
-krane config <deployment>
-```
-
 ### delete
 
 Delete a deployment
@@ -66,7 +58,7 @@ krane delete <deployment>
 
 ### describe
 
-Describe a deployment. This provides details on the containers part of the deployment.
+Describe a deployment. This provides details on the containers part of the deployment
 
 ```
 krane describe <deployment>
@@ -74,7 +66,7 @@ krane describe <deployment>
 
 ### deploy
 
-Deploy or update an application.
+Create or update a deployment
 
 ```
 krane deploy -f </path/to/krane.json>

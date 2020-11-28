@@ -1,6 +1,8 @@
 # Deployment Config
 
-Creating a deployment using Krane starts with a **single file**, this file contains the deployment configuration used when creating container resources. The deployment configuration can be stored at the root of your project, a ci repository or directory on your local machine. When using the [CLI](cli) you can reference the location of this deployment configuration so location. The simplest configuration file could look like:
+Creating a deployment using Krane starts with a **single file**, this file contains the deployment configuration used when creating container resources. The deployment configuration can be stored at the root of your project, a ci repository or directory on your local machine. When using the [CLI](cli) you can reference the location of this deployment configuration so location. 
+
+A simple deployment configuration file might look like:
 
 ```json
 {
@@ -14,7 +16,7 @@ The above **deployment configuration** sets up:
 
 1. A deployment called **hello-world-app**
 2. A container running the image **hello-world**
-3. A redirect alias **hello.localhost** automatically setup by Krane
+3. An alias **hello.localhost**
 
 See all deployment configuration [options](deployment-configuration?id=options)
 
@@ -47,7 +49,7 @@ The image used when pulling, creating and running your deployments containers.
 
 Ports exposed from the container to the host machine. 
 
-> "80": "9000" - The left port (80) refers to the host port, the right port (9000) refers to the host port. 
+> "80": "9000" - The left port (80) refers to the host port, the right port (9000) refers to the container port. 
 
 - required: `false`
 
@@ -159,6 +161,8 @@ Enable HTTPS/TLS communication to your deployment. Should be set to false on loc
 ### scale
 
 Number of containers created for a deployment. Containers are load balanced and discovered automatically by Krane. 
+
+> Tip: You can set the scale to 0 to remove all containers for a deployment without deleting the deployment.
 
 - required: `false`
 - default: `1`
