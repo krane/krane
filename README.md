@@ -15,8 +15,8 @@ Krane is a self-hosted container management solution. It lets you deploy contain
 
 * Single file deployments
 * Provides HTTPS/TLS to your containers via [Let's Encrypt](https://letsencrypt.org/) 
-* Deployment secrets
-* Deployment scaling w/ container discovery 
+* Deployment [secrets](https://www.krane.sh/#/cli?id=secrets)
+* Deployment [scaling](https://www.krane.sh/#/deployment-config?id=scale) 
 * Round Robin load-balancing provided by [Traefik](https://doc.traefik.io/traefik/routing/services/#load-balancing)
 
 ## Getting Started

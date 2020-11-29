@@ -3,5 +3,5 @@
 - [Installation](installation)
 
 - API
-- [Deployment Config](deployment-config)
+- [Deployment Config](deployment-configuration)
 - [CLI](cli)

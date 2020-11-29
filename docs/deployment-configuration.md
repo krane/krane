@@ -74,7 +74,7 @@ For example to load-balance a deployment with multiple instances on a specific p
 }
 ``` 
 
-In the above configuration you'll have 3 instances of your deployment load-balanced on port **9000**. A round-robin strategy occurs when load-balancing between multiple instances. 
+In the above configuration you'll have 3 instances of your deployment load-balanced on port **9000**. See [scale](deployment-configuration?id=scale) for more details on load-balancing. 
 
 ### env
 
@@ -97,7 +97,7 @@ The environment variables passed to the containers part of a deployment.
 
 Secrets are used when you want to pass sensitive information to your deployments.
 
-> You can add deployment secrets using the krane [`cli`](cli?id=secrets)
+> You can add deployment secrets using the Krane [CLI](cli?id=secrets)
 
 - required: `false`
 
@@ -133,7 +133,7 @@ The volumes to mount from the container to the host.
 
 ### alias
 
-Ingress alias for your deployment.
+Entry alias for your deployment.
 
 > ⚠️ Aliases require an [A Record](https://www.digitalocean.com/docs/networking/dns/how-to/manage-records/#a-records) to be created in order for redirects to work.
 
@@ -151,7 +151,7 @@ required: `false`
 
 ### command
 
-A custom command to start the containers.
+Custom command to start the containers.
 
 - required: `false`
 
@@ -163,7 +163,7 @@ A custom command to start the containers.
 
 ### secured
 
-Enable HTTPS/TLS communication to your deployment.
+Enable HTTPS/TLS communication to your deployment. Certificates are auto-generated via [Let's Encrypt](https://letsencrypt.org/).
 
 - required: `false`
 - default: `false`
@@ -176,9 +176,9 @@ Enable HTTPS/TLS communication to your deployment.
 
 ### scale
 
-Number of containers created for a deployment.
+Number of containers created for a deployment. Instances are load-balanced in a [round-robin](https://en.wikipedia.org/wiki/Round-robin_DNS) fashion.
 
-> Tip: You can set the scale to 0 to remove all containers for a deployment without deleting the deployment.
+> Tip: Setting scale to 0 removes all containers for a deployment without deleting the deployment.
 
 - required: `false`
 - default: `1`
