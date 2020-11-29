@@ -66,4 +66,4 @@ For example
 krane deploy -f /path/to/deployment.json
 ```
 
-For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/deployment-configuration).
+For a full list of configuration options, checkout the [deployment configuration](deployment-configuration) section.
