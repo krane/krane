@@ -2,7 +2,7 @@
 
 Krane should be installed on a machine running Docker
 
-> ⚠️ If you're not sure if Docker is running, run `docker -v` and verify the output (ex: `Docker version 19.03.13, build 4484c46d9d`)
+> Tip: If you're not sure if Docker is running, run `docker -v` and verify the output (ex: `Docker version 19.03.13, build 4484c46d9d`)
 
 ## Docker
 

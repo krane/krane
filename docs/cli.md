@@ -12,7 +12,7 @@ npm i -g @krane/cli
 
 Krane uses [private and public key authentication](https://en.wikipedia.org/wiki/Public-key_cryptography). Both keys are used for ensuring authenticity of incoming request.
 
-1. Create the public and private key 
+1. Create the public and private key
 
 ```
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f $HOME/.ssh/krane -m 'PEM'
@@ -26,9 +26,7 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f $HOME/.ssh/krane -m 'PE
 
 This will generate 2 different keys, a `private` & `public (.pub)` key.
 
-2. 
-
-Place the public key on the host machine where Krane is running appended to `~/.ssh/authorized_keys`.
+2. Place the public key on the host machine where Krane is running appended to `~/.ssh/authorized_keys`.
 
 The `private key` is kept on the user's machine.
 
@@ -69,8 +67,16 @@ krane describe <deployment>
 Create or update a deployment
 
 ```
-krane deploy -f </path/to/krane.json>
+krane deploy -f </path/to/deployment.json>
 ```
+
+Flags:
+
+- `--file`(`-f`): Path to deployment configuration
+
+- `--tag`(`-t`): Image tag to apply to the deployment
+
+- `--scale`(`-s`): Number of containers to create (`default` is 1 container)
 
 ### list
 

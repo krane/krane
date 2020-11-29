@@ -7,6 +7,7 @@ import (
 	"github.com/biensupernice/krane/internal/job"
 )
 
+// StartDeployment:
 func StartDeployment(cfg kconfig.Kconfig) error {
 	deploymentJob, err := makeDockerDeploymentJob(cfg, Up)
 	if err != nil {
@@ -16,6 +17,7 @@ func StartDeployment(cfg kconfig.Kconfig) error {
 	return nil
 }
 
+// DeleteDeployment:
 func DeleteDeployment(cfg kconfig.Kconfig) error {
 	deploymentJob, err := makeDockerDeploymentJob(cfg, Down)
 	if err != nil {
@@ -25,6 +27,7 @@ func DeleteDeployment(cfg kconfig.Kconfig) error {
 	return nil
 }
 
+// enqueueDeploymentJob:
 func enqueueDeploymentJob(deploymentJob job.Job) {
 	queue := job.GetJobQueue()
 	enqueuer := job.NewEnqueuer(queue)

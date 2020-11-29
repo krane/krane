@@ -52,9 +52,7 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 		status.HTTPBad(w, err)
 		return
 	}
-
-	// TODO: remove configuration
-
+	
 	status.HTTPAccepted(w)
 	return
 }

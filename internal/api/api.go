@@ -15,6 +15,7 @@ import (
 	"github.com/biensupernice/krane/internal/api/middlewares"
 )
 
+// Run : start the api
 func Run() {
 	logrus.Debugf("Starting Krane API on pid: %d", os.Getpid())
 	router := mux.NewRouter()
@@ -35,6 +36,7 @@ func Run() {
 	}
 }
 
+// withBaseMiddlewares : configure api middlewares
 func withBaseMiddlewares(router *mux.Router) {
 	router.Use(middlewares.Logging)
 	router.Use(handlers.RecoveryHandler())
@@ -43,6 +45,7 @@ func withBaseMiddlewares(router *mux.Router) {
 		handlers.AllowedOrigins([]string{"*"}))) // TODO: Not allowing wild card origins (*) use envar LISTEN_ADDRESS
 }
 
+// withRoutes : configure api routes
 func withRoutes(router *mux.Router) {
 	noAuthRouter := router.PathPrefix("/").Subrouter()
 	withRoute(noAuthRouter, "/", controllers.GetServerStatus).Methods(http.MethodGet)

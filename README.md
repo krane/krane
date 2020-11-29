@@ -71,7 +71,7 @@ Create a deployment configuration file `deployment.json`
 
 For example:
 
-```
+```json
 {
   "name": "hello-world-app",
   "image": "hello-world",

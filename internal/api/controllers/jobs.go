@@ -12,6 +12,7 @@ import (
 	"github.com/biensupernice/krane/internal/utils"
 )
 
+// GetRecentJobs :
 func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
@@ -26,6 +27,7 @@ func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// GetJobsByNamespace :
 func GetJobsByNamespace(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	namespace := params["namespace"]
@@ -48,6 +50,7 @@ func GetJobsByNamespace(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// GetJobByID :
 func GetJobByID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	namespace := params["namespace"]
@@ -66,7 +69,7 @@ func GetJobByID(w http.ResponseWriter, r *http.Request) {
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "365")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
-	j, err := job.GetJobByID(namespace, jobID, uint((daysAgoNum)))
+	j, err := job.GetJobByID(namespace, jobID, uint(daysAgoNum))
 	if err != nil {
 		status.HTTPBad(w, err)
 		return

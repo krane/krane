@@ -19,9 +19,10 @@ type Kconfig struct {
 	Volumes  map[string]string `json:"volumes"`
 	Command  string            `json:"command"`
 	Scale    int               `json:"scale"`   // number of containers for a deployment
-	Secured  bool              `json:"secured"` // for secure communication over TLS
+	Secured  bool              `json:"secured"` // enable/disable secure communication over HTTPS/TLS
 }
 
+// Apply :
 func (cfg *Kconfig) Apply() error {
 	if err := cfg.isValid(); err != nil {
 		return err
@@ -33,10 +34,12 @@ func (cfg *Kconfig) Apply() error {
 	return store.Instance().Put(constants.DeploymentsCollectionName, cfg.Name, bytes)
 }
 
+// Delete :
 func Delete(deploymentName string) error {
 	return store.Instance().Remove(constants.DeploymentsCollectionName, deploymentName)
 }
 
+// GetConfigByDeploymentByName :
 func GetConfigByDeploymentByName(deploymentName string) (Kconfig, error) {
 	bytes, err := store.Instance().Get(constants.DeploymentsCollectionName, deploymentName)
 	if err != nil {
@@ -56,6 +59,7 @@ func GetConfigByDeploymentByName(deploymentName string) (Kconfig, error) {
 	return cfg, nil
 }
 
+// GetAllDeploymentConfigs :
 func GetAllDeploymentConfigs() ([]Kconfig, error) {
 	bytes, err := store.Instance().GetAll(constants.DeploymentsCollectionName)
 	if err != nil {

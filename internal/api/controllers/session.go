@@ -7,6 +7,7 @@ import (
 	"github.com/biensupernice/krane/internal/session"
 )
 
+// GetSessions :
 func GetSessions(w http.ResponseWriter, r *http.Request) {
 	sessions, err := session.GetAllSessions()
 	if err != nil {

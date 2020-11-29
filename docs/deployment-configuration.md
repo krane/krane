@@ -1,6 +1,6 @@
 # Deployment Config
 
-Creating a deployment using Krane starts with a **single file**, this file contains the deployment configuration used when creating container resources. The deployment configuration can be stored at the root of your project, a ci repository or directory on your local machine. When using the [CLI](cli) you can reference the location of this deployment configuration so location. 
+Creating a deployment using Krane starts with a **single file**, this file contains the deployment configuration used when creating container resources. The deployment configuration can be stored at the root of your project, a ci repository, or a directory on your local machine - anywhere really. When using the [CLI](cli) you can reference the location of this deployment configuration. 
 
 A simple deployment configuration file might look like:
 

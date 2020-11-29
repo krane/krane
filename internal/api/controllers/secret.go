@@ -11,6 +11,7 @@ import (
 	"github.com/biensupernice/krane/internal/secrets"
 )
 
+// GetSecrets :
 func GetSecrets(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["name"]
@@ -34,6 +35,7 @@ func GetSecrets(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// CreateSecret :
 func CreateSecret(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["name"]
@@ -66,6 +68,7 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// DeleteSecret :
 func DeleteSecret(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["name"]

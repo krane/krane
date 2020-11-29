@@ -17,12 +17,11 @@ func Logging(next http.Handler) http.Handler {
 
 			// Important that we call the 'next' handler in the chain. If we don't,
 			// then request handling will stop here.
-
 			next.ServeHTTP(w, r)
 
 			// Logic after - useful for logging, metrics, etc.
-			//
-			// It's important that we don't use the ResponseWriter after we've called the
+
+			// NOTE: It's important that we don't use the ResponseWriter after we've called the
 			// next handler: we may cause conflicts when trying to write the response
 		},
 	)))
