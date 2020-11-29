@@ -6,8 +6,6 @@ Krane is a container deployment tool that makes it easy to create and manage sma
 
 [![Install Krane](./assets/1-install-krane.png)](https://www.krane.sh/#/installation)
 
-# ** Install Krane **
-
 Install and run Krane using Docker.
 
 ```
@@ -69,5 +67,3 @@ krane deploy -f /path/to/deployment.json
 ```
 
 For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/deployment-configuration).
-
-Awe yea, first deployment 🥳
