@@ -36,7 +36,7 @@ var (
 
 func Instance() Store { return instance }
 
-func NewInstance(path string) *BoltDB {
+func CreateIfNotExist(path string) *BoltDB {
 	if instance != nil {
 		logrus.Info("Bolt instance already exists...")
 		return instance

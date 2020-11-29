@@ -21,17 +21,8 @@ func GetSecrets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	secrets, err := secrets.GetAll(deploymentName)
-	if err != nil {
-		status.HTTPBad(w, err)
-		return
-	}
-
-	for _, secret := range secrets {
-		secret.Redact()
-	}
-
-	status.HTTPOk(w, secrets)
+	redactedSecrets := secrets.GetAllRedacted(deploymentName)
+	status.HTTPOk(w, redactedSecrets)
 	return
 }
 

@@ -19,7 +19,7 @@ const namespace = "krane_test"
 func teardown() { os.Remove(boltpath) }
 
 func TestMain(m *testing.M) {
-	store.NewInstance((boltpath))
+	store.CreateIfNotExist((boltpath))
 	defer store.Instance().Shutdown()
 
 	// Create deployment (namespace)

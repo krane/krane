@@ -19,7 +19,7 @@ func teardown() {
 }
 
 func TestMain(m *testing.M) {
-	NewInstance(testBoltPath)
+	CreateIfNotExist(testBoltPath)
 	defer Instance().Shutdown()
 
 	code := m.Run()

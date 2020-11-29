@@ -1,6 +1,7 @@
 package container
 
 import (
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/mount"
 
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
@@ -23,6 +24,17 @@ func fromKcontainerToDockerVolumeMount(volumes []Volume) []mount.Mount {
 	}
 
 	return vols
+}
+
+func fromMountPointToKconfigVolumes(mounts []types.MountPoint) []Volume {
+	volumes := make([]Volume, 0)
+	for _, m := range mounts {
+		volumes = append(volumes, Volume{
+			HostVolume:      m.Source,
+			ContainerVolume: m.Destination,
+		})
+	}
+	return volumes
 }
 
 // from Kconfig to Docker container volume mounts

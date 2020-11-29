@@ -36,7 +36,7 @@ func init() {
 
 	logging.ConfigureLogrus()
 	docker.ClientFromEnv()
-	store.NewInstance(os.Getenv(constants.EnvDatabasePath))
+	store.CreateIfNotExist(os.Getenv(constants.EnvDatabasePath))
 }
 
 func main() {
@@ -68,6 +68,9 @@ func main() {
 	wpSize := utils.GetUIntEnv(constants.EnvWorkerPoolSize)
 	workers := job.NewWorkerPool(wpSize, queue, store.Instance())
 	workers.Start()
+
+	// create the network proxy
+	CreateProxyIfNotExist()
 
 	// This wait statement will block until an exit signal is received by the program.
 	// The exit signal can be ctrl+c, any IDE stop, or any system termination signal.

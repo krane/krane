@@ -22,7 +22,8 @@ type CreateContainerConfig struct {
 	Ports         nat.PortMap
 	Volumes       []mount.Mount
 	Env           []string // Comma separated, formatted NODE_ENV=dev
-	Command       string
+	Command       []string
+	Entrypoint    []string
 }
 
 // create a docker container
@@ -31,8 +32,7 @@ func (c *Client) CreateContainer(
 	config CreateContainerConfig,
 ) (container.ContainerCreateCreatedBody, error) {
 	networkingConfig := makeNetworkingConfig(config.NetworkID)
-	containerConfig := makeContainerConfig(
-		config.ContainerName, config.Image, config.Env, config.Labels, config.Command)
+	containerConfig := makeContainerConfig(config.ContainerName, config.Image, config.Env, config.Labels, config.Command, config.Entrypoint)
 	hostConfig := makeHostConfig(config.Ports, config.Volumes)
 
 	return c.ContainerCreate(
@@ -44,14 +44,24 @@ func (c *Client) CreateContainer(
 	)
 }
 
-func makeContainerConfig(hostname string, image string, env []string, labels map[string]string, command string) container.Config {
-	return container.Config{
+func makeContainerConfig(hostname string, image string, env []string, labels map[string]string, command []string, entrypoint []string) container.Config {
+	config := container.Config{
 		Hostname: hostname,
 		Image:    image,
 		Env:      env,
 		Labels:   labels,
-		// TODO: resolve CMD
+		// TODO: volumes
 	}
+
+	if len(command) > 0 {
+		config.Cmd = command
+	}
+
+	if len(entrypoint) > 0 {
+		config.Entrypoint = entrypoint
+	}
+
+	return config
 }
 
 func makeHostConfig(ports nat.PortMap, volumes []mount.Mount) container.HostConfig {
@@ -62,6 +72,12 @@ func makeHostConfig(ports nat.PortMap, volumes []mount.Mount) container.HostConf
 	}
 }
 
+// StartContainer : start a docker container
+func (c *Client) StartContainer(ctx context.Context, containerID string) error {
+	options := types.ContainerStartOptions{}
+	return c.ContainerStart(ctx, containerID, options)
+}
+
 // StopContainer : stop docker container
 func (c *Client) StopContainer(ctx context.Context, containerID string) error {
 	timeout := 60 * time.Second
@@ -70,7 +86,10 @@ func (c *Client) StopContainer(ctx context.Context, containerID string) error {
 
 // RemoveContainer : remove docker container
 func (c *Client) RemoveContainer(ctx context.Context, containerID string, force bool) error {
-	options := types.ContainerRemoveOptions{RemoveVolumes: true, Force: force}
+	options := types.ContainerRemoveOptions{
+		RemoveVolumes: true,
+		Force:         force,
+	}
 	return c.ContainerRemove(ctx, containerID, options)
 }
 
@@ -157,12 +176,6 @@ func (c *Client) ReadContainerLogs(ctx *context.Context, containerID string) (re
 	}
 
 	return c.ContainerLogs(*ctx, containerID, options)
-}
-
-// StartContainer : start docker container
-func (c *Client) StartContainer(ctx context.Context, containerID string) error {
-	options := types.ContainerStartOptions{}
-	return c.ContainerStart(ctx, containerID, options)
 }
 
 // ConnectContainerToNetwork : connect a container to a network

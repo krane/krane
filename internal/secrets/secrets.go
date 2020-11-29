@@ -82,6 +82,16 @@ func GetAll(namespace string) ([]*Secret, error) {
 	return secrets, nil
 }
 
+func GetAllRedacted(namespace string) []Secret {
+	plainSecrets, _ := GetAll(namespace)
+	redactedSecrets := make([]Secret, 0)
+	for _, secret := range plainSecrets {
+		secret.Redact()
+		redactedSecrets = append(redactedSecrets, *secret)
+	}
+	return redactedSecrets
+}
+
 func Get(namespace, key string) (*Secret, error) {
 	collection := getNamespaceCollectionName(namespace)
 	bytes, err := store.Instance().Get(collection, key)

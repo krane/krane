@@ -23,7 +23,7 @@ func ApplyDeployment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := cfg.Apply(); err != nil {
+	if err := cfg.Save(); err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
@@ -42,7 +42,7 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	cfg, err := kconfig.GetConfigByDeploymentByName(name)
+	cfg, err := kconfig.GetConfigByDeploymentName(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
@@ -52,7 +52,7 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 		status.HTTPBad(w, err)
 		return
 	}
-	
+
 	status.HTTPAccepted(w)
 	return
 }
@@ -72,7 +72,7 @@ func GetContainers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	containers, err := container.GetKontainersByNamespace(name)
+	containers, err := container.GetContainersByNamespace(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
@@ -87,7 +87,7 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	cfg, err := kconfig.GetConfigByDeploymentByName(name)
+	cfg, err := kconfig.GetConfigByDeploymentName(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return

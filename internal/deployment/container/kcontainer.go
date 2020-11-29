@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -12,41 +11,23 @@ import (
 
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/docker"
-	"github.com/biensupernice/krane/internal/secrets"
 )
 
 // Krane custom container struct
 type Kcontainer struct {
-	ID        string            `json:"id"`
-	Namespace string            `json:"namespace"`
-	Name      string            `json:"name"`
-	NetworkID string            `json:"network_id"`
-	Image     string            `json:"image"`
-	ImageID   string            `json:"image_id"`
-	CreatedAt int64             `json:"created_at"`
-	Labels    map[string]string `json:"labels"`
-	State     State             `json:"state"`  // ex: running
-	Status    string            `json:"status"` // ex: Up 17 hours
-	Ports     []Port            `json:"ports"`
-	Volumes   []Volume          `json:"volumes"`
-	Env       map[string]string `json:"env"`
-	Secrets   []secrets.Secret  `json:"secrets"`
-	Command   []string          `json:"command"`
-}
-
-type State struct {
-	Status     string        `json:"status"`
-	Running    bool          `json:"running"`
-	Paused     bool          `json:"paused"`
-	Restarting bool          `json:"restarting"`
-	OOMKilled  bool          `json:"oom_killed"`
-	Dead       bool          `json:"dead"`
-	Pid        int           `json:"pid"`
-	ExitCode   int           `json:"exit_code"`
-	Error      string        `json:"error"`
-	StartedAt  string        `json:"started"`
-	FinishedAt string        `json:"finished_at"`
-	Health     *types.Health `json:",omitempty"`
+	ID         string            `json:"id"`
+	Namespace  string            `json:"namespace"`
+	Name       string            `json:"name"`
+	NetworkID  string            `json:"network_id"`
+	Image      string            `json:"image"`
+	ImageID    string            `json:"image_id"`
+	CreatedAt  int64             `json:"created_at"`
+	Labels     map[string]string `json:"labels"`
+	State      State             `json:"state"`
+	Ports      []Port            `json:"ports"`
+	Volumes    []Volume          `json:"volumes"`
+	Command    []string          `json:"command"`
+	Entrypoint []string          `json:"entrypoint"`
 }
 
 func Create(cfg kconfig.Kconfig) (Kcontainer, error) {
@@ -68,52 +49,7 @@ func Create(cfg kconfig.Kconfig) (Kcontainer, error) {
 		return Kcontainer{}, err
 	}
 
-	return mapContainerJsonToKcontainer(json), nil
-}
-
-func mapContainerJsonToKcontainer(container types.ContainerJSON) Kcontainer {
-	createdAt, _ := time.Parse(time.RFC3339, container.Created)
-	envs := fromDockerToEnvMap(container.Config.Env)
-
-	return Kcontainer{
-		ID:        container.ID,
-		Name:      container.Name,
-		NetworkID: container.NetworkSettings.EndpointID,
-		Image:     container.Config.Image,
-		ImageID:   container.Image,
-		Env:       envs,
-		CreatedAt: createdAt.Unix(),
-		Command:   container.Config.Cmd,
-		Labels:    container.Config.Labels,
-		// TODO: resolve rest of the fields
-	}
-}
-
-func fromKconfigToCreateContainerConfig(cfg kconfig.Kconfig) docker.CreateContainerConfig {
-	ctx := context.Background()
-	defer ctx.Done()
-
-	knetwork, err := docker.GetClient().GetNetworkByName(ctx, docker.KraneNetworkName)
-	if err != nil {
-		return docker.CreateContainerConfig{}
-	}
-
-	envars := fromKconfigDockerEnvList(cfg)
-	labels := fromKconfigToDockerLabelMap(cfg)
-	volumes := fromKconfigToDockerVolumeMount(cfg)
-	ports := fromKconfigToDockerPortMap(cfg)
-
-	containerName := fmt.Sprintf("%s-%s", cfg.Name, shortuuid.New())
-	return docker.CreateContainerConfig{
-		ContainerName: containerName,
-		Image:         cfg.Image,
-		NetworkID:     knetwork.ID,
-		Labels:        labels,
-		Ports:         ports,
-		Volumes:       volumes,
-		Env:           envars,
-		Command:       cfg.Command,
-	}
+	return fromDockerContainerToKcontainer(json), nil
 }
 
 func (k Kcontainer) Start() error {
@@ -156,40 +92,7 @@ func (k Kcontainer) Ok() (bool, error) {
 
 func (k Kcontainer) toContainer() types.Container { return types.Container{} }
 
-// convert docker container into a Kcontainer
-func fromDockerContainerToKcontainer(container types.ContainerJSON) Kcontainer {
-	ctx := context.Background()
-	defer ctx.Done()
-
-	createdAt, _ := strconv.ParseInt(container.ContainerJSONBase.Created, 10, 64)
-	ports := fromDockerToKconfigPortMap(container.NetworkSettings.Ports)
-
-	// volumes
-
-	// Map Env
-
-	// Map Secrets
-
-	return Kcontainer{
-		ID:        container.ID,
-		Namespace: container.Config.Labels[KraneContainerNamespaceLabel],
-		Name:      container.Name,
-		Image:     container.Config.Image,
-		ImageID:   container.ContainerJSONBase.Image,
-		CreatedAt: createdAt,
-		Labels:    container.Config.Labels,
-		NetworkID: container.NetworkSettings.Networks[docker.KraneNetworkName].NetworkID,
-		// State:     container.ContainerJSONBase.State,
-		Status:  container.ContainerJSONBase.State.Status,
-		Ports:   ports,
-		Command: container.Config.Cmd,
-		// Env:
-		// Volumes:
-		// TODO: the rest
-	}
-}
-
-// get krane managed docker containers mapped to a Kcontainer
+// GetAllContainers : get all containers
 func GetAllContainers(client *docker.Client) ([]Kcontainer, error) {
 	ctx := context.Background()
 	defer ctx.Done()
@@ -199,6 +102,7 @@ func GetAllContainers(client *docker.Client) ([]Kcontainer, error) {
 		return make([]Kcontainer, 0), err
 	}
 
+	// filter krane managed containers
 	kcontainers := make([]Kcontainer, 0)
 	for _, container := range containers {
 		if isKraneManagedContainer(container) {
@@ -209,8 +113,8 @@ func GetAllContainers(client *docker.Client) ([]Kcontainer, error) {
 	return kcontainers, nil
 }
 
-// filter krane manage containers by namespace
-func GetKontainersByNamespace(namespace string) ([]Kcontainer, error) {
+// GetContainersByNamespace : get containers filtered by namespace
+func GetContainersByNamespace(namespace string) ([]Kcontainer, error) {
 	client := docker.GetClient()
 
 	// get all containers managed by krane
@@ -239,4 +143,70 @@ func isKraneManagedContainer(container types.ContainerJSON) bool {
 		return false
 	}
 	return true
+}
+
+func fromKconfigToCreateContainerConfig(cfg kconfig.Kconfig) docker.CreateContainerConfig {
+	ctx := context.Background()
+	defer ctx.Done()
+
+	knetwork, err := docker.GetClient().GetNetworkByName(ctx, docker.KraneNetworkName)
+	if err != nil {
+		return docker.CreateContainerConfig{}
+	}
+
+	envars := fromKconfigDockerEnvList(cfg)
+	labels := fromKconfigToDockerLabelMap(cfg)
+	volumes := fromKconfigToDockerVolumeMount(cfg)
+	ports := fromKconfigToDockerPortMap(cfg)
+
+	var command []string
+	var entrypoint []string
+
+	if cfg.Command != "" {
+		command = append(command, cfg.Command)
+	}
+
+	if cfg.Entrypoint != "" {
+		entrypoint = append(entrypoint, cfg.Entrypoint)
+	}
+
+	containerName := fmt.Sprintf("%s-%s", cfg.Name, shortuuid.New())
+	return docker.CreateContainerConfig{
+		ContainerName: containerName,
+		Image:         cfg.Image,
+		NetworkID:     knetwork.ID,
+		Labels:        labels,
+		Ports:         ports,
+		Volumes:       volumes,
+		Env:           envars,
+		Command:       command,
+		Entrypoint:    entrypoint,
+	}
+}
+
+// convert docker container into a Kcontainer
+func fromDockerContainerToKcontainer(container types.ContainerJSON) Kcontainer {
+	ctx := context.Background()
+	defer ctx.Done()
+
+	createdAt, _ := time.Parse(time.RFC3339, container.ContainerJSONBase.Created)
+	state := fromDockerStateToKstate(*container.State)
+	ports := fromDockerToKconfigPortMap(container.NetworkSettings.Ports)
+	volumes := fromMountPointToKconfigVolumes(container.Mounts)
+
+	return Kcontainer{
+		ID:         container.ID,
+		Namespace:  container.Config.Labels[KraneContainerNamespaceLabel],
+		Name:       container.Name,
+		NetworkID:  container.NetworkSettings.Networks[docker.KraneNetworkName].NetworkID,
+		Image:      container.Config.Image,
+		ImageID:    container.ContainerJSONBase.Image,
+		CreatedAt:  createdAt.Unix(),
+		Labels:     container.Config.Labels,
+		State:      state,
+		Ports:      ports,
+		Volumes:    volumes,
+		Command:    container.Config.Cmd,
+		Entrypoint: container.Config.Entrypoint,
+	}
 }

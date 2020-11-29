@@ -8,22 +8,23 @@ import (
 )
 
 type Kconfig struct {
-	Name     string            `json:"name" binding:"required"`
-	Registry string            `json:"registry"`
-	Image    string            `json:"image" binding:"required"`
-	Tag      string            `json:"tag"`   // docker image tag
-	Alias    []string          `json:"alias"` // custom domain aliases
-	Env      map[string]string `json:"env"`
-	Ports    map[string]string `json:"ports"`
-	Secrets  map[string]string `json:"secrets"`
-	Volumes  map[string]string `json:"volumes"`
-	Command  string            `json:"command"`
-	Scale    int               `json:"scale"`   // number of containers for a deployment
-	Secured  bool              `json:"secured"` // enable/disable secure communication over HTTPS/TLS
+	Name       string            `json:"name" binding:"required"`
+	Registry   string            `json:"registry"`
+	Image      string            `json:"image" binding:"required"`
+	Tag        string            `json:"tag"`   // docker image tag
+	Alias      []string          `json:"alias"` // custom domain aliases
+	Env        map[string]string `json:"env"`
+	Secrets    map[string]string `json:"secrets"`
+	Ports      map[string]string `json:"ports"`
+	Volumes    map[string]string `json:"volumes"`
+	Command    string            `json:"command"`
+	Entrypoint string            `json:"entrypoint"`
+	Scale      int               `json:"scale"`   // number of containers for a deployment
+	Secured    bool              `json:"secured"` // enable/disable secure communication over HTTPS/TLS
 }
 
-// Apply :
-func (cfg *Kconfig) Apply() error {
+// Save : creates or updates a deployment
+func (cfg *Kconfig) Save() error {
 	if err := cfg.isValid(); err != nil {
 		return err
 	}
@@ -39,8 +40,8 @@ func Delete(deploymentName string) error {
 	return store.Instance().Remove(constants.DeploymentsCollectionName, deploymentName)
 }
 
-// GetConfigByDeploymentByName :
-func GetConfigByDeploymentByName(deploymentName string) (Kconfig, error) {
+// GetConfigByDeploymentName :
+func GetConfigByDeploymentName(deploymentName string) (Kconfig, error) {
 	bytes, err := store.Instance().Get(constants.DeploymentsCollectionName, deploymentName)
 	if err != nil {
 		return Kconfig{}, err
