@@ -18,7 +18,7 @@ Krane is a self-hosted container management solution. It lets you deploy contain
 * Deployment [secrets](https://www.krane.sh/#/cli?id=secrets)
 * Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale) 
 * Round Robin load-balancing provided by [Traefik](https://doc.traefik.io/traefik/routing/services/#load-balancing)
-* [Self-hosted](#why_krane) - Bring your own hardware (could be a cheap $5 machine) and scale if you need.
+* [Self-hosted](#why_krane) - Bring your own hardware (could be a cheap $5 machine) and scale if you need
 
 ## Getting Started
 
