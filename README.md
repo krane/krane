@@ -1,14 +1,13 @@
 [![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1602474802/Marketing_-_Krane_dj2y9e.png)](https://krane.sh)
 
 [![CI](https://github.com/biensupernice/krane/workflows/CI/badge.svg?branch=master)](https://github.com/biensupernice/krane/actions)
-[![Docker Pulls](https://img.shields.io/docker/pulls/biensupernice/krane?label=Docker%20Pulls)](https://store.docker.com/community/images/biensupernice/krane)
 [![Go Report Card](https://goreportcard.com/badge/github.com/biensupernice/krane)](https://goreportcard.com/report/github.com/biensupernice/krane)
 
-> ⚠️ Currently under construction
+> ⚠️ Currently under construction 🏗
 
-Krane is a self-hosted container management solution. It offers a simple and productive way to work with docker containers. Krane lets you deploy containers with a single configuration file and manage those containers using the Krane cli.
+Krane is a self-hosted container management solution. It lets you deploy containers with a single configuration file and manage those containers using the Krane [CLI](https://www.krane.sh/#/cli) for a productive experience when running containers on remote servers.
 
-* **Documentation:** https://krane.sh  
+* **Documentation:** https://krane.sh
 * **Releases:** https://github.com/biensupernice/krane/releases
 * **CLI:** https://github.com/krane/cli
 
@@ -22,7 +21,7 @@ Krane is a self-hosted container management solution. It offers a simple and pro
 
 ## Getting Started
 
-![Install Krane](./docs/assets/1-install-krane.png)
+[![Install Krane](./docs/assets/1-install-krane.png)](https://www.krane.sh/#/installation)
 
 ```
 docker run -d --name=krane \
@@ -35,7 +34,7 @@ docker run -d --name=krane \
 Other [installation](https://www.krane.sh/#/installation) methods and configurations.
 
 
-![Download CLI](./docs/assets/2-download-cli.png)
+[![Download CLI](./docs/assets/2-download-cli.png)](https://www.krane.sh/#/cli)
 
 Download the Krane [CLI](https://www.krane.sh/#/cli) to execute commands on a Krane instance.
 
@@ -55,7 +54,7 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
 
 The private key is kept on the user's machine, the public key is stored where Krane is running and appended to `~/.ssh/authorized_keys`
 
-4. Authenticate
+[![Authenticate](./docs/assets/4-authentication.png)](https://www.krane.sh/#/cli?id=authenticating)
 
 When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated successfully you'll be able to execute any command on that Krane instance. 
 
@@ -65,7 +64,7 @@ To switch between Krane instances you'll have to login again.
 krane login
 ```
 
-5. Deploy
+[![Deploy](./docs/assets/5-deploy.png)](https://www.krane.sh/#/cli?id=deploy)
 
 Create a deployment configuration file `deployment.json` 
 
@@ -84,6 +83,8 @@ krane deploy -f /path/to/deployment.json
 ```
 
 For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/deployment-config).
+
+---
 
 ## Building from source
 
