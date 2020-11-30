@@ -1,4 +1,4 @@
-# <b>KRANE</b> <small>0.1.0</small>
+# <b>KRANE</b> <small>🏗</small>
 
 > Toolset for working with containers
 

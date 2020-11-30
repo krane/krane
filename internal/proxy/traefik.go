@@ -53,11 +53,11 @@ func traefikRouterLabels(namespace string, aliases []string, secured bool) []Tra
 		// 	Value: "web-secure",
 		// })
 		routerLabels = append(routerLabels, TraefikLabel{
-			Key:   fmt.Sprintf("traefik.http.routers.%s-secured.tls", namespace),
+			Key:   fmt.Sprintf("traefik.http.routers.%s.tls", namespace),
 			Value: "true",
 		})
 		routerLabels = append(routerLabels, TraefikLabel{
-			Key:   fmt.Sprintf("traefik.http.routers.%s-secured.tls.certresolver", namespace),
+			Key:   fmt.Sprintf("traefik.http.routers.%s.tls.certresolver", namespace),
 			Value: "lets-encrypt",
 		})
 	}
