@@ -60,3 +60,5 @@ The following properties can be set as environment variables when running Krane.
 | DB_PATH                    | Path to boltdb                                                     | false    | /tmp/krane.db  |
 | DOCKER_BASIC_AUTH_USERNAME | Username used when authenticating with Docker                      | false    |                |
 | DOCKER_BASIC_AUTH_PASSWORD | Password used when authenticating with Docker                      | false    |                |
+| PROXY_DASHBOARD_SECURE     | Enable HTTPS/TLS on the proxy dashboard                            | false    | false          |
+| PROXY_DASHBOARD_ALIAS      | Alias for the proxy dashboard (ex: `monitor.example.com`)          | false    |                |
