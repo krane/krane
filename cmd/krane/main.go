@@ -33,6 +33,8 @@ func init() {
 	utils.EnvOrDefault(constants.EnvWatchMode, "false")
 	utils.EnvOrDefault(constants.EnvDockerBasicAuthUsername, "")
 	utils.EnvOrDefault(constants.EnvDockerBasicAuthPassword, "")
+	utils.EnvOrDefault(constants.EnvProxyDashboardSecure, "false")
+	utils.EnvOrDefault(constants.EnvProxyDashboardAlias, "")
 
 	logging.ConfigureLogrus()
 	docker.ClientFromEnv()

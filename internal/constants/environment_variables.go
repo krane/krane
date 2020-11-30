@@ -14,4 +14,6 @@ const (
 	EnvSchedulerIntervalMs     = "SCHEDULER_INTERVAL_MS"
 	EnvDockerBasicAuthUsername = "DOCKER_BASIC_AUTH_USERNAME"
 	EnvDockerBasicAuthPassword = "DOCKER_BASIC_AUTH_PASSWORD"
+	EnvProxyDashboardSecure    = "PROXY_DASHBOARD_SECURE"
+	EnvProxyDashboardAlias     = "PROXY_DASHBOARD_ALIAS"
 )
