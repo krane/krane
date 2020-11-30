@@ -130,3 +130,19 @@ Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To v
 ```
 $ boltdbweb --db-name=/path/to/krane.db --port=9000
 ``` 
+
+## Complete Docker example
+
+```
+docker run -d --name=krane \
+    -e KRANE_PRIVATE_KEY=changeme \
+    -e LOG_LEVEL=debug \
+    -e DOCKER_BASIC_AUTH_USERNAME=changeme \
+    -e DOCKER_BASIC_AUTH_PASSWORD=changeme \
+    -e PROXY_DASHBOARD_SECURE=true \
+    -e PROXY_DASHBOARD_ALIAS=monitor.example.com \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v ~/.ssh:/root/.ssh  \
+    -v /tmp/krane.db:/tmp/krane.db \
+    -p 8500:8500 biensupernice/krane
+```

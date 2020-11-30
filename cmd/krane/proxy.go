@@ -2,18 +2,23 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/sirupsen/logrus"
 
+	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/deployment/service"
+	"github.com/biensupernice/krane/internal/utils"
 )
 
 var config = kconfig.Kconfig{
-	Name:  "krane-proxy",
-	Image: "biensupernice/proxy",
-	Scale: 1,
+	Name:    "krane-proxy",
+	Image:   "biensupernice/proxy",
+	Scale:   1,
+	Secured: utils.GetBoolEnv(constants.EnvProxyDashboardSecure),
+	Alias:   []string{os.Getenv(constants.EnvProxyDashboardAlias)},
 	Volumes: map[string]string{
 		"/var/run/docker.sock": "/var/run/docker.sock",
 	},
