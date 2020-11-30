@@ -77,12 +77,12 @@ func traefikServiceLabels(namespace string, ports map[string]string, secured boo
 		i++
 	}
 
-	if secured {
-		serviceLabels = append(serviceLabels, TraefikLabel{
-			Key:   fmt.Sprintf("traefik.http.services.%s-secured.loadbalancer.server.scheme", namespace),
-			Value: "https",
-		})
-	}
+	// if secured {
+	// 	serviceLabels = append(serviceLabels, TraefikLabel{
+	// 		Key:   fmt.Sprintf("traefik.http.services.%s-secured.loadbalancer.server.scheme", namespace),
+	// 		Value: "https",
+	// 	})
+	// }
 
 	return serviceLabels
 }
@@ -90,17 +90,17 @@ func traefikServiceLabels(namespace string, ports map[string]string, secured boo
 func traefikEntryPointsLabels(secured bool) []TraefikLabel {
 	entryPointLabels := make([]TraefikLabel, 0)
 
-	entryPointLabels = append(entryPointLabels, TraefikLabel{
-		Key:   "entryPoints.web.address",
-		Value: "80",
-	})
+	// entryPointLabels = append(entryPointLabels, TraefikLabel{
+	// 	Key:   "entryPoints.web.address",
+	// 	Value: "80",
+	// })
 
-	if secured {
-		entryPointLabels = append(entryPointLabels, TraefikLabel{
-			Key:   "entryPoints.web-secure.address",
-			Value: "443",
-		})
-	}
+	// if secured {
+	// 	entryPointLabels = append(entryPointLabels, TraefikLabel{
+	// 		Key:   "entryPoints.web-secure.address",
+	// 		Value: "443",
+	// 	})
+	// }
 
 	return entryPointLabels
 }
@@ -109,20 +109,20 @@ func traefikMiddlewareLabels(namespace string, secured bool) []TraefikLabel {
 	middlewareLabels := make([]TraefikLabel, 0)
 
 	if secured {
-		middlewareLabels = append(middlewareLabels, TraefikLabel{
-			Key:   fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.scheme", namespace),
-			Value: "https",
-		})
-
-		middlewareLabels = append(middlewareLabels, TraefikLabel{
-			Key:   fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.port", namespace),
-			Value: "443",
-		})
-
-		middlewareLabels = append(middlewareLabels, TraefikLabel{
-			Key:   fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.permanent", namespace),
-			Value: "true",
-		})
+		// middlewareLabels = append(middlewareLabels, TraefikLabel{
+		// 	Key:   fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.scheme", namespace),
+		// 	Value: "https",
+		// })
+		//
+		// middlewareLabels = append(middlewareLabels, TraefikLabel{
+		// 	Key:   fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.port", namespace),
+		// 	Value: "443",
+		// })
+		//
+		// middlewareLabels = append(middlewareLabels, TraefikLabel{
+		// 	Key:   fmt.Sprintf("traefik.http.middlewares.%s.redirectscheme.permanent", namespace),
+		// 	Value: "true",
+		// })
 	}
 
 	return middlewareLabels
