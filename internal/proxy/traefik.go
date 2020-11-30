@@ -43,7 +43,7 @@ func traefikRouterLabels(namespace string, aliases []string, secured bool) []Tra
 			hostLabels.WriteString(fmt.Sprintf("Host(`%s`)", alias))
 		} else {
 			// append OR operator if not the last alias
-			hostLabels.WriteString(fmt.Sprintf("Host(`%s`) ||", alias))
+			hostLabels.WriteString(fmt.Sprintf("Host(`%s`) || ", alias))
 		}
 	}
 
