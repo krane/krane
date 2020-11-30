@@ -42,16 +42,16 @@ func traefikRouterLabels(namespace string, aliases []string, secured bool) []Tra
 		})
 	}
 
-	routerLabels = append(routerLabels, TraefikLabel{
-		Key:   fmt.Sprintf("traefik.http.routers.%s.entrypoints", namespace),
-		Value: "web",
-	})
+	// routerLabels = append(routerLabels, TraefikLabel{
+	// 	Key:   fmt.Sprintf("traefik.http.routers.%s.entrypoints", namespace),
+	// 	Value: "web",
+	// })
 
 	if secured {
-		routerLabels = append(routerLabels, TraefikLabel{
-			Key:   fmt.Sprintf("traefik.http.routers.%s-secured.entrypoints", namespace),
-			Value: "web-secure",
-		})
+		// routerLabels = append(routerLabels, TraefikLabel{
+		// 	Key:   fmt.Sprintf("traefik.http.routers.%s-secured.entrypoints", namespace),
+		// 	Value: "web-secure",
+		// })
 		routerLabels = append(routerLabels, TraefikLabel{
 			Key:   fmt.Sprintf("traefik.http.routers.%s-secured.tls", namespace),
 			Value: "true",
