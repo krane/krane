@@ -18,6 +18,7 @@ type RegistryBasicAuth struct {
 	Password string `json:"password"`
 }
 
+// getRegistryCredentials : get docker registry credentials
 func getRegistryCredentials() string {
 	bytes, _ := json.Marshal(RegistryBasicAuth{
 		Username: os.Getenv(constants.EnvDockerBasicAuthUsername),
@@ -26,12 +27,12 @@ func getRegistryCredentials() string {
 	return base64.StdEncoding.EncodeToString(bytes)
 }
 
-// PullImage : poll docker image from registry
+// PullImage : pull docker image from registry
 func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (err error) {
 	formattedImage := formatImageSourceURL(registry, image, tag)
 
 	options := types.ImagePullOptions{
-		All:          true,
+		All:          false,
 		RegistryAuth: getRegistryCredentials(),
 	}
 
@@ -48,7 +49,7 @@ func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (er
 	return
 }
 
-// RemoveImage : deletes docker image
+// RemoveImage : delete docker image
 func (c *Client) RemoveImage(ctx *context.Context, imageID string) ([]types.ImageDelete, error) {
 	options := types.ImageRemoveOptions{
 		Force:         true, // TODO: was getting race conditions between removing a container and removing the image... couple possible fixes gotta get around to it for now just force remove the images
