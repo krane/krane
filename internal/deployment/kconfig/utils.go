@@ -27,6 +27,10 @@ func (cfg *Kconfig) applyDefaults() {
 		cfg.Alias = make([]string, 0)
 	}
 
+	if cfg.Labels == nil {
+		cfg.Labels = make(map[string]string, 0)
+	}
+
 	if cfg.Secrets == nil {
 		cfg.Secrets = make(map[string]string, 0)
 	}

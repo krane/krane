@@ -19,6 +19,9 @@ var config = kconfig.Kconfig{
 	Scale:   1,
 	Secured: utils.GetBoolEnv(constants.EnvProxyDashboardSecure),
 	Alias:   []string{os.Getenv(constants.EnvProxyDashboardAlias)},
+	Labels: map[string]string{
+		"traefik.http.routers.krane-proxy.service": "api@internal",
+	},
 	Volumes: map[string]string{
 		"/var/run/docker.sock": "/var/run/docker.sock",
 	},

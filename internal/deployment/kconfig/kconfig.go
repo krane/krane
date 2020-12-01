@@ -13,6 +13,7 @@ type Kconfig struct {
 	Image      string            `json:"image" binding:"required"`
 	Tag        string            `json:"tag"`   // docker image tag
 	Alias      []string          `json:"alias"` // custom domain aliases
+	Labels     map[string]string `json:"labels"`
 	Env        map[string]string `json:"env"`
 	Secrets    map[string]string `json:"secrets"`
 	Ports      map[string]string `json:"ports"`
