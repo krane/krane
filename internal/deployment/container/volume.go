@@ -12,7 +12,7 @@ type Volume struct {
 	ContainerVolume string `json:"container_volume"`
 }
 
-// from Kcontainer to Docker volume mounts
+// fromKcontainerToDockerVolumeMount :
 func fromKcontainerToDockerVolumeMount(volumes []Volume) []mount.Mount {
 	vols := make([]mount.Mount, 0)
 	for _, v := range volumes {
@@ -26,6 +26,7 @@ func fromKcontainerToDockerVolumeMount(volumes []Volume) []mount.Mount {
 	return vols
 }
 
+// fromMountPointToKconfigVolumes :
 func fromMountPointToKconfigVolumes(mounts []types.MountPoint) []Volume {
 	volumes := make([]Volume, 0)
 	for _, m := range mounts {
@@ -37,7 +38,7 @@ func fromMountPointToKconfigVolumes(mounts []types.MountPoint) []Volume {
 	return volumes
 }
 
-// from Kconfig to Docker container volume mounts
+// fromKconfigToDockerVolumeMount :
 func fromKconfigToDockerVolumeMount(cfg kconfig.Kconfig) []mount.Mount {
 	volumes := make([]mount.Mount, 0)
 	for hostVolume, containerVolume := range cfg.Volumes {
@@ -47,6 +48,5 @@ func fromKconfigToDockerVolumeMount(cfg kconfig.Kconfig) []mount.Mount {
 			Target: containerVolume,
 		})
 	}
-
 	return volumes
 }

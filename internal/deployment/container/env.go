@@ -10,7 +10,7 @@ import (
 	"github.com/biensupernice/krane/internal/secrets"
 )
 
-// from Kconfig to Docker environment variables string formatted list
+// fromKconfigDockerEnvList : from Kconfig to Docker environment variables string formatted list
 func fromKconfigDockerEnvList(cfg kconfig.Kconfig) []string {
 	envs := make([]string, 0)
 
@@ -32,7 +32,7 @@ func fromKconfigDockerEnvList(cfg kconfig.Kconfig) []string {
 	return envs
 }
 
-// from Docker environment variables string list to environment variable map
+// fromDockerToEnvMap : from Docker environment variables string list to environment variable map
 func fromDockerToEnvMap(envs []string) map[string]string {
 	envMap := make(map[string]string, 0)
 	for _, env := range envs {

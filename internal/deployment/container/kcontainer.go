@@ -13,7 +13,7 @@ import (
 	"github.com/biensupernice/krane/internal/docker"
 )
 
-// Krane custom container struct
+// Kcontainer : custom container struct for Krane managed containers
 type Kcontainer struct {
 	ID         string            `json:"id"`
 	Namespace  string            `json:"namespace"`
@@ -30,6 +30,7 @@ type Kcontainer struct {
 	Entrypoint []string          `json:"entrypoint"`
 }
 
+// Create : create docker container from Kconfig
 func Create(cfg kconfig.Kconfig) (Kcontainer, error) {
 	ctx := context.Background()
 	defer ctx.Done()
@@ -52,6 +53,7 @@ func Create(cfg kconfig.Kconfig) (Kcontainer, error) {
 	return fromDockerContainerToKcontainer(json), nil
 }
 
+// Start : start Kcontainer
 func (k Kcontainer) Start() error {
 	ctx := context.Background()
 	defer ctx.Done()
@@ -60,6 +62,7 @@ func (k Kcontainer) Start() error {
 	return client.StartContainer(ctx, k.ID)
 }
 
+// Stop : stop Kcontainer
 func (k Kcontainer) Stop() error {
 	ctx := context.Background()
 	defer ctx.Done()
@@ -67,6 +70,7 @@ func (k Kcontainer) Stop() error {
 	return docker.GetClient().StopContainer(ctx, k.ID)
 }
 
+// Remove : remove Kcontainer
 func (k Kcontainer) Remove() error {
 	ctx := context.Background()
 	defer ctx.Done()
@@ -74,6 +78,7 @@ func (k Kcontainer) Remove() error {
 	return docker.GetClient().RemoveContainer(ctx, k.ID, true)
 }
 
+// Ok : returns if container is in a running state
 func (k Kcontainer) Ok() (bool, error) {
 	ctx := context.Background()
 	defer ctx.Done()
@@ -92,7 +97,7 @@ func (k Kcontainer) Ok() (bool, error) {
 
 func (k Kcontainer) toContainer() types.Container { return types.Container{} }
 
-// GetAllContainers : get all containers
+// GetAllContainers : get all containers as Kcontainers
 func GetAllContainers(client *docker.Client) ([]Kcontainer, error) {
 	ctx := context.Background()
 	defer ctx.Done()
@@ -113,7 +118,7 @@ func GetAllContainers(client *docker.Client) ([]Kcontainer, error) {
 	return kcontainers, nil
 }
 
-// GetContainersByNamespace : get containers filtered by namespace
+// GetContainersByNamespace : get Kcontainers filtered by namespace
 func GetContainersByNamespace(namespace string) ([]Kcontainer, error) {
 	client := docker.GetClient()
 
@@ -134,9 +139,7 @@ func GetContainersByNamespace(namespace string) ([]Kcontainer, error) {
 	return filteredKontainers, nil
 }
 
-// Container label for krane managed containers
-const KraneContainerNamespaceLabel = "krane.deployment.namespace"
-
+// isKraneManagedContainer : check if a container is a Krane managed container
 func isKraneManagedContainer(container types.ContainerJSON) bool {
 	namespaceLabel := container.Config.Labels[KraneContainerNamespaceLabel]
 	if namespaceLabel == "" {
@@ -145,6 +148,7 @@ func isKraneManagedContainer(container types.ContainerJSON) bool {
 	return true
 }
 
+// fromKconfigToCreateContainerConfig :
 func fromKconfigToCreateContainerConfig(cfg kconfig.Kconfig) docker.CreateContainerConfig {
 	ctx := context.Background()
 	defer ctx.Done()
@@ -184,7 +188,7 @@ func fromKconfigToCreateContainerConfig(cfg kconfig.Kconfig) docker.CreateContai
 	}
 }
 
-// convert docker container into a Kcontainer
+// fromDockerContainerToKcontainer : convert docker container into a Kcontainer
 func fromDockerContainerToKcontainer(container types.ContainerJSON) Kcontainer {
 	ctx := context.Background()
 	defer ctx.Done()

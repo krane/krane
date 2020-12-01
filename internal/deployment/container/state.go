@@ -17,6 +17,7 @@ type State struct {
 	Health     *types.Health `json:",omitempty"`
 }
 
+// fromDockerStateToKstate :
 func fromDockerStateToKstate(state types.ContainerState) State {
 	return State{
 		Status:     state.Status,

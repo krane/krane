@@ -24,7 +24,7 @@ const (
 	TCP PortProtocol = "tcp"
 )
 
-// from Kcontainer to Docker container port mapping
+// fromKcontainerToDockerPortMap :
 func fromKcontainerToDockerPortMap(ports []Port) (nat.PortMap, error) {
 	portMap := nat.PortMap{}
 
@@ -41,6 +41,7 @@ func fromKcontainerToDockerPortMap(ports []Port) (nat.PortMap, error) {
 	return portMap, nil
 }
 
+// fromDockerToKcontainerPorts :
 func fromDockerToKcontainerPorts(ports []types.Port) []Port {
 	kPorts := make([]Port, 0)
 	for _, port := range ports {
@@ -54,6 +55,7 @@ func fromDockerToKcontainerPorts(ports []types.Port) []Port {
 	return kPorts
 }
 
+// fromDockerToKconfigPortMap :
 func fromDockerToKconfigPortMap(pMap nat.PortMap) []Port {
 	bindings := make([]Port, 0)
 
@@ -71,7 +73,7 @@ func fromDockerToKconfigPortMap(pMap nat.PortMap) []Port {
 	return bindings
 }
 
-// from Kconfig to Docker container port map
+// fromKconfigToDockerPortMap :
 func fromKconfigToDockerPortMap(cfg kconfig.Kconfig) nat.PortMap {
 	bindings := nat.PortMap{}
 	for hostPort, containerPort := range cfg.Ports {
@@ -101,13 +103,7 @@ func fromKconfigToDockerPortMap(cfg kconfig.Kconfig) nat.PortMap {
 	return bindings
 }
 
-// from Docker container port mapping to Kcontainer port map
-func fromContainerPortMap(ports types.Port) map[string]string {
-	portMap := make(map[string]string)
-	return portMap
-}
-
-// asks the kernel for a free open port that is ready to use.
+// getFreePort : asks the kernel for a free open port that is ready to use.
 func getFreePort() (string, error) {
 	addr, err := net.ResolveTCPAddr(string(TCP), "localhost:0")
 	if err != nil {
