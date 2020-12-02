@@ -43,8 +43,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	serverPhrase := string(serverPhraseBytes)
-
-	if string(serverPhrase) == "" {
+	if serverPhrase == "" {
 		logrus.Debug("Invalid request id")
 		status.HTTPBad(w, errors.New("unable to authenticate"))
 		return
@@ -84,7 +83,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 		ID:        sessionTkn.SessionID,
 		Token:     signedTkn,
 		ExpiresAt: UnixToDate(utils.OneYear),
-		Principal: "root",
+		User:      "root",
 	}
 
 	if err := session.Save(newSession); err != nil {

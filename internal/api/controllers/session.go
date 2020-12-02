@@ -7,7 +7,7 @@ import (
 	"github.com/biensupernice/krane/internal/session"
 )
 
-// GetSessions :
+// GetSessions : get user sessions. A session is an authenticated user with a valid token.
 func GetSessions(w http.ResponseWriter, r *http.Request) {
 	sessions, err := session.GetAllSessions()
 	if err != nil {

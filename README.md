@@ -18,7 +18,7 @@ Krane is a self-hosted container management solution. It lets you deploy contain
 * Deployment [secrets](https://www.krane.sh/#/cli?id=secrets)
 * Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale) 
 * Round Robin load-balancing provided by [Traefik](https://doc.traefik.io/traefik/routing/services/#load-balancing)
-* [Self-hosted](#why_krane) - Bring your own hardware (could be a cheap $5 machine) and scale if you need
+* [Self-hosted](#motivation) - Bring your own hardware (could be a cheap $5 machine) and scale if you need
 
 ## Getting Started
 
@@ -87,9 +87,9 @@ For more deployment configuration options, checkout the [documentation](https://
 
 ---
 
-<a name="why_krane"></a>
+<a name="motivation"></a>
 
-## Why Krane?
+## Motivation
 
 Krane is self-hosted, meaning you bring your own device and install Krane on it. The key benefit is **cost per deployment**. When comparing prices against other container deployment platforms, prices goes up pretty quickly when running multiple instances of your apps. Take Digital Ocean, deploying a container on [app-platform](https://www.digitalocean.com/docs/app-platform/) starts at $5 per instance, this could be the cost of a single Digital Ocean droplet running Krane but with many more deployments and functionality provided and built for you.
 

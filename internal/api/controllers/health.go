@@ -8,7 +8,7 @@ import (
 	time "github.com/biensupernice/krane/internal/utils"
 )
 
-// GetServerStatus : get server status
+// GetServerStatus : get Krane server status
 func GetServerStatus(w http.ResponseWriter, r *http.Request) {
 	host, _ := os.Hostname()
 	status.HTTPOk(w, struct {

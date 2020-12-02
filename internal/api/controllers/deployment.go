@@ -37,7 +37,7 @@ func ApplyDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// DeleteDeployment: delete a deployment removing the container resources and configuration
+// DeleteDeployment: delete a deployment, removing the container resources and configuration
 func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
@@ -82,18 +82,18 @@ func GetContainers(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// GetDeployment: get a deployment
+// GetDeployment: get a deployment configuration
 func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	cfg, err := kconfig.GetConfigByDeploymentName(name)
+	deployment, err := kconfig.GetConfigByDeploymentName(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, cfg)
+	status.HTTPOk(w, deployment)
 	return
 }
 

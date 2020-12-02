@@ -12,15 +12,15 @@ import (
 	"github.com/biensupernice/krane/internal/utils"
 )
 
-// Session : relevant data for authenticated sessions
+// Session : represents an authenticated user session
 type Session struct {
 	ID        string `json:"id"`
-	Principal string `json:"principal"`
+	User      string `json:"user"`
 	Token     string `json:"token"`
 	ExpiresAt string `json:"expires_at"`
 }
 
-// CreateSessionToken : new jwt token
+// CreateSessionToken : create a new jwt token used in a user session instance
 func CreateSessionToken(SigningKey string, sessionTkn Token) (string, error) {
 	if SigningKey == "" {
 		return "", errors.New("cannot create token - signing key not provided")
@@ -46,6 +46,7 @@ func CreateSessionToken(SigningKey string, sessionTkn Token) (string, error) {
 	return signedTkn, nil
 }
 
+// Save : save a user session
 func Save(session Session) error {
 	if session.ID == "" {
 		return errors.New("invalid session")
@@ -59,6 +60,7 @@ func Save(session Session) error {
 	return store.Instance().Put(constants.SessionsCollectionName, session.ID, bytes)
 }
 
+// GetSessionByID : get a user session by id
 func GetSessionByID(id string) (Session, error) {
 	bytes, err := store.Instance().Get(constants.SessionsCollectionName, id)
 	if err != nil {
@@ -78,6 +80,7 @@ func GetSessionByID(id string) (Session, error) {
 	return session, nil
 }
 
+// GetAllSessions : get all user sessions
 func GetAllSessions() ([]Session, error) {
 	bytes, err := store.Instance().GetAll(constants.SessionsCollectionName)
 	if err != nil {

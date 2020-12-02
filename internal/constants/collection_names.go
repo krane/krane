@@ -1,7 +1,7 @@
 package constants
 
-// List of the database collections being used by Krane
 const (
+	// BoltDB collections used by Krane
 	AuthenticationCollectionName = "authentication"
 	DeploymentsCollectionName    = "deployments"
 	JobsCollectionName           = "jobs"

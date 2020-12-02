@@ -15,7 +15,7 @@ import (
 	"github.com/biensupernice/krane/internal/api/middlewares"
 )
 
-// Run : start the api
+// Run : start the Krane api
 func Run() {
 	logrus.Debugf("Starting Krane API on pid: %d", os.Getpid())
 	router := mux.NewRouter()

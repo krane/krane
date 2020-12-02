@@ -2,6 +2,7 @@ package utils
 
 import "math/rand"
 
+// RandomString - create a random alpha-numeric string
 func RandomString(chars int) string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 

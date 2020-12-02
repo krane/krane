@@ -166,7 +166,7 @@ func GetJobs(daysAgo uint) ([]Job, error) {
 func GetJobByID(namespace, id string, daysAgo uint) (Job, error) {
 	jobs, err := GetJobsByNamespace(namespace, daysAgo)
 	if err != nil {
-		return Job{}, fmt.Errorf("unable to fnd job with id %s", id)
+		return Job{}, fmt.Errorf("unable to find a job with id %s", id)
 	}
 
 	for _, job := range jobs {
