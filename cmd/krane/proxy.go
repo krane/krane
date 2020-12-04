@@ -28,8 +28,15 @@ var config = kconfig.Kconfig{
 	},
 }
 
-// EnsureNetworkProxy : ensures the network proxy is up and in a running state when booting up Krane
+// EnsureNetworkProxy : ensures the network proxy is up and in a running state
 func EnsureNetworkProxy() {
+	isEnabled := utils.BoolEnv(constants.EnvProxyEnabled)
+	if !isEnabled {
+		logger.Info("Network proxy not enabled")
+		return
+	}
+
+	// get containers (if any) for the proxy deployment
 	containers, err := container.GetContainersByNamespace(config.Name)
 	if err != nil {
 		panic(fmt.Sprintf("Unable to create network proxy, %v", err))
@@ -58,7 +65,7 @@ func EnsureNetworkProxy() {
 			return
 		}
 	}
-	logger.Debug("Network proxy running...")
+	logger.Debug("Network proxy running")
 }
 
 func createProxy() error {
@@ -71,6 +78,6 @@ func createProxy() error {
 	if err != nil {
 		return err
 	}
-	logger.Debug("Network proxy deployment started...")
+	logger.Debug("Network proxy deployment started")
 	return nil
 }

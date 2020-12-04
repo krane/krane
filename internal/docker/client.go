@@ -21,7 +21,7 @@ func Connect() {
 }
 
 func newClientFromEnv() {
-	logger.Info("Connecting to Docker client...")
+	logger.Info("Connecting to Docker client")
 
 	envClient, err := client.NewEnvClient()
 	if err != nil {
@@ -40,7 +40,7 @@ func newClientFromEnv() {
 }
 
 func createDockerNetwork() error {
-	logger.Debug("Creating Krane Docker network...")
+	logger.Debug("Creating Krane Docker network")
 
 	ctx := context.Background()
 	defer ctx.Done()

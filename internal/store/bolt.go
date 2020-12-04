@@ -40,11 +40,11 @@ func Client() Store { return instance }
 // Connect : connect to boltdb
 func Connect(path string) *BoltDB {
 	if instance != nil {
-		logger.Info("Bolt instance already exists...")
+		logger.Info("Bolt instance already exists")
 		return instance
 	}
 
-	logger.Info("Opening boltdb...")
+	logger.Info("Opening boltdb")
 
 	options := &bolt.Options{Timeout: 30 * time.Second}
 
@@ -64,7 +64,7 @@ func Connect(path string) *BoltDB {
 
 // Disconnect : close boltdb client
 func (b *BoltDB) Disconnect() {
-	logger.Debug("Closing boltdb...")
+	logger.Debug("Closing boltdb")
 	if err := b.Close(); err != nil {
 		logger.Errorf("Error closing boltdb %v", err)
 	}

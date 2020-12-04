@@ -7,13 +7,14 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/constants"
+	"github.com/biensupernice/krane/internal/utils"
 )
 
 var once sync.Once
 var l *logrus.Logger
 
 func level() logrus.Level {
-	level, err := logrus.ParseLevel(os.Getenv(constants.EnvLogLevel))
+	level, err := logrus.ParseLevel(utils.EnvOrDefault(constants.EnvLogLevel, "info"))
 	if err != nil {
 		panic(err)
 	}
@@ -29,50 +30,63 @@ func Configure() {
 	})
 }
 
+// withContext : add context to the logs
+func withContext() *logrus.Entry {
+	// if logger has not been configured, configure it
+	if l == nil {
+		Configure()
+	}
+
+	hostname, _ := os.Hostname()
+	return l.
+		WithField("hostname", hostname).
+		WithField("pid", os.Getpid())
+}
+
 func Error(err error) {
-	l.Log(logrus.ErrorLevel, err)
+	withContext().Error(err)
 }
 
 func Errorf(format string, err error) {
-	l.Logf(logrus.ErrorLevel, format, err)
+	withContext().Errorf(format, err)
 }
 
 func Debug(msg string) {
-	l.Log(logrus.DebugLevel, msg)
+	withContext().Debug(msg)
 }
 
 func Debugf(format string, args ...interface{}) {
-	l.Logf(logrus.DebugLevel, format, args)
+	withContext().Debugf(format, args)
 }
 
 func Info(msg string) {
-	l.Log(logrus.InfoLevel, msg)
+	withContext().Info(msg)
 }
 
 func Infof(format string, args ...interface{}) {
-	l.Logf(logrus.InfoLevel, format, args)
+	withContext().Infof(format, args)
 }
 
 func Warn(msg string) {
-	l.Log(logrus.WarnLevel, msg)
+	withContext().Warn(msg)
 }
 
 func Warnf(format string, args ...interface{}) {
-	l.Logf(logrus.WarnLevel, format, args)
+	withContext().Warnf(format, args)
 }
 
 func Trace(msg string) {
-	l.Log(logrus.TraceLevel, msg)
+	withContext().Trace(msg)
 }
 
 func Tracef(format string, args ...interface{}) {
-	l.Logf(logrus.TraceLevel, format, args)
+	withContext().Trace(format, args)
 }
 
 func Fatal(msg string) {
-	l.Log(logrus.FatalLevel, msg)
+	withContext().Fatal(msg)
 }
 
 func Fatalf(format string, args ...interface{}) {
-	l.Logf(logrus.FatalLevel, format, args)
+	withContext().Fatalf(format, args)
 }

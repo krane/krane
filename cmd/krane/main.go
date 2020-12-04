@@ -28,6 +28,7 @@ func init() {
 	utils.EnvOrDefault(constants.EnvWatchMode, "false")
 	utils.EnvOrDefault(constants.EnvDockerBasicAuthUsername, "")
 	utils.EnvOrDefault(constants.EnvDockerBasicAuthPassword, "")
+	utils.EnvOrDefault(constants.EnvProxyEnabled, "false")
 	utils.EnvOrDefault(constants.EnvProxyDashboardSecure, "false")
 	utils.EnvOrDefault(constants.EnvProxyDashboardAlias, "")
 
@@ -37,7 +38,7 @@ func init() {
 }
 
 func main() {
-	logger.Info("Starting Krane...")
+	logger.Info("Starting Krane")
 
 	// rest api
 	go api.Run()
@@ -68,10 +69,11 @@ func main() {
 	workers := job.NewWorkerPool(wpSize, queue, store.Client())
 	workers.Start()
 
-	// create the network proxy
+	// if enabled, ensure network proxy is running
 	EnsureNetworkProxy()
 
-	// wait will block until an exit signal is received by the program.
+	// wait will block
+	// until an exit signal is received by the program.
 	// the exit signal can be ctrl+c, an IDE stop, or any system termination signal.
 	// once the signal is received it will shutdown all workers.
 	wait()
@@ -79,7 +81,7 @@ func main() {
 	// when an exit signal is received, workers are stopped and cleaned up.
 	workers.Stop()
 
-	logger.Info("Shutdown complete...")
+	logger.Info("Shutdown complete")
 }
 
 func wait() {
