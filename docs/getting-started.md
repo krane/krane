@@ -28,7 +28,7 @@ npm i -g @krane/cli
 
 Full list of [commands](cli?id=commands).
 
-![Setup Authentication](./assets/3-setup-authentication.png)
+[![Setup Authentication](./assets/3-setup-authentication.png)](https://www.krane.sh/#/cli?id=authenticating)
 
 Create public and private keys used for authentication.
 

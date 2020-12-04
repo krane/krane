@@ -56,7 +56,7 @@ func Debug(msg string) {
 }
 
 func Debugf(format string, args ...interface{}) {
-	withContext().Debugf(format, args)
+	withContext().Debugf(format, args...)
 }
 
 func Info(msg string) {
@@ -64,7 +64,7 @@ func Info(msg string) {
 }
 
 func Infof(format string, args ...interface{}) {
-	withContext().Infof(format, args)
+	withContext().Infof(format, args...)
 }
 
 func Warn(msg string) {
@@ -72,7 +72,7 @@ func Warn(msg string) {
 }
 
 func Warnf(format string, args ...interface{}) {
-	withContext().Warnf(format, args)
+	withContext().Warnf(format, args...)
 }
 
 func Trace(msg string) {
@@ -80,7 +80,7 @@ func Trace(msg string) {
 }
 
 func Tracef(format string, args ...interface{}) {
-	withContext().Trace(format, args)
+	withContext().Tracef(format, args...)
 }
 
 func Fatal(msg string) {
@@ -88,5 +88,5 @@ func Fatal(msg string) {
 }
 
 func Fatalf(format string, args ...interface{}) {
-	withContext().Fatalf(format, args)
+	withContext().Fatalf(format, args...)
 }
