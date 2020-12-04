@@ -7,17 +7,17 @@ import (
 
 	"github.com/biensupernice/krane/internal/api/controllers"
 	"github.com/biensupernice/krane/internal/constants"
+	"github.com/biensupernice/krane/internal/logger"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/api/middlewares"
 )
 
 // Run : start the Krane api
 func Run() {
-	logrus.Debugf("Starting Krane API on pid: %d", os.Getpid())
+	logger.Debugf("Starting Krane API on pid: %d", os.Getpid())
 	router := mux.NewRouter()
 
 	withBaseMiddlewares(router)
@@ -30,9 +30,9 @@ func Run() {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	logrus.Infof("API on %s", srv.Addr)
+	logger.Infof("API on %s", srv.Addr)
 	if err := srv.ListenAndServe(); err != nil {
-		logrus.Fatal(err.Error())
+		logger.Fatal(err.Error())
 	}
 }
 

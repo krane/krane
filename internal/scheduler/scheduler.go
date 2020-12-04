@@ -6,12 +6,12 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/pkg/errors"
-	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -30,22 +30,22 @@ func New(store store.Store, dockerClient *docker.Client, jobEnqueuer job.Enqueue
 }
 
 func (s *Scheduler) Run() {
-	logrus.Debug("Starting Scheduler")
+	logger.Debug("Starting Scheduler")
 
 	for {
 		go s.poll()
 		<-time.After(s.interval)
 	}
 
-	logrus.Debug("Exiting Scheduler")
+	logger.Debug("Exiting Scheduler")
 }
 
 func (s *Scheduler) poll() {
-	logrus.Debug("Scheduler polling")
+	logger.Debug("Scheduler polling")
 	for _, deployment := range s.deployments() {
 		containers, err := s.docker.FilterContainersByDeployment(deployment.Name)
 		if err != nil {
-			logrus.Error(errors.Wrap(err, "Unhandled error when polling"))
+			logger.Error(errors.Wrap(err, "Unhandled error when polling"))
 			continue
 		}
 
@@ -63,14 +63,14 @@ func (s *Scheduler) poll() {
 			Namespace: deployment.Name,
 			Args:      args,
 			Run: func(args job.Args) error {
-				logrus.Infof("Scheduler Handler: %s", args["name"])
+				logger.Infof("Scheduler Handler: %s", args["name"])
 				return nil
 			},
 		}
 
 		go s.enqueuer.Enqueue(job)
 	}
-	logrus.Debugf("Next poll in %s", s.interval.String())
+	logger.Debugf("Next poll in %s", s.interval.String())
 }
 
 func hasDesiredState(kcfg kconfig.Kconfig, containers []types.ContainerJSON) bool {
@@ -81,7 +81,7 @@ func hasDesiredState(kcfg kconfig.Kconfig, containers []types.ContainerJSON) boo
 func (s *Scheduler) deployments() []kconfig.Kconfig {
 	bytes, err := s.store.GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
-		logrus.Errorf("Scheduler error: %s", err)
+		logger.Errorf("Scheduler error: %s", err)
 		return make([]kconfig.Kconfig, 0)
 	}
 
@@ -90,7 +90,7 @@ func (s *Scheduler) deployments() []kconfig.Kconfig {
 		var d kconfig.Kconfig
 		err := store.Deserialize(b, &d)
 		if err != nil {
-			logrus.Error("Unable to deserialize krane kconfig", err.Error())
+			logger.Errorf("Unable to deserialize krane kconfig", err)
 		}
 
 		deployments = append(deployments, d)

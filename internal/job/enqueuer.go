@@ -1,8 +1,6 @@
 package job
 
-import (
-	"github.com/sirupsen/logrus"
-)
+import "github.com/biensupernice/krane/internal/logger"
 
 type Enqueuer struct {
 	queue   chan Job
@@ -19,8 +17,8 @@ func (e *Enqueuer) Enqueue(job Job) (Job, error) {
 		return Job{}, err
 	}
 
-	logrus.Debugf("Queueing new job %s", job.ID)
+	logger.Debugf("Queueing new job %s", job.ID)
 	e.queue <- job // Blocks here until space opens up in the queue
-	logrus.Debugf("Job %s Queued", job.ID)
+	logger.Debugf("Job %s Queued", job.ID)
 	return job, nil
 }

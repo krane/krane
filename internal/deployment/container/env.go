@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/secrets"
 )
 
@@ -23,7 +22,7 @@ func fromKconfigDockerEnvList(cfg kconfig.Kconfig) []string {
 	for key, alias := range cfg.Secrets {
 		secret, err := secrets.Get(cfg.Name, alias)
 		if err != nil || secret == nil {
-			logrus.Debugf("Unable to get resolve secret for %s with alias @%s", cfg.Name, alias)
+			logger.Debugf("Unable to get resolve secret for %s with alias @%s", cfg.Name, alias)
 			continue
 		}
 		envs = append(envs, fmt.Sprintf("%s=%s", key, secret.Value))

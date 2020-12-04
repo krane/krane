@@ -31,7 +31,7 @@ func makeDockerDeploymentJob(config kconfig.Kconfig, action action) (job.Job, er
 }
 
 func createContainersJob(config kconfig.Kconfig) job.Job {
-	retryPolicy := utils.GetUIntEnv("DEPLOYMENT_RETRY_POLICY")
+	retryPolicy := utils.UIntEnv("DEPLOYMENT_RETRY_POLICY")
 
 	currContainers := make([]container.Kcontainer, 0)
 	newContainers := make([]container.Kcontainer, 0)
@@ -53,7 +53,7 @@ func createContainersJob(config kconfig.Kconfig) job.Job {
 }
 
 func deleteContainersJob(config kconfig.Kconfig) job.Job {
-	retryPolicy := utils.GetUIntEnv("DEPLOYMENT_RETRY_POLICY")
+	retryPolicy := utils.UIntEnv("DEPLOYMENT_RETRY_POLICY")
 
 	currContainers := make([]container.Kcontainer, 0)
 

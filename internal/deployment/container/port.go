@@ -6,9 +6,9 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
-	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/logger"
 )
 
 type Port struct {
@@ -81,7 +81,7 @@ func fromKconfigToDockerPortMap(cfg kconfig.Kconfig) nat.PortMap {
 			// randomly assign a host port if no explicit host port to bind to was provided
 			freePort, err := getFreePort()
 			if err != nil {
-				logrus.Errorf("Error when looking for a free host port %v", err)
+				logger.Errorf("Error when looking for a free host port %v", err)
 				continue
 			}
 			hostPort = freePort
@@ -93,7 +93,7 @@ func fromKconfigToDockerPortMap(cfg kconfig.Kconfig) nat.PortMap {
 		protocol := string(TCP)
 		cPort, err := nat.NewPort(protocol, containerPort)
 		if err != nil {
-			logrus.Errorf("Unable to create new container port %v", err)
+			logger.Errorf("Unable to create new container port %v", err)
 			continue
 		}
 

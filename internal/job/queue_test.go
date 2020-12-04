@@ -8,14 +8,14 @@ import (
 
 func TestQueueCapacityOnNewQueueInstance(t *testing.T) {
 	qSize := 10
-	queue := NewJobQueue(uint(qSize))
+	queue := NewBufferedQueue(uint(qSize))
 	assert.Equal(t, qSize, cap(queue))
 	assert.Equal(t, 0, len(queue))
 }
 
 func TestReturnSameQueueInstance(t *testing.T) {
 	qSize := 10
-	q1 := NewJobQueue(uint(qSize))
-	q2 := NewJobQueue(uint(qSize))
+	q1 := NewBufferedQueue(uint(qSize))
+	q2 := NewBufferedQueue(uint(qSize))
 	assert.Exactly(t, &q1, &q2)
 }

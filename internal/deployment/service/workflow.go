@@ -1,9 +1,8 @@
 package service
 
 import (
-	"github.com/sirupsen/logrus"
-
 	"github.com/biensupernice/krane/internal/job"
+	"github.com/biensupernice/krane/internal/logger"
 )
 
 type workflow struct {
@@ -51,7 +50,7 @@ func (wf *workflow) start() error {
 	// run every step starting from the head of the workflow
 	// until there aren't any steps left to run
 	for wf.curr != nil {
-		logrus.Debugf("Running Workflow %s | Step %s", wf.name, wf.curr.name)
+		logger.Debugf("Running Workflow %s | Step %s", wf.name, wf.curr.name)
 
 		// execute every step passing down args
 		err := wf.curr.fn(wf.args)

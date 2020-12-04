@@ -39,7 +39,7 @@ func Add(deploymentName, key, value string) (*Secret, error) {
 
 	bytes, _ := s.serialize()
 	collection := getNamespaceCollectionName(deploymentName)
-	err := store.Instance().Put(collection, s.Key, bytes)
+	err := store.Client().Put(collection, s.Key, bytes)
 	if err != nil {
 		return nil, err
 	}
@@ -49,22 +49,22 @@ func Add(deploymentName, key, value string) (*Secret, error) {
 
 func Delete(namespace, key string) error {
 	collection := getNamespaceCollectionName(namespace)
-	return store.Instance().Remove(collection, key)
+	return store.Client().Remove(collection, key)
 }
 
 func CreateCollection(namespace string) error {
 	collection := getNamespaceCollectionName(namespace)
-	return store.Instance().CreateCollection(collection)
+	return store.Client().CreateCollection(collection)
 }
 
 func DeleteCollection(namespace string) error {
 	collection := getNamespaceCollectionName(namespace)
-	return store.Instance().DeleteCollection(collection)
+	return store.Client().DeleteCollection(collection)
 }
 
 func GetAll(namespace string) ([]*Secret, error) {
 	collection := getNamespaceCollectionName(namespace)
-	bytes, err := store.Instance().GetAll(collection)
+	bytes, err := store.Client().GetAll(collection)
 	if err != nil {
 		return make([]*Secret, 0), err
 	}
@@ -94,7 +94,7 @@ func GetAllRedacted(namespace string) []Secret {
 
 func Get(namespace, key string) (*Secret, error) {
 	collection := getNamespaceCollectionName(namespace)
-	bytes, err := store.Instance().Get(collection, key)
+	bytes, err := store.Client().Get(collection, key)
 
 	if err != nil {
 		return nil, err

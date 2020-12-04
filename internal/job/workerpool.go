@@ -4,8 +4,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/sirupsen/logrus"
-
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -26,7 +25,7 @@ type WorkerPool struct {
 
 // NewWorkerPool : create a concurrent pool of workers to process Jobs from the queue
 func NewWorkerPool(concurrency uint, jobChannel chan Job, store store.Store) WorkerPool {
-	logrus.Debugf("Creating new worker pool with %d worker(s)", concurrency)
+	logger.Debugf("Creating new worker pool with %d worker(s)", concurrency)
 	wpID := utils.MakeIdentifier()
 	wp := WorkerPool{
 		workerPoolID: wpID,
@@ -37,19 +36,19 @@ func NewWorkerPool(concurrency uint, jobChannel chan Job, store store.Store) Wor
 	}
 
 	for i := uint(0); i < wp.concurrency; i++ {
-		logrus.Debugf("Appending new worker to worker pool %s", wp.workerPoolID)
+		logger.Debugf("Appending new worker to worker pool %s", wp.workerPoolID)
 		w := newWorker(wp.workerPool, wp.jobChannel)
 		wp.workers = append(wp.workers, w)
 	}
 
-	logrus.Debugf("%d worker(s) in the worker pool", len(wp.workers))
+	logger.Debugf("%d worker(s) in the worker pool", len(wp.workers))
 
 	return wp
 }
 
 // Start : all the workers part of the worker pool
 func (wp *WorkerPool) Start() {
-	logrus.Debugf("Worker pool started on pid: %d", os.Getppid())
+	logger.Debugf("Worker pool started on pid: %d", os.Getppid())
 	if wp.started {
 		return
 	}
@@ -58,42 +57,42 @@ func (wp *WorkerPool) Start() {
 
 	var workersStarted int
 	for _, w := range wp.workers {
-		logrus.Debug("Starting new worker")
+		logger.Debug("Starting new worker")
 		w.start()
 		workersStarted++
 	}
 
-	logrus.Debugf("Started %d worker(s)", workersStarted)
+	logger.Debugf("Started %d worker(s)", workersStarted)
 
 	return
 }
 
 func (wp *WorkerPool) Stop() {
-	logrus.Info("Shutdown signal received")
+	logger.Info("Disconnect signal received")
 
 	if !wp.started {
-		logrus.Debug("Worker pool can't stop, it has not started")
+		logger.Debug("Worker pool can't stop, it has not started")
 		return
 	}
 
 	wp.started = false
 
-	logrus.Debugf("Stopping worker pool %s", wp.workerPoolID)
+	logger.Debugf("Stopping worker pool %s", wp.workerPoolID)
 
 	stopped := 0
 	var wg sync.WaitGroup
 	for _, w := range wp.workers {
-		logrus.Debug("Adding worker to waitgroup")
+		logger.Debug("Adding worker to waitgroup")
 		wg.Add(1)
 		go func(w *worker) {
-			logrus.Debug("Attempting to stop Worker")
+			logger.Debug("Attempting to stop Worker")
 			w.stop()
 			wg.Done()
-			logrus.Debug("Worker stopped, removing from waitgroup")
+			logger.Debug("Worker stopped, removing from waitgroup")
 		}(w)
 		stopped++
 	}
 
 	wg.Wait()
-	logrus.Debugf("%d out of %d worker(s) stopped", stopped, len(wp.workers))
+	logger.Debugf("%d out of %d worker(s) stopped", stopped, len(wp.workers))
 }

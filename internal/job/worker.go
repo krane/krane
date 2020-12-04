@@ -3,7 +3,7 @@ package job
 import (
 	"os"
 
-	"github.com/sirupsen/logrus"
+	"github.com/biensupernice/krane/internal/logger"
 )
 
 type worker struct {
@@ -12,24 +12,28 @@ type worker struct {
 	quit       chan bool
 }
 
-// newWorker : Helper for creating new workers
+// newWorker : helper for creating new workers; a worker runs in its own go routine
+// waiting for processing jobs from a the queue
 func newWorker(workerPool chan chan Job, jobChannel chan Job) *worker {
 	return &worker{workerPool, jobChannel, make(chan bool)}
 }
 
+// start : start a worker
 func (w *worker) start() {
-	logrus.Debugf("Worker starting with pid: %d", os.Getpid())
+	logger.Debugf("Worker starting with pid: %d", os.Getpid())
 	go w.loop()
 }
 
+// stop : stop a worker
 func (w *worker) stop() {
-	logrus.Debug("Worker stopping")
+	logger.Debug("Worker stopping")
 	w.quit <- true
 	return
 }
 
+// loop : a worker will wait in a blocking manner for jobs to come through the job queue.
 func (w *worker) loop() {
-	logrus.Debug("Worker loop started")
+	logger.Debug("Worker loop started")
 	for {
 		select {
 		case job := <-w.channel:
@@ -39,17 +43,16 @@ func (w *worker) loop() {
 				job.Status.ExecutionCount++
 				err := job.Run(job.Args)
 				if err == nil {
-					logrus.Debugf("Completed job %s for %s", job.ID, job.Namespace)
+					logger.Debugf("Completed job %s for %s", job.ID, job.Namespace)
 					break
 				}
-				logrus.Errorf("Error processing job %s", err.Error())
+				logger.Errorf("Error processing job %v", err)
 				job.WithError(err)
 				job.Status.FailureCount++
 			}
-
 			job.end()
 		case <-w.quit:
-			logrus.Debug("Quitting worker")
+			logger.Debug("Quitting worker")
 			return
 		}
 	}

@@ -7,11 +7,11 @@ import (
 	"github.com/docker/docker/api/types/network"
 )
 
-// KraneNetworkName : every deployed container will be attached to this network
+// KraneNetworkName : krane managed network
 const KraneNetworkName = "krane"
 
 func makeNetworkingConfig(networkID string) network.NetworkingConfig {
-	endpointConf := map[string]*network.EndpointSettings{"krane": &network.EndpointSettings{NetworkID: networkID}}
+	endpointConf := map[string]*network.EndpointSettings{"krane": {NetworkID: networkID}}
 	return network.NetworkingConfig{
 		EndpointsConfig: endpointConf,
 	}

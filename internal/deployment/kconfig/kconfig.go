@@ -33,17 +33,17 @@ func (cfg *Kconfig) Save() error {
 	cfg.applyDefaults()
 
 	bytes, _ := cfg.Serialize()
-	return store.Instance().Put(constants.DeploymentsCollectionName, cfg.Name, bytes)
+	return store.Client().Put(constants.DeploymentsCollectionName, cfg.Name, bytes)
 }
 
 // Delete :
 func Delete(deploymentName string) error {
-	return store.Instance().Remove(constants.DeploymentsCollectionName, deploymentName)
+	return store.Client().Remove(constants.DeploymentsCollectionName, deploymentName)
 }
 
 // GetConfigByDeploymentName :
 func GetConfigByDeploymentName(deploymentName string) (Kconfig, error) {
-	bytes, err := store.Instance().Get(constants.DeploymentsCollectionName, deploymentName)
+	bytes, err := store.Client().Get(constants.DeploymentsCollectionName, deploymentName)
 	if err != nil {
 		return Kconfig{}, err
 	}
@@ -63,7 +63,7 @@ func GetConfigByDeploymentName(deploymentName string) (Kconfig, error) {
 
 // GetAllDeploymentConfigs :
 func GetAllDeploymentConfigs() ([]Kconfig, error) {
-	bytes, err := store.Instance().GetAll(constants.DeploymentsCollectionName)
+	bytes, err := store.Client().GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
 		return make([]Kconfig, 0), err
 	}

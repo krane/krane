@@ -7,7 +7,7 @@ import (
 )
 
 func Exist(namespace string) bool {
-	deployments, err := store.Instance().GetAll(constants.DeploymentsCollectionName)
+	deployments, err := store.Client().GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
 		return false
 	}

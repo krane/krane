@@ -57,12 +57,12 @@ func Save(session Session) error {
 		return err
 	}
 
-	return store.Instance().Put(constants.SessionsCollectionName, session.ID, bytes)
+	return store.Client().Put(constants.SessionsCollectionName, session.ID, bytes)
 }
 
 // GetSessionByID : get a user session by id
 func GetSessionByID(id string) (Session, error) {
-	bytes, err := store.Instance().Get(constants.SessionsCollectionName, id)
+	bytes, err := store.Client().Get(constants.SessionsCollectionName, id)
 	if err != nil {
 		return Session{}, err
 	}
@@ -82,7 +82,7 @@ func GetSessionByID(id string) (Session, error) {
 
 // GetAllSessions : get all user sessions
 func GetAllSessions() ([]Session, error) {
-	bytes, err := store.Instance().GetAll(constants.SessionsCollectionName)
+	bytes, err := store.Client().GetAll(constants.SessionsCollectionName)
 	if err != nil {
 		return make([]Session, 0), err
 	}

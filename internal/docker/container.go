@@ -10,7 +10,8 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/go-connections/nat"
-	"github.com/sirupsen/logrus"
+
+	"github.com/biensupernice/krane/internal/logger"
 )
 
 // CreateContainerConfig : properties required to create a container
@@ -150,7 +151,7 @@ func (c *Client) FilterContainersByDeployment(deploymentName string) ([]types.Co
 	ctx.Done()
 
 	if err != nil {
-		logrus.Errorf("Unable to filter container by deployment, %s", err.Error())
+		logger.Errorf("Unable to filter container by deployment, %s", err)
 		return make([]types.ContainerJSON, 0), err
 	}
 

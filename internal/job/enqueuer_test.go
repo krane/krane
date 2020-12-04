@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/store"
 )
 
@@ -19,13 +19,13 @@ const namespace = "krane_test"
 func teardown() { os.Remove(boltpath) }
 
 func TestMain(m *testing.M) {
-	store.CreateIfNotExist((boltpath))
-	defer store.Instance().Shutdown()
+	store.Connect((boltpath))
+	defer store.Client().Disconnect()
 
 	// Create deployment (namespace)
 	deployment := kconfig.Kconfig{Name: namespace}
 	bytes, _ := deployment.Serialize()
-	_ = store.Instance().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
+	_ = store.Client().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
 
 	code := m.Run()
 
@@ -59,7 +59,7 @@ func TestEnqueueNewJobs(t *testing.T) {
 				Type:      "test",
 				Args:      Args{"name": "test"},
 				Run: func(args Args) error {
-					logrus.Printf("Job handler called, %v", args)
+					logger.Infof("Job handler called, %v", args)
 					*handler += 1
 					return nil
 				},

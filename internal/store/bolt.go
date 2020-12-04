@@ -9,7 +9,8 @@ import (
 	"time"
 
 	"github.com/boltdb/bolt"
-	"github.com/sirupsen/logrus"
+
+	"github.com/biensupernice/krane/internal/logger"
 )
 
 type BoltDB struct {
@@ -34,15 +35,16 @@ var (
 	fileMode os.FileMode = 0600
 )
 
-func Instance() Store { return instance }
+func Client() Store { return instance }
 
-func CreateIfNotExist(path string) *BoltDB {
+// Connect : connect to boltdb
+func Connect(path string) *BoltDB {
 	if instance != nil {
-		logrus.Info("Bolt instance already exists...")
+		logger.Info("Bolt instance already exists...")
 		return instance
 	}
 
-	logrus.Info("Opening boltdb...")
+	logger.Info("Opening boltdb...")
 
 	options := &bolt.Options{Timeout: 30 * time.Second}
 
@@ -52,7 +54,7 @@ func CreateIfNotExist(path string) *BoltDB {
 
 	db, err := bolt.Open(path, fileMode, options)
 	if err != nil {
-		logrus.Fatalf("Failed to open store at %s: %s", path, err.Error())
+		logger.Fatalf("Failed to open store at %s: %s", path, err.Error())
 		return nil
 	}
 
@@ -60,13 +62,15 @@ func CreateIfNotExist(path string) *BoltDB {
 	return instance
 }
 
-func (b *BoltDB) Shutdown() {
-	logrus.Debug("Closing boltdb...")
+// Disconnect : close boltdb client
+func (b *BoltDB) Disconnect() {
+	logger.Debug("Closing boltdb...")
 	if err := b.Close(); err != nil {
-		logrus.Errorf("Error closing boltdb %v", err)
+		logger.Errorf("Error closing boltdb %v", err)
 	}
 }
 
+// Put : upsert a key/value pair
 func (b *BoltDB) Put(collection string, key string, value []byte) error {
 	return instance.Update(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists([]byte(collection))
@@ -78,6 +82,7 @@ func (b *BoltDB) Put(collection string, key string, value []byte) error {
 	})
 }
 
+// Get : get a key/value pair
 func (b *BoltDB) Get(collection, key string) (data []byte, err error) {
 	err = instance.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(collection))
@@ -96,6 +101,7 @@ func (b *BoltDB) Get(collection, key string) (data []byte, err error) {
 	return
 }
 
+// GetAll : get all key/value pairs in a collection
 func (b *BoltDB) GetAll(collection string) (data [][]byte, err error) {
 	err = instance.View(func(tx *bolt.Tx) (err error) {
 		bkt := tx.Bucket([]byte(collection))
@@ -118,7 +124,7 @@ func (b *BoltDB) GetAll(collection string) (data [][]byte, err error) {
 	return
 }
 
-// Iterate over a time range.
+// GetInRange : get key/value pairs within a time range
 // minDate: RFC3339 sortable time string ie. 1990-01-01T00:00:00Z
 // maxDate example: RFC3339 sortable time string ie. 2000-01-01T00:00:00Z
 func (b *BoltDB) GetInRange(collection, minDate, maxDate string) (data [][]byte, err error) {
@@ -133,10 +139,8 @@ func (b *BoltDB) GetInRange(collection, minDate, maxDate string) (data [][]byte,
 		for k, v := c.Seek([]byte(minDate)); k != nil && bytes.Compare(k, []byte(maxDate)) <= 0; k, v = c.Next() {
 			data = append(data, v)
 		}
-
 		return
 	})
-
 	return
 }
 

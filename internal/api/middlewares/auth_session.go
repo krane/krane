@@ -8,59 +8,60 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/auth"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/session"
 )
 
 // AuthSessionMiddleware : middleware to authenticate a client token against an active session
 func AuthSessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Get token from headers
+		// grab token from headers
 		tkn := r.Header.Get("Authorization")
 
+		// then check if its a valid token
 		isValidToken := isValidTokenFormat(tkn)
 		if !isValidToken {
-			logrus.Info("Invalid token provided")
+			logger.Info("Invalid token provided")
 			status.HTTPBad(w, errors.New("invalid token"))
 			r.Context().Done()
 			return
 		}
 
-		// Authenticate token using server private key
+		// if its a valid token, decode the token using server private key
 		pk := auth.GetServerPrivateKey()
 		_, tknValue := parseToken(tkn)
 		decodedTkn, err := auth.DecodeJWTToken(pk, tknValue)
 		if err != nil {
-			logrus.Infof("Unable to decode token %s", err.Error())
+			logger.Infof("Unable to decode token %s", err.Error())
 			status.HTTPBad(w, err)
 			r.Context().Done()
 			return
 		}
 
-		// Parse token claims into custom claims
+		// once token is decoded, parse the sesion token from the JWT claims
 		sessionTkn, err := parseSessionTokenFromJWTClaims(decodedTkn)
 		if err != nil {
-			logrus.Infof("Unable to parse token claims %s", err.Error())
+			logger.Infof("Unable to parse token claims %s", err.Error())
 			status.HTTPBad(w, err)
 			r.Context().Done()
 			return
 		}
 
-		session, err := session.GetSessionByID(sessionTkn.SessionID)
+		// find the session by the id within the session token
+		s, err := session.GetSessionByID(sessionTkn.SessionID)
 		if err != nil {
 			status.HTTPBad(w, err)
 			r.Context().Done()
 			return
 		}
 
-		// Add the session as part of the request context
-		ctx := context.WithValue(r.Context(), "session", session)
+		// add the session as part of the request context
+		ctx := context.WithValue(r.Context(), "session", s)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
-
 }
 
 func parseSessionTokenFromJWTClaims(tkn jwt.Token) (session.Token, error) {
@@ -79,7 +80,7 @@ func parseSessionTokenFromJWTClaims(tkn jwt.Token) (session.Token, error) {
 // Parse JWT token. Returns the type and value of the token
 func parseToken(tkn string) (string, string) {
 	if tkn == "" {
-		logrus.Error("No token provided")
+		logger.Error(errors.New("No token provided"))
 		return "", ""
 	}
 
@@ -103,7 +104,7 @@ func isValidTokenFormat(tkn string) bool {
 
 	// Check token is a bearer token
 	if strings.Compare(jwtTknType, "Bearer") != 0 {
-		logrus.Debugf("Not a `Bearer` token, token type = %s", jwtTknType)
+		logger.Debugf("Not a `Bearer` token, token type = %s", jwtTknType)
 		return false
 	}
 

@@ -19,8 +19,8 @@ func teardown() {
 }
 
 func TestMain(m *testing.M) {
-	CreateIfNotExist(testBoltPath)
-	defer Instance().Shutdown()
+	Connect(testBoltPath)
+	defer Client().Disconnect()
 
 	code := m.Run()
 
@@ -52,11 +52,11 @@ func TestBoltGet(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Act
-	err = Instance().Put(bkt, thor.ID.String(), bytes)
+	err = Client().Put(bkt, thor.ID.String(), bytes)
 	assert.Nil(t, err)
 
 	// Assert
-	thorBytes, err := Instance().Get(bkt, thor.ID.String())
+	thorBytes, err := Client().Get(bkt, thor.ID.String())
 	assert.Nil(t, err)
 
 	var hero Avenger
@@ -86,11 +86,11 @@ func TestBoltPut(t *testing.T) {
 	assert.Nil(t, err)
 
 	// Act
-	err = Instance().Put(bkt, blackwidow.ID.String(), bytes)
+	err = Client().Put(bkt, blackwidow.ID.String(), bytes)
 	assert.Nil(t, err)
 
 	// Assert
-	blackwidowBytes, err := Instance().Get(bkt, blackwidow.ID.String())
+	blackwidowBytes, err := Client().Get(bkt, blackwidow.ID.String())
 
 	var hero Avenger
 	err = json.Unmarshal(blackwidowBytes, &hero)
@@ -137,13 +137,13 @@ func TestBoltGetAll(t *testing.T) {
 		bytes, err := json.Marshal(thor)
 		assert.Nil(t, err)
 
-		err = Instance().Put(bkt, avenger.ID.String(), bytes)
+		err = Client().Put(bkt, avenger.ID.String(), bytes)
 		assert.Nil(t, err)
 	}
 
 	// Assert
 	for _, avenger := range avengers {
-		bytes, err := Instance().Get(bkt, avenger.ID.String())
+		bytes, err := Client().Get(bkt, avenger.ID.String())
 		assert.Nil(t, err)
 
 		var hero Avenger

@@ -20,13 +20,13 @@ const testNamespace = "krane-test"
 func teardown() { os.Remove(boltpath) }
 
 func TestMain(m *testing.M) {
-	store.CreateIfNotExist((boltpath))
-	defer store.Instance().Shutdown()
+	store.Connect((boltpath))
+	defer store.Client().Disconnect()
 
 	// Create deployment (namespace)
 	deployment := kconfig.Kconfig{Name: testNamespace}
 	bytes, _ := deployment.Serialize()
-	store.Instance().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
+	store.Client().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
 
 	code := m.Run()
 

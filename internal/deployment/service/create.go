@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/secrets"
 )
 
@@ -49,7 +48,7 @@ func createContainers(args job.Args) error {
 		}
 		newContainers = append(newContainers, newContainer)
 	}
-	logrus.Debugf("Created %d containers", len(newContainers))
+	logger.Debugf("Created %d containers", len(newContainers))
 	args["newContainers"] = &newContainers
 	return nil
 }
@@ -64,7 +63,7 @@ func startContainers(args job.Args) error {
 		}
 		containersStarted++
 	}
-	logrus.Debugf("Started %d containers", containersStarted)
+	logger.Debugf("Started %d containers", containersStarted)
 	return nil
 }
 
@@ -96,7 +95,6 @@ func checkNewContainersHealth(args job.Args) error {
 			break
 		}
 	}
-
 	return nil
 }
 

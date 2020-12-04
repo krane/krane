@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/docker/distribution/uuid"
-	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/api/status"
 	"github.com/biensupernice/krane/internal/auth"
 	"github.com/biensupernice/krane/internal/constants"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/session"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
@@ -36,7 +36,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if request id is valid, get phrase stored on the server
-	serverPhraseBytes, err := store.Instance().Get(constants.AuthenticationCollectionName, body.RequestID)
+	serverPhraseBytes, err := store.Client().Get(constants.AuthenticationCollectionName, body.RequestID)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
@@ -44,14 +44,14 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 
 	serverPhrase := string(serverPhraseBytes)
 	if serverPhrase == "" {
-		logrus.Debug("Invalid request id")
+		logger.Debug("Invalid request id")
 		status.HTTPBad(w, errors.New("unable to authenticate"))
 		return
 	}
 
 	authKeys := auth.GetAuthorizeKeys()
 	if len(authKeys) == 0 || authKeys[0] == "" {
-		logrus.Info("no authorized keys found on the server")
+		logger.Info("no authorized keys found on the server")
 		status.HTTPBad(w, errors.New("unable to authenticate"))
 		return
 	}
@@ -66,7 +66,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 
 	// Create a new token and assign it to a session
 	// Remove auth data from auth bucket
-	err = store.Instance().Remove(constants.AuthenticationCollectionName, body.RequestID)
+	err = store.Client().Remove(constants.AuthenticationCollectionName, body.RequestID)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return

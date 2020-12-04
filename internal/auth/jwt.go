@@ -11,10 +11,11 @@ import (
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/sirupsen/logrus"
+
+	"github.com/biensupernice/krane/internal/logger"
 )
 
-// AuthClaims : custom claims for user authentication
+// Claims : custom claims for user authentication
 type Claims struct {
 	Phrase string `json:"phrase"`
 	jwt.StandardClaims
@@ -78,7 +79,7 @@ func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *Claim
 	for _, key := range keys {
 		c, err := ParseAuthTokenWithAuthKey(key, tkn)
 		if err != nil {
-			logrus.Debugf("unable to decode JWT token with server private key %s", err.Error())
+			logger.Debugf("unable to decode JWT token with server private key %s", err.Error())
 			continue
 		}
 

@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// RequireEnv : hard check if an environment variable is set
+// RequireEnv : check if an environment variable is set
 func RequireEnv(key string) {
 	value, found := os.LookupEnv(key)
 	if !found {
@@ -20,7 +20,7 @@ func RequireEnv(key string) {
 	log.Printf("%s=%s", key, value)
 }
 
-// EnvOrDefault : get an environment variable, returns a default value if env not found
+// EnvOrDefault : get environment variable or use a default value
 func EnvOrDefault(key string, fallback string) string {
 	value, found := os.LookupEnv(key)
 	if !found {
@@ -34,8 +34,8 @@ func EnvOrDefault(key string, fallback string) string {
 	return os.Getenv(key)
 }
 
-// GetUIntEnv : get environment variable converted into an unsigned int
-func GetUIntEnv(key string) uint {
+// UIntEnv : get unsigned int environment variable; returns 0 if not found
+func UIntEnv(key string) uint {
 	value, found := os.LookupEnv(key)
 	if !found {
 		return 0
@@ -44,8 +44,8 @@ func GetUIntEnv(key string) uint {
 	return uint(v)
 }
 
-// GetIntEnv : get environment variable converted into an int
-func GetIntEnv(key string) int {
+// IntEnv : get int environment variable; returns 0 if not found
+func IntEnv(key string) int {
 	value, found := os.LookupEnv(key)
 	if !found {
 		return 0
@@ -54,8 +54,8 @@ func GetIntEnv(key string) int {
 	return int(v)
 }
 
-// GetBoolEnv : get environment variable converted into a boolean, returns false if env not found
-func GetBoolEnv(key string) bool {
+// BoolEnv : get boolean environment variables; returns false if not found
+func BoolEnv(key string) bool {
 	value, found := os.LookupEnv(key)
 	if !found {
 		return false

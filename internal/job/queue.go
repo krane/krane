@@ -3,16 +3,18 @@ package job
 import (
 	"sync"
 
-	"github.com/sirupsen/logrus"
+	"github.com/biensupernice/krane/internal/logger"
 )
 
 var once sync.Once
-var instance chan Job
+var queue chan Job
 
-func GetJobQueue() chan Job { return instance }
+// Queue : get the job queue
+func Queue() chan Job { return queue }
 
-func NewJobQueue(queueSize uint) chan Job {
-	logrus.Debugf("Creating job queue of size %d", queueSize)
-	once.Do(func() { instance = make(chan Job, queueSize) })
-	return instance
+// NewBufferedQueue : create a buffered channel for queuing jobs
+func NewBufferedQueue(queueSize uint) chan Job {
+	logger.Debugf("Creating job queue of size %d", queueSize)
+	once.Do(func() { queue = make(chan Job, queueSize) })
+	return queue
 }

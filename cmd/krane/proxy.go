@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/deployment/service"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/utils"
 )
 
@@ -17,11 +16,8 @@ var config = kconfig.Kconfig{
 	Name:    "krane-proxy",
 	Image:   "biensupernice/proxy",
 	Scale:   1,
-	Secured: utils.GetBoolEnv(constants.EnvProxyDashboardSecure),
+	Secured: utils.BoolEnv(constants.EnvProxyDashboardSecure),
 	Alias:   []string{os.Getenv(constants.EnvProxyDashboardAlias)},
-	Labels: map[string]string{
-		"traefik.http.routers.krane-proxy.service": "api@internal",
-	},
 	Volumes: map[string]string{
 		"/var/run/docker.sock": "/var/run/docker.sock",
 	},
@@ -32,8 +28,8 @@ var config = kconfig.Kconfig{
 	},
 }
 
-// CreateProxyIfNotExist : create the network proxy is it does not already exist
-func CreateProxyIfNotExist() {
+// EnsureNetworkProxy : ensures the network proxy is up and in a running state when booting up Krane
+func EnsureNetworkProxy() {
 	containers, err := container.GetContainersByNamespace(config.Name)
 	if err != nil {
 		panic(fmt.Sprintf("Unable to create network proxy, %v", err))
@@ -62,7 +58,7 @@ func CreateProxyIfNotExist() {
 			return
 		}
 	}
-	logrus.Debug("Network proxy running...")
+	logger.Debug("Network proxy running...")
 }
 
 func createProxy() error {
@@ -75,6 +71,6 @@ func createProxy() error {
 	if err != nil {
 		return err
 	}
-	logrus.Debug("Network proxy deployed")
+	logger.Debug("Network proxy deployment started...")
 	return nil
 }

@@ -8,10 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sirupsen/logrus"
-
 	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -65,21 +64,21 @@ func (job *Job) capture() {
 	// The timestamp is RFC3339.
 	timestamp := utils.UTCDateString()
 
-	err := store.Instance().Put(collectionName, timestamp, bytes)
+	err := store.Client().Put(collectionName, timestamp, bytes)
 	if err != nil {
-		logrus.Errorf("Unhandled error when inserting activity, %s", err)
+		logger.Errorf("Unhandled error when inserting activity, %s", err)
 		return
 	}
 }
 
 func CreateCollection(namespace string) error {
 	collection := getNamespaceCollectionName(namespace)
-	return store.Instance().CreateCollection(collection)
+	return store.Client().CreateCollection(collection)
 }
 
 func DeleteCollection(namespace string) error {
 	collection := getNamespaceCollectionName(namespace)
-	return store.Instance().DeleteCollection(collection)
+	return store.Client().DeleteCollection(collection)
 }
 
 func (job *Job) validate() error {
@@ -95,7 +94,7 @@ func (job *Job) validate() error {
 		return fmt.Errorf("unknown job handler")
 	}
 
-	maxRetryPolicy := utils.GetUIntEnv("JOB_MAX_RETRY_POLICY")
+	maxRetryPolicy := utils.UIntEnv("JOB_MAX_RETRY_POLICY")
 	if job.RetryPolicy > maxRetryPolicy {
 		return fmt.Errorf("retry policy %d exceeds max retry policy %d", job.RetryPolicy, maxRetryPolicy)
 	}
@@ -115,7 +114,7 @@ func (job *Job) validate() error {
 }
 
 func (job *Job) hasExistingNamespace() (bool, error) {
-	deployments, err := store.Instance().GetAll(constants.DeploymentsCollectionName)
+	deployments, err := store.Client().GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
 		return false, fmt.Errorf("invalid job, %s", err.Error())
 	}
@@ -184,7 +183,7 @@ func GetJobsByNamespace(namespace string, daysAgo uint) ([]Job, error) {
 
 	// get activity in time range
 	collectionName := getNamespaceCollectionName(namespace)
-	bytes, err := store.Instance().GetInRange(collectionName, minDate, maxDate)
+	bytes, err := store.Client().GetInRange(collectionName, minDate, maxDate)
 	if err != nil {
 		return make([]Job, 0), err
 	}

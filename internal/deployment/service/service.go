@@ -1,10 +1,9 @@
 package service
 
 import (
-	"github.com/sirupsen/logrus"
-
 	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/job"
+	"github.com/biensupernice/krane/internal/logger"
 )
 
 // StartDeployment:
@@ -29,12 +28,12 @@ func DeleteDeployment(cfg kconfig.Kconfig) error {
 
 // enqueueDeploymentJob:
 func enqueueDeploymentJob(deploymentJob job.Job) {
-	queue := job.GetJobQueue()
+	queue := job.Queue()
 	enqueuer := job.NewEnqueuer(queue)
 	queuedJob, err := enqueuer.Enqueue(deploymentJob)
 	if err != nil {
-		logrus.Errorf("Error enqueuing deployment job for %s, %v", deploymentJob.Namespace, err)
+		logger.Errorf("Error enqueuing deployment job %v", err)
 		return
 	}
-	logrus.Debugf("Queued job for %s", queuedJob.Namespace)
+	logger.Debugf("Queued job for %s", queuedJob.Namespace)
 }

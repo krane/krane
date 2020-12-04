@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/handlers"
 )
 
-// Logging : custom middleware for logging HTTP requests wrapping the gorrila combined logging
+// Logging : custom middleware for logger HTTP requests wrapping the gorrila combined logger
 // handler which provides Apache Combined Log Format commonly used by both Apache and nginx.
 func Logging(next http.Handler) http.Handler {
 	return handlers.CombinedLoggingHandler(os.Stdout, http.HandlerFunc(http.HandlerFunc(
@@ -19,7 +19,7 @@ func Logging(next http.Handler) http.Handler {
 			// then request handling will stop here.
 			next.ServeHTTP(w, r)
 
-			// Logic after - useful for logging, metrics, etc.
+			// Logic after - useful for logger, metrics, etc.
 
 			// NOTE: It's important that we don't use the ResponseWriter after we've called the
 			// next handler: we may cause conflicts when trying to write the response
