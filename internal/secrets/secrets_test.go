@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -24,7 +24,7 @@ func TestMain(m *testing.M) {
 	defer store.Client().Disconnect()
 
 	// Create deployment (namespace)
-	deployment := kconfig.Kconfig{Name: testNamespace}
+	deployment := config.DeploymentConfig{Name: testNamespace}
 	bytes, _ := deployment.Serialize()
 	store.Client().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
 
@@ -94,7 +94,7 @@ func TestFormatSecretCollectionName(t *testing.T) {
 	collections := []string{"api", "UI", "api-proxy", "messaging_service", "db-container", "app-123-proxy", "123-proxy_api", "aPi_pR0Xy"}
 	for _, collection := range collections {
 		expected := fmt.Sprintf("%s-secrets", strings.ToLower(collection)) // lowercase, ending with -secrets
-		assert.Equal(t, expected, getNamespaceCollectionName(collection))
+		assert.Equal(t, expected, getDeploymentCollectionName(collection))
 	}
 }
 

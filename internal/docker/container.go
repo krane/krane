@@ -27,12 +27,12 @@ type CreateContainerConfig struct {
 	Entrypoint    []string
 }
 
-// create a docker container
+// CreateContainer : create a docker container
 func (c *Client) CreateContainer(
 	ctx context.Context,
 	config CreateContainerConfig,
 ) (container.ContainerCreateCreatedBody, error) {
-	networkingConfig := makeNetworkingConfig(config.NetworkID)
+	networkingConfig := createNetworkingConfig(config.NetworkID)
 	containerConfig := makeContainerConfig(config.ContainerName, config.Image, config.Env, config.Labels, config.Command, config.Entrypoint)
 	hostConfig := makeHostConfig(config.Ports, config.Volumes)
 
@@ -94,6 +94,7 @@ func (c *Client) RemoveContainer(ctx context.Context, containerID string, force 
 	return c.ContainerRemove(ctx, containerID, options)
 }
 
+// GetOneContainer : get one container
 func (c *Client) GetOneContainer(ctx context.Context, containerId string) (types.ContainerJSON, error) {
 	return c.ContainerInspect(ctx, containerId)
 }
@@ -127,24 +128,26 @@ func (c *Client) GetContainerStatus(ctx context.Context, containerID string, str
 	return c.ContainerStats(ctx, containerID, stream)
 }
 
-func (c *Client) GetContainers(ctx *context.Context, deploymentName string) ([]types.ContainerJSON, error) {
-	// Find all containers
-	allContainers, err := c.GetAllContainers(ctx)
-	if err != nil {
-		return make([]types.ContainerJSON, 0), err
-	}
+// GetContainers : get all containers for a deployment
+// func (c *Client) GetContainers(ctx *context.Context, deploymentName string) ([]types.ContainerJSON, error) {
+// 	// Find all containers
+// 	allContainers, err := c.GetAllContainers(ctx)
+// 	if err != nil {
+// 		return make([]types.ContainerJSON, 0), err
+// 	}
+//
+// 	deploymentContainers := make([]types.ContainerJSON, 0)
+// 	for _, currContainer := range allContainers {
+// 		kraneLabel := currContainer.Config.Labels["TODO"]
+// 		if kraneLabel == deploymentName {
+// 			deploymentContainers = append(deploymentContainers, currContainer)
+// 		}
+// 	}
+//
+// 	return deploymentContainers, nil
+// }
 
-	deploymentContainers := make([]types.ContainerJSON, 0)
-	for _, currContainer := range allContainers {
-		kraneLabel := currContainer.Config.Labels["TODO"]
-		if kraneLabel == deploymentName {
-			deploymentContainers = append(deploymentContainers, currContainer)
-		}
-	}
-
-	return deploymentContainers, nil
-}
-
+// FilterContainersByDeployment : filter containers by deployment
 func (c *Client) FilterContainersByDeployment(deploymentName string) ([]types.ContainerJSON, error) {
 	ctx := context.Background()
 	containers, err := c.GetAllContainers(&ctx)

@@ -54,21 +54,21 @@ func withRoutes(router *mux.Router) {
 
 	authRouter := router.PathPrefix("/").Subrouter()
 	// deployments
-	withRoute(authRouter, "/deployments", controllers.GetAllDeployments, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/deployments", controllers.ApplyDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
-	withRoute(authRouter, "/deployments/{name}", controllers.GetDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/deployments/{name}", controllers.DeleteDeployment, middlewares.AuthSessionMiddleware).Methods(http.MethodDelete)
-	withRoute(authRouter, "/deployments/{name}/containers", controllers.GetContainers, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/deployments", controllers.GetAllDeployments, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/deployments", controllers.ApplyDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
+	withRoute(authRouter, "/deployments/{name}", controllers.GetDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/deployments/{name}", controllers.DeleteDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodDelete)
+	withRoute(authRouter, "/deployments/{name}/containers", controllers.GetContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	// secrets
-	withRoute(authRouter, "/secrets/{name}", controllers.GetSecrets, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/secrets/{name}", controllers.CreateSecret, middlewares.AuthSessionMiddleware).Methods(http.MethodPost)
-	withRoute(authRouter, "/secrets/{name}/{key}", controllers.DeleteSecret, middlewares.AuthSessionMiddleware).Methods(http.MethodDelete)
+	withRoute(authRouter, "/secrets/{name}", controllers.GetSecrets, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/secrets/{name}", controllers.CreateSecret, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
+	withRoute(authRouter, "/secrets/{name}/{key}", controllers.DeleteSecret, middlewares.ValidateSessionMiddleware).Methods(http.MethodDelete)
 	// jobs
-	withRoute(authRouter, "/jobs", controllers.GetRecentJobs, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/jobs/{namespace}", controllers.GetJobsByNamespace, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/jobs/{namespace}/{id}", controllers.GetJobByID, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/jobs", controllers.GetRecentJobs, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/jobs/{namespace}", controllers.GetJobsByNamespace, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/jobs/{namespace}/{id}", controllers.GetJobByID, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	// session
-	withRoute(authRouter, "/sessions", controllers.GetSessions, middlewares.AuthSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/sessions", controllers.GetSessions, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 }
 
 type routeHandler func(http.ResponseWriter, *http.Request)

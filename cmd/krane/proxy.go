@@ -5,14 +5,14 @@ import (
 	"os"
 
 	"github.com/biensupernice/krane/internal/constants"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/deployment/container"
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/deployment/service"
 	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/utils"
 )
 
-var config = kconfig.Kconfig{
+var deployment = config.DeploymentConfig{
 	Name:    "krane-proxy",
 	Image:   "biensupernice/proxy",
 	Scale:   1,
@@ -37,7 +37,7 @@ func EnsureNetworkProxy() {
 	}
 
 	// get containers (if any) for the proxy deployment
-	containers, err := container.GetContainersByNamespace(config.Name)
+	containers, err := container.GetContainersByDeployment(deployment.Name)
 	if err != nil {
 		panic(fmt.Sprintf("Unable to create network proxy, %v", err))
 	}
@@ -69,15 +69,15 @@ func EnsureNetworkProxy() {
 }
 
 func createProxy() error {
-	err := config.Save()
-	if err != nil {
+	if err := deployment.Save(); err != nil {
 		return err
 	}
 
-	err = service.StartDeployment(config)
-	if err != nil {
+	if err := service.StartDeployment(deployment); err != nil {
 		return err
+
 	}
+
 	logger.Debug("Network proxy deployment started")
 	return nil
 }

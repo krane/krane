@@ -16,38 +16,36 @@ var instance *Client
 
 func GetClient() *Client { return instance }
 
+// Connect : create a docker client
 func Connect() {
-	once.Do(func() { newClientFromEnv() })
+	once.Do(func() {
+		ClientFromEnv()
+		EnsureKraneDockerNetwork()
+	})
 }
 
-func newClientFromEnv() {
+// ClientFromEnv : create a docker client based on environment variables
+func ClientFromEnv() {
 	logger.Info("Connecting to Docker client")
 
-	envClient, err := client.NewEnvClient()
+	c, err := client.NewEnvClient()
 	if err != nil {
 		logger.Fatalf("Failed creating Docker client %s", err.Error())
 		return
 	}
 
-	instance = &Client{envClient}
-
-	if err := createDockerNetwork(); err != nil {
-		logger.Fatalf("Failed creating Docker network %s", err.Error())
-		return
-	}
+	instance = &Client{c}
 
 	return
 }
 
-func createDockerNetwork() error {
-	logger.Debug("Creating Krane Docker network")
-
+// EnsureKraneDockerNetwork : ensure the Krane docker network is created
+func EnsureKraneDockerNetwork() {
 	ctx := context.Background()
 	defer ctx.Done()
 
 	_, err := instance.CreateBridgeNetwork(&ctx, KraneNetworkName)
 	if err != nil {
-		return err
+		logger.Fatalf("Unable to create Krane network, %v", err)
 	}
-	return nil
 }

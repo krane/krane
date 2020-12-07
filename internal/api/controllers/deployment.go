@@ -8,15 +8,15 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/biensupernice/krane/internal/api/status"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/deployment/container"
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
 	"github.com/biensupernice/krane/internal/deployment/namespace"
 	"github.com/biensupernice/krane/internal/deployment/service"
 )
 
-// ApplyDeployment: create or update a deployment
+// ApplyDeployment : create or update a deployment
 func ApplyDeployment(w http.ResponseWriter, r *http.Request) {
-	var cfg kconfig.Kconfig
+	var cfg config.DeploymentConfig
 
 	if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
 		status.HTTPBad(w, err)
@@ -37,12 +37,12 @@ func ApplyDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// DeleteDeployment: delete a deployment, removing the container resources and configuration
+// DeleteDeployment : delete a deployment, removing the container resources and configuration
 func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	cfg, err := kconfig.GetConfigByDeploymentName(name)
+	cfg, err := config.GetDeploymentConfig(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
@@ -72,7 +72,7 @@ func GetContainers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	containers, err := container.GetContainersByNamespace(name)
+	containers, err := container.GetContainersByDeployment(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
@@ -82,12 +82,12 @@ func GetContainers(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// GetDeployment: get a deployment configuration
+// GetDeploymentConfig : get a deployment configuration
 func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
-	deployment, err := kconfig.GetConfigByDeploymentName(name)
+	deployment, err := config.GetDeploymentConfig(name)
 	if err != nil {
 		status.HTTPBad(w, err)
 		return
@@ -97,9 +97,9 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// GetDeployment: get all deployments
+// GetDeploymentConfig : get all deployments
 func GetAllDeployments(w http.ResponseWriter, r *http.Request) {
-	deployments, err := kconfig.GetAllDeploymentConfigs()
+	deployments, err := config.GetAllDeploymentConfigurations()
 	if err != nil {
 		status.HTTPBad(w, err)
 		return

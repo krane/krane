@@ -18,7 +18,7 @@ func newWorker(workerPool chan chan Job, jobChannel chan Job) *worker {
 	return &worker{workerPool, jobChannel, make(chan bool)}
 }
 
-// start : start a worker
+// Start : Start a worker
 func (w *worker) start() {
 	logger.Debugf("Worker starting with pid: %d", os.Getpid())
 	go w.loop()

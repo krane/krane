@@ -4,7 +4,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/mount"
 
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 )
 
 type Volume struct {
@@ -39,7 +39,7 @@ func fromMountPointToKconfigVolumes(mounts []types.MountPoint) []Volume {
 }
 
 // fromKconfigToDockerVolumeMount :
-func fromKconfigToDockerVolumeMount(cfg kconfig.Kconfig) []mount.Mount {
+func fromKconfigToDockerVolumeMount(cfg config.DeploymentConfig) []mount.Mount {
 	volumes := make([]mount.Mount, 0)
 	for hostVolume, containerVolume := range cfg.Volumes {
 		volumes = append(volumes, mount.Mount{

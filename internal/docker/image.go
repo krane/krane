@@ -2,30 +2,12 @@ package docker
 
 import (
 	"context"
-	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 
 	"github.com/docker/docker/api/types"
-
-	"github.com/biensupernice/krane/internal/constants"
 )
-
-type RegistryBasicAuth struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
-
-// getRegistryCredentials : get docker registry credentials
-func getRegistryCredentials() string {
-	bytes, _ := json.Marshal(RegistryBasicAuth{
-		Username: os.Getenv(constants.EnvDockerBasicAuthUsername),
-		Password: os.Getenv(constants.EnvDockerBasicAuthPassword),
-	})
-	return base64.StdEncoding.EncodeToString(bytes)
-}
 
 // PullImage : pull docker image from registry
 func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (err error) {
@@ -33,7 +15,7 @@ func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (er
 
 	options := types.ImagePullOptions{
 		All:          false,
-		RegistryAuth: getRegistryCredentials(),
+		RegistryAuth: base64DockerRegistryCredentials(),
 	}
 
 	reader, err := c.ImagePull(ctx, formattedImage, options)
@@ -42,6 +24,7 @@ func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (er
 	}
 
 	// TODO: dont output to standard out
+	// send as a deployment event
 	io.Copy(os.Stdout, reader)
 
 	err = reader.Close()
@@ -49,11 +32,11 @@ func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (er
 	return
 }
 
-// RemoveImage : delete docker image
+// RemoveImage : remove docker image
 func (c *Client) RemoveImage(ctx *context.Context, imageID string) ([]types.ImageDelete, error) {
 	options := types.ImageRemoveOptions{
-		Force:         true, // TODO: was getting race conditions between removing a container and removing the image... couple possible fixes gotta get around to it for now just force remove the images
-		PruneChildren: true, // In hopes of keeping the host machine ask light as possible, all child images should be pruned
+		Force:         true,
+		PruneChildren: true,
 	}
 	return c.ImageRemove(*ctx, imageID, options)
 }

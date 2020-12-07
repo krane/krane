@@ -3,29 +3,28 @@ package job
 import (
 	"container/heap"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
 )
 
 type Job struct {
-	ID          string         `json:"id"`               // Unique job ID
-	Namespace   string         `json:"namespace"`        // The namespace used for scoping jobs. This is the same namespace used when fetching secrets.
-	Type        string         `json:"type"`             // The type of job
-	Status      Status         `json:"status"`           // The status of the current job with details for execution counts etc..
-	State       State          `json:"state"`            // Current state of a job (running | complete)
-	StartTime   int64          `json:"start_time_epoch"` // Job start time - epoch in seconds since 1970
-	EndTime     int64          `json:"end_time_epoch"`   // Job end time - epoch in seconds since 1970
-	RetryPolicy uint           `json:"retry_policy"`     // Job retry policy
-	Args        Args           `json:"-"`                // Arguments passed down to the Job Handler
-	Run         GenericHandler `json:"-"`                // Executor function which receives the Args and returns an error if any
+	ID          string                 `json:"id"`               // Unique job ID
+	Namespace   string                 `json:"namespace"`        // The namespace used for scoping jobs. This is the same namespace used when fetching secrets.
+	Type        string                 `json:"type"`             // The type of job
+	Status      Status                 `json:"status"`           // The status of the current job with details for execution counts etc..
+	State       State                  `json:"state"`            // Current state of a job (running | complete)
+	StartTime   int64                  `json:"start_time_epoch"` // Job Start time - epoch in seconds since 1970
+	EndTime     int64                  `json:"end_time_epoch"`   // Job end time - epoch in seconds since 1970
+	RetryPolicy uint                   `json:"retry_policy"`     // Job retry policy
+	Args        map[string]interface{} `json:"-"`                // Arguments passed down to the Job Handler
+	Run         GenericHandler         `json:"-"`                // Executor function which receives the Args and returns an error if any
 }
 
 // Args : is a shortcut to easily specify arguments for job when enqueueing them.
@@ -36,6 +35,7 @@ type GenericHandler func(Args) error
 
 func (job *Job) serialize() ([]byte, error) { return json.Marshal(job) }
 
+// Start : Start a job
 func (job *Job) start() {
 	if job.State == Started {
 		return
@@ -50,37 +50,39 @@ func (job *Job) end() {
 	}
 	job.EndTime = time.Now().Unix()
 	job.State = Completed
-	job.capture()
+	job.save()
 }
 
-func (job *Job) capture() {
-	// Unique constants to capture the jobs activity, format: {namespace}-JobsCollectionName
-	collectionName := getNamespaceCollectionName(job.Namespace)
+// save : store the job
+func (job *Job) save() {
+	collection := getNamespaceCollectionName(job.Namespace)
 	bytes, _ := job.serialize()
 
-	// timestamp is used as the key for the activity.
+	// timestamp(RFC3339) is used as the key for the activity.
 	// This leverages bolts time range scans which is an efficient way of performing lookups
 	// for activity within a time range in an efficient manner.
-	// The timestamp is RFC3339.
 	timestamp := utils.UTCDateString()
 
-	err := store.Client().Put(collectionName, timestamp, bytes)
+	err := store.Client().Put(collection, timestamp, bytes)
 	if err != nil {
-		logger.Errorf("Unhandled error when inserting activity, %s", err)
+		logger.Errorf("Unhandled error when inserting job, %s", err)
 		return
 	}
 }
 
+// CreateCollection : create jobs collection for a deployment
 func CreateCollection(namespace string) error {
 	collection := getNamespaceCollectionName(namespace)
 	return store.Client().CreateCollection(collection)
 }
 
+// DeleteCollection : delete jobs collection for a deployment
 func DeleteCollection(namespace string) error {
 	collection := getNamespaceCollectionName(namespace)
 	return store.Client().DeleteCollection(collection)
 }
 
+// validate : validate a job
 func (job *Job) validate() error {
 	if job.ID == "" {
 		return fmt.Errorf("job id required")
@@ -119,35 +121,51 @@ func (job *Job) hasExistingNamespace() (bool, error) {
 		return false, fmt.Errorf("invalid job, %s", err.Error())
 	}
 
-	found := false
 	for _, deployment := range deployments {
-		var d kconfig.Kconfig
+		var d config.DeploymentConfig
 		err := store.Deserialize(deployment, &d)
 		if err != nil {
 			return false, fmt.Errorf("invalid job, %s", err.Error())
 		}
 
 		if job.Namespace == d.Name {
-			found = true
+			return true, nil
 		}
 	}
 
-	if !found {
-		return false, errors.New("invalid job, namespace not found")
-	}
-
-	return true, nil
+	return false, fmt.Errorf("invalid job, namespace %s not found", job.Namespace)
 }
 
+// BoolArg : get the value as a string for a job argument
+func (args Args) StringArg(key string) string {
+	return args[key].(string)
+}
+
+// BoolArg : get the value as a boolean for a job argument
+func (args Args) BoolArg(key string) bool {
+	return args[key].(bool)
+}
+
+// GetArg : get the value for a job argument
+func (args Args) GetArg(key string) interface{} {
+	return args[key]
+}
+
+// SetArgs : set the value for a job argument
+func (j *Job) SetArg(key string, value interface{}) {
+	j.Args[key] = value
+}
+
+// GetJobs : get all jobs
 func GetJobs(daysAgo uint) ([]Job, error) {
 	// get all deployments
-	deployments, err := kconfig.GetAllDeploymentConfigs()
+	deployments, err := config.GetAllDeploymentConfigurations()
 	if err != nil {
 		return make([]Job, 0), err
 	}
 
 	// K dim. arr containing un-merged deployment activities.
-	var recentActivity kJobs = make([][]Job, 0)
+	var recentActivity nJobs = make([][]Job, 0)
 	for _, deployment := range deployments {
 
 		// get activity in time range
@@ -162,6 +180,7 @@ func GetJobs(daysAgo uint) ([]Job, error) {
 	return recentActivity.mergeAndSort(), nil
 }
 
+// GetJobByID : get a job by id
 func GetJobByID(namespace, id string, daysAgo uint) (Job, error) {
 	jobs, err := GetJobsByNamespace(namespace, daysAgo)
 	if err != nil {
@@ -177,8 +196,9 @@ func GetJobByID(namespace, id string, daysAgo uint) (Job, error) {
 	return Job{}, fmt.Errorf("unable to fnd job with id %s", id)
 }
 
+// GetJobs : get all jobs by deployment
 func GetJobsByNamespace(namespace string, daysAgo uint) ([]Job, error) {
-	// get start, end time range to get jobs for
+	// get Start, end time range to get jobs for
 	minDate, maxDate := calculateTimeRange(int(daysAgo))
 
 	// get activity in time range
@@ -201,30 +221,29 @@ func GetJobsByNamespace(namespace string, daysAgo uint) ([]Job, error) {
 	return recentActivity, nil
 }
 
-// K dimensional Job array
-type kJobs [][]Job
+// N dimensional Job array
+type nJobs [][]Job
 
-// merge : combines kjobs into a single job array sorted in DESCENDING order based on timestamp.
-func (kjobs kJobs) mergeAndSort() []Job {
+// merge : combines njobs into a single job array sorted in DESCENDING order based on timestamp.
+func (njobs nJobs) mergeAndSort() []Job {
 	var JobHeap jobHeap
 	heap.Init(&JobHeap)
 
-	// flatten kjobs into a single un-sorted array
+	// flatten njobs into a single un-sorted array
 	var flattened []Job
-	for i := 0; i < len(kjobs); i++ {
-		flattened = append(flattened, kjobs[i]...)
+	for i := 0; i < len(njobs); i++ {
+		flattened = append(flattened, njobs[i]...)
 	}
 
 	if flattened == nil {
 		return make([]Job, 0)
 	}
 
-	// push all job's into heap
+	// push all jobs into the heap
 	for i := 0; i < len(flattened); i++ {
 		heap.Push(&JobHeap, flattened[i])
 	}
 
-	// TODO: document the rest
 	overlap := func(a, b Job) bool {
 		if a.StartTime > b.EndTime {
 			return false
@@ -252,7 +271,7 @@ func (kjobs kJobs) mergeAndSort() []Job {
 		}
 	}
 
-	// Add the last item in the heap
+	// add the last item in the heap
 	result = append(result, temp)
 
 	return result
@@ -265,6 +284,5 @@ func getNamespaceCollectionName(namespace string) string {
 func calculateTimeRange(daysAgo int) (string, string) {
 	start := time.Now().AddDate(0, 0, -daysAgo).Format(time.RFC3339)
 	end := time.Now().Local().Format(time.RFC3339)
-
 	return start, end
 }

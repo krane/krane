@@ -15,8 +15,8 @@ import (
 	"github.com/biensupernice/krane/internal/session"
 )
 
-// AuthSessionMiddleware : middleware to authenticate a client token against an active session
-func AuthSessionMiddleware(next http.Handler) http.Handler {
+// ValidateSessionMiddleware : middleware to authenticate a client token against an active session
+func ValidateSessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// grab token from headers
 		tkn := r.Header.Get("Authorization")
@@ -41,7 +41,7 @@ func AuthSessionMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// once token is decoded, parse the sesion token from the JWT claims
+		// once token is decoded, parse the session token from the JWT claims
 		sessionTkn, err := parseSessionTokenFromJWTClaims(decodedTkn)
 		if err != nil {
 			logger.Infof("Unable to parse token claims %s", err.Error())
@@ -97,14 +97,14 @@ func isValidTokenFormat(tkn string) bool {
 		return false
 	}
 
-	// Split on the space of the token ex. Bearer XXXXX
+	// split on the space of the token ex. Bearer XXXXX
 	splitTkn := strings.Split(tkn, " ")
 
 	jwtTknType := splitTkn[0] // Bearer
 
-	// Check token is a bearer token
+	// check token is a bearer token
 	if strings.Compare(jwtTknType, "Bearer") != 0 {
-		logger.Debugf("Not a `Bearer` token, token type = %s", jwtTknType)
+		logger.Debugf("Not a `Bearer` token, token type is %s", jwtTknType)
 		return false
 	}
 

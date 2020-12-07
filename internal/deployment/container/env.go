@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/secrets"
 )
 
-// fromKconfigDockerEnvList : from Kconfig to Docker environment variables string formatted list
-func fromKconfigDockerEnvList(cfg kconfig.Kconfig) []string {
+// fromKconfigDockerEnvList : from DeploymentConfig to Docker environment variables string formatted list
+func fromKconfigDockerEnvList(cfg config.DeploymentConfig) []string {
 	envs := make([]string, 0)
 
-	// kconfig environment variables
+	// config environment variables
 	for k, v := range cfg.Env {
 		envs = append(envs, fmt.Sprintf("%s=%s", k, v))
 	}

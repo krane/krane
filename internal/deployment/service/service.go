@@ -1,14 +1,14 @@
 package service
 
 import (
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/logger"
 )
 
-// StartDeployment:
-func StartDeployment(cfg kconfig.Kconfig) error {
-	deploymentJob, err := makeDockerDeploymentJob(cfg, Up)
+// StartDeployment : starts a deployment
+func StartDeployment(cfg config.DeploymentConfig) error {
+	deploymentJob, err := createDeploymentJob(cfg, Up)
 	if err != nil {
 		return err
 	}
@@ -16,9 +16,9 @@ func StartDeployment(cfg kconfig.Kconfig) error {
 	return nil
 }
 
-// DeleteDeployment:
-func DeleteDeployment(cfg kconfig.Kconfig) error {
-	deploymentJob, err := makeDockerDeploymentJob(cfg, Down)
+// DeleteDeployment delete a deployment
+func DeleteDeployment(cfg config.DeploymentConfig) error {
+	deploymentJob, err := createDeploymentJob(cfg, Down)
 	if err != nil {
 		return err
 	}
@@ -26,10 +26,9 @@ func DeleteDeployment(cfg kconfig.Kconfig) error {
 	return nil
 }
 
-// enqueueDeploymentJob:
+// enqueueDeploymentJob : enqueue a deployment job for processing
 func enqueueDeploymentJob(deploymentJob job.Job) {
-	queue := job.Queue()
-	enqueuer := job.NewEnqueuer(queue)
+	enqueuer := job.NewEnqueuer(job.Queue())
 	queuedJob, err := enqueuer.Enqueue(deploymentJob)
 	if err != nil {
 		logger.Errorf("Error enqueuing deployment job %v", err)

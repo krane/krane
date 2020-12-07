@@ -7,7 +7,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/go-connections/nat"
 
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/logger"
 )
 
@@ -74,7 +74,7 @@ func fromDockerToKconfigPortMap(pMap nat.PortMap) []Port {
 }
 
 // fromKconfigToDockerPortMap :
-func fromKconfigToDockerPortMap(cfg kconfig.Kconfig) nat.PortMap {
+func fromKconfigToDockerPortMap(cfg config.DeploymentConfig) nat.PortMap {
 	bindings := nat.PortMap{}
 	for hostPort, containerPort := range cfg.Ports {
 		if hostPort == "" {

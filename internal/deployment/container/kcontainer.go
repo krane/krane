@@ -2,19 +2,18 @@ package container
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/lithammer/shortuuid/v3"
 
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
 )
 
-// Kcontainer : custom container struct for Krane managed containers
-type Kcontainer struct {
+// KraneContainer : custom container representation for Krane managed containers
+type KraneContainer struct {
 	ID         string            `json:"id"`
 	Namespace  string            `json:"namespace"`
 	Name       string            `json:"name"`
@@ -30,85 +29,86 @@ type Kcontainer struct {
 	Entrypoint []string          `json:"entrypoint"`
 }
 
-// Create : create docker container from Kconfig
-func Create(cfg kconfig.Kconfig) (Kcontainer, error) {
+// Create : create docker container
+func Create(cfg config.DeploymentConfig) (KraneContainer, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
 	client := docker.GetClient()
 
+	// TODO: add these methods to the deployment config struct
 	mappedConfig := fromKconfigToCreateContainerConfig(cfg)
 	body, err := docker.GetClient().CreateContainer(ctx, mappedConfig)
 	if err != nil {
-		return Kcontainer{}, err
+		return KraneContainer{}, err
 	}
 
 	// the response from creating a container doesnt provide enough information
 	// about the resources it created, we need to inspect the containers for full details
 	json, err := client.GetOneContainer(ctx, body.ID)
 	if err != nil {
-		return Kcontainer{}, err
+		return KraneContainer{}, err
 	}
 
 	return fromDockerContainerToKcontainer(json), nil
 }
 
-// Start : start Kcontainer
-func (k Kcontainer) Start() error {
+// Start : start a KraneContainer
+func (c KraneContainer) Start() error {
 	ctx := context.Background()
 	defer ctx.Done()
 
 	client := docker.GetClient()
-	return client.StartContainer(ctx, k.ID)
+	return client.StartContainer(ctx, c.ID)
 }
 
-// Stop : stop Kcontainer
-func (k Kcontainer) Stop() error {
+// Stop : stop a KraneContainer
+func (c KraneContainer) Stop() error {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	return docker.GetClient().StopContainer(ctx, k.ID)
+	return docker.GetClient().StopContainer(ctx, c.ID)
 }
 
-// Remove : remove Kcontainer
-func (k Kcontainer) Remove() error {
+// Remove : remove a KraneContainer
+func (c KraneContainer) Remove() error {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	return docker.GetClient().RemoveContainer(ctx, k.ID, true)
+	return docker.GetClient().RemoveContainer(ctx, c.ID, true)
 }
 
-// Ok : returns if container is in a running state
-func (k Kcontainer) Ok() (bool, error) {
+// Ok : checks if the container is in a running state
+func (c KraneContainer) Ok() (bool, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	status, err := docker.GetClient().GetOneContainer(ctx, k.ID)
+	resp, err := docker.GetClient().GetOneContainer(ctx, c.ID)
 	if err != nil {
 		return false, err
 	}
 
-	if !status.State.Running {
-		return false, errors.New("container not in running state")
+	if !resp.State.Running {
+		return false, fmt.Errorf("container %s is not in running state", c.ID)
 	}
 
 	return true, nil
 }
 
-func (k Kcontainer) toContainer() types.Container { return types.Container{} }
+func (c KraneContainer) toContainer() types.Container { return types.Container{} }
 
-// GetAllContainers : get all containers as Kcontainers
-func GetAllContainers(client *docker.Client) ([]Kcontainer, error) {
+// GetAllContainers : get all containers
+func GetAllContainers(client *docker.Client) ([]KraneContainer, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
 	containers, err := client.GetAllContainers(&ctx)
 	if err != nil {
-		return make([]Kcontainer, 0), err
+		return make([]KraneContainer, 0), err
 	}
 
-	// filter krane managed containers
-	kcontainers := make([]Kcontainer, 0)
+	// filter for Krane managed containers
+	kcontainers := make([]KraneContainer, 0)
 	for _, container := range containers {
 		if isKraneManagedContainer(container) {
 			kcontainers = append(kcontainers, fromDockerContainerToKcontainer(container))
@@ -118,38 +118,31 @@ func GetAllContainers(client *docker.Client) ([]Kcontainer, error) {
 	return kcontainers, nil
 }
 
-// GetContainersByNamespace : get Kcontainers filtered by namespace
-func GetContainersByNamespace(namespace string) ([]Kcontainer, error) {
-	client := docker.GetClient()
-
-	// get all containers managed by krane
-	containers, err := GetAllContainers(client)
+// GetContainersByDeployment : get containers filtered by namespace
+func GetContainersByDeployment(namespace string) ([]KraneContainer, error) {
+	allContainers, err := GetAllContainers(docker.GetClient())
 	if err != nil {
-		return make([]Kcontainer, 0), err
+		return make([]KraneContainer, 0), err
 	}
 
-	// filter containers for just this deployment
-	filteredKontainers := make([]Kcontainer, 0)
-	for _, containers := range containers {
-		if namespace == containers.Namespace {
-			filteredKontainers = append(filteredKontainers, containers)
+	// filter by deployment
+	containers := make([]KraneContainer, 0)
+	for _, container := range allContainers {
+		if namespace == container.Namespace {
+			containers = append(containers, container)
 		}
 	}
 
-	return filteredKontainers, nil
+	return containers, nil
 }
 
 // isKraneManagedContainer : check if a container is a Krane managed container
 func isKraneManagedContainer(container types.ContainerJSON) bool {
-	namespaceLabel := container.Config.Labels[KraneContainerNamespaceLabel]
-	if namespaceLabel == "" {
-		return false
-	}
-	return true
+	return len(container.Config.Labels[KraneContainerLabel]) > 0
 }
 
 // fromKconfigToCreateContainerConfig :
-func fromKconfigToCreateContainerConfig(cfg kconfig.Kconfig) docker.CreateContainerConfig {
+func fromKconfigToCreateContainerConfig(cfg config.DeploymentConfig) docker.CreateContainerConfig {
 	ctx := context.Background()
 	defer ctx.Done()
 
@@ -188,8 +181,8 @@ func fromKconfigToCreateContainerConfig(cfg kconfig.Kconfig) docker.CreateContai
 	}
 }
 
-// fromDockerContainerToKcontainer : convert docker container into a Kcontainer
-func fromDockerContainerToKcontainer(container types.ContainerJSON) Kcontainer {
+// fromDockerContainerToKcontainer : convert docker container into a KraneContainer
+func fromDockerContainerToKcontainer(container types.ContainerJSON) KraneContainer {
 	ctx := context.Background()
 	defer ctx.Done()
 
@@ -198,9 +191,9 @@ func fromDockerContainerToKcontainer(container types.ContainerJSON) Kcontainer {
 	ports := fromDockerToKconfigPortMap(container.NetworkSettings.Ports)
 	volumes := fromMountPointToKconfigVolumes(container.Mounts)
 
-	return Kcontainer{
+	return KraneContainer{
 		ID:         container.ID,
-		Namespace:  container.Config.Labels[KraneContainerNamespaceLabel],
+		Namespace:  container.Config.Labels[KraneContainerLabel],
 		Name:       container.Name,
 		NetworkID:  container.NetworkSettings.Networks[docker.KraneNetworkName].NetworkID,
 		Image:      container.Config.Image,

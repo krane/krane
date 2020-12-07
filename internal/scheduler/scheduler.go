@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/logger"
@@ -20,7 +20,6 @@ type Scheduler struct {
 	store    store.Store
 	docker   *docker.Client
 	enqueuer job.Enqueuer
-
 	interval time.Duration
 }
 
@@ -73,24 +72,24 @@ func (s *Scheduler) poll() {
 	logger.Debugf("Next poll in %s", s.interval.String())
 }
 
-func hasDesiredState(kcfg kconfig.Kconfig, containers []types.ContainerJSON) bool {
+func hasDesiredState(kcfg config.DeploymentConfig, containers []types.ContainerJSON) bool {
 	// TODO: implementation not defined - always returning true to avoid doing anything
 	return true
 }
 
-func (s *Scheduler) deployments() []kconfig.Kconfig {
+func (s *Scheduler) deployments() []config.DeploymentConfig {
 	bytes, err := s.store.GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
 		logger.Errorf("Scheduler error: %s", err)
-		return make([]kconfig.Kconfig, 0)
+		return make([]config.DeploymentConfig, 0)
 	}
 
-	deployments := make([]kconfig.Kconfig, 0)
+	deployments := make([]config.DeploymentConfig, 0)
 	for _, b := range bytes {
-		var d kconfig.Kconfig
+		var d config.DeploymentConfig
 		err := store.Deserialize(b, &d)
 		if err != nil {
-			logger.Errorf("Unable to deserialize krane kconfig", err)
+			logger.Errorf("Unable to deserialize krane config", err)
 		}
 
 		deployments = append(deployments, d)

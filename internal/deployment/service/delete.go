@@ -1,28 +1,28 @@
 package service
 
 import (
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/secrets"
 )
 
 func deleteContainerResources(args job.Args) error {
-	wf := newWorkflow("DeleteContainerResources", args)
+	wf := job.NewWorkflow("DeleteContainerResources", args)
 
-	wf.with("GetCurrentContainers", getCurrentContainers)
-	wf.with("RemoveContainers", cleanupCurrentContainers)
-	wf.with("RemoveDeploymentSecrets", deleteDeploymentSecrets)
-	wf.with("RemoveDeploymentJobs", deleteDeploymentJobs)
-	wf.with("RemoveDeploymentConfig", deleteDeploymentConfig)
+	wf.With("GetCurrentContainers", getCurrentContainers)
+	wf.With("RemoveContainers", removeCurrentContainers)
+	wf.With("RemoveDeploymentSecrets", deleteDeploymentSecrets)
+	wf.With("RemoveDeploymentJobs", deleteDeploymentJobs)
+	wf.With("RemoveDeploymentConfig", deleteDeploymentConfig)
 
-	return wf.start()
+	return wf.Start()
 }
 
-func cleanupCurrentContainers(args job.Args) error {
-	currContainers := args["currContainers"].(*[]container.Kcontainer)
-	for _, oldContainer := range *currContainers {
-		err := oldContainer.Remove()
+func removeCurrentContainers(args job.Args) error {
+	containers := args.GetArg(CurrentContainersJobArgName).(*[]container.KraneContainer)
+	for _, c := range *containers {
+		err := c.Remove()
 		if err != nil {
 			return err
 		}
@@ -31,16 +31,16 @@ func cleanupCurrentContainers(args job.Args) error {
 }
 
 func deleteDeploymentSecrets(args job.Args) error {
-	cfg := args["kconfig"].(kconfig.Kconfig)
+	cfg := args.GetArg(DeploymentConfigJobArgName).(config.DeploymentConfig)
 	return secrets.DeleteCollection(cfg.Name)
 }
 
 func deleteDeploymentJobs(args job.Args) error {
-	cfg := args["kconfig"].(kconfig.Kconfig)
+	cfg := args.GetArg(DeploymentConfigJobArgName).(config.DeploymentConfig)
 	return job.DeleteCollection(cfg.Name)
 }
 
 func deleteDeploymentConfig(args job.Args) error {
-	cfg := args["kconfig"].(kconfig.Kconfig)
-	return kconfig.Delete(cfg.Name)
+	cfg := args.GetArg(DeploymentConfigJobArgName).(config.DeploymentConfig)
+	return config.Delete(cfg.Name)
 }

@@ -1,17 +1,17 @@
 package container
 
 import (
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/proxy"
 )
 
-// KraneContainerNamespaceLabel : container label for krane managed containers
-const KraneContainerNamespaceLabel = "krane.deployment.namespace"
+// KraneContainerLabel : container label to identify krane managed containers
+const KraneContainerLabel = "krane.deployment"
 
 // fromKconfigToDockerLabelMap :
-func fromKconfigToDockerLabelMap(cfg kconfig.Kconfig) map[string]string {
+func fromKconfigToDockerLabelMap(cfg config.DeploymentConfig) map[string]string {
 	labels := make(map[string]string, 0)
-	labels[KraneContainerNamespaceLabel] = cfg.Name
+	labels[KraneContainerLabel] = cfg.Name
 
 	traefikLabels := proxy.CreateTraefikContainerLabels(cfg)
 	for k, v := range traefikLabels {

@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/biensupernice/krane/internal/deployment/kconfig"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
 )
 
@@ -13,7 +13,7 @@ type TraefikLabel struct {
 	Value string
 }
 
-func CreateTraefikContainerLabels(config kconfig.Kconfig) map[string]string {
+func CreateTraefikContainerLabels(config config.DeploymentConfig) map[string]string {
 	labels := make(map[string]string, 0)
 
 	// default labels
@@ -42,6 +42,10 @@ func traefikRouterLabels(namespace string, aliases []string, secured bool) map[s
 	// configure aliases as Host('my-alias.example.com') labels
 	var hostRules bytes.Buffer
 	for i, alias := range aliases {
+		if alias == "" {
+			continue
+		}
+
 		if i == len(aliases)-1 {
 			// if last or only alias, just append the host with no OR operator
 			hostRules.WriteString(fmt.Sprintf("Host(`%s`)", alias))
@@ -54,7 +58,9 @@ func traefikRouterLabels(namespace string, aliases []string, secured bool) map[s
 	labels := make(map[string]string, 0)
 
 	// http
-	labels[fmt.Sprintf("traefik.http.routers.%s-insecure.rule", namespace)] = hostRules.String()
+	if hostRules.String() != "" {
+		labels[fmt.Sprintf("traefik.http.routers.%s-insecure.rule", namespace)] = hostRules.String()
+	}
 	labels[fmt.Sprintf("traefik.http.routers.%s-insecure.entrypoints", namespace)] = "web"
 
 	if secured {
@@ -62,8 +68,11 @@ func traefikRouterLabels(namespace string, aliases []string, secured bool) map[s
 		labels[fmt.Sprintf("traefik.http.routers.%s-secure.tls", namespace)] = "true"
 		labels[fmt.Sprintf("traefik.http.routers.%s-secure.entrypoints", namespace)] = "web-secure"
 		labels[fmt.Sprintf("traefik.http.routers.%s-secure.tls.certresolver", namespace)] = "lets-encrypt"
-		labels[fmt.Sprintf("traefik.http.routers.%s-secure.rule", namespace)] = hostRules.String()
+		if hostRules.String() != "" {
+			labels[fmt.Sprintf("traefik.http.routers.%s-secure.rule", namespace)] = hostRules.String()
+		}
 	}
+
 	return labels
 }
 

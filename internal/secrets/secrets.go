@@ -18,8 +18,8 @@ type Secret struct {
 	Alias     string `json:"alias"`
 }
 
-// Add : a secret to a deployment. SecretsCollectionName are injected to the container during the container run step.
-// When a secret is created, an alias is returned and can be used to reference the secret in the `krane.json`
+// Add : add a secret to a deployment. Secrets are injected to the container during the container 'run' step.
+// When a secret is created, an alias is returned and can be used to reference the secret in the `deployment.json`
 // ie. SECRET_TOKEN=@secret-token (@secret-token was returned and how you reference the value for SECRET_TOKEN)
 func Add(deploymentName, key, value string) (*Secret, error) {
 	if !isValidSecretKey(key) {
@@ -38,7 +38,7 @@ func Add(deploymentName, key, value string) (*Secret, error) {
 	}
 
 	bytes, _ := s.serialize()
-	collection := getNamespaceCollectionName(deploymentName)
+	collection := getDeploymentCollectionName(deploymentName)
 	err := store.Client().Put(collection, s.Key, bytes)
 	if err != nil {
 		return nil, err
@@ -47,23 +47,27 @@ func Add(deploymentName, key, value string) (*Secret, error) {
 	return s, nil
 }
 
+// Delete : delete a secret
 func Delete(namespace, key string) error {
-	collection := getNamespaceCollectionName(namespace)
+	collection := getDeploymentCollectionName(namespace)
 	return store.Client().Remove(collection, key)
 }
 
+// CreateCollection : create secrets collection for a deployment
 func CreateCollection(namespace string) error {
-	collection := getNamespaceCollectionName(namespace)
+	collection := getDeploymentCollectionName(namespace)
 	return store.Client().CreateCollection(collection)
 }
 
+// DeleteCollection : delete secrets collection for a deployment
 func DeleteCollection(namespace string) error {
-	collection := getNamespaceCollectionName(namespace)
+	collection := getDeploymentCollectionName(namespace)
 	return store.Client().DeleteCollection(collection)
 }
 
+// GetAll : get all secrets for a deployment
 func GetAll(namespace string) ([]*Secret, error) {
-	collection := getNamespaceCollectionName(namespace)
+	collection := getDeploymentCollectionName(namespace)
 	bytes, err := store.Client().GetAll(collection)
 	if err != nil {
 		return make([]*Secret, 0), err
@@ -82,6 +86,7 @@ func GetAll(namespace string) ([]*Secret, error) {
 	return secrets, nil
 }
 
+// GetAllRedacted : same as GetAll but returns masked values
 func GetAllRedacted(namespace string) []Secret {
 	plainSecrets, _ := GetAll(namespace)
 	redactedSecrets := make([]Secret, 0)
@@ -92,8 +97,9 @@ func GetAllRedacted(namespace string) []Secret {
 	return redactedSecrets
 }
 
+// Get : get a secrets for a deployment
 func Get(namespace, key string) (*Secret, error) {
-	collection := getNamespaceCollectionName(namespace)
+	collection := getDeploymentCollectionName(namespace)
 	bytes, err := store.Client().Get(collection, key)
 
 	if err != nil {
@@ -110,6 +116,7 @@ func Get(namespace, key string) (*Secret, error) {
 	return s, nil
 }
 
+// Redact : mask the value for a secret
 func (s *Secret) Redact() { s.Value = "<redacted>" }
 
 func formatSecretAlias(key string) string {
@@ -138,6 +145,6 @@ func isValidSecretKey(secret string) bool {
 
 func (s Secret) serialize() ([]byte, error) { return json.Marshal(s) }
 
-func getNamespaceCollectionName(namespace string) string {
+func getDeploymentCollectionName(namespace string) string {
 	return strings.ToLower(fmt.Sprintf("%s-%s", namespace, constants.SecretsCollectionName))
 }

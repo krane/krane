@@ -35,6 +35,7 @@ var (
 	fileMode os.FileMode = 0600
 )
 
+// Client : boltdb client instance
 func Client() Store { return instance }
 
 // Connect : connect to boltdb

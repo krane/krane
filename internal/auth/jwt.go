@@ -83,7 +83,7 @@ func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *Claim
 			continue
 		}
 
-		// Map jwt claims into authclaims
+		// map jwt claims into authclaims
 		claims, _ = c.(*Claims)
 		break
 	}
