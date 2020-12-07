@@ -28,8 +28,7 @@ jobs:
         run: go test -coverprofile coverage.out ./...
 
       - name: Upload coverage to Codecov
-      - uses: actions/checkout@master
-      - uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: coverage.out
