@@ -2,6 +2,7 @@
 
 [![CI](https://github.com/biensupernice/krane/workflows/CI/badge.svg?branch=master)](https://github.com/biensupernice/krane/actions)
 [![Go Report Card](https://goreportcard.com/badge/github.com/biensupernice/krane)](https://goreportcard.com/report/github.com/biensupernice/krane)
+[![Coverage](https://img.shields.io/codecov/c/github/biensupernice/krane?color=blue)](https://codecov.io/gh/biensupernice/krane)
 
 > ⚠️ Currently under construction 🏗
 
