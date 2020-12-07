@@ -65,6 +65,7 @@ func EnsureNetworkProxy() {
 			return
 		}
 	}
+
 	logger.Debug("Network proxy running")
 }
 
@@ -75,7 +76,6 @@ func createProxy() error {
 
 	if err := service.StartDeployment(deployment); err != nil {
 		return err
-
 	}
 
 	logger.Debug("Network proxy deployment started")

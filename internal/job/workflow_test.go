@@ -51,7 +51,7 @@ func TestWorkflowWithNSteps(t *testing.T) {
 		// add new Step to the Workflow
 		// in this example we just want to create stepCount amount
 		// of steps and incremet x, stepCount amount of times.
-		wf.with(stepName, incX)
+		wf.With(stepName, incX)
 	}
 
 	// Start the Workflow
@@ -71,7 +71,7 @@ func TestWorkflowError(t *testing.T) {
 		return nil
 	}
 
-	wf.with("VerifyArgsNotNil", step)
+	wf.With("VerifyArgsNotNil", step)
 
 	err := wf.Start()
 

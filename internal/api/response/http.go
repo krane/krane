@@ -1,11 +1,11 @@
-package status
+package response
 
 import (
 	"encoding/json"
 	"net/http"
 )
 
-// HTTPOk : response with status code 200
+// HTTPOk : response with response code 200
 func HTTPOk(w http.ResponseWriter, data interface{}) {
 	payload, _ := json.Marshal(data)
 
@@ -15,13 +15,13 @@ func HTTPOk(w http.ResponseWriter, data interface{}) {
 	return
 }
 
-// HTTPCreated : response with status code 201
+// HTTPCreated : response with response code 201
 func HTTPCreated(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusCreated)
 	return
 }
 
-// HTTPAccepted : response with status code 202
+// HTTPAccepted : response with response code 202
 func HTTPAccepted(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusAccepted)
 	return

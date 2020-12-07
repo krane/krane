@@ -4,15 +4,15 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/biensupernice/krane/internal/api/status"
+	"github.com/biensupernice/krane/internal/api/response"
 	time "github.com/biensupernice/krane/internal/utils"
 )
 
-// GetServerStatus : get Krane server status
-func GetServerStatus(w http.ResponseWriter, r *http.Request) {
+// HealthCheck : get Krane server response
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	host, _ := os.Hostname()
-	status.HTTPOk(w, struct {
-		Status    string `json:"status"`
+	response.HTTPOk(w, struct {
+		Status    string `json:"response"`
 		Host      string `json:"host"`
 		Timestamp string `json:"timestamp"`
 	}{

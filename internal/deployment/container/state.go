@@ -3,7 +3,7 @@ package container
 import "github.com/docker/docker/api/types"
 
 type State struct {
-	Status     string        `json:"status"`
+	Status     string        `json:"response"`
 	Running    bool          `json:"running"`
 	Paused     bool          `json:"paused"`
 	Restarting bool          `json:"restarting"`

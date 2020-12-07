@@ -9,7 +9,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"github.com/biensupernice/krane/internal/api/status"
+	"github.com/biensupernice/krane/internal/api/response"
 	"github.com/biensupernice/krane/internal/auth"
 	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/session"
@@ -25,7 +25,7 @@ func ValidateSessionMiddleware(next http.Handler) http.Handler {
 		isValidToken := isValidTokenFormat(tkn)
 		if !isValidToken {
 			logger.Info("Invalid token provided")
-			status.HTTPBad(w, errors.New("invalid token"))
+			response.HTTPBad(w, errors.New("invalid token"))
 			r.Context().Done()
 			return
 		}
@@ -36,7 +36,7 @@ func ValidateSessionMiddleware(next http.Handler) http.Handler {
 		decodedTkn, err := auth.DecodeJWTToken(pk, tknValue)
 		if err != nil {
 			logger.Infof("Unable to decode token %s", err.Error())
-			status.HTTPBad(w, err)
+			response.HTTPBad(w, err)
 			r.Context().Done()
 			return
 		}
@@ -45,7 +45,7 @@ func ValidateSessionMiddleware(next http.Handler) http.Handler {
 		sessionTkn, err := parseSessionTokenFromJWTClaims(decodedTkn)
 		if err != nil {
 			logger.Infof("Unable to parse token claims %s", err.Error())
-			status.HTTPBad(w, err)
+			response.HTTPBad(w, err)
 			r.Context().Done()
 			return
 		}
@@ -53,7 +53,7 @@ func ValidateSessionMiddleware(next http.Handler) http.Handler {
 		// find the session by the id within the session token
 		s, err := session.GetSessionByID(sessionTkn.SessionID)
 		if err != nil {
-			status.HTTPBad(w, err)
+			response.HTTPBad(w, err)
 			r.Context().Done()
 			return
 		}

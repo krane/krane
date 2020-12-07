@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
-	"github.com/biensupernice/krane/internal/api/status"
+	"github.com/biensupernice/krane/internal/api/response"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/utils"
 )
@@ -19,11 +19,11 @@ func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
 
 	jobs, err := job.GetJobs(uint(daysAgoNum))
 	if err != nil {
-		status.HTTPBad(w, err)
+		response.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, jobs)
+	response.HTTPOk(w, jobs)
 	return
 }
 
@@ -33,7 +33,7 @@ func GetJobsByNamespace(w http.ResponseWriter, r *http.Request) {
 	namespace := params["namespace"]
 
 	if namespace == "" {
-		status.HTTPBad(w, errors.New("namespace not provided"))
+		response.HTTPBad(w, errors.New("namespace not provided"))
 		return
 	}
 
@@ -42,11 +42,11 @@ func GetJobsByNamespace(w http.ResponseWriter, r *http.Request) {
 
 	jobs, err := job.GetJobsByNamespace(namespace, uint(daysAgoNum))
 	if err != nil {
-		status.HTTPBad(w, err)
+		response.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, jobs)
+	response.HTTPOk(w, jobs)
 	return
 }
 
@@ -57,12 +57,12 @@ func GetJobByID(w http.ResponseWriter, r *http.Request) {
 	jobID := params["id"]
 
 	if namespace == "" {
-		status.HTTPBad(w, errors.New("namespace not provided"))
+		response.HTTPBad(w, errors.New("namespace not provided"))
 		return
 	}
 
 	if jobID == "" {
-		status.HTTPBad(w, errors.New("job id not provided"))
+		response.HTTPBad(w, errors.New("job id not provided"))
 		return
 	}
 
@@ -71,10 +71,10 @@ func GetJobByID(w http.ResponseWriter, r *http.Request) {
 
 	j, err := job.GetJobByID(namespace, jobID, uint(daysAgoNum))
 	if err != nil {
-		status.HTTPBad(w, err)
+		response.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, j)
+	response.HTTPOk(w, j)
 	return
 }

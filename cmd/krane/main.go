@@ -72,10 +72,7 @@ func main() {
 	// if enabled, ensure network proxy is running
 	EnsureNetworkProxy()
 
-	// wait will block
-	// until an exit signal is received by the program.
-	// the exit signal can be ctrl+c, an IDE stop, or any system termination signal.
-	// once the signal is received it will shutdown all workers.
+	// block until an exit signal is received
 	wait()
 
 	// when an exit signal is received, workers are stopped and cleaned up.

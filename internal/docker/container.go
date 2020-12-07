@@ -123,7 +123,7 @@ func (c *Client) GetAllContainers(ctx *context.Context) ([]types.ContainerJSON, 
 	return toJsonContainers, nil
 }
 
-// GetContainerStatus : get the status of a container
+// GetContainerStatus : get the response of a container
 func (c *Client) GetContainerStatus(ctx context.Context, containerID string, stream bool) (stats types.ContainerStats, err error) {
 	return c.ContainerStats(ctx, containerID, stream)
 }

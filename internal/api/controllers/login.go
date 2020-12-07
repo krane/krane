@@ -6,7 +6,7 @@ import (
 
 	"github.com/docker/distribution/uuid"
 
-	"github.com/biensupernice/krane/internal/api/status"
+	"github.com/biensupernice/krane/internal/api/response"
 	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/store"
@@ -26,14 +26,14 @@ func RequestLoginPhrase(w http.ResponseWriter, r *http.Request) {
 		err = store.Client().Remove(constants.AuthenticationCollectionName, reqID)
 		if err != nil {
 			logger.Error(err)
-			status.HTTPBad(w, err)
+			response.HTTPBad(w, err)
 			return
 		}
-		status.HTTPBad(w, err)
+		response.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, struct {
+	response.HTTPOk(w, struct {
 		RequestID string `json:"request_id"`
 		Phrase    string `json:"phrase"`
 	}{

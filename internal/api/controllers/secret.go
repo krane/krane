@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/biensupernice/krane/internal/api/status"
+	"github.com/biensupernice/krane/internal/api/response"
 	"github.com/biensupernice/krane/internal/secrets"
 )
 
@@ -17,12 +17,12 @@ func GetSecrets(w http.ResponseWriter, r *http.Request) {
 	deploymentName := params["name"]
 
 	if deploymentName == "" {
-		status.HTTPBad(w, errors.New("deployment name required"))
+		response.HTTPBad(w, errors.New("deployment name required"))
 		return
 	}
 
 	redactedSecrets := secrets.GetAllRedacted(deploymentName)
-	status.HTTPOk(w, redactedSecrets)
+	response.HTTPOk(w, redactedSecrets)
 	return
 }
 
@@ -32,7 +32,7 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 	deploymentName := params["name"]
 
 	if deploymentName == "" {
-		status.HTTPBad(w, errors.New("deployment name required"))
+		response.HTTPBad(w, errors.New("deployment name required"))
 		return
 	}
 
@@ -43,19 +43,19 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 
 	var body secretBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		status.HTTPBad(w, err)
+		response.HTTPBad(w, err)
 		return
 	}
 
 	s, err := secrets.Add(deploymentName, body.Key, body.Value)
 	if err != nil {
-		status.HTTPBad(w, err)
+		response.HTTPBad(w, err)
 		return
 	}
 
 	s.Redact()
 
-	status.HTTPOk(w, s)
+	response.HTTPOk(w, s)
 	return
 }
 
@@ -66,20 +66,20 @@ func DeleteSecret(w http.ResponseWriter, r *http.Request) {
 	key := params["key"]
 
 	if deploymentName == "" {
-		status.HTTPBad(w, errors.New("deployment name required"))
+		response.HTTPBad(w, errors.New("deployment name required"))
 		return
 	}
 
 	if key == "" {
-		status.HTTPBad(w, errors.New("key required"))
+		response.HTTPBad(w, errors.New("key required"))
 		return
 	}
 
 	if err := secrets.Delete(deploymentName, key); err != nil {
-		status.HTTPBad(w, err)
+		response.HTTPBad(w, err)
 		return
 	}
 
-	status.HTTPOk(w, nil)
+	response.HTTPOk(w, nil)
 	return
 }

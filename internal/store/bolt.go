@@ -22,10 +22,10 @@ type BoltConfig struct {
 	Buckets []string
 }
 
-var (
-	once     sync.Once
-	instance *BoltDB
+var once sync.Once
+var instance *BoltDB
 
+var (
 	defaultBoltPath = "/tmp/krane.db"
 
 	// 0600 - Sets permissions so that:
