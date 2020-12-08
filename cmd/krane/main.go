@@ -51,9 +51,8 @@ func main() {
 	qsize := utils.UIntEnv(constants.EnvJobQueueSize)
 	queue := job.NewBufferedQueue(qsize)
 
-	// if watch mode is enabled, the scheduler will run
-	// in a separate thread polling and queuing jobs to
-	// maintain the containers state in parity with desired deployment state
+	// if watch mode is enabled, the scheduler will run in a separate routine polling
+	// and queuing jobs to maintain the deployment state in parity with the desired state
 	if utils.BoolEnv(constants.EnvWatchMode) {
 		logger.Warn("This feature is experimental, dont use unless ")
 		enqueuer := job.NewEnqueuer(queue)

@@ -4,22 +4,22 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/biensupernice/krane)](https://goreportcard.com/report/github.com/biensupernice/krane)
 [![Coverage](https://img.shields.io/codecov/c/github/biensupernice/krane?color=blue)](https://codecov.io/gh/biensupernice/krane)
 
-> ⚠️ Currently under construction 🏗
+> ⚠️ Currently under construction
 
-Krane is a self-hosted container management solution. It lets you deploy containers with a single configuration file and manage those containers using the Krane [CLI](https://www.krane.sh/#/cli) for a productive experience when running containers on remote servers.
+Krane is a container deployment service that makes it easy to create and manage small development workloads. Krane sits on any server and interfaces with Docker exposing a productive toolset for managing containers. The Krane [CLI](https://www.krane.sh/#/cli) allows you to automate or deploy application resources from anywhere.
 
-* **Documentation:** https://krane.sh
-* **Releases:** https://github.com/biensupernice/krane/releases
-* **CLI:** https://github.com/krane/cli
+- **Documentation:** https://krane.sh
+- **Releases:** https://github.com/biensupernice/krane/releases
+- **CLI:** https://github.com/krane/cli
 
 ## Features
 
-* Single file deployments
-* Provides HTTPS/TLS to your containers via [Let's Encrypt](https://letsencrypt.org/) 
-* Deployment [secrets](https://www.krane.sh/#/cli?id=secrets)
-* Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale) 
-* Round Robin load-balancing provided by [Traefik](https://doc.traefik.io/traefik/routing/services/#load-balancing)
-* [Self-hosted](#motivation) - Bring your own hardware (could be a cheap $5 machine) and scale if you need
+- Single file deployments
+- Provides HTTPS/TLS to your containers via [Let's Encrypt](https://letsencrypt.org/)
+- Deployment [secrets](https://www.krane.sh/#/cli?id=secrets)
+- Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale)
+- Round Robin load-balancing provided by [Traefik](https://doc.traefik.io/traefik/routing/services/#load-balancing)
+- [Self-hosted](#motivation) - Bring your own hardware (could be a cheap $5 machine) and scale if you need
 
 ## Getting Started
 
@@ -34,7 +34,6 @@ docker run -d --name=krane \
 ```
 
 Other [installation](https://www.krane.sh/#/installation) methods and configurations.
-
 
 [![Download CLI](./docs/assets/2-download-cli.png)](https://www.krane.sh/#/cli)
 
@@ -58,7 +57,7 @@ The private key is kept on the user's machine, the public key is stored where Kr
 
 [![Authenticate](./docs/assets/4-authentication.png)](https://www.krane.sh/#/cli?id=authenticating)
 
-When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated successfully you'll be able to execute any command on that Krane instance. 
+When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated successfully you'll be able to execute any command on that Krane instance.
 
 To switch between Krane instances you'll have to login again.
 
@@ -68,7 +67,7 @@ krane login
 
 [![Deploy](./docs/assets/5-deploy.png)](https://www.krane.sh/#/cli?id=deploy)
 
-Create a deployment configuration file `deployment.json` 
+Create a deployment configuration file `deployment.json`
 
 For example:
 
@@ -94,8 +93,7 @@ For more deployment configuration options, checkout the [documentation](https://
 
 Krane is self-hosted, meaning you bring your own device and install Krane on it. The key benefit is **cost per deployment**. When comparing prices against other container deployment platforms, prices goes up pretty quickly when running multiple instances of your apps. Take Digital Ocean, deploying a container on [app-platform](https://www.digitalocean.com/docs/app-platform/) starts at $5 per instance, this could be the cost of a single Digital Ocean droplet running Krane but with many more deployments and functionality provided and built for you.
 
-Krane isn't a replacement for Kubernetes or ECS or any other container management solution you might see running production applications, instead it's a tool you can leverage to make development of side-projects or small workloads cheap and straight forward. In the end, this was the main objective, a productive deployment tool for managing non-critical container workloads on remote servers. 
-
+Krane isn't a replacement for Kubernetes or ECS or any other container management solution you might see running production applications, instead it's a tool you can leverage to make development of side-projects or small workloads cheap and straight forward. In the end, this was the main objective, a productive deployment tool for managing non-critical container workloads on remote servers.
 
 ## Building from source
 
@@ -118,11 +116,11 @@ $ go test ./...
 or
 
 # run tests with coverage
-$ go test -coverprofile coverage.out ./... 
- 
+$ go test -coverprofile coverage.out ./...
+
 # view coverage
 $ go tool cover -html=coverage.out
-``` 
+```
 
 ## Viewing the database
 
@@ -130,7 +128,7 @@ Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To v
 
 ```
 $ boltdbweb --db-name=/path/to/krane.db --port=9000
-``` 
+```
 
 ## Complete Docker example
 

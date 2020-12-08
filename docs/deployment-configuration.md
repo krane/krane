@@ -1,8 +1,8 @@
 # Deployment Config
 
-Creating a deployment using Krane starts with a **single file**, this file contains the deployment configuration used when creating container resources. The deployment configuration can be stored at the root of your project, a ci repository, or a directory on your local machine - anywhere really. When using the [CLI](cli) you can reference the location of this deployment configuration. 
+Creating a deployment using Krane starts with a **single file**, this file contains the deployment configuration used to create container resources. The deployment configuration can be stored anywhere, when using the [CLI](cli) you'll be referencing the location of this deployment configuration.
 
-A simple deployment configuration file might look like:
+`deployment.json`
 
 ```json
 {
@@ -47,9 +47,9 @@ Image to use for you deployment.
 
 ### ports
 
-Ports exposed from the container to the host machine. 
+Ports exposed from the container to the host machine.
 
-> "80": "9000" - The left port (80) refers to the host port, the right port (9000) refers to the container port. 
+> 80:9000 - The left port (80) refers to the host port, the right port (9000) refers to the container port.
 
 - required: `false`
 
@@ -61,7 +61,7 @@ Ports exposed from the container to the host machine.
 }
 ```
 
-You can optionally leave the host port __blank__ and Krane will find a free port and assign it. This is especially handy to avoid **port conflicts** when scaling out a deployment. 
+You can optionally leave the host port **blank** and Krane will find a free port and assign it. This is especially handy to avoid **port conflicts** when scaling out a deployment.
 
 For example to load-balance a deployment with multiple instances on a specific port
 
@@ -72,9 +72,9 @@ For example to load-balance a deployment with multiple instances on a specific p
     "": "9000"
   }
 }
-``` 
+```
 
-In the above configuration you'll have 3 instances of your deployment load-balanced on port **9000**. See [scale](deployment-configuration?id=scale) for more details on load-balancing. 
+In the above configuration you'll have 3 instances of your deployment load-balanced on port **9000**. See [scale](deployment-configuration?id=scale) for more details on load-balancing.
 
 ### env
 

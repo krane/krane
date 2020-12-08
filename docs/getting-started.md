@@ -1,6 +1,6 @@
 # Getting Started
 
-Krane is a container deployment tool that makes it easy to create and manage small development workloads. Krane sits on any server and interfaces with Docker exposing a productive toolset for managing containers. The Krane CLI allows you to create, configure, and automate application resources from any machine - Actions, CI, localhost.
+Krane is a container deployment service that makes it easy to create and manage small development workloads. Krane sits on any server and interfaces with Docker exposing a productive toolset for managing containers. The Krane [CLI](https://www.krane.sh/#/cli) allows you to automate or deploy application resources from anywhere.
 
 ![Krane](https://user-images.githubusercontent.com/21694364/89133914-371a5900-d4ee-11ea-9e7d-3ff5282c30f5.png)
 
@@ -40,7 +40,7 @@ The private key is kept on the user's machine, the public key is stored where Kr
 
 [![Authenticate](./assets/4-authentication.png)](https://www.krane.sh/#/cli?id=authenticating)
 
-When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated successfully you'll be able to execute any command on that Krane instance. 
+When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated successfully you'll be able to execute any command on that Krane instance.
 
 To switch between Krane instances you'll have to login again.
 
