@@ -80,8 +80,8 @@ func traefikRouterLabels(namespace string, aliases []string, secured bool) map[s
 func traefikServiceLabels(namespace string, ports map[string]string) map[string]string {
 	labels := make(map[string]string, 0)
 	for _, containerPort := range ports {
-		labels[fmt.Sprintf("traefik.http.services.%s-%d.loadbalancer.server.port", namespace, containerPort)] = containerPort
-		labels[fmt.Sprintf("traefik.http.services.%s-%d.loadbalancer.server.scheme", namespace, containerPort)] = "http"
+		labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.port", namespace, containerPort)] = containerPort
+		labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.scheme", namespace, containerPort)] = "http"
 	}
 	return labels
 }
