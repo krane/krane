@@ -6,6 +6,7 @@ import (
 
 	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
+	"github.com/biensupernice/krane/internal/proxy/middlewares"
 )
 
 type TraefikLabel struct {
@@ -78,12 +79,9 @@ func traefikRouterLabels(namespace string, aliases []string, secured bool) map[s
 
 func traefikServiceLabels(namespace string, ports map[string]string) map[string]string {
 	labels := make(map[string]string, 0)
-
-	i := 0
 	for _, containerPort := range ports {
-		labels[fmt.Sprintf("traefik.http.services.%s-%d.loadbalancer.server.port", namespace, i)] = containerPort
-		labels[fmt.Sprintf("traefik.http.services.%s-%d.loadbalancer.server.scheme", namespace, i)] = "http"
-		i++
+		labels[fmt.Sprintf("traefik.http.services.%s-%d.loadbalancer.server.port", namespace, containerPort)] = containerPort
+		labels[fmt.Sprintf("traefik.http.services.%s-%d.loadbalancer.server.scheme", namespace, containerPort)] = "http"
 	}
 	return labels
 }
@@ -91,10 +89,10 @@ func traefikServiceLabels(namespace string, ports map[string]string) map[string]
 func traefikMiddlewareLabels(namespace string, secured bool) map[string]string {
 	labels := make(map[string]string, 0)
 	if secured {
-		labels[fmt.Sprintf("traefik.http.routers.%s-insecure.middlewares", namespace)] = "redirect-to-https@docker"
-		labels["traefik.http.middlewares.redirect-to-https.redirectscheme.scheme"] = "https"
-		labels["traefik.http.middlewares.redirect-to-https.redirectscheme.port"] = "443"
-		labels["traefik.http.middlewares.redirect-to-https.redirectscheme.permanent"] = "true"
+		// applies http redirect labels to all secure deployments
+		for k, v := range middlewares.RedirectToHTTPSLabels(namespace) {
+			labels[k] = v
+		}
 	}
 	return labels
 }
