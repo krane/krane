@@ -3,6 +3,7 @@ on: [push, pull_request]
 
 env:
   GO111MODULE: on
+  PROXY_ENABLED: false
 
 jobs:
   run-test:

@@ -28,9 +28,10 @@ func init() {
 	utils.EnvOrDefault(constants.EnvWatchMode, "false")
 	utils.EnvOrDefault(constants.EnvDockerBasicAuthUsername, "")
 	utils.EnvOrDefault(constants.EnvDockerBasicAuthPassword, "")
-	utils.EnvOrDefault(constants.EnvProxyEnabled, "false")
+	utils.EnvOrDefault(constants.EnvProxyEnabled, "true")
 	utils.EnvOrDefault(constants.EnvProxyDashboardSecure, "false")
 	utils.EnvOrDefault(constants.EnvProxyDashboardAlias, "")
+	utils.EnvOrDefault(constants.EnvLetsEncryptEmail, "")
 
 	logger.Configure()
 	docker.Connect()
@@ -47,7 +48,7 @@ func main() {
 	db := store.Client()
 	defer db.Disconnect()
 
-	// shared job queue for deployment jobs
+	// deployment job queue
 	qsize := utils.UIntEnv(constants.EnvJobQueueSize)
 	queue := job.NewBufferedQueue(qsize)
 
