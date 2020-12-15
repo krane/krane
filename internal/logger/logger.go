@@ -7,14 +7,13 @@ import (
 	"github.com/sirupsen/logrus"
 
 	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/utils"
 )
 
 var once sync.Once
 var l *logrus.Logger
 
 func level() logrus.Level {
-	level, err := logrus.ParseLevel(utils.EnvOrDefault(constants.EnvLogLevel, "info"))
+	level, err := logrus.ParseLevel(os.Getenv(constants.EnvLogLevel))
 	if err != nil {
 		panic(err)
 	}

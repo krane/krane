@@ -1,4 +1,4 @@
-package namespace
+package service
 
 import (
 	"github.com/biensupernice/krane/internal/constants"
@@ -6,8 +6,8 @@ import (
 	"github.com/biensupernice/krane/internal/store"
 )
 
-// Exist : check if a deployment exists
-func Exist(namespace string) bool {
+// DeploymentExist : check if a deployment exists
+func DeploymentExist(deploymentName string) bool {
 	deployments, err := store.Client().GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
 		return false
@@ -19,7 +19,7 @@ func Exist(namespace string) bool {
 			return false
 		}
 
-		if namespace == d.Name {
+		if deploymentName == d.Name {
 			return true
 		}
 	}
