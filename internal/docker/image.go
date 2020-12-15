@@ -15,7 +15,7 @@ func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (er
 
 	options := types.ImagePullOptions{
 		All:          false,
-		RegistryAuth: base64DockerRegistryCredentials(),
+		RegistryAuth: Base64DockerRegistryCredentials(),
 	}
 
 	reader, err := c.ImagePull(ctx, formattedImage, options)

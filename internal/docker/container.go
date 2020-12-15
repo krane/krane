@@ -10,8 +10,6 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/go-connections/nat"
-
-	"github.com/biensupernice/krane/internal/logger"
 )
 
 // CreateContainerConfig : properties required to create a container
@@ -21,7 +19,8 @@ type CreateContainerConfig struct {
 	NetworkID     string
 	Labels        map[string]string
 	Ports         nat.PortMap
-	Volumes       []mount.Mount
+	VolumesMount  []mount.Mount
+	VolumesMap    map[string]struct{}
 	Env           []string // Comma separated, formatted NODE_ENV=dev
 	Command       []string
 	Entrypoint    []string
@@ -33,8 +32,14 @@ func (c *Client) CreateContainer(
 	config CreateContainerConfig,
 ) (container.ContainerCreateCreatedBody, error) {
 	networkingConfig := createNetworkingConfig(config.NetworkID)
-	containerConfig := createContainerConfig(config.ContainerName, config.Image, config.Env, config.Labels, config.Command, config.Entrypoint)
-	hostConfig := createHostConfig(config.Ports, config.Volumes)
+	hostConfig := createHostConfig(config.Ports, config.VolumesMount)
+	containerConfig := createContainerConfig(config.ContainerName,
+		config.Image,
+		config.Env,
+		config.Labels,
+		config.Command,
+		config.Entrypoint,
+		config.VolumesMap)
 
 	return c.ContainerCreate(
 		ctx,
@@ -71,7 +76,7 @@ func (c *Client) GetOneContainer(ctx context.Context, containerId string) (types
 	return c.ContainerInspect(ctx, containerId)
 }
 
-// GetAllContainers : gets all containers on the host machine
+// GetKraneContainers : gets all containers on the host machine
 func (c *Client) GetAllContainers(ctx *context.Context) ([]types.ContainerJSON, error) {
 	options := types.ContainerListOptions{
 		All:   true,
@@ -100,28 +105,6 @@ func (c *Client) GetContainerStatus(ctx context.Context, containerID string, str
 	return c.ContainerStats(ctx, containerID, stream)
 }
 
-// FilterContainersByDeployment : filter containers by deployment
-func (c *Client) FilterContainersByDeployment(deploymentName string) ([]types.ContainerJSON, error) {
-	ctx := context.Background()
-	containers, err := c.GetAllContainers(&ctx)
-	ctx.Done()
-
-	if err != nil {
-		logger.Errorf("Unable to filter container by deployment, %s", err)
-		return make([]types.ContainerJSON, 0), err
-	}
-
-	deploymentContainers := make([]types.ContainerJSON, 0)
-	for _, container := range containers {
-		kraneLabel := container.Config.Labels["TODO"]
-		if kraneLabel == deploymentName {
-			deploymentContainers = append(deploymentContainers, container)
-		}
-	}
-
-	return deploymentContainers, nil
-}
-
 // StreamContainerLogs : stream container logs
 func (c *Client) StreamContainerLogs(ctx *context.Context, containerID string) (reader io.Reader, err error) {
 	options := types.ContainerLogsOptions{
@@ -147,13 +130,14 @@ func createContainerConfig(
 	env []string,
 	labels map[string]string,
 	command []string,
-	entrypoint []string) container.Config {
+	entrypoint []string,
+	volumes map[string]struct{}) container.Config {
 	config := container.Config{
 		Hostname: hostname,
 		Image:    image,
 		Env:      env,
 		Labels:   labels,
-		// TODO: volumes
+		Volumes:  volumes,
 	}
 
 	if len(command) > 0 {
