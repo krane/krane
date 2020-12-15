@@ -11,7 +11,7 @@ import (
 	"github.com/biensupernice/krane/internal/deployment/service"
 )
 
-// ApplyDeployment : create or update a deployment
+// applyDeployment : create or update a deployment
 func ApplyDeployment(w http.ResponseWriter, r *http.Request) {
 	var cfg config.DeploymentConfig
 
@@ -46,6 +46,26 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := service.DeleteDeployment(cfg); err != nil {
+		response.HTTPBad(w, err)
+		return
+	}
+
+	response.HTTPAccepted(w)
+	return
+}
+
+// StopDeployment : stop all containers for a deployment
+func StopDeployment(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	name := params["name"]
+
+	cfg, err := config.GetDeploymentConfig(name)
+	if err != nil {
+		response.HTTPBad(w, err)
+		return
+	}
+
+	if err := service.StopDeployment(cfg); err != nil {
 		response.HTTPBad(w, err)
 		return
 	}

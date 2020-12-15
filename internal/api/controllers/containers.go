@@ -7,12 +7,12 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/biensupernice/krane/internal/api/response"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/deployment/container"
-	"github.com/biensupernice/krane/internal/deployment/namespace"
 )
 
-// GetContainers : gets all containers for a deployment
-func GetContainers(w http.ResponseWriter, r *http.Request) {
+// GetDeploymentContainers : gets all containers for a deployment
+func GetDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
@@ -21,12 +21,12 @@ func GetContainers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !namespace.Exist(name) {
+	if !config.DeploymentExist(name) {
 		response.HTTPBad(w, errors.New("deployment does not exist"))
 		return
 	}
 
-	containers, err := container.GetContainersByDeployment(name)
+	containers, err := container.GetKraneContainersByDeployment(name)
 	if err != nil {
 		response.HTTPBad(w, err)
 		return

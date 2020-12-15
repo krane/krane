@@ -3,11 +3,13 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
 
 	"github.com/biensupernice/krane/internal/api/response"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/secrets"
 )
 
@@ -33,6 +35,11 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 
 	if deploymentName == "" {
 		response.HTTPBad(w, errors.New("deployment name required"))
+		return
+	}
+
+	if !config.DeploymentExist(deploymentName) {
+		response.HTTPBad(w, fmt.Errorf("unable to find namespace %s", deploymentName))
 		return
 	}
 

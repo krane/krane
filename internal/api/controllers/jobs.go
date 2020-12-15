@@ -27,20 +27,20 @@ func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// GetJobsByNamespace : get jobs by deployment namespace
-func GetJobsByNamespace(w http.ResponseWriter, r *http.Request) {
+// GetJobsByDeployment : get jobs by deployment namespace
+func GetJobsByDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	namespace := params["namespace"]
+	deploymentName := params["name"]
 
-	if namespace == "" {
-		response.HTTPBad(w, errors.New("namespace not provided"))
+	if deploymentName == "" {
+		response.HTTPBad(w, errors.New("deployment name not provided"))
 		return
 	}
 
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
-	jobs, err := job.GetJobsByNamespace(namespace, uint(daysAgoNum))
+	jobs, err := job.GetJobsByNamespace(deploymentName, uint(daysAgoNum))
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
@@ -53,11 +53,11 @@ func GetJobsByNamespace(w http.ResponseWriter, r *http.Request) {
 // GetJobByID : get job by id
 func GetJobByID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	namespace := params["namespace"]
+	deploymentName := params["name"]
 	jobID := params["id"]
 
-	if namespace == "" {
-		response.HTTPBad(w, errors.New("namespace not provided"))
+	if deploymentName == "" {
+		response.HTTPBad(w, errors.New("deployment name not provided"))
 		return
 	}
 
@@ -69,7 +69,7 @@ func GetJobByID(w http.ResponseWriter, r *http.Request) {
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "365")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
-	j, err := job.GetJobByID(namespace, jobID, uint(daysAgoNum))
+	j, err := job.GetJobByID(deploymentName, jobID, uint(daysAgoNum))
 	if err != nil {
 		response.HTTPBad(w, err)
 		return

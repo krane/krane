@@ -83,7 +83,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 		ID:        sessionTkn.SessionID,
 		Token:     signedTkn,
 		ExpiresAt: UnixToDate(utils.OneYear),
-		User:      "root",
+		User:      "root", // TODO: handle unique users
 	}
 
 	if err := session.Save(newSession); err != nil {
