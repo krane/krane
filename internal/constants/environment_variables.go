@@ -17,4 +17,5 @@ const (
 	EnvProxyEnabled            = "PROXY_ENABLED"
 	EnvProxyDashboardSecure    = "PROXY_DASHBOARD_SECURE"
 	EnvProxyDashboardAlias     = "PROXY_DASHBOARD_ALIAS"
+	EnvLetsEncryptEmail        = "LETSENCRYPT_EMAIL"
 )
