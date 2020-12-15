@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/biensupernice/krane/internal/constants"
@@ -18,6 +17,9 @@ var deployment = config.DeploymentConfig{
 	Scale:   1,
 	Secured: utils.BoolEnv(constants.EnvProxyDashboardSecure),
 	Alias:   []string{os.Getenv(constants.EnvProxyDashboardAlias)},
+	Env: map[string]string{
+		constants.EnvLetsEncryptEmail: os.Getenv(constants.EnvLetsEncryptEmail),
+	},
 	Volumes: map[string]string{
 		"/var/run/docker.sock": "/var/run/docker.sock",
 	},
@@ -36,10 +38,15 @@ func EnsureNetworkProxy() {
 		return
 	}
 
+	isSecured := utils.BoolEnv(constants.EnvProxyDashboardSecure)
+	if isSecured && os.Getenv(constants.EnvLetsEncryptEmail) == "" {
+		logger.Fatalf("Missing required environment variable %s when running in SECURE mode", constants.EnvLetsEncryptEmail)
+	}
+
 	// get containers (if any) for the proxy deployment
-	containers, err := container.GetContainersByDeployment(deployment.Name)
+	containers, err := container.GetKraneContainersByDeployment(deployment.Name)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to create network proxy, %v", err))
+		logger.Fatalf("Unable to create network proxy, %v", err)
 	}
 
 	// create the proxy if no containers are currently up
@@ -47,7 +54,7 @@ func EnsureNetworkProxy() {
 		err := createProxy()
 		if err != nil {
 			// If we cant create the proxy, exit the program
-			panic(fmt.Sprintf("Unable to create network proxy, %v", err))
+			logger.Fatalf("Unable to create network proxy, %v", err)
 			return
 		}
 		return
@@ -59,7 +66,7 @@ func EnsureNetworkProxy() {
 			err := createProxy()
 			if err != nil {
 				// If we cant create the proxy, exit the program
-				panic(fmt.Sprintf("Unable to create network proxy, %v", err))
+				logger.Fatalf("Unable to create network proxy, %v", err)
 				return
 			}
 			return
