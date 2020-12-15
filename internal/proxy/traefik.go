@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/biensupernice/krane/internal/deployment/config"
-	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/proxy/middlewares"
 )
 
@@ -14,32 +12,7 @@ type TraefikLabel struct {
 	Value string
 }
 
-func CreateTraefikContainerLabels(config config.DeploymentConfig) map[string]string {
-	labels := make(map[string]string, 0)
-
-	// default labels
-	labels["traefik.enable"] = "true"
-	labels["traefik.docker.network"] = docker.KraneNetworkName
-
-	// router labels
-	for k, v := range traefikRouterLabels(config.Name, config.Alias, config.Secured) {
-		labels[k] = v
-	}
-
-	// middleware labels
-	for k, v := range traefikMiddlewareLabels(config.Name, config.Secured) {
-		labels[k] = v
-	}
-
-	// service labels
-	for k, v := range traefikServiceLabels(config.Name, config.Ports) {
-		labels[k] = v
-	}
-
-	return labels
-}
-
-func traefikRouterLabels(namespace string, aliases []string, secured bool) map[string]string {
+func TraefikRouterLabels(namespace string, aliases []string, secured bool) map[string]string {
 	// configure aliases as Host('my-alias.example.com') labels
 	var hostRules bytes.Buffer
 	for i, alias := range aliases {
@@ -77,7 +50,7 @@ func traefikRouterLabels(namespace string, aliases []string, secured bool) map[s
 	return labels
 }
 
-func traefikServiceLabels(namespace string, ports map[string]string) map[string]string {
+func TraefikServiceLabels(namespace string, ports map[string]string) map[string]string {
 	labels := make(map[string]string, 0)
 	for _, containerPort := range ports {
 		labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.port", namespace, containerPort)] = containerPort
@@ -86,7 +59,7 @@ func traefikServiceLabels(namespace string, ports map[string]string) map[string]
 	return labels
 }
 
-func traefikMiddlewareLabels(namespace string, secured bool) map[string]string {
+func TraefikMiddlewareLabels(namespace string, secured bool) map[string]string {
 	labels := make(map[string]string, 0)
 	if secured {
 		// applies http redirect labels to all secure deployments
