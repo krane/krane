@@ -42,7 +42,7 @@ func withBaseMiddlewares(router *mux.Router) {
 	router.Use(handlers.RecoveryHandler())
 	router.Use(handlers.CORS(
 		handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost}),
-		handlers.AllowedOrigins([]string{"*"}))) // TODO: Not allowing wild card origins (*) use envar LISTEN_ADDRESS
+		handlers.AllowedOrigins([]string{"*"}))) // TODO: Not allowing wild card origins (*) maybe use LISTEN_ADDRESS
 }
 
 // withRoutes : configure api routes
@@ -58,15 +58,15 @@ func withRoutes(router *mux.Router) {
 	withRoute(authRouter, "/deployments", controllers.ApplyDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
 	withRoute(authRouter, "/deployments/{name}", controllers.GetDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/deployments/{name}", controllers.DeleteDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodDelete)
-	withRoute(authRouter, "/deployments/{name}/containers", controllers.GetContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/deployments/{name}/containers", controllers.GetDeploymentContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	// secrets
 	withRoute(authRouter, "/secrets/{name}", controllers.GetSecrets, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/secrets/{name}", controllers.CreateSecret, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
 	withRoute(authRouter, "/secrets/{name}/{key}", controllers.DeleteSecret, middlewares.ValidateSessionMiddleware).Methods(http.MethodDelete)
 	// jobs
 	withRoute(authRouter, "/jobs", controllers.GetRecentJobs, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/jobs/{namespace}", controllers.GetJobsByNamespace, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/jobs/{namespace}/{id}", controllers.GetJobByID, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/jobs/{name}", controllers.GetJobsByDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/jobs/{name}/{id}", controllers.GetJobByID, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	// session
 	withRoute(authRouter, "/sessions", controllers.GetSessions, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 }
