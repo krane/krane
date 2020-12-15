@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/docker/docker/api/types"
 	"github.com/pkg/errors"
 
-	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/logger"
@@ -41,8 +40,9 @@ func (s *Scheduler) Run() {
 
 func (s *Scheduler) poll() {
 	logger.Debug("Scheduler polling")
+
 	for _, deployment := range s.deployments() {
-		containers, err := s.docker.FilterContainersByDeployment(deployment.Name)
+		containers, err := container.GetKraneContainersByDeployment(deployment.Name)
 		if err != nil {
 			logger.Error(errors.Wrap(err, "Unhandled error when polling"))
 			continue
@@ -72,27 +72,12 @@ func (s *Scheduler) poll() {
 	logger.Debugf("Next poll in %s", s.interval.String())
 }
 
-func hasDesiredState(kcfg config.DeploymentConfig, containers []types.ContainerJSON) bool {
+func hasDesiredState(kcfg config.DeploymentConfig, containers []container.KraneContainer) bool {
 	// TODO: implementation not defined - always returning true to avoid doing anything
 	return true
 }
 
 func (s *Scheduler) deployments() []config.DeploymentConfig {
-	bytes, err := s.store.GetAll(constants.DeploymentsCollectionName)
-	if err != nil {
-		logger.Errorf("Scheduler error: %s", err)
-		return make([]config.DeploymentConfig, 0)
-	}
-
-	deployments := make([]config.DeploymentConfig, 0)
-	for _, b := range bytes {
-		var d config.DeploymentConfig
-		err := store.Deserialize(b, &d)
-		if err != nil {
-			logger.Errorf("Unable to deserialize krane config", err)
-		}
-
-		deployments = append(deployments, d)
-	}
+	deployments, _ := config.GetAllDeploymentConfigurations()
 	return deployments
 }
