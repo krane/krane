@@ -6,9 +6,8 @@ import (
 	"github.com/biensupernice/krane/internal/logger"
 )
 
-// StartDeployment : starts a deployment
-func StartDeployment(cfg config.DeploymentConfig) error {
-	deploymentJob, err := createDeploymentJob(cfg, Up)
+func applyDeployment(cfg config.DeploymentConfig, action DeploymentAction) error {
+	deploymentJob, err := createDeploymentJob(cfg, action)
 	if err != nil {
 		return err
 	}
@@ -16,17 +15,7 @@ func StartDeployment(cfg config.DeploymentConfig) error {
 	return nil
 }
 
-// DeleteDeployment delete a deployment
-func DeleteDeployment(cfg config.DeploymentConfig) error {
-	deploymentJob, err := createDeploymentJob(cfg, Down)
-	if err != nil {
-		return err
-	}
-	go enqueueDeploymentJob(deploymentJob)
-	return nil
-}
-
-// enqueueDeploymentJob : enqueue a deployment job for processing
+// enqueueDeploymentJob enqueues a deployment job for processing
 func enqueueDeploymentJob(deploymentJob job.Job) {
 	enqueuer := job.NewEnqueuer(job.Queue())
 	queuedJob, err := enqueuer.Enqueue(deploymentJob)
@@ -35,4 +24,19 @@ func enqueueDeploymentJob(deploymentJob job.Job) {
 		return
 	}
 	logger.Debugf("Queued job for %s", queuedJob.Namespace)
+}
+
+// StartDeployment starts a deployments container resources
+func StartDeployment(cfg config.DeploymentConfig) error {
+	return applyDeployment(cfg, CreateContainers)
+}
+
+// DeleteDeployment delete a deployment and its container resources
+func DeleteDeployment(cfg config.DeploymentConfig) error {
+	return applyDeployment(cfg, DeleteContainers)
+}
+
+// StopDeployment stops a deployments container resources
+func StopDeployment(cfg config.DeploymentConfig) error {
+	return applyDeployment(cfg, StopContainers)
 }

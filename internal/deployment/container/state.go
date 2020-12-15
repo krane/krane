@@ -3,7 +3,7 @@ package container
 import "github.com/docker/docker/api/types"
 
 type State struct {
-	Status     string        `json:"status"`
+	Status     string        `json:"status"` // created
 	Running    bool          `json:"running"`
 	Paused     bool          `json:"paused"`
 	Restarting bool          `json:"restarting"`
@@ -17,7 +17,15 @@ type State struct {
 	Health     *types.Health `json:",omitempty"`
 }
 
-// fromDockerStateToKstate :
+type ContainerState string
+
+const (
+	ContainerRunning ContainerState = "running"
+	ContainerStarted ContainerState = "started"
+	ContainerCreated ContainerState = "created"
+)
+
+// fromDockerStateToKstate : map a Docker state to a Krane container State
 func fromDockerStateToKstate(state types.ContainerState) State {
 	return State{
 		Status:     state.Status,

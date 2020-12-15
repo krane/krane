@@ -2,9 +2,6 @@ package container
 
 import (
 	"github.com/docker/docker/api/types"
-	"github.com/docker/docker/api/types/mount"
-
-	"github.com/biensupernice/krane/internal/deployment/config"
 )
 
 type Volume struct {
@@ -13,18 +10,18 @@ type Volume struct {
 }
 
 // fromKcontainerToDockerVolumeMount :
-func fromKcontainerToDockerVolumeMount(volumes []Volume) []mount.Mount {
-	vols := make([]mount.Mount, 0)
-	for _, v := range volumes {
-		vols = append(vols, mount.Mount{
-			Type:   mount.TypeBind,
-			Source: v.HostVolume,
-			Target: v.ContainerVolume,
-		})
-	}
-
-	return vols
-}
+// func fromKcontainerToDockerVolumeMount(volumes []Volume) []mount.Mount {
+// 	vols := make([]mount.Mount, 0)
+// 	for _, v := range volumes {
+// 		vols = append(vols, mount.Mount{
+// 			Type:   mount.TypeBind,
+// 			Source: v.HostVolume,
+// 			Target: v.ContainerVolume,
+// 		})
+// 	}
+//
+// 	return vols
+// }
 
 // fromMountPointToKconfigVolumes :
 func fromMountPointToKconfigVolumes(mounts []types.MountPoint) []Volume {
@@ -39,14 +36,14 @@ func fromMountPointToKconfigVolumes(mounts []types.MountPoint) []Volume {
 }
 
 // fromKconfigToDockerVolumeMount :
-func fromKconfigToDockerVolumeMount(cfg config.DeploymentConfig) []mount.Mount {
-	volumes := make([]mount.Mount, 0)
-	for hostVolume, containerVolume := range cfg.Volumes {
-		volumes = append(volumes, mount.Mount{
-			Type:   mount.TypeBind,
-			Source: hostVolume,
-			Target: containerVolume,
-		})
-	}
-	return volumes
-}
+// func fromKconfigToDockerVolumeMount(cfg config.DeploymentConfig) []mount.Mount {
+// 	volumes := make([]mount.Mount, 0)
+// 	for hostVolume, containerVolume := range cfg.VolumesMount {
+// 		volumes = append(volumes, mount.Mount{
+// 			Type:   mount.TypeBind,
+// 			Source: hostVolume,
+// 			Target: containerVolume,
+// 		})
+// 	}
+// 	return volumes
+// }

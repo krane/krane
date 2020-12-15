@@ -6,13 +6,12 @@ import (
 	"time"
 
 	"github.com/docker/docker/api/types"
-	"github.com/lithammer/shortuuid/v3"
 
 	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
 )
 
-// KraneContainer : custom container representation for Krane managed containers
+// KraneContainer : custom container representation for a Krane managed container
 type KraneContainer struct {
 	ID         string            `json:"id"`
 	Namespace  string            `json:"namespace"`
@@ -29,15 +28,14 @@ type KraneContainer struct {
 	Entrypoint []string          `json:"entrypoint"`
 }
 
-// Create : create docker container
+// Create : create a docker container from a deployment config
 func Create(cfg config.DeploymentConfig) (KraneContainer, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
 	client := docker.GetClient()
 
-	// TODO: add these methods to the deployment config struct
-	mappedConfig := fromKconfigToCreateContainerConfig(cfg)
+	mappedConfig := cfg.DockerConfig()
 	body, err := docker.GetClient().CreateContainer(ctx, mappedConfig)
 	if err != nil {
 		return KraneContainer{}, err
@@ -70,7 +68,7 @@ func (c KraneContainer) Stop() error {
 	return docker.GetClient().StopContainer(ctx, c.ID)
 }
 
-// Remove : remove a KraneContainer
+// Remove : remove a Krane container
 func (c KraneContainer) Remove() error {
 	ctx := context.Background()
 	defer ctx.Done()
@@ -78,7 +76,7 @@ func (c KraneContainer) Remove() error {
 	return docker.GetClient().RemoveContainer(ctx, c.ID, true)
 }
 
-// Ok : checks if the container is in a running state
+// Ok : checks if a Krane container is in a running state
 func (c KraneContainer) Ok() (bool, error) {
 	ctx := context.Background()
 	defer ctx.Done()
@@ -97,12 +95,12 @@ func (c KraneContainer) Ok() (bool, error) {
 
 func (c KraneContainer) toContainer() types.Container { return types.Container{} }
 
-// GetAllContainers : get all containers
-func GetAllContainers(client *docker.Client) ([]KraneContainer, error) {
+// GetKraneContainers : get all krane containers
+func GetKraneContainers() ([]KraneContainer, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	containers, err := client.GetAllContainers(&ctx)
+	containers, err := docker.GetClient().GetAllContainers(&ctx)
 	if err != nil {
 		return make([]KraneContainer, 0), err
 	}
@@ -118,9 +116,9 @@ func GetAllContainers(client *docker.Client) ([]KraneContainer, error) {
 	return kcontainers, nil
 }
 
-// GetContainersByDeployment : get containers filtered by namespace
-func GetContainersByDeployment(namespace string) ([]KraneContainer, error) {
-	allContainers, err := GetAllContainers(docker.GetClient())
+// GetKraneContainersByDeployment : get containers filtered by namespace
+func GetKraneContainersByDeployment(deploymentName string) ([]KraneContainer, error) {
+	allContainers, err := GetKraneContainers()
 	if err != nil {
 		return make([]KraneContainer, 0), err
 	}
@@ -128,7 +126,7 @@ func GetContainersByDeployment(namespace string) ([]KraneContainer, error) {
 	// filter by deployment
 	containers := make([]KraneContainer, 0)
 	for _, container := range allContainers {
-		if namespace == container.Namespace {
+		if deploymentName == container.Namespace {
 			containers = append(containers, container)
 		}
 	}
@@ -136,49 +134,9 @@ func GetContainersByDeployment(namespace string) ([]KraneContainer, error) {
 	return containers, nil
 }
 
-// isKraneManagedContainer : check if a container is a Krane managed container
+// isKraneManagedContainer returns if a container is a Krane managed container
 func isKraneManagedContainer(container types.ContainerJSON) bool {
-	return len(container.Config.Labels[KraneContainerLabel]) > 0
-}
-
-// fromKconfigToCreateContainerConfig :
-func fromKconfigToCreateContainerConfig(cfg config.DeploymentConfig) docker.CreateContainerConfig {
-	ctx := context.Background()
-	defer ctx.Done()
-
-	knetwork, err := docker.GetClient().GetNetworkByName(ctx, docker.KraneNetworkName)
-	if err != nil {
-		return docker.CreateContainerConfig{}
-	}
-
-	envars := fromKconfigDockerEnvList(cfg)
-	labels := fromKconfigToDockerLabelMap(cfg)
-	volumes := fromKconfigToDockerVolumeMount(cfg)
-	ports := fromKconfigToDockerPortMap(cfg)
-
-	var command []string
-	var entrypoint []string
-
-	if cfg.Command != "" {
-		command = append(command, cfg.Command)
-	}
-
-	if cfg.Entrypoint != "" {
-		entrypoint = append(entrypoint, cfg.Entrypoint)
-	}
-
-	containerName := fmt.Sprintf("%s-%s", cfg.Name, shortuuid.New())
-	return docker.CreateContainerConfig{
-		ContainerName: containerName,
-		Image:         cfg.Image,
-		NetworkID:     knetwork.ID,
-		Labels:        labels,
-		Ports:         ports,
-		Volumes:       volumes,
-		Env:           envars,
-		Command:       command,
-		Entrypoint:    entrypoint,
-	}
+	return len(container.Config.Labels[docker.ContainerNamespaceLabel]) > 0
 }
 
 // fromDockerContainerToKcontainer : convert docker container into a KraneContainer
@@ -193,7 +151,7 @@ func fromDockerContainerToKcontainer(container types.ContainerJSON) KraneContain
 
 	return KraneContainer{
 		ID:         container.ID,
-		Namespace:  container.Config.Labels[KraneContainerLabel],
+		Namespace:  container.Config.Labels[docker.ContainerNamespaceLabel],
 		Name:       container.Name,
 		NetworkID:  container.NetworkSettings.Networks[docker.KraneNetworkName].NetworkID,
 		Image:      container.Config.Image,

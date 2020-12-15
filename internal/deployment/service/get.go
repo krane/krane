@@ -9,7 +9,7 @@ import (
 func getCurrentContainers(args job.Args) error {
 	cfg := args.GetArg(DeploymentConfigJobArgName).(config.DeploymentConfig)
 
-	containers, err := container.GetContainersByDeployment(cfg.Name)
+	containers, err := container.GetKraneContainersByDeployment(cfg.Name)
 	if err != nil {
 		return err
 	}

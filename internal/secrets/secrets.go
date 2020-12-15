@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/deployment/namespace"
 	"github.com/biensupernice/krane/internal/store"
 )
 
@@ -25,11 +24,7 @@ func Add(deploymentName, key, value string) (*Secret, error) {
 	if !isValidSecretKey(key) {
 		return &Secret{}, fmt.Errorf("invalid secret name %s", key)
 	}
-
-	if !namespace.Exist(deploymentName) {
-		return nil, fmt.Errorf("unable to find namespace %s", deploymentName)
-	}
-
+	
 	s := &Secret{
 		Namespace: deploymentName,
 		Key:       key,
