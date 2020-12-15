@@ -52,14 +52,15 @@ krane &
 
 The following properties can be set as environment variables when running Krane.
 
-| Env                        | Description                                                        | Required | Default        |
-| -------------------------- | ------------------------------------------------------------------ | -------- | -------------- |
-| KRANE_PRIVATE_KEY          | The private key used by Krane for signing authentication requests. | true     |                |
-| LISTEN_ADDRESS             | Address and port Krane will listen on                              | false    | 127.0.0.1:8500 |
-| LOG_LEVEL                  | Can only be debug\|info\|warn\|error                               | false    | info           |
-| DB_PATH                    | Path to boltdb                                                     | false    | /tmp/krane.db  |
-| DOCKER_BASIC_AUTH_USERNAME | Username used when authenticating with Docker                      | false    |                |
-| DOCKER_BASIC_AUTH_PASSWORD | Password used when authenticating with Docker                      | false    |                |
-| PROXY_ENABLED              | Enable network proxy. `⚠️ When disabled, aliases will not work`    | false    | false          |
-| PROXY_DASHBOARD_SECURE     | Enable HTTPS/TLS on the proxy dashboard                            | false    | false          |
-| PROXY_DASHBOARD_ALIAS      | Alias for the proxy dashboard (ex: `monitor.example.com`)          | false    |                |
+| Env                        | Description                                                                      | Required | Default        |
+| -------------------------- | -------------------------------------------------------------------------------- | -------- | -------------- |
+| KRANE_PRIVATE_KEY          | The private key used by Krane for signing authentication requests.               | true     |                |
+| LISTEN_ADDRESS             | Address and port Krane will listen on                                            | false    | 127.0.0.1:8500 |
+| LOG_LEVEL                  | Can only be debug\|info\|warn\|error                                             | false    | info           |
+| DB_PATH                    | Path to boltdb                                                                   | false    | /tmp/krane.db  |
+| DOCKER_BASIC_AUTH_USERNAME | Username used when authenticating with Docker                                    | false    |                |
+| DOCKER_BASIC_AUTH_PASSWORD | Password used when authenticating with Docker                                    | false    |                |
+| PROXY_ENABLED              | Enable network proxy (When disabled, aliases will not work)                      | false    | true           |
+| PROXY_DASHBOARD_SECURE     | Enable HTTPS/TLS on the proxy dashboard                                          | false    | false          |
+| PROXY_DASHBOARD_ALIAS      | Alias for the proxy dashboard (ex: `monitor.example.com`)                        | false    |                |
+| LETSENCRYPT_EMAIL          | Email used for generating Let's Encrypt TLS certificates (must be a valid email) | false    |                |
