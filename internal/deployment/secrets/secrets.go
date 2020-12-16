@@ -24,7 +24,7 @@ func Add(deploymentName, key, value string) (*Secret, error) {
 	if !isValidSecretKey(key) {
 		return &Secret{}, fmt.Errorf("invalid secret name %s", key)
 	}
-	
+
 	s := &Secret{
 		Namespace: deploymentName,
 		Key:       key,

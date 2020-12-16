@@ -1,7 +1,8 @@
-package config
+package service
 
 import (
 	"github.com/biensupernice/krane/internal/constants"
+	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/store"
 )
 
@@ -13,7 +14,7 @@ func DeploymentExist(deploymentName string) bool {
 	}
 
 	for _, deployment := range deployments {
-		var d DeploymentConfig
+		var d config.DeploymentConfig
 		if err := store.Deserialize(deployment, &d); err != nil {
 			return false
 		}

@@ -7,10 +7,10 @@ import (
 
 	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/deployment/container"
+	"github.com/biensupernice/krane/internal/deployment/secrets"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/secrets"
 )
 
 // createContainerResources : creates a workflow that defines the container creation process

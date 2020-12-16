@@ -3,8 +3,8 @@ package service
 import (
 	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/deployment/container"
+	"github.com/biensupernice/krane/internal/deployment/secrets"
 	"github.com/biensupernice/krane/internal/job"
-	"github.com/biensupernice/krane/internal/secrets"
 )
 
 func deleteContainerResources(args job.Args) error {

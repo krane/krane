@@ -77,17 +77,6 @@ func TestAddNewSecret(t *testing.T) {
 
 }
 
-func TestErrorWhenAddSecretToNonExistingDeployment(t *testing.T) {
-	_, err1 := Add("non-existing-namespace", "TOKEN", "biensupernice")
-	assert.Error(t, err1)
-	assert.Equal(t, "unable to find namespace non-existing-namespace", err1.Error())
-
-	_, err2 := Add("", "TOKEN", "biensupernice")
-	assert.Error(t, err2)
-	assert.Equal(t, "unable to find namespace ", err2.Error())
-
-}
-
 func TestFormatSecretCollectionName(t *testing.T) {
 	collections := []string{"api", "UI", "api-proxy", "messaging_service", "db-container", "app-123-proxy", "123-proxy_api", "aPi_pR0Xy"}
 	for _, collection := range collections {

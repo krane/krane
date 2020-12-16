@@ -14,10 +14,10 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/biensupernice/krane/internal/constants"
+	"github.com/biensupernice/krane/internal/deployment/secrets"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/proxy"
-	"github.com/biensupernice/krane/internal/secrets"
 	"github.com/biensupernice/krane/internal/store"
 )
 

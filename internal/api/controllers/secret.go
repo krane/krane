@@ -9,8 +9,8 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/deployment/config"
-	"github.com/biensupernice/krane/internal/secrets"
+	"github.com/biensupernice/krane/internal/deployment/secrets"
+	"github.com/biensupernice/krane/internal/deployment/service"
 )
 
 // GetSecrets : get deployment secrets
@@ -38,8 +38,8 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !config.DeploymentExist(deploymentName) {
-		response.HTTPBad(w, fmt.Errorf("unable to find namespace %s", deploymentName))
+	if !service.DeploymentExist(deploymentName) {
+		response.HTTPBad(w, fmt.Errorf("unable to find deployment %s", deploymentName))
 		return
 	}
 

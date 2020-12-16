@@ -7,8 +7,8 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/deployment/container"
+	"github.com/biensupernice/krane/internal/deployment/service"
 )
 
 // GetDeploymentContainers : gets all containers for a deployment
@@ -21,7 +21,7 @@ func GetDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !config.DeploymentExist(name) {
+	if !service.DeploymentExist(name) {
 		response.HTTPBad(w, errors.New("deployment does not exist"))
 		return
 	}
