@@ -3,10 +3,8 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/docker/distribution/uuid"
 
@@ -19,7 +17,7 @@ import (
 	"github.com/biensupernice/krane/internal/utils"
 )
 
-// AuthRequest : the payload expected when authenticating with krane
+// AuthRequest : the payload expected when authenticating with Krane
 type AuthRequest struct {
 	RequestID string `json:"request_id" binding:"required"`
 	Token     string `json:"token" binding:"required"`
@@ -44,14 +42,14 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 
 	serverPhrase := string(serverPhraseBytes)
 	if serverPhrase == "" {
-		logger.Debug("Invalid request id")
+		logger.Warn("Invalid request id")
 		response.HTTPBad(w, errors.New("unable to authenticate"))
 		return
 	}
 
 	authKeys := auth.GetAuthorizeKeys()
 	if len(authKeys) == 0 || authKeys[0] == "" {
-		logger.Info("no authorized keys found on the server")
+		logger.Warn("no authorized keys found on the server")
 		response.HTTPBad(w, errors.New("unable to authenticate"))
 		return
 	}
@@ -60,6 +58,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	// the decode it, and use the phrase in the token with the one on the server
 	claims := auth.VerifyAuthTokenWithAuthorizedKeys(authKeys, body.Token)
 	if claims == nil || strings.Compare(serverPhrase, claims.Phrase) != 0 {
+		logger.Warn("no authorized keys found on the server")
 		response.HTTPBad(w, errors.New("invalid token"))
 		return
 	}
@@ -68,13 +67,15 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	// Remove auth data from auth bucket
 	err = store.Client().Remove(constants.AuthenticationCollectionName, body.RequestID)
 	if err != nil {
+		logger.Errorf("unable to remove authentication request %v", err)
 		response.HTTPBad(w, err)
 		return
 	}
 
-	sessionTkn := &session.Token{SessionID: uuid.Generate().String()}
-	signedTkn, err := session.CreateSessionToken(auth.GetServerPrivateKey(), *sessionTkn)
+	sessionTkn := session.Token{SessionID: uuid.Generate().String()}
+	signedTkn, err := session.CreateSessionToken(auth.GetServerPrivateKey(), sessionTkn)
 	if err != nil {
+		logger.Errorf("unable to create session token %v", err)
 		response.HTTPBad(w, err)
 		return
 	}
@@ -82,7 +83,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	newSession := session.Session{
 		ID:        sessionTkn.SessionID,
 		Token:     signedTkn,
-		ExpiresAt: UnixToDate(utils.OneYear),
+		ExpiresAt: utils.UnixToDate(utils.OneYear),
 		User:      "root", // TODO: handle unique users
 	}
 
@@ -93,11 +94,4 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 
 	response.HTTPOk(w, newSession)
 	return
-}
-
-// UnixToDate : format unix date into MM/DD/YYYY
-func UnixToDate(u int64) string {
-	t := time.Unix(u, 0)
-	year, month, day := t.Date()
-	return fmt.Sprintf("%02d/%d/%d", int(month), day, year)
 }

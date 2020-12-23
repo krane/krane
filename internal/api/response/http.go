@@ -15,6 +15,12 @@ func HTTPOk(w http.ResponseWriter, data interface{}) {
 	return
 }
 
+// HTTPNoContent : response with no content 04
+func HTTPNoContent(w http.ResponseWriter) {
+	w.WriteHeader(http.StatusNoContent)
+	return
+}
+
 // HTTPCreated : response with response code 201
 func HTTPCreated(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusCreated)

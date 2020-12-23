@@ -12,12 +12,21 @@ import (
 	"github.com/biensupernice/krane/internal/store"
 )
 
+// LoginResponse : is the response received when you initially want to authenticate.
+// The request_id is a uuid stored for future validation and the phrase is a generated phrased
+// containing that request_id meant to be signed by the clients private key to later be unsigned
+// by the clients public key to establish an authenticated sessions
+type LoginResponse struct {
+	RequestID string `json:"request_id"`
+	Phrase    string `json:"phrase"`
+}
+
 // RequestLoginPhrase : request a preliminary login request for authentication with the krane server.
-// This will return a request id and phrase. The phrase should be encrypted using the clients private auth.
+// This will return a request id and phrase. The phrase should be encrypted using the clients private key.
 // This route does not return a token. You must use /auth and provide the signed phrase.
-func RequestLoginPhrase(w http.ResponseWriter, r *http.Request) {
+func RequestLoginPhrase(w http.ResponseWriter, _ *http.Request) {
 	reqID := uuid.Generate().String()
-	phrase := []byte(fmt.Sprintf("Authenticating with krane %s", reqID))
+	phrase := []byte(fmt.Sprintf("Authenticating with Krane %s", reqID))
 
 	err := store.Client().Put(constants.AuthenticationCollectionName, reqID, phrase)
 	if err != nil {
@@ -33,10 +42,7 @@ func RequestLoginPhrase(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.HTTPOk(w, struct {
-		RequestID string `json:"request_id"`
-		Phrase    string `json:"phrase"`
-	}{
+	response.HTTPOk(w, LoginResponse{
 		RequestID: reqID,
 		Phrase:    string(phrase),
 	})

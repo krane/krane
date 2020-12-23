@@ -43,26 +43,26 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type secretBody struct {
+	type SecretRequest struct {
 		Key   string `json:"key" binding:"required"`
 		Value string `json:"value" binding:"required"`
 	}
 
-	var body secretBody
+	var body SecretRequest
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		response.HTTPBad(w, err)
 		return
 	}
 
-	s, err := secrets.Add(deploymentName, body.Key, body.Value)
+	newSecret, err := secrets.Add(deploymentName, body.Key, body.Value)
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
 	}
 
-	s.Redact()
+	newSecret.Redact()
 
-	response.HTTPOk(w, s)
+	response.HTTPOk(w, newSecret)
 	return
 }
 
@@ -78,7 +78,7 @@ func DeleteSecret(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if key == "" {
-		response.HTTPBad(w, errors.New("key required"))
+		response.HTTPBad(w, errors.New("secret key required"))
 		return
 	}
 
@@ -87,6 +87,6 @@ func DeleteSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response.HTTPOk(w, nil)
+	response.HTTPNoContent(w)
 	return
 }

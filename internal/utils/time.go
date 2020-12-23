@@ -1,9 +1,7 @@
 package utils
 
 import (
-	"crypto/rand"
 	"fmt"
-	"io"
 	"time"
 )
 
@@ -18,12 +16,9 @@ func UTCDateString() string {
 	return t.Format(time.RFC3339)
 }
 
-// MakeIdentifier : create a short unique identifier
-func MakeIdentifier() string {
-	b := make([]byte, 12)
-	_, err := io.ReadFull(rand.Reader, b)
-	if err != nil {
-		return ""
-	}
-	return fmt.Sprintf("%x", b)
+// UnixToDate : format unix date into MM/DD/YYYY
+func UnixToDate(u int64) string {
+	t := time.Unix(u, 0)
+	year, month, day := t.Date()
+	return fmt.Sprintf("%02d/%d/%d", int(month), day, year)
 }

@@ -81,7 +81,7 @@ func createProxy() error {
 		return err
 	}
 
-	if err := service.StartDeployment(deployment); err != nil {
+	if err := service.StartDeploymentContainers(deployment); err != nil {
 		return err
 	}
 

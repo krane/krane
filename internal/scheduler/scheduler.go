@@ -58,7 +58,7 @@ func (s *Scheduler) poll() {
 		_ = json.Unmarshal(bytes, &args)
 
 		job := job.Job{
-			ID:        utils.MakeIdentifier(),
+			ID:        utils.ShortID(),
 			Namespace: deployment.Name,
 			Args:      args,
 			Run: func(args job.Args) error {

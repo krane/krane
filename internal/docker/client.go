@@ -39,6 +39,19 @@ func ClientFromEnv() {
 	return
 }
 
+func Ping() bool {
+	if instance == nil {
+		return false
+	}
+
+	ping, err := instance.Client.Ping(context.Background())
+	if err != nil || ping.APIVersion == "" {
+		return false
+	}
+
+	return true
+}
+
 // EnsureKraneDockerNetwork : ensure the Krane docker network is created
 func EnsureKraneDockerNetwork() {
 	ctx := context.Background()

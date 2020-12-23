@@ -25,7 +25,7 @@ func ApplyDeployment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := service.StartDeployment(cfg); err != nil {
+	if err := service.StartDeploymentContainers(cfg); err != nil {
 		response.HTTPBad(w, err)
 		return
 	}
@@ -54,8 +54,8 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// StopDeployment : stop all containers for a deployment
-func StopDeployment(w http.ResponseWriter, r *http.Request) {
+// StopDeploymentContainers : stop all containers for a deployment
+func StopDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	name := params["name"]
 
@@ -65,7 +65,7 @@ func StopDeployment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := service.StopDeployment(cfg); err != nil {
+	if err := service.StopDeploymentContainers(cfg); err != nil {
 		response.HTTPBad(w, err)
 		return
 	}

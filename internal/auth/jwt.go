@@ -44,16 +44,16 @@ func DecodeJWTToken(signKey string, tknStr string) (jwt.Token, error) {
 	return *tkn, nil
 }
 
-// ParseAuthTokenWithAuthKey : get the claims of a jwt auth token
-func ParseAuthTokenWithAuthKey(pubKey string, tknStr string) (claims jwt.Claims, err error) {
+// DecodeJWT : get the claims of a jwt auth token
+func DecodeJWT(pubKey string, tknStr string) (claims jwt.Claims, err error) {
 
-	// Convert ssh format pub key to rsa pub key
+	// convert ssh format pub key to rsa pub key
 	rsaPubKey, err := DecodePublicKey(pubKey)
 	if err != nil {
 		return
 	}
 
-	// Validate token signed with private key against rsa public key
+	// validate token signed with private key against rsa public key
 	tkn, err := jwt.ParseWithClaims(
 		tknStr,
 		&Claims{},
@@ -66,9 +66,9 @@ func ParseAuthTokenWithAuthKey(pubKey string, tknStr string) (claims jwt.Claims,
 		return
 	}
 
-	// Verify token is still valid and not expired
+	// verify token is still valid and not expired
 	if !tkn.Valid {
-		return nil, errors.New("Invalid token")
+		return nil, fmt.Errorf("token not valid %v", tkn.Claims.Valid())
 	}
 
 	return tkn.Claims, nil
@@ -77,7 +77,7 @@ func ParseAuthTokenWithAuthKey(pubKey string, tknStr string) (claims jwt.Claims,
 // VerifyAuthTokenWithAuthorizedKeys : get auth claims from jwt token using an authorized key from server
 func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *Claims) {
 	for _, key := range keys {
-		c, err := ParseAuthTokenWithAuthKey(key, tkn)
+		c, err := DecodeJWT(key, tkn)
 		if err != nil {
 			logger.Debugf("unable to decode JWT token with server private key %s", err.Error())
 			continue

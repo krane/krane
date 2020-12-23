@@ -28,8 +28,21 @@ func GetAuthorizeKeys() []string {
 	}
 
 	// remove trailing new line from authorized_keys file
-	authKeys := strings.TrimSuffix(string(bytes), "\n")
+	authKeys := strings.Replace(string(bytes), "\n\n", "\n", -1)
 
 	// split the keys on every new line
-	return strings.Split(authKeys, "\n")
+	return split(authKeys)
+}
+
+func split(s string) []string {
+	resp := make([]string, 0)
+
+	all := strings.Split(s, "\n")
+	for _, i := range all {
+		if i != "" {
+			resp = append(resp, i)
+		}
+	}
+
+	return resp
 }

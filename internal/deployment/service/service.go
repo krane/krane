@@ -15,7 +15,7 @@ func applyDeployment(cfg config.DeploymentConfig, action DeploymentAction) error
 	return nil
 }
 
-// enqueueDeploymentJob enqueues a deployment job for processing
+// enqueueDeploymentJob : enqueues a deployment job for processing
 func enqueueDeploymentJob(deploymentJob job.Job) {
 	enqueuer := job.NewEnqueuer(job.Queue())
 	queuedJob, err := enqueuer.Enqueue(deploymentJob)
@@ -26,17 +26,17 @@ func enqueueDeploymentJob(deploymentJob job.Job) {
 	logger.Debugf("Queued job for %s", queuedJob.Namespace)
 }
 
-// StartDeployment starts a deployments container resources
-func StartDeployment(cfg config.DeploymentConfig) error {
+// StartDeploymentContainers : starts a deployments container resources
+func StartDeploymentContainers(cfg config.DeploymentConfig) error {
 	return applyDeployment(cfg, CreateContainers)
 }
 
-// DeleteDeployment delete a deployment and its container resources
+// DeleteDeployment : deletes a deployment and its container resources
 func DeleteDeployment(cfg config.DeploymentConfig) error {
 	return applyDeployment(cfg, DeleteContainers)
 }
 
-// StopDeployment stops a deployments container resources
-func StopDeployment(cfg config.DeploymentConfig) error {
+// StopDeploymentContainers : stops a deployments container resources
+func StopDeploymentContainers(cfg config.DeploymentConfig) error {
 	return applyDeployment(cfg, StopContainers)
 }

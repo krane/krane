@@ -26,7 +26,7 @@ type WorkerPool struct {
 // NewWorkerPool : create a concurrent pool of workers to process Jobs from the queue
 func NewWorkerPool(concurrency uint, jobChannel chan Job, store store.Store) WorkerPool {
 	logger.Debugf("Creating new worker pool with %d worker(s)", concurrency)
-	wpID := utils.MakeIdentifier()
+	wpID := utils.ShortID()
 	wp := WorkerPool{
 		workerPoolID: wpID,
 		concurrency:  concurrency,
