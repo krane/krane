@@ -27,9 +27,9 @@ Krane is a container deployment service that makes it easy to create and manage 
 
 ```
 docker run -d --name=krane \
-    -e KRANE_PRIVATE_KEY='changeme' \
+    -e KRANE_PRIVATE_KEY=changeme \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v ~/.ssh/authorized_keys:/root/.ssh/authorized_keys  \
+    -v ~/.ssh:/root/.ssh  \
     -p 8500:8500 biensupernice/krane
 ```
 

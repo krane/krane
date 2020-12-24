@@ -10,9 +10,9 @@ Run Krane using Docker
 
 ```
 docker run -d --name=krane \
-    -e KRANE_PRIVATE_KEY='changeme' \
-    -v /path/to/authorized_keys:/root/.ssh/authorized_keys  \
+    -e KRANE_PRIVATE_KEY=changeme \
     -v /var/run/docker.sock:/var/run/docker.sock \
+    -v ~/.ssh:/root/.ssh  \
     -p 8500:8500 biensupernice/krane
 ```
 
