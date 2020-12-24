@@ -138,9 +138,10 @@ docker run -d --name=krane \
     -e LOG_LEVEL=debug \
     -e DOCKER_BASIC_AUTH_USERNAME=changeme \
     -e DOCKER_BASIC_AUTH_PASSWORD=changeme \
-    -e PROXY_ENABLED=true
+    -e PROXY_ENABLED=true \
     -e PROXY_DASHBOARD_SECURE=true \
     -e PROXY_DASHBOARD_ALIAS=monitor.example.com \
+    -e LETSENCRYPT_EMAIL=email@example.com \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v ~/.ssh:/root/.ssh  \
     -v /tmp/krane.db:/tmp/krane.db \

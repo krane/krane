@@ -8,6 +8,7 @@ import (
 
 	"github.com/biensupernice/krane/internal/api/response"
 	"github.com/biensupernice/krane/internal/deployment/config"
+	"github.com/biensupernice/krane/internal/deployment/container"
 	"github.com/biensupernice/krane/internal/deployment/service"
 )
 
@@ -31,6 +32,31 @@ func ApplyDeployment(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.HTTPAccepted(w)
+	return
+}
+
+// GetDeploymentContainers : gets all containers for a deployment
+func GetDeploymentContainers(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	name := params["name"]
+
+	if name == "" {
+		response.HTTPBad(w, errors.New("deployment name required"))
+		return
+	}
+
+	if !service.DeploymentExist(name) {
+		response.HTTPBad(w, errors.New("deployment does not exist"))
+		return
+	}
+
+	containers, err := container.GetKraneContainersByDeployment(name)
+	if err != nil {
+		response.HTTPBad(w, err)
+		return
+	}
+
+	response.HTTPOk(w, containers)
 	return
 }
 

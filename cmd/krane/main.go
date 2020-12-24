@@ -18,7 +18,7 @@ import (
 func init() {
 	utils.RequireEnv(constants.EnvKranePrivateKey)
 	utils.EnvOrDefault(constants.EnvLogLevel, "info")
-	utils.EnvOrDefault(constants.EnvListenAddress, "127.0.0.1:8500")
+	utils.EnvOrDefault(constants.EnvListenAddress, "0.0.0.0:8500")
 	utils.EnvOrDefault(constants.EnvDatabasePath, "/tmp/krane.db")
 	utils.EnvOrDefault(constants.EnvWorkerPoolSize, "1")
 	utils.EnvOrDefault(constants.EnvJobQueueSize, "1")

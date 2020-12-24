@@ -59,9 +59,9 @@ func withRoutes(router *mux.Router) {
 	withRoute(authRouter, "/deployments/{name}", controllers.GetDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/deployments/{name}", controllers.DeleteDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodDelete)
 	withRoute(authRouter, "/deployments/{name}/containers", controllers.GetDeploymentContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
-	// withRoute(authRouter, "/deployments/{name}/containers/start", controllers.StartDeploymentContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/deployments/{name}/containers/stop", controllers.StopDeploymentContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
-	// withRoute(authRouter, "/deployments/{name}/containers/restart", controllers.RestartDeploymentContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	// withRoute(authRouter, "/deployments/{name}/containers/start", controllers.StartDeploymentContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
+	withRoute(authRouter, "/deployments/{name}/containers/stop", controllers.StopDeploymentContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
+	// withRoute(authRouter, "/deployments/{name}/containers/restart", controllers.RestartDeploymentContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
 	// secrets
 	withRoute(authRouter, "/secrets/{name}", controllers.GetSecrets, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/secrets/{name}", controllers.CreateSecret, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)

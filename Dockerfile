@@ -4,10 +4,6 @@ ARG VERSION
 
 MAINTAINER biensupernice
 
-ENV KRANE_PRIVATE_KEY=changeme \
-    LOG_LEVEL=ERROR \
-    LISTEN_ADDRESS=0.0.0.0:8500 \
-    DB_PATH=/krane.db
 ENV KRANE_DOWNLOAD_URL=https://github.com/biensupernice/krane/releases/download/${VERSION}/krane_${VERSION}_linux_386.tar.gz
 
 RUN apk add curl ca-certificates
