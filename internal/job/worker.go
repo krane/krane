@@ -1,7 +1,10 @@
 package job
 
 import (
+	"fmt"
 	"os"
+
+	"github.com/pkg/errors"
 
 	"github.com/biensupernice/krane/internal/logger"
 )
@@ -31,7 +34,7 @@ func (w *worker) stop() {
 	return
 }
 
-// loop : a worker will wait in a blocking manner for jobs to come through the job queue.
+// loop will infinitely block for jobs to come through from job queue
 func (w *worker) loop() {
 	logger.Debug("Worker loop started")
 	for {
@@ -41,15 +44,48 @@ func (w *worker) loop() {
 
 			for i := 0; i < int(job.RetryPolicy); i++ {
 				job.Status.ExecutionCount++
-				err := job.Run(job.Args)
-				if err == nil {
-					logger.Debugf("Completed job %s for %s", job.ID, job.Namespace)
-					break
+
+				if job.Setup != nil {
+					logger.Debugf("Setting up job %s", job.ID)
+					if err := job.Setup(job.Args); err != nil {
+						errMsg := errors.Wrap(err, fmt.Sprintf("error executing Setup step"))
+						logger.Error(errMsg)
+						job.WithError(errMsg)
+						job.Status.FailureCount++
+						continue
+					}
 				}
-				logger.Errorf("Error processing job %v", err)
-				job.WithError(err)
-				job.Status.FailureCount++
+
+				if job.Run == nil {
+					logger.Debugf("job %s does not have Run implementation", job.ID)
+					job.WithError(errors.New("job must have a Run implementation"))
+					job.Status.FailureCount++
+					return
+				}
+
+				if err := job.Run(job.Args); err != nil {
+					logger.Debugf("Executing Run fn for job %s", job.ID)
+					errMsg := errors.Wrap(err, fmt.Sprintf("error executing Run step"))
+					logger.Error(errMsg)
+					job.WithError(errMsg)
+					job.Status.FailureCount++
+					continue
+				}
+
+				if job.Finally != nil {
+					logger.Debugf("Executing Finally fn for job %s", job.ID)
+					if err := job.Finally(job.Args); err != nil {
+						errMsg := errors.Wrap(err, fmt.Sprintf("error executing Finally step"))
+						logger.Error(errMsg)
+						job.WithError(errMsg)
+						job.Status.FailureCount++
+						continue
+					}
+				}
+
+				logger.Debugf("Completed job %s", job.ID)
 			}
+
 			job.end()
 		case <-w.quit:
 			logger.Debug("Quitting worker")

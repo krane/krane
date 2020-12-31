@@ -15,48 +15,48 @@ import (
 )
 
 type Job struct {
-	ID          string                 `json:"id"`               // Unique job ID
-	Namespace   string                 `json:"namespace"`        // The namespace used for scoping jobs. This is the same namespace used when fetching secrets.
-	Type        string                 `json:"type"`             // The type of job
-	Status      Status                 `json:"response"`           // The response of the current job with details for execution counts etc..
-	State       State                  `json:"state"`            // Current state of a job (running | complete)
-	StartTime   int64                  `json:"start_time_epoch"` // Job Start time - epoch in seconds since 1970
-	EndTime     int64                  `json:"end_time_epoch"`   // Job end time - epoch in seconds since 1970
-	RetryPolicy uint                   `json:"retry_policy"`     // Job retry policy
-	Args        map[string]interface{} `json:"-"`                // Arguments passed down to the Job Handler
-	Run         GenericHandler         `json:"-"`                // Executor function which receives the Args and returns an error if any
+	ID          string         `json:"id"`               // Unique job ID
+	Deployment  string         `json:"deployment"`       // Deployment used for scoping jobs.
+	Type        string         `json:"type"`             // The type of job
+	Status      Status         `json:"response"`         // The response of the current job with details for execution counts etc..
+	State       State          `json:"state"`            // Current state of a job (running | complete)
+	StartTime   int64          `json:"start_time_epoch"` // Job Start time - epoch in seconds since 1970
+	EndTime     int64          `json:"end_time_epoch"`   // Job end time - epoch in seconds since 1970
+	RetryPolicy uint           `json:"retry_policy"`     // Job retry policy
+	Args        interface{}    `json:"-"`                // Arguments passed down to job handlers
+	Setup       GenericHandler `json:"-"`                // Setup is the initial execution fn for a job typically to setup arguments
+	Run         GenericHandler `json:"-"`                // Run is the main executor fn for a job
+	Finally     GenericHandler `json:"-"`                // Final fn is the final execution fn for a job
 }
 
-// Args : is a shortcut to easily specify arguments for job when enqueueing them.
-type Args map[string]interface{}
+// GenericHandler is a generic job handler that takes in job arguments
+type GenericHandler func(args interface{}) error
 
-// GenericHandler is a job handler without any custom context.
-type GenericHandler func(Args) error
-
-func (job *Job) serialize() ([]byte, error) { return json.Marshal(job) }
+// Serialize a job into bytes
+func (j *Job) Serialize() ([]byte, error) { return json.Marshal(j) }
 
 // Start : Start a job
-func (job *Job) start() {
-	if job.State == Started {
+func (j *Job) start() {
+	if j.State == Started {
 		return
 	}
-	job.StartTime = time.Now().Unix()
-	job.State = Started
+	j.StartTime = time.Now().Unix()
+	j.State = Started
 }
 
-func (job *Job) end() {
-	if job.State != Started {
+func (j *Job) end() {
+	if j.State != Started {
 		return
 	}
-	job.EndTime = time.Now().Unix()
-	job.State = Completed
-	job.save()
+	j.EndTime = time.Now().Unix()
+	j.State = Completed
+	j.save()
 }
 
 // save : store the job
-func (job *Job) save() {
-	collection := getNamespaceCollectionName(job.Namespace)
-	bytes, _ := job.serialize()
+func (j *Job) save() {
+	collection := getDeploymentJobsCollectionName(j.Deployment)
+	bytes, _ := j.Serialize()
 
 	// timestamp(RFC3339) is used as the key for the activity.
 	// This leverages bolts time range scans which is an efficient way of performing lookups
@@ -65,95 +65,73 @@ func (job *Job) save() {
 
 	err := store.Client().Put(collection, timestamp, bytes)
 	if err != nil {
-		logger.Errorf("Unhandled error when inserting job, %s", err)
+		logger.Errorf("Unhandled error when inserting j, %s", err)
 		return
 	}
 }
 
 // CreateCollection : create jobs collection for a deployment
 func CreateCollection(namespace string) error {
-	collection := getNamespaceCollectionName(namespace)
+	collection := getDeploymentJobsCollectionName(namespace)
 	return store.Client().CreateCollection(collection)
 }
 
 // DeleteCollection : delete jobs collection for a deployment
 func DeleteCollection(namespace string) error {
-	collection := getNamespaceCollectionName(namespace)
+	collection := getDeploymentJobsCollectionName(namespace)
 	return store.Client().DeleteCollection(collection)
 }
 
-// validate : validate a job
-func (job *Job) validate() error {
-	if job.ID == "" {
+// validate : validate a jobs configuration
+func (j *Job) validate() error {
+	if j.ID == "" {
 		return fmt.Errorf("job id required")
 	}
 
-	if job.Namespace == "" {
-		return fmt.Errorf("job namespace required")
+	if j.Deployment == "" {
+		return fmt.Errorf("job deployment required")
 	}
 
-	if job.Run == nil {
+	if j.Run == nil {
 		return fmt.Errorf("unknown job handler")
 	}
 
-	maxRetryPolicy := utils.UIntEnv("JOB_MAX_RETRY_POLICY")
-	if job.RetryPolicy > maxRetryPolicy {
-		return fmt.Errorf("retry policy %d exceeds max retry policy %d", job.RetryPolicy, maxRetryPolicy)
+	maxRetryPolicy := utils.UIntEnv(constants.EnvJobMaxRetryPolicy)
+	if j.RetryPolicy > maxRetryPolicy {
+		return fmt.Errorf("retry policy %d exceeds job max retry policy %d", j.RetryPolicy, maxRetryPolicy)
 	}
 
-	// Every job should run under a namespace (the deployment scope).
-	// If a new job being created is not bounded to a namespace an error will be thrown.
-	ok, err := job.hasExistingNamespace()
+	// every job should run under a deployment.
+	// if a new job being created is not bounded to a deployment an error will be thrown.
+	ok, err := j.hasExistingDeployment()
 	if err != nil {
 		return err
 	}
 
 	if !ok {
-		return fmt.Errorf("invalid job, %s", err.Error())
+		return fmt.Errorf("invalid job, %v", err)
 	}
 
 	return nil
 }
 
-func (job *Job) hasExistingNamespace() (bool, error) {
+func (j *Job) hasExistingDeployment() (bool, error) {
 	deployments, err := store.Client().GetAll(constants.DeploymentsCollectionName)
 	if err != nil {
-		return false, fmt.Errorf("invalid job, %s", err.Error())
+		return false, fmt.Errorf("invalid job, %v", err)
 	}
 
 	for _, deployment := range deployments {
 		var d config.DeploymentConfig
-		err := store.Deserialize(deployment, &d)
-		if err != nil {
-			return false, fmt.Errorf("invalid job, %s", err.Error())
+		if err := store.Deserialize(deployment, &d); err != nil {
+			return false, fmt.Errorf("invalid job, %v", err)
 		}
-
-		if job.Namespace == d.Name {
+		if j.Deployment == d.Name {
 			return true, nil
 		}
 	}
 
-	return false, fmt.Errorf("invalid job, namespace %s not found", job.Namespace)
-}
-
-// BoolArg : get the value as a string for a job argument
-func (args Args) StringArg(key string) string {
-	return args[key].(string)
-}
-
-// BoolArg : get the value as a boolean for a job argument
-func (args Args) BoolArg(key string) bool {
-	return args[key].(bool)
-}
-
-// GetArg : get the value for a job argument
-func (args Args) GetArg(key string) interface{} {
-	return args[key]
-}
-
-// SetArgs : set the value for a job argument
-func (j *Job) SetArg(key string, value interface{}) {
-	j.Args[key] = value
+	return false, fmt.Errorf("invalid job, deployment %s not found", j.Deployment)
 }
 
 // GetJobs : get all jobs
@@ -169,7 +147,7 @@ func GetJobs(daysAgo uint) ([]Job, error) {
 	for _, deployment := range deployments {
 
 		// get activity in time range
-		deploymentActivity, err := GetJobsByNamespace(deployment.Name, daysAgo)
+		deploymentActivity, err := GetJobsByDeployment(deployment.Name, daysAgo)
 		if err != nil {
 			return make([]Job, 0), err
 		}
@@ -182,7 +160,7 @@ func GetJobs(daysAgo uint) ([]Job, error) {
 
 // GetJobByID : get a job by id
 func GetJobByID(namespace, id string, daysAgo uint) (Job, error) {
-	jobs, err := GetJobsByNamespace(namespace, daysAgo)
+	jobs, err := GetJobsByDeployment(namespace, daysAgo)
 	if err != nil {
 		return Job{}, fmt.Errorf("unable to find a job with id %s", id)
 	}
@@ -196,14 +174,14 @@ func GetJobByID(namespace, id string, daysAgo uint) (Job, error) {
 	return Job{}, fmt.Errorf("unable to fnd job with id %s", id)
 }
 
-// GetJobs : get all jobs by deployment
-func GetJobsByNamespace(namespace string, daysAgo uint) ([]Job, error) {
+// GetJobs : get all jobs for a deployment
+func GetJobsByDeployment(deployment string, daysAgo uint) ([]Job, error) {
 	// get Start, end time range to get jobs for
 	minDate, maxDate := calculateTimeRange(int(daysAgo))
 
 	// get activity in time range
-	collectionName := getNamespaceCollectionName(namespace)
-	bytes, err := store.Client().GetInRange(collectionName, minDate, maxDate)
+	collection := getDeploymentJobsCollectionName(deployment)
+	bytes, err := store.Client().GetInRange(collection, minDate, maxDate)
 	if err != nil {
 		return make([]Job, 0), err
 	}
@@ -211,11 +189,9 @@ func GetJobsByNamespace(namespace string, daysAgo uint) ([]Job, error) {
 	recentActivity := make([]Job, 0)
 	for _, activityBytes := range bytes {
 		var j Job
-		err := store.Deserialize(activityBytes, &j)
-		if err != nil {
+		if err := store.Deserialize(activityBytes, &j); err != nil {
 			return recentActivity, err
 		}
-
 		recentActivity = append(recentActivity, j)
 	}
 	return recentActivity, nil
@@ -277,8 +253,8 @@ func (njobs nJobs) mergeAndSort() []Job {
 	return result
 }
 
-func getNamespaceCollectionName(namespace string) string {
-	return strings.ToLower(fmt.Sprintf("%s-%s", namespace, constants.JobsCollectionName))
+func getDeploymentJobsCollectionName(deployment string) string {
+	return strings.ToLower(fmt.Sprintf("%s-%s", deployment, constants.JobsCollectionName))
 }
 
 func calculateTimeRange(daysAgo int) (string, string) {

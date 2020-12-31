@@ -33,14 +33,14 @@ func TestWorkflowWithNSteps(t *testing.T) {
 	x := 0
 
 	// Step function used to increment x
-	incX := func(args Args) error {
-		x := args["stepCount"].(*int)
+	incX := func(args interface{}) error {
+		x := args.(map[string]*int)["stepCount"]
 		*x++
 		return nil
 	}
 
 	// argument passed to every Step in the Workflow
-	args := Args{"stepCount": &x}
+	args := map[string]*int{"stepCount": &x}
 
 	wf := NewWorkflow("testSteps", args)
 
@@ -58,13 +58,13 @@ func TestWorkflowWithNSteps(t *testing.T) {
 	err := wf.Start()
 
 	assert.Nil(t, err)
-	assert.Equal(t, stepCount, *args["stepCount"].(*int))
+	assert.Equal(t, stepCount, *args["stepCount"])
 }
 
 func TestWorkflowError(t *testing.T) {
 	wf := NewWorkflow("testWorkflowError", nil)
 
-	step := func(args Args) error {
+	step := func(args interface{}) error {
 		if args == nil {
 			return errors.New("Step args cannot be nil")
 		}

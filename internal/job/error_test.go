@@ -8,7 +8,7 @@ import (
 )
 
 func TestAddErrorsToJob(t *testing.T) {
-	job := Job{Namespace: "test"}
+	job := Job{Deployment: "test"}
 
 	job.WithError(errors.New("unable to pull image"))
 	job.WithError(errors.New("unable to create container"))

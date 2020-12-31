@@ -6,6 +6,6 @@ type Error struct {
 }
 
 // WithError : add an error to a job
-func (job *Job) WithError(err error) {
-	job.Status.Failures = append(job.Status.Failures, Error{job.Status.ExecutionCount, err.Error()})
+func (j *Job) WithError(err error) {
+	j.Status.Failures = append(j.Status.Failures, Error{j.Status.ExecutionCount, err.Error()})
 }

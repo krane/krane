@@ -9,7 +9,6 @@ import (
 
 	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/deployment/config"
-	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/store"
 )
 
@@ -54,12 +53,12 @@ func TestEnqueueNewJobs(t *testing.T) {
 	go func(handler *int) {
 		for i := 0; i < jobCount; i++ {
 			job := Job{
-				ID:        string(i),
-				Namespace: namespace,
-				Type:      "test",
-				Args:      Args{"name": "test"},
-				Run: func(args Args) error {
-					logger.Infof("Job handler called, %v", args)
+				ID:         string(i),
+				Deployment: namespace,
+				Type:       "test",
+				Args:       map[string]string{"name": "test"},
+				Run: func(args interface{}) error {
+					assert.Equal(t, "test", args.(map[string]string)["name"])
 					*handler += 1
 					return nil
 				},
@@ -77,8 +76,8 @@ func TestEnqueueNewJobs(t *testing.T) {
 		j.Run(j.Args)
 		assert.NotNil(t, j)
 		assert.Equal(t, j.ID, string(i))
-		assert.Equal(t, j.Namespace, namespace)
-		assert.Equal(t, j.Args["name"], "test")
+		assert.Equal(t, j.Deployment, namespace)
+		assert.Equal(t, j.Args.(map[string]string)["name"], "test")
 	}
 
 	assert.Equal(t, jobCount, jobHandlerCalls)

@@ -6,7 +6,7 @@ import (
 
 type Workflow struct {
 	name string
-	args Args
+	args interface{}
 	head *Step
 	curr *Step
 }
@@ -18,7 +18,7 @@ type Step struct {
 }
 
 // NewWorkflow : creates a new workflow
-func NewWorkflow(name string, args Args) Workflow {
+func NewWorkflow(name string, args interface{}) Workflow {
 	return Workflow{name: name, args: args}
 }
 
