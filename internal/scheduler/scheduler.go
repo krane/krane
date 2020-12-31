@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/pkg/errors"
@@ -52,22 +51,14 @@ func (s *Scheduler) poll() {
 			continue
 		}
 
-		// Serialize the deployment into a generic interface to pass as args to the Job handler
-		var args map[string]interface{}
-		bytes, _ := deployment.Serialize()
-		_ = json.Unmarshal(bytes, &args)
-
-		job := job.Job{
-			ID:        utils.ShortID(),
-			Namespace: deployment.Name,
-			Args:      args,
-			Run: func(args job.Args) error {
-				logger.Infof("Scheduler Handler: %s", args["name"])
+		go s.enqueuer.Enqueue(job.Job{
+			ID:         utils.ShortID(),
+			Deployment: deployment.Name,
+			Args:       map[string]interface{}{},
+			Run: func(args interface{}) error {
 				return nil
 			},
-		}
-
-		go s.enqueuer.Enqueue(job)
+		})
 	}
 	logger.Debugf("Next poll in %s", s.interval.String())
 }
