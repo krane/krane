@@ -10,21 +10,23 @@ import (
 )
 
 // PullImage : pull docker image from registry
-func (c *Client) PullImage(ctx context.Context, registry, image, tag string) (err error) {
+func (c *Client) PullImage(registry, image, tag string) (err error) {
+	ctx := context.Background()
+	defer ctx.Done()
+
 	formattedImage := formatImageSourceURL(registry, image, tag)
 
 	options := types.ImagePullOptions{
 		All:          false,
 		RegistryAuth: Base64DockerRegistryCredentials(),
 	}
-	
+
 	reader, err := c.ImagePull(ctx, formattedImage, options)
 	if err != nil {
 		return err
 	}
 
-	// TODO: dont output to standard out
-	// send as a deployment event
+	// output to deployment event socket
 	io.Copy(os.Stdout, reader)
 
 	err = reader.Close()

@@ -12,8 +12,8 @@ import (
 	"github.com/docker/go-connections/nat"
 )
 
-// CreateContainerConfig : properties required to create a container
-type CreateContainerConfig struct {
+// DockerConfig properties required to create a docker container
+type DockerConfig struct {
 	ContainerName string
 	Image         string
 	NetworkID     string
@@ -26,11 +26,8 @@ type CreateContainerConfig struct {
 	Entrypoint    []string
 }
 
-// CreateContainer : create a docker container
-func (c *Client) CreateContainer(
-	ctx context.Context,
-	config CreateContainerConfig,
-) (container.ContainerCreateCreatedBody, error) {
+// CreateContainer creates a docker container from a Dcoker config
+func (c *Client) CreateContainer(ctx context.Context, config DockerConfig, ) (container.ContainerCreateCreatedBody, error) {
 	networkingConfig := createNetworkingConfig(config.NetworkID)
 	hostConfig := createHostConfig(config.Ports, config.VolumesMount)
 	containerConfig := createContainerConfig(config.ContainerName,
@@ -50,7 +47,7 @@ func (c *Client) CreateContainer(
 	)
 }
 
-// StartContainer : start a docker container
+// StartContainer starts a docker container
 func (c *Client) StartContainer(ctx context.Context, containerID string) error {
 	options := types.ContainerStartOptions{}
 	return c.ContainerStart(ctx, containerID, options)
@@ -62,7 +59,7 @@ func (c *Client) StopContainer(ctx context.Context, containerID string) error {
 	return c.ContainerStop(ctx, containerID, &timeout)
 }
 
-// RemoveContainer : remove docker container
+// RemoveContainer removes a docker container
 func (c *Client) RemoveContainer(ctx context.Context, containerID string, force bool) error {
 	options := types.ContainerRemoveOptions{
 		RemoveVolumes: true,
@@ -71,7 +68,7 @@ func (c *Client) RemoveContainer(ctx context.Context, containerID string, force 
 	return c.ContainerRemove(ctx, containerID, options)
 }
 
-// GetOneContainer : get one container
+// GetOneContainer returns a docker container if it exists
 func (c *Client) GetOneContainer(ctx context.Context, containerId string) (types.ContainerJSON, error) {
 	return c.ContainerInspect(ctx, containerId)
 }
@@ -89,8 +86,8 @@ func (c *Client) GetAllContainers(ctx *context.Context) ([]types.ContainerJSON, 
 	}
 
 	toJsonContainers := make([]types.ContainerJSON, 0)
-	for _, container := range containers {
-		containerJson, err := c.GetOneContainer(*ctx, container.ID)
+	for _, cc := range containers {
+		containerJson, err := c.GetOneContainer(*ctx, cc.ID)
 		if err != nil {
 			return make([]types.ContainerJSON, 0), err
 		}
@@ -100,12 +97,12 @@ func (c *Client) GetAllContainers(ctx *context.Context) ([]types.ContainerJSON, 
 	return toJsonContainers, nil
 }
 
-// GetContainerStatus : get the response of a container
+// GetContainerStatus returns the status of a docker container if it exists
 func (c *Client) GetContainerStatus(ctx context.Context, containerID string, stream bool) (stats types.ContainerStats, err error) {
 	return c.ContainerStats(ctx, containerID, stream)
 }
 
-// StreamContainerLogs : stream container logs
+// StreamContainerLogs streams container logs into ioReader
 func (c *Client) StreamContainerLogs(ctx *context.Context, containerID string) (reader io.Reader, err error) {
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
@@ -118,7 +115,7 @@ func (c *Client) StreamContainerLogs(ctx *context.Context, containerID string) (
 	return c.ContainerLogs(*ctx, containerID, options)
 }
 
-// ConnectContainerToNetwork : connect a container to a network
+// ConnectContainerToNetwork connects a container to a docker network
 func (c *Client) ConnectContainerToNetwork(ctx *context.Context, networkID string, containerID string) (err error) {
 	config := network.EndpointSettings{NetworkID: networkID}
 	return c.NetworkConnect(*ctx, networkID, containerID, &config)
