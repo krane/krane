@@ -59,6 +59,25 @@ func TraefikServiceLabels(namespace string, ports map[string]string) map[string]
 	return labels
 }
 
+func TraefikServiceLabelsV2(namespace string, ports map[string]string, targetPort string) map[string]string {
+	labels := make(map[string]string, 0)
+
+	if targetPort == "" {
+		for _, containerPort := range ports {
+			labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.port", namespace, containerPort)] = containerPort
+			labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.scheme", namespace, containerPort)] = "http"
+		}
+	}
+
+	if targetPort != "" {
+		labels[fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.port", namespace)] = targetPort
+		labels[fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.scheme", namespace)] = "http"
+		return labels
+	}
+
+	return labels
+}
+
 func TraefikMiddlewareLabels(namespace string, secured bool) map[string]string {
 	labels := make(map[string]string, 0)
 	if secured {
