@@ -1,6 +1,8 @@
 # Deployment Config
 
-Creating a deployment using Krane starts with a **single file**, this file contains the deployment configuration used to create container resources. The deployment configuration can be stored anywhere, when using the [CLI](cli) you'll be referencing the location of this deployment configuration.
+Creating a deployment using Krane starts with a **single file** which contains the configuration used to create container resources.
+
+> A common pattern is to have a `deployment.json` at the root of your project
 
 `deployment.json`
 
@@ -18,34 +20,33 @@ The above **deployment configuration** sets up:
 2. A container running the image **hello-world**
 3. An alias **hello.example.com**
 
-See all deployment configuration [options](deployment-configuration?id=options)
-
-## Options
-
-The different properties you can specificy in a deployment configuration file.
-
-> A common pattern is to have a `deployment.json` at the root of your project
-
-### name
+## name
 
 The name of your deployment.
 
 - required: `yes`
 
-### registry
+## registry
 
-The container registry to use when pulling images.
+The container registry to use for pulling images.
 
 - required: `false`
 - default: `docker.io`
 
-### image
+## image
 
 Image to use for you deployment.
 
 - required: `true`
 
-### ports
+## tag
+
+The tag used when pulling the image.
+
+- required: `false`
+- default: `latest`
+
+## ports
 
 Ports exposed from the container to the host machine.
 
@@ -76,7 +77,29 @@ For example to load-balance a deployment with multiple instances on a specific p
 
 In the above configuration you'll have 3 instances of your deployment load-balanced on port **9000**. See [scale](deployment-configuration?id=scale) for more details on load-balancing.
 
-### env
+## target_port
+
+The target port to load-balance incoming traffic.
+
+> Recommended when a deployment exposes multiple ports
+
+- required: `false`
+
+```json
+{
+  "scale": 3,
+  "target_port": "8080",
+  "ports": {
+    "8080": "8080",
+    "9200": "9200",
+    "27017": "27017"
+  }
+}
+```
+
+In the above configuration, multiple ports are exposed from the host to the container but only port **8080** will be used to load balance incoming traffic - Mongo (27017), Kafka (9200), and its own rest API (8080).
+
+## env
 
 The environment variables passed to the containers part of a deployment.
 
@@ -93,7 +116,7 @@ The environment variables passed to the containers part of a deployment.
 }
 ```
 
-### secrets
+## secrets
 
 Secrets are used when you want to pass sensitive information to your deployments.
 
@@ -110,14 +133,7 @@ Secrets are used when you want to pass sensitive information to your deployments
 }
 ```
 
-### tag
-
-The tag used when pulling the image.
-
-- required: `false`
-- default: `latest`
-
-### volumes
+## volumes
 
 The volumes to mount from the container to the host.
 
@@ -131,7 +147,7 @@ The volumes to mount from the container to the host.
 }
 ```
 
-### alias
+## alias
 
 Entry alias for your deployment.
 
@@ -149,7 +165,7 @@ required: `false`
 }
 ```
 
-### command
+## command
 
 Custom command to start the containers.
 
@@ -161,7 +177,7 @@ Custom command to start the containers.
 }
 ```
 
-### secured
+## secure
 
 Enable HTTPS/TLS communication to your deployment. Certificates are auto-generated via [Let's Encrypt](https://letsencrypt.org/).
 
@@ -170,11 +186,11 @@ Enable HTTPS/TLS communication to your deployment. Certificates are auto-generat
 
 ```json
 {
-  "secured": true
+  "secure": true
 }
 ```
 
-### scale
+## scale
 
 Number of containers created for a deployment. Instances are load-balanced in a [round-robin](https://en.wikipedia.org/wiki/Round-robin_DNS) fashion.
 
@@ -186,5 +202,18 @@ Number of containers created for a deployment. Instances are load-balanced in a 
 ```json
 {
   "scale": 3
+}
+```
+
+## internal
+
+Mark the deployment as internal. Internal deployments are used to differentiate Krane deployments from user deployments. An example of an internal deployment is the krane proxy.
+
+- required: `false`
+- default: `false`
+
+```json
+{
+  "internal": true
 }
 ```
