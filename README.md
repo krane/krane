@@ -18,7 +18,7 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 - Compatible with [localhost](https://en.wikipedia.org/wiki/Localhost)
 - HTTPS/TLS to your containers via [Let's Encrypt](https://letsencrypt.org/)
 - Deployment [aliases](https://www.krane.sh/#/deployment-configuration?id=alias) via [Traefik](https://traefik.io/traefik/)
-- Deployment [secrets](https://www.krane.sh/#/cli?id=secrets) for hiding sensitive environment variables
+- Deployment [secrets](https://www.krane.sh/#/deployment-configuration?id=secrets) for hiding sensitive environment variables
 - Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale) to distribute workload between containers
 - [Self-hosted](#motivation) - Bring your own server (could be a cheap $5 server) and scale if you need
 
