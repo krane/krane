@@ -12,7 +12,7 @@ import (
 	"github.com/biensupernice/krane/internal/utils"
 )
 
-// GetRecentJobs : get jobs within a date range (default is 1d ago)
+// GetRecentJobs returns all deployment jobs within a date range (default is 1d ago)
 func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
@@ -27,10 +27,10 @@ func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// GetJobsByDeployment : get jobs by deployment namespace
+// GetJobsByDeployment returns all jobs within a date range (default is 1d ago)
 func GetJobsByDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	deploymentName := params["name"]
+	deploymentName := params["deployment"]
 
 	if deploymentName == "" {
 		response.HTTPBad(w, errors.New("deployment name not provided"))
@@ -40,7 +40,7 @@ func GetJobsByDeployment(w http.ResponseWriter, r *http.Request) {
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
-	jobs, err := job.GetJobsByNamespace(deploymentName, uint(daysAgoNum))
+	jobs, err := job.GetJobsByDeployment(deploymentName, uint(daysAgoNum))
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
@@ -50,10 +50,10 @@ func GetJobsByDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// GetJobByID : get job by id
+// GetJobByID returns a job by id
 func GetJobByID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	deploymentName := params["name"]
+	deploymentName := params["deployment"]
 	jobID := params["id"]
 
 	if deploymentName == "" {

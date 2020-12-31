@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-// HTTPOk : response with response code 200
+// HTTPOk writes http response code 200
 func HTTPOk(w http.ResponseWriter, data interface{}) {
 	payload, _ := json.Marshal(data)
 
@@ -15,28 +15,36 @@ func HTTPOk(w http.ResponseWriter, data interface{}) {
 	return
 }
 
-// HTTPNoContent : response with no content 04
+// HTTPNoContent writes http response code 204
 func HTTPNoContent(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusNoContent)
 	return
 }
 
-// HTTPCreated : response with response code 201
+// HTTPCreated writes http response code 201
 func HTTPCreated(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusCreated)
 	return
 }
 
-// HTTPAccepted : response with response code 202
+// HTTPAccepted writes http response code 202
 func HTTPAccepted(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusAccepted)
 	return
 }
 
-// HTTPBad : response with code 400
+// HTTPBad writes http response code 400
 func HTTPBad(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusBadRequest)
+	_, _ = w.Write([]byte(err.Error()))
+	return
+}
+
+// HTTPNotFound writes http response code 404
+func HTTPNotFound(w http.ResponseWriter, err error) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNotFound)
 	_, _ = w.Write([]byte(err.Error()))
 	return
 }

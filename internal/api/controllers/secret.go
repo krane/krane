@@ -16,7 +16,7 @@ import (
 // GetSecrets : get deployment secrets
 func GetSecrets(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	deploymentName := params["name"]
+	deploymentName := params["deployment"]
 
 	if deploymentName == "" {
 		response.HTTPBad(w, errors.New("deployment name required"))
@@ -31,7 +31,7 @@ func GetSecrets(w http.ResponseWriter, r *http.Request) {
 // CreateSecret : create a deployment secret
 func CreateSecret(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	deploymentName := params["name"]
+	deploymentName := params["deployment"]
 
 	if deploymentName == "" {
 		response.HTTPBad(w, errors.New("deployment name required"))
@@ -69,7 +69,7 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 // DeleteSecret : delete a deployment secret
 func DeleteSecret(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	deploymentName := params["name"]
+	deploymentName := params["deployment"]
 	key := params["key"]
 
 	if deploymentName == "" {

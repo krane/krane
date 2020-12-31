@@ -9,7 +9,7 @@ import (
 	time "github.com/biensupernice/krane/internal/utils"
 )
 
-// HealthCheck : get Krane server health status
+// HealthCheck returns the health and status of the running Krane instance
 func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	host, _ := os.Hostname()
 	response.HTTPOk(w, struct {

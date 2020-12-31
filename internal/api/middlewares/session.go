@@ -15,7 +15,7 @@ import (
 	"github.com/biensupernice/krane/internal/session"
 )
 
-// ValidateSessionMiddleware : middleware to authenticate a client token against an active session
+// ValidateSessionMiddleware middleware to authenticate a client token against an active session
 func ValidateSessionMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// grab token from headers
@@ -77,21 +77,17 @@ func parseSessionTokenFromJWTClaims(tkn jwt.Token) (session.Token, error) {
 	return sessionTkn, nil
 }
 
-// Parse JWT token. Returns the type and value of the token
-func parseToken(tkn string) (string, string) {
+// parseToken returns the type and value of a jwt token
+func parseToken(tkn string) (tokenType string, tokenValue string) {
 	if tkn == "" {
 		logger.Error(errors.New("No token provided"))
 		return "", ""
 	}
-
 	splitTkn := strings.Split(tkn, " ")
-
-	tknType := splitTkn[0]
-	tknValue := splitTkn[1]
-	return tknType, tknValue
+	return splitTkn[0], splitTkn[1]
 }
 
-// Check if token is a well formatter Bearer token
+// isValidTokenFormat checks if a token is a well formatted Bearer token
 func isValidTokenFormat(tkn string) bool {
 	if tkn == "" {
 		return false
@@ -100,11 +96,12 @@ func isValidTokenFormat(tkn string) bool {
 	// split on the space of the token ex. Bearer XXXXX
 	splitTkn := strings.Split(tkn, " ")
 
-	jwtTknType := splitTkn[0] // Bearer
+	// grab the token type (should be Bearer)
+	tknType := splitTkn[0]
 
-	// check token is a bearer token
-	if strings.Compare(jwtTknType, "Bearer") != 0 {
-		logger.Debugf("Not a `Bearer` token, token type is %s", jwtTknType)
+	// check if token is a bearer token
+	if strings.Compare(tknType, "Bearer") != 0 {
+		logger.Infof("Token %s is not a Bearer token", tknType)
 		return false
 	}
 
