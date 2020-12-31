@@ -163,13 +163,13 @@ func (cfg DeploymentConfig) validateDeploymentName() bool {
 }
 
 // DockerConfig: returns the configuration for creating a docker container
-func (cfg DeploymentConfig) DockerConfig() docker.CreateContainerConfig {
+func (cfg DeploymentConfig) DockerConfig() docker.DockerConfig {
 	ctx := context.Background()
 	defer ctx.Done()
 
 	kraneNetwork, err := docker.GetClient().GetNetworkByName(ctx, docker.KraneNetworkName)
 	if err != nil {
-		return docker.CreateContainerConfig{}
+		return docker.DockerConfig{}
 	}
 
 	var command []string
@@ -184,13 +184,13 @@ func (cfg DeploymentConfig) DockerConfig() docker.CreateContainerConfig {
 	}
 
 	containerName := fmt.Sprintf("%s-%s", cfg.Name, shortuuid.New())
-	return docker.CreateContainerConfig{
+	return docker.DockerConfig{
 		ContainerName: containerName,
 		Image:         cfg.Image,
 		NetworkID:     kraneNetwork.ID,
 		Labels:        cfg.DockerLabels(),
 		Ports:         cfg.DockerPorts(),
-		VolumesMount:  cfg.DockerVolumesMount(),
+		VolumesMount:  cfg.DockerVolumeMount(),
 		VolumesMap:    cfg.DockerVolumesMap(),
 		Env:           cfg.DockerEnvs(),
 		Command:       command,
@@ -220,8 +220,8 @@ func (cfg DeploymentConfig) DockerEnvs() []string {
 	return envs
 }
 
-// DockerVolumesMount : returns a list of formatted Docker volume mounts
-func (cfg DeploymentConfig) DockerVolumesMount() []mount.Mount {
+// DockerVolumeMount : returns a list of formatted Docker volume mounts
+func (cfg DeploymentConfig) DockerVolumeMount() []mount.Mount {
 	volumes := make([]mount.Mount, 0)
 	for hostVolume, containerVolume := range cfg.Volumes {
 		volumes = append(volumes, mount.Mount{
@@ -233,7 +233,7 @@ func (cfg DeploymentConfig) DockerVolumesMount() []mount.Mount {
 	return volumes
 }
 
-// DockerVolumesMap : returns a map of a formatted Docker volume map
+// DockerVolumeSet : returns a map of a formatted Docker volume map
 func (cfg DeploymentConfig) DockerVolumesMap() map[string]struct{} {
 	volumes := make(map[string]struct{}, 0)
 	for _, containerVolume := range cfg.Volumes {

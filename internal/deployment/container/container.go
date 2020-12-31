@@ -9,6 +9,7 @@ import (
 
 	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/docker"
+	"github.com/biensupernice/krane/internal/job"
 )
 
 // KraneContainer : custom container representation for a Krane managed container
@@ -26,6 +27,35 @@ type KraneContainer struct {
 	Volumes    []Volume          `json:"volumes"`
 	Command    []string          `json:"command"`
 	Entrypoint []string          `json:"entrypoint"`
+}
+
+type ContainerProvider interface {
+	CreateContainers() (job.Job, error)
+	StartContainers() (job.Job, error)
+	StopContainers() (job.Job, error)
+	DeleteContainers() (job.Job, error)
+	RestartContainers() (job.Job, error)
+}
+
+type DockerDeployment struct {
+	Config     config.DeploymentConfig
+	containers []KraneContainer
+}
+
+func (d DockerDeployment) StartContainers() (job.Job, error) {
+	return job.Job{}, nil
+}
+
+func (d DockerDeployment) StopContainers() (job.Job, error) {
+	return job.Job{}, nil
+}
+
+func (d DockerDeployment) DeleteContainers() (job.Job, error) {
+	return job.Job{}, nil
+}
+
+func (d DockerDeployment) RestartContainers() (job.Job, error) {
+	return job.Job{}, nil
 }
 
 // Create : create a docker container from a deployment config
@@ -76,8 +106,8 @@ func (c KraneContainer) Remove() error {
 	return docker.GetClient().RemoveContainer(ctx, c.ID, true)
 }
 
-// Ok : checks if a Krane container is in a running state
-func (c KraneContainer) Ok() (bool, error) {
+// Running returns whether container is in a running state
+func (c KraneContainer) Running() (bool, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
@@ -86,11 +116,12 @@ func (c KraneContainer) Ok() (bool, error) {
 		return false, err
 	}
 
-	if !resp.State.Running {
-		return false, fmt.Errorf("container %s is not in running state", c.ID)
+	if resp.State.Running {
+		return true, nil
 	}
 
-	return true, nil
+	return false, fmt.Errorf("container %s is not in running state", c.ID)
+
 }
 
 func (c KraneContainer) toContainer() types.Container { return types.Container{} }
