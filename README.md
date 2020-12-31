@@ -6,7 +6,7 @@
 
 > ⚠️ Currently under construction
 
-Krane is a container deployment service that makes it easy to create and manage small development workloads. Krane sits on any server and interfaces with Docker exposing a productive toolset for managing containers. The Krane [CLI](https://www.krane.sh/#/cli) allows you to automate or deploy application resources from anywhere.
+Krane makes it easy to deploy containers for development workloads on remote or local servers. Krane interfaces with Docker exposing a productive toolset for managing containerized services known as deployments. The Krane [CLI](https://www.krane.sh/#/cli) allows you to interact with Krane to create, manage and automate deployments.
 
 - **Documentation:** https://krane.sh
 - **Releases:** https://github.com/biensupernice/krane/releases
@@ -15,11 +15,12 @@ Krane is a container deployment service that makes it easy to create and manage 
 ## Features
 
 - Single file deployments
-- Provides HTTPS/TLS to your containers via [Let's Encrypt](https://letsencrypt.org/)
-- Deployment [secrets](https://www.krane.sh/#/cli?id=secrets)
-- Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale)
-- Round Robin load-balancing provided by [Traefik](https://doc.traefik.io/traefik/routing/services/#load-balancing)
-- [Self-hosted](#motivation) - Bring your own hardware (could be a cheap $5 machine) and scale if you need
+- Compatible with [localhost](https://en.wikipedia.org/wiki/Localhost)
+- HTTPS/TLS to your containers via [Let's Encrypt](https://letsencrypt.org/)
+- Deployment [aliases](https://www.krane.sh/#/deployment-configuration?id=alias) via [Traefik](https://traefik.io/traefik/)
+- Deployment [secrets](https://www.krane.sh/#/cli?id=secrets) for hiding sensitive environment variables
+- Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale) to distribute workload between containers
+- [Self-hosted](#motivation) - Bring your own server (could be a cheap $5 server) and scale if you need
 
 ## Getting Started
 
@@ -29,7 +30,7 @@ Krane is a container deployment service that makes it easy to create and manage 
 docker run -d --name=krane \
     -e KRANE_PRIVATE_KEY=changeme \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v ~/.ssh:/root/.ssh  \
+    -v ~/.ssh:/root/.ssh \
     -p 8500:8500 biensupernice/krane
 ```
 
@@ -53,11 +54,11 @@ Create public and private keys used for authentication.
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
 ```
 
-The private key is kept on the user's machine, the public key is stored where Krane is running and appended to `~/.ssh/authorized_keys`
+The private key stays on the user's machine, the public key is appended to `~/.ssh/authorized_keys` where Krane is running.
 
 [![Authenticate](./docs/assets/4-authentication.png)](https://www.krane.sh/#/cli?id=authenticating)
 
-When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated successfully you'll be able to execute any command on that Krane instance.
+When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated you'll be able to execute commands on that Krane instance.
 
 To switch between Krane instances you'll have to login again.
 
