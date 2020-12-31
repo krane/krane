@@ -97,7 +97,7 @@ The target port to load-balance incoming traffic.
 }
 ```
 
-In the above configuration, multiple ports are exposed from the host to the container but only port **8080** will be used to load balance incoming traffic - Mongo (27017), Kafka (9200), and its own rest API (8080).
+In the above configuration, multiple ports are exposed from the host to the container but only port **8080** will be used to load balance incoming traffic.
 
 ## env
 
