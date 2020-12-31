@@ -167,7 +167,7 @@ func (cfg DeploymentConfig) DockerConfig() docker.DockerConfig {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	kraneNetwork, err := docker.GetClient().GetNetworkByName(ctx, docker.KraneNetworkName)
+	kraneNetwork, err := docker.GetClient().GetNetworkByName(docker.KraneNetworkName)
 	if err != nil {
 		return docker.DockerConfig{}
 	}
