@@ -12,7 +12,7 @@ type TraefikLabel struct {
 	Value string
 }
 
-func TraefikRouterLabels(namespace string, aliases []string, secured bool) map[string]string {
+func TraefikRouterLabels(namespace string, aliases []string, secure bool) map[string]string {
 	// configure aliases as Host('my-alias.example.com') labels
 	var hostRules bytes.Buffer
 	for i, alias := range aliases {
@@ -37,7 +37,7 @@ func TraefikRouterLabels(namespace string, aliases []string, secured bool) map[s
 	}
 	labels[fmt.Sprintf("traefik.http.routers.%s-insecure.entrypoints", namespace)] = "web"
 
-	if secured {
+	if secure {
 		// https
 		labels[fmt.Sprintf("traefik.http.routers.%s-secure.tls", namespace)] = "true"
 		labels[fmt.Sprintf("traefik.http.routers.%s-secure.entrypoints", namespace)] = "web-secure"

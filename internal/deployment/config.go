@@ -191,8 +191,8 @@ func (config Config) DockerConfig() docker.DockerConfig {
 		NetworkID:     kraneNetwork.ID,
 		Labels:        config.DockerLabels(),
 		Ports:         config.DockerPorts(),
-		VolumesMount:  config.DockerVolumeMount(),
-		VolumesMap:    config.DockerVolumeSet(),
+		VolumeMounts:  config.DockerVolumeMount(),
+		VolumeSet:     config.DockerVolumeSet(),
 		Env:           config.DockerEnvs(),
 		Command:       command,
 		Entrypoint:    entrypoint,
@@ -231,7 +231,7 @@ func (config Config) DockerLabels() map[string]string {
 
 // ApplyProxyLabels applies network labels to a deployment config
 func (config Config) ApplyProxyLabels() {
-	// default labels
+	// default traefik labels
 	config.Labels["traefik.enable"] = "true"
 	config.Labels["traefik.docker.network"] = docker.KraneNetworkName
 

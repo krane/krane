@@ -42,7 +42,7 @@ func EnsureNetworkProxy() {
 
 	leEmail := os.Getenv(constants.EnvLetsEncryptEmail)
 	if config.Secure && leEmail == "" {
-		logger.Fatalf("Missing required environment variable %s when running in SECURED mode", constants.EnvLetsEncryptEmail)
+		logger.Fatalf("Missing required environment variable %s when running in SECURE mode", constants.EnvLetsEncryptEmail)
 	}
 
 	// get containers (if any) for the proxy deployment

@@ -39,12 +39,12 @@ func fromPortMapToPortList(pMap nat.PortMap) []Port {
 
 // findFreePort returns a free port on the host machine
 func findFreePort() (string, error) {
-	addr, err := net.ResolveTCPAddr("tcp", "localhost:0")
+	addr, err := net.ResolveTCPAddr(string(TCP), "localhost:0")
 	if err != nil {
 		return "", err
 	}
 
-	listener, err := net.ListenTCP("tcp", addr)
+	listener, err := net.ListenTCP(string(TCP), addr)
 	if err != nil {
 		return "", err
 	}

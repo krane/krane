@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -21,13 +22,18 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	d, err := deployment.GetDeploymentConfig(deploymentName)
+	if !deployment.Exist(deploymentName) {
+		response.HTTPBad(w, fmt.Errorf("deployment %s does not exist", deploymentName))
+		return
+	}
+
+	deploymentConfig, err := deployment.GetDeploymentConfig(deploymentName)
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
 	}
 
-	response.HTTPOk(w, d)
+	response.HTTPOk(w, deploymentConfig)
 	return
 }
 
@@ -71,6 +77,11 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !deployment.Exist(deploymentName) {
+		response.HTTPBad(w, fmt.Errorf("deployment %s does not exist", deploymentName))
+		return
+	}
+
 	if err := deployment.Delete(deploymentName); err != nil {
 		response.HTTPBad(w, err)
 		return
@@ -86,6 +97,11 @@ func RunDeployment(w http.ResponseWriter, r *http.Request) {
 
 	if deploymentName == "" {
 		response.HTTPBad(w, errors.New("deployment name not provided"))
+		return
+	}
+
+	if !deployment.Exist(deploymentName) {
+		response.HTTPBad(w, fmt.Errorf("deployment %s does not exist", deploymentName))
 		return
 	}
 
@@ -109,7 +125,7 @@ func GetDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !deployment.Exist(deploymentName) {
-		response.HTTPBad(w, errors.New("deployment does not exist"))
+		response.HTTPBad(w, fmt.Errorf("deployment %s does not exist", deploymentName))
 		return
 	}
 
@@ -120,5 +136,80 @@ func GetDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.HTTPOk(w, containers)
+	return
+}
+
+// StartDeploymentContainers starts all containers (if any) for a deployment
+// Note: this does not create any containers, only start already existing ones
+func StartDeploymentContainers(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	deploymentName := params["deployment"]
+
+	if deploymentName == "" {
+		response.HTTPBad(w, errors.New("deployment name not provided"))
+		return
+	}
+
+	if !deployment.Exist(deploymentName) {
+		response.HTTPBad(w, fmt.Errorf("deployment %s does not exist", deploymentName))
+		return
+	}
+
+	if err := deployment.StartContainers(deploymentName); err != nil {
+		response.HTTPBad(w, err)
+		return
+	}
+
+	response.HTTPAccepted(w)
+	return
+}
+
+// StopDeploymentContainers stops all containers (if any) for a deployment
+// Note: this does not create any containers, only stops already existing ones
+func StopDeploymentContainers(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	deploymentName := params["deployment"]
+
+	if deploymentName == "" {
+		response.HTTPBad(w, errors.New("deployment name not provided"))
+		return
+	}
+
+	if !deployment.Exist(deploymentName) {
+		response.HTTPBad(w, fmt.Errorf("deployment %s does not exist", deploymentName))
+		return
+	}
+
+	if err := deployment.StopContainers(deploymentName); err != nil {
+		response.HTTPBad(w, err)
+		return
+	}
+
+	response.HTTPAccepted(w)
+	return
+}
+
+// RestartDeploymentContainers re-creates all containers for a deployment
+// Note: this is the same as calling /deployments/{deployment} since both re-create container resources
+func RestartDeploymentContainers(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	deploymentName := params["deployment"]
+
+	if deploymentName == "" {
+		response.HTTPBad(w, errors.New("deployment name not provided"))
+		return
+	}
+
+	if !deployment.Exist(deploymentName) {
+		response.HTTPBad(w, fmt.Errorf("deployment %s does not exist", deploymentName))
+		return
+	}
+
+	if err := deployment.RestartContainers(deploymentName); err != nil {
+		response.HTTPBad(w, err)
+		return
+	}
+
+	response.HTTPAccepted(w)
 	return
 }

@@ -56,8 +56,6 @@ func ContainerCreate(config Config) (KraneContainer, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	client := docker.GetClient()
-
 	mappedConfig := config.DockerConfig()
 	body, err := docker.GetClient().CreateContainer(ctx, mappedConfig)
 	if err != nil {
@@ -66,7 +64,7 @@ func ContainerCreate(config Config) (KraneContainer, error) {
 
 	// the response from creating a container doesnt provide enough information
 	// about the resources it created, we need to inspect the containers for full details
-	json, err := client.GetOneContainer(ctx, body.ID)
+	json, err := docker.GetClient().GetOneContainer(ctx, body.ID)
 	if err != nil {
 		return KraneContainer{}, err
 	}
@@ -79,8 +77,15 @@ func (c KraneContainer) Start() error {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	client := docker.GetClient()
-	return client.StartContainer(ctx, c.ID)
+	return docker.GetClient().StartContainer(ctx, c.ID)
+}
+
+// Stops stops a Krane managed Docker Container
+func (c KraneContainer) Stop() error {
+	ctx := context.Background()
+	defer ctx.Done()
+
+	return docker.GetClient().StopContainer(ctx, c.ID)
 }
 
 // Remove removes a Krane managed Docker container

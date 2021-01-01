@@ -38,7 +38,7 @@ func fromMountPointToKconfigVolumes(mounts []types.MountPoint) []Volume {
 // fromKconfigToDockerVolumeMount :
 // func fromKconfigToDockerVolumeMount(cfg config.DeploymentConfig) []mount.Mount {
 // 	volumes := make([]mount.Mount, 0)
-// 	for hostVolume, containerVolume := range cfg.VolumesMount {
+// 	for hostVolume, containerVolume := range cfg.VolumeMounts {
 // 		volumes = append(volumes, mount.Mount{
 // 			Type:   mount.TypeBind,
 // 			Source: hostVolume,

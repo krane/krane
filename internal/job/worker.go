@@ -64,7 +64,7 @@ func (w *worker) loop() {
 				}
 
 				if err := job.Run(job.Args); err != nil {
-					logger.Debugf("Executing Run fn for job %s", job.ID)
+					logger.Debugf("Running main job %s execution", job.ID)
 					errMsg := errors.Wrap(err, fmt.Sprintf("error executing Run step"))
 					logger.Error(errMsg)
 					job.WithError(errMsg)
@@ -73,7 +73,7 @@ func (w *worker) loop() {
 				}
 
 				if job.Finally != nil {
-					logger.Debugf("Executing Finally fn for job %s", job.ID)
+					logger.Debugf("Tearing down job %s", job.ID)
 					if err := job.Finally(job.Args); err != nil {
 						errMsg := errors.Wrap(err, fmt.Sprintf("error executing Finally step"))
 						logger.Error(errMsg)

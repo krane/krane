@@ -17,7 +17,7 @@ import (
 type Job struct {
 	ID          string         `json:"id"`               // Unique job ID
 	Deployment  string         `json:"deployment"`       // Deployment used for scoping jobs.
-	Type        string         `json:"type"`             // The type of job
+	Type        string         `json:"type"`             // The type of job; Generic to allow for open types of jobs to be executed
 	Status      Status         `json:"response"`         // The response of the current job with details for execution counts etc..
 	State       State          `json:"state"`            // Current state of a job (running | complete)
 	StartTime   int64          `json:"start_time_epoch"` // Job Start time - epoch in seconds since 1970
