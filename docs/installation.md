@@ -1,8 +1,8 @@
 # Installation
 
-Krane should be installed on a machine running Docker
+Krane should be installed on a machine that has Docker running.
 
-> Tip: If you're not sure if Docker is running, run `docker -v` and verify the output (ex: `Docker version 19.03.13, build 4484c46d9d`)
+> Tip: If you're not sure if Docker is running, run `docker -v` and verify the output
 
 ## Docker
 
@@ -25,7 +25,7 @@ Run Krane using the executable for Linux
 export KRANE_PRIVATE_KEY=changeme
 
 # install the executable
-curl -L linux.krane.sh | tar xz && chmod +x krane
+curl -L https://github.com/biensupernice/krane/releases/download/${KRANE_VERSION}/krane_${KRANE_VERSION}_linux_386.tar.gz | tar xz && chmod +x krane
 
 # run the executable
 krane &
@@ -40,7 +40,7 @@ Run Krane using the executable for Mac
 export KRANE_PRIVATE_KEY=changeme
 
 # install the executable
-curl -L mac.krane.sh | tar xz && chmod +x krane
+curl -L https://github.com/biensupernice/krane/releases/download/${KRANE_VERSION}/krane_${KRANE_VERSION}_darwin_amd64.tar.gz | tar xz && chmod +x krane
 
 # run the executable
 krane &
