@@ -40,7 +40,7 @@ krane login
 
 ### login
 
-Authenticate with Krane
+Authenticate with a Krane instance.
 
 ```
 krane login
@@ -48,7 +48,7 @@ krane login
 
 ### delete
 
-Delete a deployment
+Delete a deployment.
 
 ```
 krane delete <deployment>
@@ -56,7 +56,7 @@ krane delete <deployment>
 
 ### describe
 
-Describe a deployment. This provides details on the containers part of the deployment
+Describe a deployment in detail. This provides details on the containers part of the deployment.
 
 ```
 krane describe <deployment>
@@ -64,7 +64,7 @@ krane describe <deployment>
 
 ### deploy
 
-Create or update a deployment
+Create or run a deployment.
 
 ```
 krane deploy -f </path/to/deployment.json>
@@ -80,28 +80,52 @@ Flags:
 
 ### list
 
-List all deployments
+List all deployments.
 
 ```
 krane list
 ```
 
+### start
+
+Start all containers for a deployment. This command will not *create* containers, only start any stopped containers.
+
+```
+krane start <deployment>
+```
+
+### stop
+
+Stop all containers for a deployment.
+
+```
+krane stop <deployment>
+```
+
+### restart
+
+Restart a deployment *re-creating* container resources.
+
+```
+krane restart <deployment>
+```
+
 ### secrets
 
-List all deployment secrets
+List all deployment secrets.
 
 ```
 krane secrets list <deployment>
 ```
 
-Add a deployment secret
+Add a deployment secret.
 
 ```
-krane secrets add <deployment> -k <key> -v <value>
+krane secrets add <deployment> -k=<key> -v=<value>
 ```
 
-Delete a deployment secret
+Delete a deployment secret.
 
 ```
-krane secrets delete <deployment> -k <key>
+krane secrets delete <deployment> -k=<key>
 ```
