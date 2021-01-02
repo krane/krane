@@ -6,10 +6,23 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/network"
+
+	"github.com/biensupernice/krane/internal/logger"
 )
 
 // KraneNetworkName is the network used for Krane containers
 const KraneNetworkName = "krane"
+
+// EnsureKraneDockerNetwork ensure the Krane docker network is created
+func EnsureKraneDockerNetwork() {
+	ctx := context.Background()
+	defer ctx.Done()
+
+	_, err := instance.CreateBridgeNetwork(&ctx, KraneNetworkName)
+	if err != nil {
+		logger.Fatalf("Unable to create Krane network, %v", err)
+	}
+}
 
 // CreateBridgeNetwork creates a docker bridge network
 func (c *Client) CreateBridgeNetwork(ctx *context.Context, name string) (types.NetworkCreateResponse, error) {

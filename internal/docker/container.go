@@ -27,7 +27,7 @@ type DockerConfig struct {
 }
 
 // CreateContainer creates a docker container from a Dcoker config
-func (c *Client) CreateContainer(ctx context.Context, config DockerConfig, ) (container.ContainerCreateCreatedBody, error) {
+func (c *Client) CreateContainer(ctx context.Context, config DockerConfig) (container.ContainerCreateCreatedBody, error) {
 	networkingConfig := createNetworkingConfig(config.NetworkID)
 	hostConfig := createHostConfig(config.Ports, config.VolumeMounts)
 	containerConfig := createContainerConfig(config.ContainerName,

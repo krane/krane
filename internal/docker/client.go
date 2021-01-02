@@ -39,6 +39,7 @@ func ClientFromEnv() {
 	return
 }
 
+// Ping returns true if the Docker client is actively running
 func Ping() bool {
 	if instance == nil {
 		return false
@@ -50,15 +51,4 @@ func Ping() bool {
 	}
 
 	return true
-}
-
-// EnsureKraneDockerNetwork : ensure the Krane docker network is created
-func EnsureKraneDockerNetwork() {
-	ctx := context.Background()
-	defer ctx.Done()
-
-	_, err := instance.CreateBridgeNetwork(&ctx, KraneNetworkName)
-	if err != nil {
-		logger.Fatalf("Unable to create Krane network, %v", err)
-	}
 }
