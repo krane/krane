@@ -147,8 +147,8 @@ docker run -d --name=krane \
 
 This is a complete Docker example to get Krane running with:
 
-- HTTPS/SSL w/ LetEncrypt certs
-- Registry Auth
+- HTTPS/SSL w/ LetEncrypt certificates
+- Container registry authentication for pulling images
 - Volumed Krane DB (for storing session & deployment details)
 - Log level set to debug (for easy debugging)
 
