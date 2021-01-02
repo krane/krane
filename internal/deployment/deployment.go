@@ -96,7 +96,7 @@ func Run(deployment string) error {
 			}
 
 			// ensure jobs collections
-			if err := job.CreateCollection(deploymentName); err != nil {
+			if err := CreateJobsCollection(deploymentName); err != nil {
 				return errors.Wrap(
 					err,
 					fmt.Sprintf("error creating jobs collection for deployment %s during job execution", deploymentName))
@@ -233,7 +233,7 @@ func Delete(deployment string) error {
 
 			// delete jobs collection
 			logger.Debugf("removing jobs collection for deployment %s", deploymentName)
-			if err := job.DeleteCollection(deploymentName); err != nil {
+			if err := DeleteJobsCollection(deploymentName); err != nil {
 				return errors.Wrap(
 					err,
 					fmt.Sprintf("error removing jobs collection for deployment %s", deploymentName))

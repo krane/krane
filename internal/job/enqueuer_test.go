@@ -7,8 +7,6 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/store"
 )
 
@@ -20,11 +18,6 @@ func teardown() { os.Remove(boltpath) }
 func TestMain(m *testing.M) {
 	store.Connect((boltpath))
 	defer store.Client().Disconnect()
-
-	// Create deployment (namespace)
-	deployment := config.DeploymentConfig{Name: namespace}
-	bytes, _ := deployment.Serialize()
-	_ = store.Client().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
 
 	code := m.Run()
 

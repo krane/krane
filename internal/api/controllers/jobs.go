@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/job"
+	"github.com/biensupernice/krane/internal/deployment"
 	"github.com/biensupernice/krane/internal/utils"
 )
 
@@ -17,7 +17,7 @@ func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
-	jobs, err := job.GetJobs(uint(daysAgoNum))
+	jobs, err := deployment.GetJobs(uint(daysAgoNum))
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
@@ -40,7 +40,7 @@ func GetJobsByDeployment(w http.ResponseWriter, r *http.Request) {
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
-	jobs, err := job.GetJobsByDeployment(deploymentName, uint(daysAgoNum))
+	jobs, err := deployment.GetJobsByDeployment(deploymentName, uint(daysAgoNum))
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
@@ -69,7 +69,7 @@ func GetJobByID(w http.ResponseWriter, r *http.Request) {
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "365")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
-	j, err := job.GetJobByID(deploymentName, jobID, uint(daysAgoNum))
+	j, err := deployment.GetJobByID(deploymentName, jobID, uint(daysAgoNum))
 	if err != nil {
 		response.HTTPBad(w, err)
 		return

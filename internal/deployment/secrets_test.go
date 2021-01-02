@@ -1,4 +1,4 @@
-package secrets
+package deployment
 
 import (
 	"fmt"
@@ -13,18 +13,13 @@ import (
 )
 
 const boltpath = "./krane.db"
-const testNamespace = "krane-test"
+const testDeployment = "krane-test"
 
 func teardown() { os.Remove(boltpath) }
 
 func TestMain(m *testing.M) {
 	store.Connect((boltpath))
 	defer store.Client().Disconnect()
-
-	// Create deployment (namespace)
-	// deployment := config.DeploymentConfig{Name: testNamespace}
-	// bytes, _ := deployment.Serialize()
-	// store.Client().Put(constants.DeploymentsCollectionName, deployment.Name, bytes)
 
 	code := m.Run()
 
@@ -33,55 +28,54 @@ func TestMain(m *testing.M) {
 }
 
 func TestAddNewSecret(t *testing.T) {
-	s1, err := Add(testNamespace, "token", "biensupernice")
+	s1, err := AddSecret(testDeployment, "token", "biensupernice")
 	assert.Nil(t, err)
 	assert.Equal(t, "token", s1.Key)
 	assert.Equal(t, "biensupernice", s1.Value)
 	assert.Equal(t, "@TOKEN", s1.Alias)
 
-	s2, err := Add(testNamespace, "api_token", "biensupernice")
+	s2, err := AddSecret(testDeployment, "api_token", "biensupernice")
 	assert.Nil(t, err)
 	assert.Equal(t, "@API_TOKEN", s2.Alias)
 
-	s3, err := Add(testNamespace, "api-token", "biensupernice")
+	s3, err := AddSecret(testDeployment, "api-token", "biensupernice")
 	assert.Nil(t, err)
 	assert.Equal(t, "@API_TOKEN", s3.Alias)
 
-	s4, err := Add(testNamespace, "api-token123", "biensupernice")
+	s4, err := AddSecret(testDeployment, "api-token123", "biensupernice")
 	assert.Nil(t, err)
 	assert.Equal(t, "@API_TOKEN123", s4.Alias)
 
-	s5, err := Add(testNamespace, "API_PORT_8080", "8080")
+	s5, err := AddSecret(testDeployment, "API_PORT_8080", "8080")
 	assert.Nil(t, err)
 	assert.Equal(t, "@API_PORT_8080", s5.Alias)
 
-	s6, err := Add(testNamespace, "API-PORT-8080", "8080")
+	s6, err := AddSecret(testDeployment, "API-PORT-8080", "8080")
 	assert.Nil(t, err)
 	assert.Equal(t, "@API_PORT_8080", s6.Alias)
 
-	s7, err := Add(testNamespace, "env", "dev")
+	s7, err := AddSecret(testDeployment, "env", "dev")
 	assert.Nil(t, err)
 	assert.Equal(t, "@ENV", s7.Alias)
 
-	s8, err := Add(testNamespace, "8080_API_PORT", "8080")
+	s8, err := AddSecret(testDeployment, "8080_API_PORT", "8080")
 	assert.Nil(t, err)
 	assert.Equal(t, "@8080_API_PORT", s8.Alias)
 
-	s9, err := Add(testNamespace, "8080-API-PORT", "8080")
+	s9, err := AddSecret(testDeployment, "8080-API-PORT", "8080")
 	assert.Nil(t, err)
 	assert.Equal(t, "@8080_API_PORT", s9.Alias)
 
-	s10, err := Add(testNamespace, "aPi_ToKeN-1337", "8080")
+	s10, err := AddSecret(testDeployment, "aPi_ToKeN-1337", "8080")
 	assert.Nil(t, err)
 	assert.Equal(t, "@API_TOKEN_1337", s10.Alias)
-
 }
 
 func TestFormatSecretCollectionName(t *testing.T) {
 	collections := []string{"api", "UI", "api-proxy", "messaging_service", "db-container", "app-123-proxy", "123-proxy_api", "aPi_pR0Xy"}
 	for _, collection := range collections {
 		expected := fmt.Sprintf("%s-secrets", strings.ToLower(collection)) // lowercase, ending with -secrets
-		assert.Equal(t, expected, getDeploymentCollectionName(collection))
+		assert.Equal(t, expected, getSecretsCollectionName(collection))
 	}
 }
 
@@ -106,30 +100,30 @@ func TestSuccessWhenValidSecretKey(t *testing.T) {
 
 func TestRedactSecret(t *testing.T) {
 	s := Secret{
-		Namespace: testNamespace,
-		Key:       "SECRET_TOKEN",
-		Value:     "biensupernice",
-		Alias:     "@SECRET_TOKEN",
+		Deployment: testDeployment,
+		Key:        "SECRET_TOKEN",
+		Value:      "biensupernice",
+		Alias:      "@SECRET_TOKEN",
 	}
 	s.Redact()
 	assert.Equal(t, "<redacted>", s.Value)
 	assert.NotEqual(t, "biensupernice", s.Value)
 }
 
-func TestGetSecretsByNamespace(t *testing.T) {
+func TestGetSecretsByDeployment(t *testing.T) {
 	secretKey := utils.RandomString(20)
 	secretValue := utils.RandomString(20)
 
-	secr, err := Add(testNamespace, secretKey, secretValue)
+	newSecret, err := AddSecret(testDeployment, secretKey, secretValue)
 	assert.Nil(t, err)
 
-	secrets, err := GetAll(testNamespace)
+	secrets, err := GetAllSecrets(testDeployment)
 	assert.Nil(t, err)
 	assert.True(t, len(secrets) > 0)
 
 	var s Secret
 	for _, secret := range secrets {
-		if secret.Key == secr.Key {
+		if secret.Key == newSecret.Key {
 			s = *secret
 			break
 		}
@@ -144,10 +138,10 @@ func TestGetSecret(t *testing.T) {
 	secretKey := utils.RandomString(20)
 	secretValue := utils.RandomString(20)
 
-	secr, err := Add(testNamespace, secretKey, secretValue)
+	secr, err := AddSecret(testDeployment, secretKey, secretValue)
 	assert.Nil(t, err)
 
-	s, err := Get(testNamespace, secr.Key)
+	s, err := GetSecret(testDeployment, secr.Key)
 	assert.Nil(t, err)
 
 	assert.NotNil(t, s)
@@ -156,9 +150,9 @@ func TestGetSecret(t *testing.T) {
 }
 
 func TestErrorWhenGetSecretByNonExistingAlias(t *testing.T) {
-	_, err := Get(testNamespace, "non-existing-key")
+	_, err := GetSecret(testDeployment, "non-existing-key")
 	assert.NotNil(t, err)
-	assert.Equal(t, "secret with key non-existing-key not found", err.Error())
+	assert.Equal(t, "secret with key non-existing-key not found for deployment krane-test", err.Error())
 }
 
 func TestDeleteSecret(t *testing.T) {
@@ -166,11 +160,11 @@ func TestDeleteSecret(t *testing.T) {
 	secretValue := utils.RandomString(20)
 
 	// add
-	_, err := Add(testNamespace, secretKey, secretValue)
+	_, err := AddSecret(testDeployment, secretKey, secretValue)
 	assert.Nil(t, err)
 
 	// get
-	s, err := Get(testNamespace, secretKey)
+	s, err := GetSecret(testDeployment, secretKey)
 	assert.Nil(t, err)
 
 	assert.NotNil(t, s)
@@ -178,11 +172,11 @@ func TestDeleteSecret(t *testing.T) {
 	assert.Equal(t, s.Value, secretValue)
 
 	// delete
-	err = Delete(s.Namespace, s.Key)
+	err = DeleteSecret(s.Deployment, s.Key)
 	assert.Nil(t, err)
 
 	// get
-	_, err = Get(testNamespace, secretKey)
+	_, err = GetSecret(testDeployment, secretKey)
 	assert.NotNil(t, err)
-	assert.Equal(t, fmt.Sprintf("secret with key %s not found", secretKey), err.Error())
+	assert.Equal(t, fmt.Sprintf("secret with key %s not found for deployment %s", secretKey, testDeployment), err.Error())
 }

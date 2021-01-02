@@ -9,8 +9,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/deployment/secrets"
-	"github.com/biensupernice/krane/internal/deployment/service"
+	"github.com/biensupernice/krane/internal/deployment"
 )
 
 // GetSecrets : get deployment secrets
@@ -23,7 +22,7 @@ func GetSecrets(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redactedSecrets := secrets.GetAllRedacted(deploymentName)
+	redactedSecrets := deployment.GetAllSecretsRedacted(deploymentName)
 	response.HTTPOk(w, redactedSecrets)
 	return
 }
@@ -38,7 +37,7 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if !service.DeploymentExist(deploymentName) {
+	if !deployment.Exist(deploymentName) {
 		response.HTTPBad(w, fmt.Errorf("unable to find deployment %s", deploymentName))
 		return
 	}
@@ -54,7 +53,7 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	newSecret, err := secrets.Add(deploymentName, body.Key, body.Value)
+	newSecret, err := deployment.AddSecret(deploymentName, body.Key, body.Value)
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
@@ -82,7 +81,7 @@ func DeleteSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := secrets.Delete(deploymentName, key); err != nil {
+	if err := deployment.DeleteSecret(deploymentName, key); err != nil {
 		response.HTTPBad(w, err)
 		return
 	}

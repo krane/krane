@@ -5,8 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/biensupernice/krane/internal/deployment/config"
-	"github.com/biensupernice/krane/internal/deployment/container"
+	"github.com/biensupernice/krane/internal/deployment"
 	"github.com/biensupernice/krane/internal/docker"
 	"github.com/biensupernice/krane/internal/job"
 	"github.com/biensupernice/krane/internal/logger"
@@ -40,20 +39,20 @@ func (s *Scheduler) Run() {
 func (s *Scheduler) poll() {
 	logger.Debug("Scheduler polling")
 
-	for _, deployment := range s.deployments() {
-		containers, err := container.GetKraneContainersByDeployment(deployment.Name)
+	for _, d := range s.deployments() {
+		containers, err := deployment.GetContainersByDeployment(d.Name)
 		if err != nil {
 			logger.Error(errors.Wrap(err, "Unhandled error when polling"))
 			continue
 		}
 
-		if hasDesiredState(deployment, containers) {
+		if hasDesiredState(d, containers) {
 			continue
 		}
 
 		go s.enqueuer.Enqueue(job.Job{
 			ID:         utils.ShortID(),
-			Deployment: deployment.Name,
+			Deployment: d.Name,
 			Args:       map[string]interface{}{},
 			Run: func(args interface{}) error {
 				return nil
@@ -63,12 +62,12 @@ func (s *Scheduler) poll() {
 	logger.Debugf("Next poll in %s", s.interval.String())
 }
 
-func hasDesiredState(kcfg config.DeploymentConfig, containers []container.KraneContainer) bool {
+func hasDesiredState(config deployment.Config, containers []deployment.KraneContainer) bool {
 	// TODO: implementation not defined - always returning true to avoid doing anything
 	return true
 }
 
-func (s *Scheduler) deployments() []config.DeploymentConfig {
-	deployments, _ := config.GetAllDeploymentConfigurations()
+func (s *Scheduler) deployments() []deployment.Config {
+	deployments, _ := deployment.GetAllDeploymentConfigs()
 	return deployments
 }

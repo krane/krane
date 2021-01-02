@@ -32,7 +32,7 @@ func AddSecret(deployment, key, value string) (*Secret, error) {
 		Alias:      formatSecretAlias(key),
 	}
 
-	collection := getDeploymentSecretsCollectionName(deployment)
+	collection := getSecretsCollectionName(deployment)
 	bytes, _ := secret.SerializeSecret()
 	err := store.Client().Put(collection, secret.Key, bytes)
 	if err != nil {
@@ -44,25 +44,25 @@ func AddSecret(deployment, key, value string) (*Secret, error) {
 
 // DeleteSecret deletes a deployment secret
 func DeleteSecret(deployment, key string) error {
-	collection := getDeploymentSecretsCollectionName(deployment)
+	collection := getSecretsCollectionName(deployment)
 	return store.Client().Remove(collection, key)
 }
 
 // CreateSecretsCollection creates secrets collection for a deployment
 func CreateSecretsCollection(deployment string) error {
-	collection := getDeploymentSecretsCollectionName(deployment)
+	collection := getSecretsCollectionName(deployment)
 	return store.Client().CreateCollection(collection)
 }
 
 // DeleteCollection deletes secrets collection for a deployment
 func DeleteSecretsCollection(deployment string) error {
-	collection := getDeploymentSecretsCollectionName(deployment)
+	collection := getSecretsCollectionName(deployment)
 	return store.Client().DeleteCollection(collection)
 }
 
 // GetAll returns all secrets for a deployment
-func GetAllDeploymentSecrets(deployment string) ([]*Secret, error) {
-	collection := getDeploymentSecretsCollectionName(deployment)
+func GetAllSecrets(deployment string) ([]*Secret, error) {
+	collection := getSecretsCollectionName(deployment)
 	bytes, err := store.Client().GetAll(collection)
 	if err != nil {
 		return make([]*Secret, 0), err
@@ -81,9 +81,9 @@ func GetAllDeploymentSecrets(deployment string) ([]*Secret, error) {
 	return secrets, nil
 }
 
-// GetAllDeploymentSecretsRedacted returns all deployment secrets with <redacted> a their value
-func GetAllDeploymentSecretsRedacted(deployment string) []Secret {
-	plainSecrets, _ := GetAllDeploymentSecrets(deployment)
+// GetAllSecretsRedacted returns all deployment secrets with <redacted> a their value
+func GetAllSecretsRedacted(deployment string) []Secret {
+	plainSecrets, _ := GetAllSecrets(deployment)
 	redactedSecrets := make([]Secret, 0)
 	for _, secret := range plainSecrets {
 		secret.Redact()
@@ -92,9 +92,9 @@ func GetAllDeploymentSecretsRedacted(deployment string) []Secret {
 	return redactedSecrets
 }
 
-// GetDeploymentSecret returns a deployment secret if it exists
-func GetDeploymentSecret(deployment, key string) (*Secret, error) {
-	collection := getDeploymentSecretsCollectionName(deployment)
+// GetSecret returns a deployment secret if it exists
+func GetSecret(deployment, key string) (*Secret, error) {
+	collection := getSecretsCollectionName(deployment)
 	bytes, err := store.Client().Get(collection, key)
 	if err != nil {
 		return nil, err
@@ -139,6 +139,6 @@ func isValidSecretKey(secret string) bool {
 
 func (s Secret) SerializeSecret() ([]byte, error) { return json.Marshal(s) }
 
-func getDeploymentSecretsCollectionName(deployment string) string {
+func getSecretsCollectionName(deployment string) string {
 	return strings.ToLower(fmt.Sprintf("%s-%s", deployment, constants.SecretsCollectionName))
 }

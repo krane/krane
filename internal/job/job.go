@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/deployment/config"
 	"github.com/biensupernice/krane/internal/logger"
 	"github.com/biensupernice/krane/internal/store"
 	"github.com/biensupernice/krane/internal/utils"
@@ -55,7 +54,7 @@ func (j *Job) end() {
 
 // save : store the job
 func (j *Job) save() {
-	collection := getDeploymentJobsCollectionName(j.Deployment)
+	collection := GetJobsCollectionName(j.Deployment)
 	bytes, _ := j.Serialize()
 
 	// timestamp(RFC3339) is used as the key for the activity.
@@ -65,35 +64,23 @@ func (j *Job) save() {
 
 	err := store.Client().Put(collection, timestamp, bytes)
 	if err != nil {
-		logger.Errorf("Unhandled error when inserting j, %s", err)
+		logger.Errorf("Unhandled error when inserting job into the db, %s", err)
 		return
 	}
 }
 
-// CreateCollection : create jobs collection for a deployment
-func CreateCollection(namespace string) error {
-	collection := getDeploymentJobsCollectionName(namespace)
-	return store.Client().CreateCollection(collection)
-}
-
-// DeleteCollection : delete jobs collection for a deployment
-func DeleteCollection(namespace string) error {
-	collection := getDeploymentJobsCollectionName(namespace)
-	return store.Client().DeleteCollection(collection)
-}
-
-// validate : validate a jobs configuration
+// validate returns an error if a Job does not have a valid configuration
 func (j *Job) validate() error {
 	if j.ID == "" {
 		return fmt.Errorf("job id required")
 	}
 
 	if j.Deployment == "" {
-		return fmt.Errorf("job deployment required")
+		return fmt.Errorf("deployment required to execute job")
 	}
 
 	if j.Run == nil {
-		return fmt.Errorf("unknown job handler")
+		return fmt.Errorf("run must be implemented for a job")
 	}
 
 	maxRetryPolicy := utils.UIntEnv(constants.EnvJobMaxRetryPolicy)
@@ -101,107 +88,14 @@ func (j *Job) validate() error {
 		return fmt.Errorf("retry policy %d exceeds job max retry policy %d", j.RetryPolicy, maxRetryPolicy)
 	}
 
-	// every job should run under a deployment.
-	// if a new job being created is not bounded to a deployment an error will be thrown.
-	ok, err := j.hasExistingDeployment()
-	if err != nil {
-		return err
-	}
-
-	if !ok {
-		return fmt.Errorf("invalid job, %v", err)
-	}
-
 	return nil
 }
 
-func (j *Job) hasExistingDeployment() (bool, error) {
-	deployments, err := store.Client().GetAll(constants.DeploymentsCollectionName)
-	if err != nil {
-		return false, fmt.Errorf("invalid job, %v", err)
-	}
-
-	for _, deployment := range deployments {
-		var d config.DeploymentConfig
-		if err := store.Deserialize(deployment, &d); err != nil {
-			return false, fmt.Errorf("invalid job, %v", err)
-		}
-		if j.Deployment == d.Name {
-			return true, nil
-		}
-	}
-
-	return false, fmt.Errorf("invalid job, deployment %s not found", j.Deployment)
-}
-
-// GetJobs : get all jobs
-func GetJobs(daysAgo uint) ([]Job, error) {
-	// get all deployments
-	deployments, err := config.GetAllDeploymentConfigurations()
-	if err != nil {
-		return make([]Job, 0), err
-	}
-
-	// K dim. arr containing un-merged deployment activities.
-	var recentActivity nJobs = make([][]Job, 0)
-	for _, deployment := range deployments {
-
-		// get activity in time range
-		deploymentActivity, err := GetJobsByDeployment(deployment.Name, daysAgo)
-		if err != nil {
-			return make([]Job, 0), err
-		}
-
-		recentActivity = append(recentActivity, deploymentActivity)
-	}
-
-	return recentActivity.mergeAndSort(), nil
-}
-
-// GetJobByID : get a job by id
-func GetJobByID(namespace, id string, daysAgo uint) (Job, error) {
-	jobs, err := GetJobsByDeployment(namespace, daysAgo)
-	if err != nil {
-		return Job{}, fmt.Errorf("unable to find a job with id %s", id)
-	}
-
-	for _, job := range jobs {
-		if id == job.ID {
-			return job, nil
-		}
-	}
-
-	return Job{}, fmt.Errorf("unable to fnd job with id %s", id)
-}
-
-// GetJobs : get all jobs for a deployment
-func GetJobsByDeployment(deployment string, daysAgo uint) ([]Job, error) {
-	// get Start, end time range to get jobs for
-	minDate, maxDate := calculateTimeRange(int(daysAgo))
-
-	// get activity in time range
-	collection := getDeploymentJobsCollectionName(deployment)
-	bytes, err := store.Client().GetInRange(collection, minDate, maxDate)
-	if err != nil {
-		return make([]Job, 0), err
-	}
-
-	recentActivity := make([]Job, 0)
-	for _, activityBytes := range bytes {
-		var j Job
-		if err := store.Deserialize(activityBytes, &j); err != nil {
-			return recentActivity, err
-		}
-		recentActivity = append(recentActivity, j)
-	}
-	return recentActivity, nil
-}
-
 // N dimensional Job array
-type nJobs [][]Job
+type NJobs [][]Job
 
 // merge : combines njobs into a single job array sorted in DESCENDING order based on timestamp.
-func (njobs nJobs) mergeAndSort() []Job {
+func (njobs NJobs) MergeAndSort() []Job {
 	var JobHeap jobHeap
 	heap.Init(&JobHeap)
 
@@ -253,12 +147,6 @@ func (njobs nJobs) mergeAndSort() []Job {
 	return result
 }
 
-func getDeploymentJobsCollectionName(deployment string) string {
+func GetJobsCollectionName(deployment string) string {
 	return strings.ToLower(fmt.Sprintf("%s-%s", deployment, constants.JobsCollectionName))
-}
-
-func calculateTimeRange(daysAgo int) (string, string) {
-	start := time.Now().AddDate(0, 0, -daysAgo).Format(time.RFC3339)
-	end := time.Now().Local().Format(time.RFC3339)
-	return start, end
 }
