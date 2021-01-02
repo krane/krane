@@ -84,6 +84,6 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: biensupernice/krane
           tags: latest, ${{ env.RELEASE_VERSION }}
-          build_args: VERSION=${{ env.RELEASE_VERSION }}
+          build_args: KRANE_VERSION=${{ env.RELEASE_VERSION }}
         env:
           RELEASE_VERSION: ${{ needs.version.outputs.release-version }}
