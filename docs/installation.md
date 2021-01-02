@@ -52,6 +52,8 @@ krane &
 
 The following properties can be set as environment variables when running Krane.
 
+> Note: KRANE_PRIVATE_KEY is the only require environment variable, all others allow various configurations when running Krane.
+
 | Env                        | Description                                                                      | Required | Default        |
 | -------------------------- | -------------------------------------------------------------------------------- | -------- | -------------- |
 | KRANE_PRIVATE_KEY          | The private key used by Krane for signing authentication requests.               | true     |                |
