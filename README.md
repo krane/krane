@@ -11,6 +11,7 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 - **Documentation:** https://krane.sh
 - **Releases:** https://github.com/biensupernice/krane/releases
 - **CLI:** https://github.com/krane/cli
+- **GitHub Action:** https://github.com/krane/action
 
 ## Features
 
@@ -21,6 +22,7 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 - Deployment [secrets](https://www.krane.sh/#/deployment-configuration?id=secrets) for hiding sensitive environment variables
 - Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale) to distribute workload between containers
 - [Self-hosted](#motivation) - Bring your own server (could be a cheap $5 server) and scale if you need
+- Tooling - [CLI](https://github.com/krane/cli), [GitHub Action](https://github.com/krane/action)
 
 ## Getting Started
 
