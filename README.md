@@ -92,9 +92,9 @@ For more deployment configuration options, checkout the [documentation](https://
 
 ## Motivation
 
-Krane is self-hosted, meaning you bring your own device and install Krane on it. The key benefit is **cost per deployment**. When comparing prices against other container deployment platforms, prices goes up pretty quickly when running multiple instances of your apps. Take Digital Ocean, deploying a container on [app-platform](https://www.digitalocean.com/docs/app-platform/) starts at $5 per instance, this could be the cost of a single Digital Ocean droplet running Krane but with many more deployments and functionality provided and built for you.
+Krane is a self-hosted SaaS container service. You bring your own server and install Krane on it to manage your deployments - The benefit is *cost per deployment*. Pricing of other platforms such as Digital Ocean's [app-platform](https://www.digitalocean.com/docs/app-platform/) start at $5 per instance. A self-hosted solution allows you to own your server (cheap), and the benefit of multiple deployments at the same cost. Maintaining and managing your own solution may sound unappealing, however Krane makes the process lightweight, straight-forward and **cheap**.
 
-Krane isn't a replacement for Kubernetes or ECS or any other container management solution you might see running production applications, instead it's a tool you can leverage to make development of side-projects or small workloads cheap and straight forward. In the end, this was the main objective, a productive deployment tool for managing non-critical container workloads on remote servers.
+Krane isn't a replacement for [Kubernetes](https://kubernetes.io/), [ECS](https://aws.amazon.com/ecs/), or any other container orchestration solutions you might see running production applications, instead it's a tool you can leverage to make development of side-projects or small workloads cheap and straight forward. In the end, that was the main objective, a productive deployment tool for managing non-critical container workloads on remote servers.
 
 ## Building from source
 
@@ -131,7 +131,26 @@ Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To v
 $ boltdbweb --db-name=/path/to/krane.db --port=9000
 ```
 
+## Minimal Docker example
+
+This is the most minimal Docker example to get *up-and-running* with Krane
+
+```
+docker run -d --name=krane \
+    -e KRANE_PRIVATE_KEY=changeme \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v ~/.ssh:/root/.ssh  \
+    -p 8500:8500 biensupernice/krane
+```
+
 ## Complete Docker example
+
+This is a complete Docker example to get Krane running with:
+
+- HTTPS/SSL w/ LetEncrypt certs
+- Registry Auth
+- Volumed Krane DB (for storing session & deployment details)
+- Log level set to debug (for easy debugging)
 
 ```
 docker run -d --name=krane \
