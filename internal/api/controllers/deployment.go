@@ -8,9 +8,18 @@ import (
 
 	"github.com/gorilla/mux"
 
+	"github.com/gorilla/websocket"
+
 	"github.com/biensupernice/krane/internal/api/response"
 	"github.com/biensupernice/krane/internal/deployment"
 )
+
+// WSUpgrader upgrades HTTP connections to WebSocket connections
+var WSUpgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
 
 // GetDeployment returns the configuration for a single deployment
 func GetDeployment(w http.ResponseWriter, r *http.Request) {
@@ -211,5 +220,19 @@ func RestartDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response.HTTPAccepted(w)
+	return
+}
+
+func ReadContainerLogs(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	containerID := params["container"]
+
+	ws, err := WSUpgrader.Upgrade(w, r, nil)
+	if err != nil {
+		response.HTTPBad(w, err)
+		return
+	}
+
+	deployment.SubscribeToContainerLogs(ws, containerID)
 	return
 }

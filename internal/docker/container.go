@@ -103,7 +103,10 @@ func (c *Client) GetContainerStatus(ctx context.Context, containerID string, str
 }
 
 // StreamContainerLogs streams container logs into ioReader
-func (c *Client) StreamContainerLogs(ctx *context.Context, containerID string) (reader io.Reader, err error) {
+func (c *Client) StreamContainerLogs(containerID string) (reader io.Reader, err error) {
+	ctx := context.Background()
+	defer ctx.Done()
+
 	options := types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
@@ -112,7 +115,7 @@ func (c *Client) StreamContainerLogs(ctx *context.Context, containerID string) (
 		Tail:       "50",
 	}
 
-	return c.ContainerLogs(*ctx, containerID, options)
+	return c.ContainerLogs(ctx, containerID, options)
 }
 
 // ConnectContainerToNetwork connects a container to a docker network

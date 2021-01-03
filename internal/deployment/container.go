@@ -109,7 +109,7 @@ func fromDockerContainerToKcontainer(container types.ContainerJSON) KraneContain
 	return KraneContainer{
 		ID:         container.ID,
 		Deployment: container.Config.Labels[docker.ContainerNamespaceLabel],
-		Name:       container.Name,
+		Name:       container.Config.Hostname,
 		NetworkID:  container.NetworkSettings.Networks[docker.KraneNetworkName].NetworkID,
 		Image:      container.Config.Image,
 		ImageID:    container.ContainerJSONBase.Image,
