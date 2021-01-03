@@ -123,6 +123,7 @@ func fromDockerContainerToKcontainer(container types.ContainerJSON) KraneContain
 	}
 }
 
+// fromDockerStateToState converts docker container state into a Krane state
 func fromDockerStateToState(state types.ContainerState) ContainerState {
 	return ContainerState{
 		Status:     state.Status,

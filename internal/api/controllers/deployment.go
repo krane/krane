@@ -12,12 +12,16 @@ import (
 
 	"github.com/biensupernice/krane/internal/api/response"
 	"github.com/biensupernice/krane/internal/deployment"
+	"github.com/biensupernice/krane/internal/session"
 )
 
 // WSUpgrader upgrades HTTP connections to WebSocket connections
 var WSUpgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
-		// TODO: authZ
+		s := r.Context().Value("session").(session.Session)
+		if !s.IsValid() {
+			return false
+		}
 		return true
 	},
 }
@@ -59,7 +63,7 @@ func GetAllDeployments(w http.ResponseWriter, _ *http.Request) {
 	return
 }
 
-// SaveDeployment : create or update a deployment
+// SaveDeployment creates or updates a deployment but DOES NOT run it
 func SaveDeployment(w http.ResponseWriter, r *http.Request) {
 	var config deployment.Config
 

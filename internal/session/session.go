@@ -12,7 +12,7 @@ import (
 	"github.com/biensupernice/krane/internal/utils"
 )
 
-// Session : represents an authenticated user session
+// Session represents an authenticated user session
 type Session struct {
 	ID        string `json:"id"`
 	User      string `json:"user"`
@@ -20,7 +20,24 @@ type Session struct {
 	ExpiresAt string `json:"expires_at"`
 }
 
-// CreateSessionToken : create a new jwt token used in a user session instance
+func (s Session) IsValid() bool {
+	if s.ID == "" {
+		return false
+	}
+
+	if s.User == "" {
+		return false
+	}
+
+	if s.Token == "" {
+		return false
+	}
+
+	// TODO: validate expiry date
+	return true
+}
+
+// CreateSessionToken creates a new jwt token used in a user session instance
 func CreateSessionToken(SigningKey string, sessionTkn Token) (string, error) {
 	if SigningKey == "" {
 		return "", errors.New("cannot create token - signing key not provided")
@@ -30,7 +47,7 @@ func CreateSessionToken(SigningKey string, sessionTkn Token) (string, error) {
 		Data: sessionTkn,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: utils.OneYear,
-			Issuer:    "krane",
+			Issuer:    "Krane",
 		},
 	}
 
@@ -46,7 +63,7 @@ func CreateSessionToken(SigningKey string, sessionTkn Token) (string, error) {
 	return signedTkn, nil
 }
 
-// Save : save a user session
+// Save saves a user session into the db
 func Save(session Session) error {
 	if session.ID == "" {
 		return errors.New("invalid session")
@@ -60,7 +77,7 @@ func Save(session Session) error {
 	return store.Client().Put(constants.SessionsCollectionName, session.ID, bytes)
 }
 
-// GetSessionByID : get a user session by id
+// GetSessionByID returns a user session by id
 func GetSessionByID(id string) (Session, error) {
 	bytes, err := store.Client().Get(constants.SessionsCollectionName, id)
 	if err != nil {
@@ -80,7 +97,7 @@ func GetSessionByID(id string) (Session, error) {
 	return session, nil
 }
 
-// GetAllSessions : get all user sessions
+// GetAllSessions returns all user sessions
 func GetAllSessions() ([]Session, error) {
 	bytes, err := store.Client().GetAll(constants.SessionsCollectionName)
 	if err != nil {
