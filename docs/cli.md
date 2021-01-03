@@ -86,6 +86,14 @@ List all deployments.
 krane list
 ```
 
+### logs
+
+Stream container logs for a deployment.
+
+```
+krane logs <container>
+```
+
 ### start
 
 Start all containers for a deployment. This command will not *create* containers, only start any stopped containers.
@@ -121,11 +129,11 @@ krane secrets list <deployment>
 Add a deployment secret.
 
 ```
-krane secrets add <deployment> -k=<key> -v=<value>
+krane secrets add <deployment> -k <key> -v <value>
 ```
 
 Delete a deployment secret.
 
 ```
-krane secrets delete <deployment> -k=<key>
+krane secrets delete <deployment> -k <key>
 ```
