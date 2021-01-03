@@ -37,7 +37,7 @@ func streamLogs(client *websocket.Conn, container string) {
 		logger.Warnf("error streaming logs, %v", err)
 	}
 
-	logs := make(chan string)
+	logs := make(chan []byte)
 	done := make(chan bool)
 
 	toChannel(&reader, logs, done)
@@ -45,7 +45,7 @@ func streamLogs(client *websocket.Conn, container string) {
 	for {
 		select {
 		case data := <-logs:
-			if err := client.WriteMessage(websocket.TextMessage, []byte(data)); err != nil {
+			if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
 				logger.Debugf("error writing to socket client, %v", err)
 			}
 		case <-done:
@@ -55,7 +55,7 @@ func streamLogs(client *websocket.Conn, container string) {
 }
 
 // toChannel streams data from an io.Reader to a channel
-func toChannel(in *io.Reader, out chan string, done chan bool) {
+func toChannel(in *io.Reader, out chan []byte, done chan bool) {
 	reader := bufio.NewReader(*in)
 
 	var mu sync.RWMutex
@@ -63,6 +63,8 @@ func toChannel(in *io.Reader, out chan string, done chan bool) {
 		for {
 			mu.Lock()
 
+			// read in the headers from message as it doesnt
+			// provide any useful information and causes formatting issues
 			header := make([]byte, 8)
 			_, err := reader.Read(header)
 			if err != nil {
@@ -71,14 +73,14 @@ func toChannel(in *io.Reader, out chan string, done chan bool) {
 				return
 			}
 
-			data, _, err := reader.ReadLine()
+			bytes, _, err := reader.ReadLine()
 			if err != nil {
 				logger.Debugf("error streaming, %v", err)
 				done <- true
 				return
 			}
 
-			out <- string(data)
+			out <- bytes
 
 			mu.Unlock()
 		}
