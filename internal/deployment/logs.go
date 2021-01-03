@@ -66,8 +66,8 @@ func toChannel(in *io.Reader, out chan string, done chan bool) {
 			header := make([]byte, 8)
 			_, err := reader.Read(header)
 			if err != nil {
-				done <- true
 				logger.Debugf("error reading container logs header, %v", err)
+				done <- true
 				return
 			}
 
