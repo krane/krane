@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -40,6 +41,11 @@ func GetJobsByDeployment(w http.ResponseWriter, r *http.Request) {
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
+	if !deployment.Exist(deploymentName) {
+		response.HTTPBad(w, fmt.Errorf("deployment %s does not exist", deploymentName))
+		return
+	}
+
 	jobs, err := deployment.GetJobsByDeployment(deploymentName, uint(daysAgoNum))
 	if err != nil {
 		response.HTTPBad(w, err)
@@ -63,6 +69,11 @@ func GetJobByID(w http.ResponseWriter, r *http.Request) {
 
 	if jobID == "" {
 		response.HTTPBad(w, errors.New("job id not provided"))
+		return
+	}
+
+	if !deployment.Exist(deploymentName) {
+		response.HTTPBad(w, fmt.Errorf("deployment %s does not exist", deploymentName))
 		return
 	}
 

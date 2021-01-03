@@ -94,6 +94,14 @@ Stream container logs for a deployment.
 krane logs <container>
 ```
 
+### history
+
+Get recent activity for a deployment.
+
+```
+krane history <deployment>
+```
+
 ### start
 
 Start all containers for a deployment. This command will not *create* containers, only start any stopped containers.
