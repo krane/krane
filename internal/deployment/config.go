@@ -246,7 +246,7 @@ func (config Config) ApplyProxyLabels() {
 	}
 
 	// service labels
-	for k, v := range proxy.TraefikServiceLabelsV2(config.Name, config.Ports, config.TargetPort) {
+	for k, v := range proxy.TraefikServiceLabels(config.Name, config.Ports, config.TargetPort) {
 		config.Labels[k] = v
 	}
 }

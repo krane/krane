@@ -16,13 +16,14 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 ## Features
 
 - Single file deployments
-- Compatible with [localhost](https://en.wikipedia.org/wiki/Localhost)
-- HTTPS/TLS to your containers via [Let's Encrypt](https://letsencrypt.org/)
-- Deployment [aliases](https://www.krane.sh/#/deployment-configuration?id=alias) via [Traefik](https://traefik.io/traefik/)
+- SSH key based authentication
+- Compatible with *localhost* with features like aliases(`my-api.localhost`)
+- HTTPS/TLS support via [Let's Encrypt](https://letsencrypt.org/)
+- Deployment [aliases](https://www.krane.sh/#/deployment-configuration?id=alias) provided by [Traefik](https://traefik.io/traefik/)
 - Deployment [secrets](https://www.krane.sh/#/deployment-configuration?id=secrets) for hiding sensitive environment variables
-- Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale) to distribute workload between containers
-- [Self-hosted](#motivation) - Bring your own server (could be a cheap $5 server) and scale if you need
+- Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale) to distribute the workload between containers
 - Tooling - [CLI](https://github.com/krane/cli), [GitHub Action](https://github.com/krane/action)
+- [Self-hosted](#motivation) - Bring your own server (could be a cheap $5 server) and scale if you need
 
 ## Getting Started
 
@@ -94,9 +95,9 @@ For more deployment configuration options, checkout the [documentation](https://
 
 ## Motivation
 
-Krane is a self-hosted SaaS container service. You bring your own server and install Krane on it to manage your deployments - The benefit is *cost per deployment*. Pricing of other platforms such as Digital Ocean's [app-platform](https://www.digitalocean.com/docs/app-platform/) start at $5 per instance. A self-hosted solution allows you to own your server (cheap), and the benefit of multiple deployments at the same cost. Maintaining and managing your own solution may sound unappealing, however Krane makes the process lightweight, straight-forward and cost-effective.
+Krane is a self-hosted SaaS container tool. You bring your own server and install Krane on it to manage your containers in the form of deployments - The benefit is *cost per deployment*. Pricing of other platforms such as Digital Ocean's [app-platform](https://www.digitalocean.com/docs/app-platform/) start at $5 per deployment. A self-hosted solution allows you to own your server (cheap), and the benefit of multiple deployments for no extra cost. Maintaining and managing your own solution may sound complex, Krane tries to make the process straight-forward and cost-effective.
 
-Krane isn't a replacement for [Kubernetes](https://kubernetes.io/), [ECS](https://aws.amazon.com/ecs/), or any other container orchestration solutions you might see running production applications, instead it's a tool you can leverage to make development of side-projects or small workloads cheap and straight forward. In the end, that was the main objective, a productive deployment tool for managing non-critical container workloads on remote servers.
+Krane isn't a replacement for [Kubernetes](https://kubernetes.io/), [ECS](https://aws.amazon.com/ecs/), or any other container orchestration solution you might see running production applications, instead it's a tool you can leverage to make development of side-projects or small workloads cheap and straight forward. In the end, that was the main objective, a productive deployment tool for managing non-critical container workloads on remote servers.
 
 ## Building from source
 

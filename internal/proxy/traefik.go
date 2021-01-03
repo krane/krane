@@ -12,7 +12,7 @@ type TraefikLabel struct {
 	Value string
 }
 
-func TraefikRouterLabels(namespace string, aliases []string, secure bool) map[string]string {
+func TraefikRouterLabels(deployment string, aliases []string, secure bool) map[string]string {
 	// configure aliases as Host('my-alias.example.com') labels
 	var hostRules bytes.Buffer
 	for i, alias := range aliases {
@@ -33,56 +33,44 @@ func TraefikRouterLabels(namespace string, aliases []string, secure bool) map[st
 
 	// http
 	if hostRules.String() != "" {
-		labels[fmt.Sprintf("traefik.http.routers.%s-insecure.rule", namespace)] = hostRules.String()
+		labels[fmt.Sprintf("traefik.http.routers.%s-insecure.rule", deployment)] = hostRules.String()
 	}
-	labels[fmt.Sprintf("traefik.http.routers.%s-insecure.entrypoints", namespace)] = "web"
+	labels[fmt.Sprintf("traefik.http.routers.%s-insecure.entrypoints", deployment)] = "web"
 
 	if secure {
 		// https
-		labels[fmt.Sprintf("traefik.http.routers.%s-secure.tls", namespace)] = "true"
-		labels[fmt.Sprintf("traefik.http.routers.%s-secure.entrypoints", namespace)] = "web-secure"
-		labels[fmt.Sprintf("traefik.http.routers.%s-secure.tls.certresolver", namespace)] = "lets-encrypt"
+		labels[fmt.Sprintf("traefik.http.routers.%s-secure.tls", deployment)] = "true"
+		labels[fmt.Sprintf("traefik.http.routers.%s-secure.entrypoints", deployment)] = "web-secure"
+		labels[fmt.Sprintf("traefik.http.routers.%s-secure.tls.certresolver", deployment)] = "lets-encrypt"
 		if hostRules.String() != "" {
-			labels[fmt.Sprintf("traefik.http.routers.%s-secure.rule", namespace)] = hostRules.String()
+			labels[fmt.Sprintf("traefik.http.routers.%s-secure.rule", deployment)] = hostRules.String()
 		}
 	}
 
 	return labels
 }
 
-func TraefikServiceLabels(namespace string, ports map[string]string) map[string]string {
+func TraefikServiceLabels(deployment string, ports map[string]string, targetPort string) map[string]string {
 	labels := make(map[string]string, 0)
-	for _, containerPort := range ports {
-		labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.port", namespace, containerPort)] = containerPort
-		labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.scheme", namespace, containerPort)] = "http"
-	}
-	return labels
-}
-
-func TraefikServiceLabelsV2(namespace string, ports map[string]string, targetPort string) map[string]string {
-	labels := make(map[string]string, 0)
-
-	if targetPort == "" {
-		for _, containerPort := range ports {
-			labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.port", namespace, containerPort)] = containerPort
-			labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.scheme", namespace, containerPort)] = "http"
-		}
-	}
 
 	if targetPort != "" {
-		labels[fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.port", namespace)] = targetPort
-		labels[fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.scheme", namespace)] = "http"
-		return labels
+		labels[fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.port", deployment)] = targetPort
+		labels[fmt.Sprintf("traefik.http.services.%s.loadbalancer.server.scheme", deployment)] = "http"
+	} else {
+		for _, containerPort := range ports {
+			labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.port", deployment, containerPort)] = containerPort
+			labels[fmt.Sprintf("traefik.http.services.%s-%s.loadbalancer.server.scheme", deployment, containerPort)] = "http"
+		}
 	}
 
 	return labels
 }
 
-func TraefikMiddlewareLabels(namespace string, secured bool) map[string]string {
+func TraefikMiddlewareLabels(deployment string, secured bool) map[string]string {
 	labels := make(map[string]string, 0)
 	if secured {
 		// applies http redirect labels to all secure deployments
-		for k, v := range middlewares.RedirectToHTTPSLabels(namespace) {
+		for k, v := range middlewares.RedirectToHTTPSLabels(deployment) {
 			labels[k] = v
 		}
 	}
