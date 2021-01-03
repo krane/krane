@@ -237,6 +237,6 @@ func StreamContainerLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deployment.SubscribeToContainerLogs(connection, container)
+	deployment.ReadContainerLogs(connection, container)
 	return
 }

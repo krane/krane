@@ -1,8 +1,9 @@
 package docker
 
 import (
+	"bufio"
 	"context"
-	"io"
+	"sync"
 	"time"
 
 	"github.com/docker/docker/api/types"
@@ -102,20 +103,54 @@ func (c *Client) GetContainerStatus(ctx context.Context, containerID string, str
 	return c.ContainerStats(ctx, containerID, stream)
 }
 
-// StreamContainerLogs streams container logs into ioReader
-func (c *Client) StreamContainerLogs(containerID string) (reader io.Reader, err error) {
+// StreamContainerLogs reads the logs for a container outputting the data into a unbuffered channel
+func (c *Client) StreamContainerLogs(containerID string, out chan []byte, done chan bool) error {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	options := types.ContainerLogsOptions{
+	stream, err := c.ContainerLogs(ctx, containerID, types.ContainerLogsOptions{
 		ShowStdout: true,
 		ShowStderr: true,
 		Timestamps: true,
 		Follow:     true,
-		Tail:       "50",
+	})
+
+	if err != nil {
+		if stream != nil {
+			stream.Close()
+		}
+		return err
 	}
 
-	return c.ContainerLogs(ctx, containerID, options)
+	reader := bufio.NewReader(stream)
+	var mu sync.RWMutex
+	go func() {
+		for {
+			mu.Lock()
+
+			// read the first 8 bytes to ignore the HEADER part from docker container logs
+			header := make([]byte, 8)
+			_, err := reader.Read(header)
+			if err != nil {
+				stream.Close()
+				done <- true
+				return
+			}
+
+			bytes, _, err := reader.ReadLine()
+			if err != nil {
+				stream.Close()
+				done <- true
+				return
+			}
+
+			out <- bytes
+
+			mu.Unlock()
+		}
+	}()
+
+	return nil
 }
 
 // ConnectContainerToNetwork connects a container to a docker network

@@ -100,7 +100,7 @@ krane list
 
 ### logs
 
-Stream container logs for a deployment.
+Read container logs for a deployment.
 
 ```
 krane logs <container>
