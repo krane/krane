@@ -46,7 +46,7 @@ func streamLogs(client *websocket.Conn, container string) {
 		select {
 		case data := <-logs:
 			if err := client.WriteMessage(websocket.TextMessage, []byte(data)); err != nil {
-				logger.Debugf("error writing to socket client", err)
+				logger.Debugf("error writing to socket client, %v", err)
 			}
 		case <-done:
 			UnsubscribeFromContainerLogs(client, container)
