@@ -56,10 +56,16 @@ krane delete <deployment>
 
 ### describe
 
-Describe a deployment in detail. This provides details on the containers part of the deployment.
+Describe a deployment providing details on the containers part of the deployment.
 
 ```
 krane describe <deployment>
+```
+
+or describe a single container for additional details.
+
+```
+krane describe <deployment> <container>
 ```
 
 ### deploy
@@ -72,12 +78,18 @@ krane deploy -f </path/to/deployment.json>
 
 Flags:
 
-- `--file`(`-f`): Path to deployment configuration
+- `--file`(`-f`) Path to deployment configuration
+    - required: `false`
+    - default: `./deployment.json`
 
-- `--tag`(`-t`): Image tag to apply to the deployment
+- `--tag`(`-t`) Image tag to apply to the deployment
+    - required: `false`
+    - default: `latest`
 
-- `--scale`(`-s`): Number of containers to create (`default` is 1 container)
-
+- `--scale`(`-s`) Number of containers to create
+    - required: `false`
+    - default: `1`
+    
 ### list
 
 List all deployments.
