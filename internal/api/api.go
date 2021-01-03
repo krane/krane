@@ -74,7 +74,7 @@ func withRoutes(router *mux.Router) {
 	// session
 	withRoute(authRouter, "/sessions", controllers.GetSessions, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	// websocket
-	withRoute(noAuthRouter, "/containers/{container}/logs", controllers.ReadContainerLogs).Methods(http.MethodGet)
+	withRoute(noAuthRouter, "/containers/{container}/logs", controllers.StreamContainerLogs).Methods(http.MethodGet)
 }
 
 type routeHandler func(http.ResponseWriter, *http.Request)

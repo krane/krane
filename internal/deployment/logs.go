@@ -34,13 +34,13 @@ func UnsubscribeFromContainerLogs(client *websocket.Conn, container string) {
 func streamLogs(client *websocket.Conn, container string) {
 	reader, err := docker.GetClient().StreamContainerLogs(container)
 	if err != nil {
-		logger.Warnf("error streaming logs, %v", err)
+		logger.Warnf("error grabbing container reader, %v", err)
 	}
 
 	logs := make(chan []byte)
 	done := make(chan bool)
 
-	toChannel(&reader, logs, done)
+	ioReaderToChannel(&reader, logs, done)
 
 	for {
 		select {
@@ -54,8 +54,8 @@ func streamLogs(client *websocket.Conn, container string) {
 	}
 }
 
-// toChannel streams data from an io.Reader to a channel
-func toChannel(in *io.Reader, out chan []byte, done chan bool) {
+// ioReaderToChannel streams data from an io.Reader to a channel
+func ioReaderToChannel(in *io.Reader, out chan []byte, done chan bool) {
 	reader := bufio.NewReader(*in)
 
 	var mu sync.RWMutex
@@ -75,7 +75,7 @@ func toChannel(in *io.Reader, out chan []byte, done chan bool) {
 
 			bytes, _, err := reader.ReadLine()
 			if err != nil {
-				logger.Debugf("error streaming, %v", err)
+				logger.Debugf("error reading in container logs, %v", err)
 				done <- true
 				return
 			}

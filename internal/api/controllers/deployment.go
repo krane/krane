@@ -17,6 +17,7 @@ import (
 // WSUpgrader upgrades HTTP connections to WebSocket connections
 var WSUpgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
+		// TODO: authZ
 		return true
 	},
 }
@@ -223,16 +224,19 @@ func RestartDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func ReadContainerLogs(w http.ResponseWriter, r *http.Request) {
+// StreamContainerLogs opens a websocket connection to stream
+// the logs for a container. It upgrades the incoming http connection
+// into a websocket connection and keeps it open as long as the client is listening.
+func StreamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
-	containerID := params["container"]
+	container := params["container"]
 
-	ws, err := WSUpgrader.Upgrade(w, r, nil)
+	connection, err := WSUpgrader.Upgrade(w, r, nil)
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
 	}
 
-	deployment.SubscribeToContainerLogs(ws, containerID)
+	deployment.SubscribeToContainerLogs(connection, container)
 	return
 }
