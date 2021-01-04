@@ -41,6 +41,7 @@ func (j *Job) start() {
 	}
 	j.StartTime = time.Now().Unix()
 	j.State = Started
+	j.Status.Failures = []Error{}
 }
 
 func (j *Job) end() {

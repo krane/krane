@@ -24,7 +24,7 @@ func ReadContainerLogs(client *websocket.Conn, container string) {
 				// this will log when a client has disconnected at which point the
 				// connection is not valid causing a write error. This should not
 				// effect other clients or streaming logs in general.
-				logger.Debugf("error writing to client socket, %v", err)
+				logger.Debugf("client %v disconnected", client.LocalAddr())
 				return
 			}
 		case <-done:

@@ -46,26 +46,26 @@ Authenticate with a Krane instance.
 krane login
 ```
 
-### delete
+### remove
 
-Delete a deployment.
-
-```
-krane delete <deployment>
-```
-
-### describe
-
-Describe a deployment providing details on the containers part of the deployment.
+Remove a deployment.
 
 ```
-krane describe <deployment>
+krane remove <deployment>
 ```
 
-or describe a single container for additional details.
+### status
+
+Returns information related to a deployment.
 
 ```
-krane describe <deployment> <container>
+krane status <deployment>
+```
+
+or get the status of a single container.
+
+```
+krane status <deployment> <container>
 ```
 
 ### deploy
@@ -113,6 +113,12 @@ Get recent activity for a deployment.
 ```
 krane history <deployment>
 ```
+
+or get additional details on a specific deployment job.
+
+```
+krane history <deployment> <job>
+``` 
 
 ### start
 
