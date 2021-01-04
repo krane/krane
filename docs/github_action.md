@@ -1,0 +1,9 @@
+# GitHub Action
+
+The Krane [Github Action](https://github.com/features/actions) allows you to automate deployments using [Krane](https://krane.sh). You'll be able to continuously deliver updates when changes occur to your projects. 
+
+For complete documentation, checkout the [action](https://github.com/marketplace/actions/krane) on the GitHub Marketplace
+
+[![action_screenshot](assets/action_screenshot.png)](https://github.com/marketplace/actions/krane)
+
+
