@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/docker/distribution/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/biensupernice/krane/internal/constants"
 	"github.com/biensupernice/krane/internal/docker"
@@ -55,6 +54,7 @@ func Save(config Config) error {
 	config.applyDefaults()
 
 	if err := config.isValid(); err != nil {
+		logger.Errorf("deployment config is not valid %v", err)
 		return err
 	}
 
@@ -90,24 +90,21 @@ func Run(deployment string) error {
 
 			// ensure secrets collections
 			if err := CreateSecretsCollection(deploymentName); err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error creating secrets collection for deployment %s during job execution", deploymentName))
+				logger.Errorf("unable to create secrets collection %v", err)
+				return err
 			}
 
 			// ensure jobs collections
 			if err := CreateJobsCollection(deploymentName); err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error creating jobs collection for deployment %s during job execution", deploymentName))
+				logger.Errorf("unable to create jobs collection %v", err)
+				return err
 			}
 
 			// get containers (if any) currently part of this deployment
 			containers, err := GetContainersByDeployment(deploymentName)
 			if err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error getting containers for deployment %s during job execution", deploymentName))
+				logger.Errorf("unable to get containers %v", err)
+				return err
 			}
 
 			// update job arguments to process them for deletion later on
@@ -123,9 +120,8 @@ func Run(deployment string) error {
 			logger.Debugf("Pulling image for deployment %s", config.Name)
 			err := docker.GetClient().PullImage(config.Registry, config.Image, config.Tag)
 			if err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error pulling image %s for deployment %s during job execution", config.Image, config.Name))
+				logger.Errorf("unable to pull image %v", err)
+				return err
 			}
 
 			// create containers
@@ -133,9 +129,8 @@ func Run(deployment string) error {
 			for i := 0; i < config.Scale; i++ {
 				c, err := ContainerCreate(config)
 				if err != nil {
-					return errors.Wrap(
-						err,
-						fmt.Sprintf("error creating container for deployment %s during job execution", config.Name))
+					logger.Errorf("unable to create container %v", err)
+					return err
 				}
 				containersCreated = append(containersCreated, c)
 			}
@@ -145,9 +140,8 @@ func Run(deployment string) error {
 			containersStarted := make([]KraneContainer, 0)
 			for _, c := range containersCreated {
 				if err := c.Start(); err != nil {
-					return errors.Wrap(
-						err,
-						fmt.Sprintf("error starting container %s for deployment %s during job execution", c.ID, config.Name))
+					logger.Errorf("unable to start container %v", err)
+					return err
 				}
 				containersStarted = append(containersStarted, c)
 			}
@@ -155,9 +149,8 @@ func Run(deployment string) error {
 
 			retries := 10
 			if err := RetriableContainerHealthCheck(containersStarted, retries); err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error checking containers health for deployment %s during job execution", config.Name))
+				logger.Errorf("containers did not pass health check %v", err)
+				return err
 			}
 
 			return nil
@@ -168,9 +161,8 @@ func Run(deployment string) error {
 			for _, c := range jobArgs.ContainersToRemove {
 				err := c.Remove()
 				if err != nil {
-					return errors.Wrap(
-						err,
-						fmt.Sprintf("error removing container %s for deployment %s during job execution", c.ID, config.Name))
+					logger.Errorf("unable to remove container %v", err)
+					return err
 				}
 			}
 
@@ -203,17 +195,15 @@ func Delete(deployment string) error {
 			// get current containers
 			containers, err := GetContainersByDeployment(deploymentName)
 			if err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error getting containers for deployment %s", deploymentName))
+				logger.Errorf("unable get containers %v", err)
+				return err
 			}
 
 			// remove containers
 			for _, c := range containers {
 				if err := c.Remove(); err != nil {
-					return errors.Wrap(
-						err,
-						fmt.Sprintf("error removing container %s for deployment %s", c.ID, deploymentName))
+					logger.Errorf("unable to remove container %v", err)
+					return err
 				}
 			}
 
@@ -226,25 +216,22 @@ func Delete(deployment string) error {
 			// delete secrets collection
 			logger.Debugf("removing secrets collection for deployment %s", deploymentName)
 			if err := DeleteSecretsCollection(deploymentName); err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error removing secrets collection for deployment %s", deploymentName))
+				logger.Errorf("unable to remove secrets collection %v", err)
+				return err
 			}
 
 			// delete jobs collection
 			logger.Debugf("removing jobs collection for deployment %s", deploymentName)
 			if err := DeleteJobsCollection(deploymentName); err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error removing jobs collection for deployment %s", deploymentName))
+				logger.Errorf("unable to remove jobs collection %v", err)
+				return err
 			}
 
 			// delete deployment configuration
 			logger.Debugf("removing config for deployment %s", deploymentName)
 			if err := DeleteDeploymentConfig(deploymentName); err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error removing configuration for deployment %s", deploymentName))
+				logger.Errorf("unable to remove deployment configuration %v", err)
+				return err
 			}
 
 			return nil
@@ -274,9 +261,8 @@ func StartContainers(deployment string) error {
 			// get current containers
 			containers, err := GetContainersByDeployment(deploymentName)
 			if err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error getting containers for deployment %s", deploymentName))
+				logger.Errorf("unable to get containers %v", err)
+				return err
 			}
 
 			if len(containers) == 0 {
@@ -286,9 +272,8 @@ func StartContainers(deployment string) error {
 			// start containers
 			for _, c := range containers {
 				if err := c.Start(); err != nil {
-					return errors.Wrap(
-						err,
-						fmt.Sprintf("error starting container %s for deployment %s", c.ID, deploymentName))
+					logger.Errorf("unable to start container %v", err)
+					return err
 				}
 			}
 
@@ -318,9 +303,8 @@ func StopContainers(deployment string) error {
 			// get current containers
 			containers, err := GetContainersByDeployment(deploymentName)
 			if err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error getting containers for deployment %s", deploymentName))
+				logger.Errorf("unable to get containers %v", err)
+				return err
 			}
 
 			if len(containers) == 0 {
@@ -330,9 +314,8 @@ func StopContainers(deployment string) error {
 			// stop containers
 			for _, c := range containers {
 				if err := c.Stop(); err != nil {
-					return errors.Wrap(
-						err,
-						fmt.Sprintf("error stopping container %s for deployment %s", c.ID, deploymentName))
+					logger.Errorf("unable to stop container %v", err)
+					return err
 				}
 			}
 
@@ -369,9 +352,8 @@ func RestartContainers(deployment string) error {
 			// get current containers (if any) which will be removed after new containers are created
 			containers, err := GetContainersByDeployment(deploymentName)
 			if err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error getting oldContainers for %s during job execution", deploymentName))
+				logger.Errorf("unable to get containers %v", err)
+				return err
 			}
 
 			jobArgs.ContainersToRemove = containers
@@ -386,9 +368,8 @@ func RestartContainers(deployment string) error {
 			for i := 0; i < config.Scale; i++ {
 				c, err := ContainerCreate(config)
 				if err != nil {
-					return errors.Wrap(
-						err,
-						fmt.Sprintf("error creating container %s for deployment %s during job execution", c.ID, config.Name))
+					logger.Errorf("unable to create container %v", err)
+					return err
 				}
 				containersCreated = append(containersCreated, c)
 			}
@@ -398,9 +379,8 @@ func RestartContainers(deployment string) error {
 			containersStarted := make([]KraneContainer, 0)
 			for _, c := range containersCreated {
 				if err := c.Start(); err != nil {
-					return errors.Wrap(
-						err,
-						fmt.Sprintf("error starting container %s for deployment %s during job execution", c.ID, config.Name))
+					logger.Errorf("unable to start container %v", err)
+					return err
 				}
 				containersStarted = append(containersStarted, c)
 			}
@@ -408,22 +388,18 @@ func RestartContainers(deployment string) error {
 
 			retries := 10
 			if err := RetriableContainerHealthCheck(containersStarted, retries); err != nil {
-				return errors.Wrap(
-					err,
-					fmt.Sprintf("error checking containers health for deployment %s during job execution", config.Name))
+				logger.Errorf("containers did not pass health check %v", err)
+				return err
 			}
 
 			return nil
 		},
 		Finally: func(args interface{}) error {
 			jobArgs := args.(*RestartContainersJobArgs)
-			config := jobArgs.Config
-
 			for _, c := range jobArgs.ContainersToRemove {
 				if err := c.Remove(); err != nil {
-					return errors.Wrap(
-						err,
-						fmt.Sprintf("error removing container %s for deployment %s during job execution", c.ID, config.Name))
+					logger.Errorf("unable to remove container %v", err)
+					return err
 				}
 			}
 
