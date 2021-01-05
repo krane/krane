@@ -16,7 +16,6 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 ## Features
 
 - Single file deployments
-- SSH key based authentication
 - Compatible with *localhost* with features like aliases(`my-api.localhost`)
 - HTTPS/TLS support via [Let's Encrypt](https://letsencrypt.org/)
 - Deployment [aliases](https://www.krane.sh/#/deployment-configuration?id=alias) provided by [Traefik](https://traefik.io/traefik/)
