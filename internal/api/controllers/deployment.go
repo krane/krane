@@ -228,10 +228,9 @@ func RestartDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// StreamContainerLogs opens a websocket connection to stream
-// the logs for a container. It upgrades the incoming http connection
-// into a websocket connection and keeps it open as long as the client is listening.
-func StreamContainerLogs(w http.ResponseWriter, r *http.Request) {
+// ReadContainerLogs upgrades the incoming http connection into a websocket connection
+// to stream container logs
+func ReadContainerLogs(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	container := params["container"]
 
@@ -242,5 +241,19 @@ func StreamContainerLogs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	deployment.ReadContainerLogs(connection, container)
+	return
+}
+
+func SubscribeToDeploymentEvents(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	deploymentName := params["deployment"]
+
+	connection, err := WSUpgrader.Upgrade(w, r, nil)
+	if err != nil {
+		response.HTTPBad(w, err)
+		return
+	}
+
+	deployment.SubscribeToDeploymentEvents(connection, deploymentName)
 	return
 }

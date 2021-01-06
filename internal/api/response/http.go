@@ -33,6 +33,16 @@ func HTTPAccepted(w http.ResponseWriter) {
 	return
 }
 
+// HTTPAccepted writes http response code 202 with a json body
+func HTTPAcceptedWithBody(w http.ResponseWriter, data interface{}) {
+	payload, _ := json.Marshal(data)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	_, _ = w.Write(payload)
+	return
+}
+
 // HTTPBad writes http response code 400
 func HTTPBad(w http.ResponseWriter, err error) {
 	w.Header().Set("Content-Type", "application/json")

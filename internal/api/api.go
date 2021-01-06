@@ -73,8 +73,9 @@ func withRoutes(router *mux.Router) {
 	withRoute(authRouter, "/jobs/{deployment}/{id}", controllers.GetJobByID, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	// session
 	withRoute(authRouter, "/sessions", controllers.GetSessions, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
-	// websocket
-	withRoute(authRouter, "/ws/containers/{container}/logs", controllers.StreamContainerLogs, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	// realtime
+	withRoute(authRouter, "/ws/containers/{container}/logs", controllers.ReadContainerLogs, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/ws/deployments/{deployment}/events", controllers.SubscribeToDeploymentEvents, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 }
 
 type routeHandler func(http.ResponseWriter, *http.Request)
