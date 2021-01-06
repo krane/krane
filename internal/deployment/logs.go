@@ -14,6 +14,7 @@ func ReadContainerLogs(client *websocket.Conn, container string) {
 
 	if err := docker.GetClient().StreamContainerLogs(container, data, done); err != nil {
 		logger.Warnf("error grabbing container reader, %v", err)
+		client.Close()
 		return
 	}
 
@@ -23,7 +24,7 @@ func ReadContainerLogs(client *websocket.Conn, container string) {
 			if err := client.WriteMessage(websocket.TextMessage, bytes); err != nil {
 				// this will log when a client has disconnected at which point the
 				// connection is not valid causing a write error. This should not
-				// effect other clients or streaming logs in general.
+				// affect other clients or streaming logs in general.
 				logger.Debugf("client %v disconnected", client.LocalAddr())
 				return
 			}
