@@ -128,7 +128,6 @@ func (c *Client) StreamContainerLogs(containerID string, out chan []byte, done c
 	go func() {
 		for {
 			mu.Lock()
-
 			// read the first 8 bytes to ignore the HEADER part from docker container logs
 			header := make([]byte, 8)
 			_, err := reader.Read(header)

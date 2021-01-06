@@ -4,37 +4,23 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/docker/docker/api/types"
 )
 
-// PullImage : pull docker image from registry
-func (c *Client) PullImage(registry, image, tag string) (err error) {
+// PullImage pulls a container image from a registry onto the host machine
+func (c *Client) PullImage(registry, image, tag string) (io.Reader, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	formattedImage := formatImageSourceURL(registry, image, tag)
-
-	options := types.ImagePullOptions{
+	ref := createImageRef(registry, image, tag)
+	return c.ImagePull(ctx, ref, types.ImagePullOptions{
 		All:          false,
 		RegistryAuth: Base64DockerRegistryCredentials(),
-	}
-
-	reader, err := c.ImagePull(ctx, formattedImage, options)
-	if err != nil {
-		return err
-	}
-
-	// output to deployment event socket
-	io.Copy(os.Stdout, reader)
-
-	err = reader.Close()
-
-	return
+	})
 }
 
-// RemoveImage : remove docker image
+// RemoveImage removes a docker image from the host machine
 func (c *Client) RemoveImage(ctx *context.Context, imageID string) ([]types.ImageDelete, error) {
 	options := types.ImageRemoveOptions{
 		Force:         true,
@@ -43,8 +29,8 @@ func (c *Client) RemoveImage(ctx *context.Context, imageID string) ([]types.Imag
 	return c.ImageRemove(*ctx, imageID, options)
 }
 
-// formatImageSourceURL : format into appropriate docker image url
-func formatImageSourceURL(registry, image, tag string) string {
+// createImageRef returns a formatted docker image url
+func createImageRef(registry, image, tag string) string {
 	if tag == "" {
 		tag = "latest"
 	}

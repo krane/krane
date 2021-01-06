@@ -13,14 +13,14 @@ import (
 	"github.com/biensupernice/krane/internal/utils"
 )
 
-type DeploymentAction string
+type JobType string
 
 const (
-	RunDeploymentAction     DeploymentAction = "RUN_DEPLOYMENT"
-	DeleteDeploymentAction  DeploymentAction = "DELETE_DEPLOYMENT"
-	StopContainersAction    DeploymentAction = "STOP_CONTAINERS"
-	StartContainersAction   DeploymentAction = "START_CONTAINERS"
-	RestartContainersAction DeploymentAction = "RESTART_CONTAINERS"
+	RunDeploymentJobType     JobType = "RUN_DEPLOYMENT"
+	DeleteDeploymentJobType  JobType = "DELETE_DEPLOYMENT"
+	StopContainersJobType    JobType = "STOP_CONTAINERS"
+	StartContainersJobType   JobType = "START_CONTAINERS"
+	RestartContainersJobType JobType = "RESTART_CONTAINERS"
 )
 
 // enqueue queue's up deployment job for processing
@@ -63,7 +63,8 @@ func Save(config Config) error {
 }
 
 // Run a deployment runs the current configuration for a
-// deployment creating or re-creating container resources
+// deployment creating or re-creating container resources.
+// Returns the job id to track deployment events
 func Run(deployment string) error {
 	config, err := GetDeploymentConfig(deployment)
 	if err != nil {
@@ -75,10 +76,12 @@ func Run(deployment string) error {
 		ContainersToRemove []KraneContainer
 	}
 
+	jobID := uuid.Generate().String()
+	e := createEventEmitter(config.Name, jobID)
 	go enqueue(job.Job{
-		ID:          uuid.Generate().String(),
+		ID:          jobID,
 		Deployment:  config.Name,
-		Type:        string(RunDeploymentAction),
+		Type:        string(RunDeploymentJobType),
 		RetryPolicy: utils.UIntEnv(constants.EnvDeploymentRetryPolicy),
 		Args: &RunDeploymentJobArgs{
 			Config:             config,
@@ -118,7 +121,8 @@ func Run(deployment string) error {
 
 			// pull image
 			logger.Debugf("Pulling image for deployment %s", config.Name)
-			err := docker.GetClient().PullImage(config.Registry, config.Image, config.Tag)
+			pullImageReader, err := docker.GetClient().PullImage(config.Registry, config.Image, config.Tag)
+			e.emitS(pullImageReader)
 			if err != nil {
 				logger.Errorf("unable to pull image %v", err)
 				return err
@@ -134,7 +138,7 @@ func Run(deployment string) error {
 				}
 				containersCreated = append(containersCreated, c)
 			}
-			logger.Debugf("Created %d container(s) for deployment %s", len(containersCreated), config.Name)
+			logger.Debugf("%d/%d container(s) for deployment %s created", config.Scale, len(containersCreated), config.Name)
 
 			// start containers
 			containersStarted := make([]KraneContainer, 0)
@@ -145,27 +149,28 @@ func Run(deployment string) error {
 				}
 				containersStarted = append(containersStarted, c)
 			}
-			logger.Debugf("Started %d container(s) for deployment %s", len(containersStarted), config.Name)
+			logger.Debugf("%d/%d container(s) for deployment %s started", len(containersStarted), len(containersCreated), config.Name)
 
+			// health check
 			retries := 10
 			if err := RetriableContainerHealthCheck(containersStarted, retries); err != nil {
 				logger.Errorf("containers did not pass health check %v", err)
 				return err
 			}
-
+			logger.Debugf("Deployment %s health check complete", config.Name)
 			return nil
 		},
 		Finally: func(args interface{}) error {
 			jobArgs := args.(*RunDeploymentJobArgs)
 
 			for _, c := range jobArgs.ContainersToRemove {
+				logger.Debugf("Purging container %s", c.Name)
 				err := c.Remove()
 				if err != nil {
 					logger.Errorf("unable to remove container %v", err)
 					return err
 				}
 			}
-
 			return nil
 		},
 	})
@@ -183,7 +188,7 @@ func Delete(deployment string) error {
 	go enqueue(job.Job{
 		ID:          uuid.Generate().String(),
 		Deployment:  deployment,
-		Type:        string(DeleteDeploymentAction),
+		Type:        string(DeleteDeploymentJobType),
 		RetryPolicy: utils.UIntEnv(constants.EnvDeploymentRetryPolicy),
 		Args: DeleteDeploymentJobArgs{
 			Deployment: deployment,
@@ -249,7 +254,7 @@ func StartContainers(deployment string) error {
 	go enqueue(job.Job{
 		ID:          uuid.Generate().String(),
 		Deployment:  deployment,
-		Type:        string(StartContainersAction),
+		Type:        string(StartContainersJobType),
 		RetryPolicy: utils.UIntEnv(constants.EnvDeploymentRetryPolicy),
 		Args: StartContainersJobArgs{
 			Deployment: deployment,
@@ -291,7 +296,7 @@ func StopContainers(deployment string) error {
 	go enqueue(job.Job{
 		ID:          uuid.Generate().String(),
 		Deployment:  deployment,
-		Type:        string(StopContainersAction),
+		Type:        string(StopContainersJobType),
 		RetryPolicy: utils.UIntEnv(constants.EnvDeploymentRetryPolicy),
 		Args: StopContainersJobArgs{
 			Deployment: deployment,
@@ -339,7 +344,7 @@ func RestartContainers(deployment string) error {
 	go enqueue(job.Job{
 		ID:          uuid.Generate().String(),
 		Deployment:  deployment,
-		Type:        string(RestartContainersAction),
+		Type:        string(RestartContainersJobType),
 		RetryPolicy: utils.UIntEnv(constants.EnvDeploymentRetryPolicy),
 		Args: &RestartContainersJobArgs{
 			ContainersToRemove: []KraneContainer{},
