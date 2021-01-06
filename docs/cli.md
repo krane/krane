@@ -100,7 +100,7 @@ krane list
 
 ### logs
 
-Read container logs for a deployment.
+Read realtime container logs for a deployment.
 
 ```
 krane logs <container>
@@ -118,6 +118,14 @@ or get additional details on a specific deployment job.
 
 ```
 krane history <deployment> <job>
+```
+
+### help
+
+Display CLI usage and commands. 
+
+```
+krane help
 ``` 
 
 ### start
