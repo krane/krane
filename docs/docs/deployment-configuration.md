@@ -75,7 +75,7 @@ For example to load-balance a deployment with multiple instances on a specific p
 }
 ```
 
-In the above configuration you'll have 3 instances of your deployment load-balanced on port **9000**. See [scale](deployment-configuration?id=scale) for more details on load-balancing.
+In the above configuration you'll have 3 instances of your deployment load-balanced on port **9000**. See [scale](docs/deployment-configuration?id=scale) for more details on load-balancing.
 
 ## target_port
 
@@ -103,7 +103,7 @@ In the above configuration, multiple ports are exposed from the host to the cont
 
 The environment variables passed to the containers part of a deployment.
 
-> ⚠️ Environment variables should not contain any sensitive data, use [`secrets`](deployment-configuration?id=secrets) instead.
+> ⚠️ Environment variables should not contain any sensitive data, use [`secrets`](docs/deployment-configuration?id=secrets) instead.
 
 - required: `false`
 
@@ -120,7 +120,7 @@ The environment variables passed to the containers part of a deployment.
 
 Secrets are used when you want to pass sensitive information to your deployments.
 
-> You can add deployment secrets using the Krane [CLI](cli?id=secrets)
+> You can add deployment secrets using the Krane [CLI](docs/cli?id=secrets)
 
 - required: `false`
 
