@@ -18,15 +18,15 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 - Single file deployments
 - Compatible with _localhost_ with features like aliases(`my-api.localhost`)
 - HTTPS/TLS support via [Let's Encrypt](https://letsencrypt.org/)
-- Deployment [aliases](https://www.krane.sh/#/deployment-configuration?id=alias) provided by [Traefik](https://traefik.io/traefik/)
-- Deployment [secrets](https://www.krane.sh/#/deployment-configuration?id=secrets) for hiding sensitive environment variables
-- Deployment [scaling](https://www.krane.sh/#/deployment-configuration?id=scale) to distribute the workload between containers
+- Deployment [aliases](https://www.krane.sh/#/docs/deployment-configuration?id=alias) provided by [Traefik](https://traefik.io/traefik/)
+- Deployment [secrets](https://www.krane.sh/#/docs/deployment-configuration?id=secrets) for hiding sensitive environment variables
+- Deployment [scaling](https://www.krane.sh/#/docs/deployment-configuration?id=scale) to distribute the workload between containers
 - Tooling - [CLI](https://github.com/krane/cli), [GitHub Action](https://github.com/krane/action)
 - [Self-hosted](#motivation) - Bring your own server (could be a cheap $5 server) and scale if you need
 
 ## Getting Started
 
-[![Install Krane](docs/assets/1-install-krane.png)](https://www.krane.sh/#/installation)
+[![Install Krane](docs/assets/1-install-krane.png)](https://www.krane.sh/#/docs/installation)
 
 ```
 docker run -d --name=krane \
@@ -38,7 +38,7 @@ docker run -d --name=krane \
 
 Other [installation](https://www.krane.sh/#/installation) methods and configurations.
 
-[![Download CLI](docs/assets/2-download-cli.png)](https://www.krane.sh/#/cli)
+[![Download CLI](docs/assets/2-download-cli.png)](https://www.krane.sh/#/docs/cli)
 
 Download the Krane [CLI](https://www.krane.sh/#/cli) to execute commands on a Krane instance.
 
@@ -46,7 +46,7 @@ Download the Krane [CLI](https://www.krane.sh/#/cli) to execute commands on a Kr
 npm i -g @krane/cli
 ```
 
-Full list of [commands](https://www.krane.sh/#/cli?id=commands).
+Full list of [commands](https://www.krane.sh/#/docs/cli?id=commands).
 
 ![Setup Authentication](docs/assets/3-setup-authentication.png)
 
@@ -58,7 +58,7 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
 
 The private key stays on the user's machine, the public key is appended to `~/.ssh/authorized_keys` where Krane is running.
 
-[![Authenticate](docs/assets/4-authentication.png)](https://www.krane.sh/#/cli?id=authenticating)
+[![Authenticate](docs/assets/4-authentication.png)](https://www.krane.sh/#/docs/cli?id=authenticating)
 
 When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated you'll be able to execute commands on that Krane instance.
 
@@ -68,7 +68,7 @@ To switch between Krane instances you'll have to login again.
 krane login
 ```
 
-[![Deploy](docs/assets/5-deploy.png)](https://www.krane.sh/#/cli?id=deploy)
+[![Deploy](docs/assets/5-deploy.png)](https://www.krane.sh/#/docs/cli?id=deploy)
 
 Create a deployment configuration file `deployment.json`
 
@@ -86,7 +86,7 @@ For example:
 krane deploy -f /path/to/deployment.json
 ```
 
-For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/deployment-configuration).
+For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/docs/deployment-configuration).
 
 ---
 
