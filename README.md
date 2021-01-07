@@ -36,7 +36,7 @@ docker run -d --name=krane \
     -p 8500:8500 biensupernice/krane
 ```
 
-Other [installation](https://www.krane.sh/#/installation) methods and configurations.
+Other [installation](https://www.krane.sh/#/docs/installation) methods and configurations.
 
 [![Download CLI](docs/assets/2-download-cli.png)](https://www.krane.sh/#/docs/cli)
 
@@ -48,7 +48,7 @@ npm i -g @krane/cli
 
 Full list of [commands](https://www.krane.sh/#/docs/cli?id=commands).
 
-![Setup Authentication](docs/assets/3-setup-authentication.png)
+[![Setup Authentication](docs/assets/3-setup-authentication.png)](https://www.krane.sh/#/docs/cli?id=authenticating)
 
 Create public and private keys used for authentication.
 
