@@ -20,7 +20,7 @@ Other [installation](docs/installation) methods and configurations.
 
 [![Download CLI](../assets/2-download-cli.png)](https://www.krane.sh/#/docs/cli)
 
-Download the Krane [CLI](cli) to execute commands on a Krane instance.
+Download the Krane [CLI](docs/cli) to execute commands on a Krane instance.
 
 ```
 npm i -g @krane/cli
