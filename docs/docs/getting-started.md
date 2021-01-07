@@ -4,7 +4,7 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 
 ![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1609389359/architecture_img_whesih.png)
 
-[![Install Krane](../assets/1-install-krane.png)](https://www.krane.sh/#/installation)
+[![Install Krane](../assets/1-install-krane.png)](https://www.krane.sh/#/docs/installation)
 
 Install and run Krane using Docker.
 
@@ -16,7 +16,7 @@ docker run -d --name=krane \
     -p 8500:8500 biensupernice/krane
 ```
 
-Other [installation](installation) methods and configurations.
+Other [installation](docs/installation) methods and configurations.
 
 [![Download CLI](../assets/2-download-cli.png)](https://www.krane.sh/#/docs/cli)
 
