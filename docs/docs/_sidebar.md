@@ -3,5 +3,5 @@
 - [Deployment Config](docs/deployment-configuration.md)
 
 - Tooling
-- [CLI](docs/tooling-cli.md)
-- [GitHub Action](docs/tooling-github-action.md)
+- [CLI](docs/cli.md)
+- [GitHub Action](docs/github-action.md)
