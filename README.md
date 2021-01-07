@@ -6,7 +6,7 @@
 
 > ⚠️ Currently under construction
 
-Krane makes it easy to deploy containers for development workloads on remote or local servers. Krane interfaces with Docker exposing a productive toolset for managing containerized services known as deployments. The Krane [CLI](https://www.krane.sh/#/cli) allows you to interact with Krane to create, manage and automate deployments.
+Krane makes it easy to deploy containers for development workloads on remote or local servers. Krane interfaces with Docker exposing a productive toolset for managing containerized services known as deployments. The Krane [CLI](https://www.krane.sh/#/docs/cli) allows you to interact with Krane to create, manage and automate deployments.
 
 - **Documentation:** https://krane.sh
 - **Releases:** https://github.com/krane/krane/releases
@@ -40,7 +40,7 @@ Other [installation](https://www.krane.sh/#/installation) methods and configurat
 
 [![Download CLI](docs/assets/2-download-cli.png)](https://www.krane.sh/#/docs/cli)
 
-Download the Krane [CLI](https://www.krane.sh/#/cli) to execute commands on a Krane instance.
+Download the Krane [CLI](https://www.krane.sh/#/docs/cli) to execute commands on a Krane instance.
 
 ```
 npm i -g @krane/cli
