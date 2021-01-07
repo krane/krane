@@ -6,10 +6,10 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"github.com/biensupernice/krane/internal/auth"
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/store"
-	"github.com/biensupernice/krane/internal/utils"
+	"github.com/krane/krane/internal/auth"
+	"github.com/krane/krane/internal/constants"
+	"github.com/krane/krane/internal/store"
+	"github.com/krane/krane/internal/utils"
 )
 
 // Session represents an authenticated user session

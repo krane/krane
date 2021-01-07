@@ -6,10 +6,10 @@ import (
 
 	"github.com/docker/distribution/uuid"
 
-	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/store"
+	"github.com/krane/krane/internal/api/response"
+	"github.com/krane/krane/internal/constants"
+	"github.com/krane/krane/internal/logger"
+	"github.com/krane/krane/internal/store"
 )
 
 // LoginResponse is the response received when you initially want to authenticate.

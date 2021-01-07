@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/krane/krane/internal/logger"
 )
 
 type EventEmitter struct {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/biensupernice/krane/internal/store"
+	"github.com/krane/krane/internal/store"
 )
 
 const boltpath = "./krane.db"

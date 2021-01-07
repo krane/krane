@@ -5,14 +5,13 @@ import (
 	"os"
 	"time"
 
-	"github.com/biensupernice/krane/internal/api/controllers"
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/krane/krane/internal/api/controllers"
+	"github.com/krane/krane/internal/api/middlewares"
+	"github.com/krane/krane/internal/constants"
+	"github.com/krane/krane/internal/logger"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-
-	"github.com/biensupernice/krane/internal/api/middlewares"
 )
 
 // Run starts the Krane rest api
@@ -55,7 +54,7 @@ func withRoutes(router *mux.Router) {
 	authRouter := router.PathPrefix("/").Subrouter()
 	// deployments
 	withRoute(authRouter, "/deployments", controllers.GetAllDeployments, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/deployments", controllers.SaveDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
+	withRoute(authRouter, "/deployments", controllers.CreateOrUpdateDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
 	withRoute(authRouter, "/deployments/{deployment}", controllers.GetDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/deployments/{deployment}", controllers.RunDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
 	withRoute(authRouter, "/deployments/{deployment}", controllers.DeleteDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodDelete)
@@ -65,7 +64,7 @@ func withRoutes(router *mux.Router) {
 	withRoute(authRouter, "/deployments/{deployment}/containers/restart", controllers.RestartDeploymentContainers, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
 	// secrets
 	withRoute(authRouter, "/secrets/{deployment}", controllers.GetSecrets, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
-	withRoute(authRouter, "/secrets/{deployment}", controllers.CreateSecret, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
+	withRoute(authRouter, "/secrets/{deployment}", controllers.CreateOrUpdateSecret, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
 	withRoute(authRouter, "/secrets/{deployment}/{key}", controllers.DeleteSecret, middlewares.ValidateSessionMiddleware).Methods(http.MethodDelete)
 	// jobs
 	withRoute(authRouter, "/jobs", controllers.GetRecentJobs, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)

@@ -79,17 +79,19 @@ krane deploy -f </path/to/deployment.json>
 Flags:
 
 - `--file`(`-f`) Path to deployment configuration
-    - required: `false`
-    - default: `./deployment.json`
+
+  - required: `false`
+  - default: `./deployment.json`
 
 - `--tag`(`-t`) Image tag to apply to the deployment
-    - required: `false`
-    - default: `latest`
+
+  - required: `false`
+  - default: `latest`
 
 - `--scale`(`-s`) Number of containers to create
-    - required: `false`
-    - default: `1`
-    
+  - required: `false`
+  - default: `1`
+
 ### list
 
 List all deployments.
@@ -122,15 +124,15 @@ krane history <deployment> <job>
 
 ### help
 
-Display CLI usage and commands. 
+Display CLI usage and commands.
 
 ```
 krane help
-``` 
+```
 
 ### start
 
-Start all containers for a deployment. This command will not *create* containers, only start any stopped containers.
+Start all containers for a deployment. This command will not _create_ containers, only start any stopped containers.
 
 ```
 krane start <deployment>
@@ -146,7 +148,7 @@ krane stop <deployment>
 
 ### restart
 
-Restart a deployment *re-creating* container resources.
+Restart a deployment _re-creating_ container resources.
 
 ```
 krane restart <deployment>

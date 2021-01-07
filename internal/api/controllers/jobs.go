@@ -8,9 +8,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 
-	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/deployment"
-	"github.com/biensupernice/krane/internal/utils"
+	"github.com/krane/krane/internal/api/response"
+	"github.com/krane/krane/internal/deployment"
+	"github.com/krane/krane/internal/utils"
 )
 
 // GetRecentJobs returns all deployment jobs within a date range (default is 1d ago)

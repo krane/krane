@@ -3,9 +3,9 @@ package deployment
 import (
 	"fmt"
 
-	"github.com/biensupernice/krane/internal/job"
-	"github.com/biensupernice/krane/internal/store"
-	"github.com/biensupernice/krane/internal/utils"
+	"github.com/krane/krane/internal/job"
+	"github.com/krane/krane/internal/store"
+	"github.com/krane/krane/internal/utils"
 )
 
 // CreateCollection create the job collection for a deployment

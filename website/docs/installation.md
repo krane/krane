@@ -25,7 +25,7 @@ Run Krane using the executable for Linux
 export KRANE_PRIVATE_KEY=changeme
 
 # install the executable
-curl -L https://github.com/biensupernice/krane/releases/download/${KRANE_VERSION}/krane_${KRANE_VERSION}_linux_386.tar.gz | tar xz && chmod +x krane
+curl -L https://github.com/krane/krane/releases/download/${KRANE_VERSION}/krane_${KRANE_VERSION}_linux_386.tar.gz | tar xz && chmod +x krane
 
 # run the executable
 krane &
@@ -40,7 +40,7 @@ Run Krane using the executable for Mac
 export KRANE_PRIVATE_KEY=changeme
 
 # install the executable
-curl -L https://github.com/biensupernice/krane/releases/download/${KRANE_VERSION}/krane_${KRANE_VERSION}_darwin_amd64.tar.gz | tar xz && chmod +x krane
+curl -L https://github.com/krane/krane/releases/download/${KRANE_VERSION}/krane_${KRANE_VERSION}_darwin_amd64.tar.gz | tar xz && chmod +x krane
 
 # run the executable
 krane &

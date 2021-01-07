@@ -6,8 +6,8 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/utils"
+	"github.com/krane/krane/internal/constants"
+	"github.com/krane/krane/internal/utils"
 )
 
 var once sync.Once

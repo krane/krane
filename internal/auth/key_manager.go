@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/krane/krane/internal/constants"
+	"github.com/krane/krane/internal/logger"
 )
 
 // GetServerPrivateKey : get the private key for the Krane server

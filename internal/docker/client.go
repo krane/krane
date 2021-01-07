@@ -6,7 +6,7 @@ import (
 
 	"github.com/docker/docker/client"
 
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/krane/krane/internal/logger"
 )
 
 type Client struct{ *client.Client }
@@ -16,7 +16,7 @@ var instance *Client
 
 func GetClient() *Client { return instance }
 
-// Connect : create a docker client
+// Connect establishes a connection with the Docker host
 func Connect() {
 	once.Do(func() {
 		ClientFromEnv()
@@ -24,7 +24,7 @@ func Connect() {
 	})
 }
 
-// ClientFromEnv : create a docker client based on environment variables
+// ClientFromEnv create a docker client based on the systems environment
 func ClientFromEnv() {
 	logger.Info("Connecting to Docker client")
 

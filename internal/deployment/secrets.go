@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/store"
+	"github.com/krane/krane/internal/constants"
+	"github.com/krane/krane/internal/store"
 )
 
 type Secret struct {

@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/docker"
-	time "github.com/biensupernice/krane/internal/utils"
+	"github.com/krane/krane/internal/api/response"
+	"github.com/krane/krane/internal/docker"
+	"github.com/krane/krane/internal/utils"
 )
 
 // HealthCheck returns the health and status of the running Krane instance
@@ -19,6 +19,6 @@ func HealthCheck(w http.ResponseWriter, r *http.Request) {
 	}{
 		Docker:    docker.Ping(),
 		Host:      host,
-		Timestamp: time.UTCDateString(),
+		Timestamp: utils.UTCDateString(),
 	})
 }

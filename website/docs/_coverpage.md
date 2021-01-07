@@ -2,4 +2,4 @@
 
 > Toolset for working with containers
 
-[Explore](getting-started)
+[Explore](docs/getting-started.md)

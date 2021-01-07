@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/biensupernice/krane/internal/proxy/middlewares"
+	"github.com/krane/krane/internal/proxy/middlewares"
 )
 
 type TraefikLabel struct {

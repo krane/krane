@@ -8,13 +8,13 @@ import (
 
 	"github.com/docker/distribution/uuid"
 
-	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/auth"
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/session"
-	"github.com/biensupernice/krane/internal/store"
-	"github.com/biensupernice/krane/internal/utils"
+	"github.com/krane/krane/internal/api/response"
+	"github.com/krane/krane/internal/auth"
+	"github.com/krane/krane/internal/constants"
+	"github.com/krane/krane/internal/logger"
+	"github.com/krane/krane/internal/session"
+	"github.com/krane/krane/internal/store"
+	"github.com/krane/krane/internal/utils"
 )
 
 // AuthRequest : the payload expected when authenticating with Krane

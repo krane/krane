@@ -9,10 +9,10 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/auth"
-	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/session"
+	"github.com/krane/krane/internal/api/response"
+	"github.com/krane/krane/internal/auth"
+	"github.com/krane/krane/internal/logger"
+	"github.com/krane/krane/internal/session"
 )
 
 // ValidateSessionMiddleware middleware to authenticate a client token against an active session

@@ -9,7 +9,7 @@ import (
 	"github.com/docker/distribution/uuid"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/biensupernice/krane/internal/constants"
+	"github.com/krane/krane/internal/constants"
 )
 
 const testBoltPath = "./krane.db"

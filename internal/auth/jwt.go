@@ -12,7 +12,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/krane/krane/internal/logger"
 )
 
 // Claims : custom claims for user authentication

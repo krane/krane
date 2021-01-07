@@ -1,7 +1,7 @@
 package job
 
 import (
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/krane/krane/internal/logger"
 )
 
 type Workflow struct {

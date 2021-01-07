@@ -3,8 +3,8 @@ package deployment
 import (
 	"github.com/gorilla/websocket"
 
-	"github.com/biensupernice/krane/internal/docker"
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/krane/krane/internal/docker"
+	"github.com/krane/krane/internal/logger"
 )
 
 // ReadContainerLogs streams container logs to a websocket client

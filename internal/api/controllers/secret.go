@@ -8,11 +8,11 @@ import (
 
 	"github.com/gorilla/mux"
 
-	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/deployment"
+	"github.com/krane/krane/internal/api/response"
+	"github.com/krane/krane/internal/deployment"
 )
 
-// GetSecrets : get deployment secrets
+// GetSecrets returns all secrets for a deployment
 func GetSecrets(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]
@@ -27,8 +27,8 @@ func GetSecrets(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// CreateSecret : create a deployment secret
-func CreateSecret(w http.ResponseWriter, r *http.Request) {
+// CreateOrUpdateSecret saves a deployment secret
+func CreateOrUpdateSecret(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]
 
@@ -65,7 +65,7 @@ func CreateSecret(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// DeleteSecret : delete a deployment secret
+// DeleteSecret removes a deployment secret
 func DeleteSecret(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]

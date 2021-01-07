@@ -3,7 +3,7 @@ package job
 import (
 	"sync"
 
-	"github.com/biensupernice/krane/internal/logger"
+	"github.com/krane/krane/internal/logger"
 )
 
 var once sync.Once

@@ -3,8 +3,8 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/session"
+	"github.com/krane/krane/internal/api/response"
+	"github.com/krane/krane/internal/session"
 )
 
 // GetSessions returns a list of user sessions. A session is an authenticated client with a valid token.

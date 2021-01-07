@@ -5,14 +5,14 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/biensupernice/krane/internal/api"
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/docker"
-	"github.com/biensupernice/krane/internal/job"
-	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/scheduler"
-	"github.com/biensupernice/krane/internal/store"
-	"github.com/biensupernice/krane/internal/utils"
+	"github.com/krane/krane/internal/api"
+	"github.com/krane/krane/internal/constants"
+	"github.com/krane/krane/internal/docker"
+	"github.com/krane/krane/internal/job"
+	"github.com/krane/krane/internal/logger"
+	"github.com/krane/krane/internal/scheduler"
+	"github.com/krane/krane/internal/store"
+	"github.com/krane/krane/internal/utils"
 )
 
 func init() {

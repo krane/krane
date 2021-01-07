@@ -7,7 +7,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 
-	"github.com/biensupernice/krane/internal/docker"
+	"github.com/krane/krane/internal/docker"
 )
 
 // KraneContainer represents a Krane managed container

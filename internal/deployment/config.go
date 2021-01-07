@@ -10,11 +10,11 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/lithammer/shortuuid/v3"
 
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/docker"
-	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/proxy"
-	"github.com/biensupernice/krane/internal/store"
+	"github.com/krane/krane/internal/constants"
+	"github.com/krane/krane/internal/docker"
+	"github.com/krane/krane/internal/logger"
+	"github.com/krane/krane/internal/proxy"
+	"github.com/krane/krane/internal/store"
 )
 
 // Config represents a deployment configuration

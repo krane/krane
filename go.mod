@@ -1,4 +1,4 @@
-module github.com/biensupernice/krane
+module github.com/krane/krane
 
 go 1.14
 

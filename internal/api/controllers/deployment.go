@@ -10,9 +10,9 @@ import (
 
 	"github.com/gorilla/websocket"
 
-	"github.com/biensupernice/krane/internal/api/response"
-	"github.com/biensupernice/krane/internal/deployment"
-	"github.com/biensupernice/krane/internal/session"
+	"github.com/krane/krane/internal/api/response"
+	"github.com/krane/krane/internal/deployment"
+	"github.com/krane/krane/internal/session"
 )
 
 // WSUpgrader upgrades HTTP connections to WebSocket connections
@@ -63,8 +63,8 @@ func GetAllDeployments(w http.ResponseWriter, _ *http.Request) {
 	return
 }
 
-// SaveDeployment creates or updates a deployment but DOES NOT run it
-func SaveDeployment(w http.ResponseWriter, r *http.Request) {
+// CreateOrUpdateDeployment saves a deployment configuration
+func CreateOrUpdateDeployment(w http.ResponseWriter, r *http.Request) {
 	var config deployment.Config
 
 	if err := json.NewDecoder(r.Body).Decode(&config); err != nil {
@@ -105,6 +105,7 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// RunDeployment trigger a deployment run creating container resources
 func RunDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]
@@ -244,6 +245,8 @@ func ReadContainerLogs(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+// SubscribeToDeploymentEvents upgrades the incoming http connection into a websocket connection
+// to stream deployment events
 func SubscribeToDeploymentEvents(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]

@@ -1,6 +1,6 @@
 package job
 
-import "github.com/biensupernice/krane/internal/logger"
+import "github.com/krane/krane/internal/logger"
 
 type Enqueuer struct {
 	queue   chan Job

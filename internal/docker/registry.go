@@ -5,10 +5,10 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/biensupernice/krane/internal/constants"
+	"github.com/krane/krane/internal/constants"
 )
 
-// Base64DockerRegistryCredentials : returns base64 docker registry credentials
+// Base64DockerRegistryCredentials returns base64 docker registry credentials
 func Base64DockerRegistryCredentials() string {
 	bytes, _ := json.Marshal(struct {
 		Username string `json:"username"`

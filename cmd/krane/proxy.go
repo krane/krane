@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/biensupernice/krane/internal/constants"
-	"github.com/biensupernice/krane/internal/deployment"
-	"github.com/biensupernice/krane/internal/logger"
-	"github.com/biensupernice/krane/internal/utils"
+	"github.com/krane/krane/internal/constants"
+	"github.com/krane/krane/internal/deployment"
+	"github.com/krane/krane/internal/logger"
+	"github.com/krane/krane/internal/utils"
 )
 
 var config = deployment.Config{
