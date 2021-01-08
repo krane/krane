@@ -18,7 +18,7 @@ docker run -d --name=krane \
 
 Other [installation](docs/installation) methods and configurations.
 
-[Download CLI](../assets/2-download-cli.png)
+![Download CLI](../assets/2-download-cli.png)
 
 Download the Krane [CLI](docs/cli) to execute commands on a Krane instance.
 
