@@ -13,9 +13,9 @@ import (
 	"github.com/krane/krane/internal/utils"
 )
 
-// GetRecentJobs returns all deployment jobs within a date range (default is 1d ago)
+// GetRecentJobs returns all deployment jobs within a date range (default is 7d ago)
 func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
-	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
+	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "7")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
 	jobs, err := deployment.GetJobs(uint(daysAgoNum))
@@ -28,7 +28,7 @@ func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// GetJobsByDeployment returns all jobs within a date range (default is 1d ago)
+// GetJobsByDeployment returns all jobs within a date range (default is 7d ago)
 func GetJobsByDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]
@@ -38,7 +38,7 @@ func GetJobsByDeployment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "1")
+	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "7")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 
 	if !deployment.Exist(deploymentName) {
