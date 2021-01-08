@@ -37,6 +37,19 @@ type Config struct {
 	Internal   bool              `json:"internal"`                 // whether a deployment is internal (ie. krane-proxy)
 }
 
+// SaveConfig a deployment configuration into the db
+func SaveConfig(config Config) error {
+	config.applyDefaults()
+
+	if err := config.isValid(); err != nil {
+		logger.Errorf("deployment config is not valid %v", err)
+		return err
+	}
+
+	bytes, _ := config.Serialize()
+	return store.Client().Put(constants.DeploymentsCollectionName, config.Name, bytes)
+}
+
 // Serialize returns the bytes for a deployment config
 func (config Config) Serialize() ([]byte, error) {
 	return json.Marshal(config)
@@ -157,7 +170,7 @@ func GetAllDeploymentConfigs() ([]Config, error) {
 }
 
 // DeleteSecret removes a deployment configuration from the db
-func DeleteDeploymentConfig(deployment string) error {
+func DeleteConfig(deployment string) error {
 	return store.Client().Remove(constants.DeploymentsCollectionName, deployment)
 }
 

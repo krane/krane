@@ -41,19 +41,19 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deploymentConfig, err := deployment.GetDeploymentConfig(deploymentName)
+	d, err := deployment.GetDeployment(deploymentName)
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
 	}
 
-	response.HTTPOk(w, deploymentConfig)
+	response.HTTPOk(w, d)
 	return
 }
 
 // GetAllDeployments returns all deployments and their configurations
 func GetAllDeployments(w http.ResponseWriter, _ *http.Request) {
-	deployments, err := deployment.GetAllDeploymentConfigs()
+	deployments, err := deployment.GetAllDeployments()
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
@@ -72,7 +72,7 @@ func CreateOrUpdateDeployment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := deployment.Save(config); err != nil {
+	if err := deployment.SaveConfig(config); err != nil {
 		response.HTTPBad(w, err)
 		return
 	}

@@ -4,9 +4,32 @@ import (
 	"fmt"
 
 	"github.com/krane/krane/internal/job"
+	"github.com/krane/krane/internal/logger"
 	"github.com/krane/krane/internal/store"
 	"github.com/krane/krane/internal/utils"
 )
+
+type JobType string
+
+const (
+	RunDeploymentJobType     JobType = "RUN_DEPLOYMENT"
+	DeleteDeploymentJobType  JobType = "DELETE_DEPLOYMENT"
+	StopContainersJobType    JobType = "STOP_CONTAINERS"
+	StartContainersJobType   JobType = "START_CONTAINERS"
+	RestartContainersJobType JobType = "RESTART_CONTAINERS"
+)
+
+// enqueue queues up deployment job for processing
+func enqueue(j job.Job) {
+	enqueuer := job.NewEnqueuer(job.Queue())
+	queuedJob, err := enqueuer.Enqueue(j)
+	if err != nil {
+		logger.Errorf("Error enqueuing deployment job %v", err)
+		return
+	}
+	logger.Debugf("Deployment job %s queued for processing", queuedJob.Deployment)
+	return
+}
 
 // CreateCollection create the job collection for a deployment
 func CreateJobsCollection(deployment string) error {

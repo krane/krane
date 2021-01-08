@@ -79,7 +79,7 @@ func EnsureNetworkProxy() {
 }
 
 func createProxy() error {
-	if err := deployment.Save(config); err != nil {
+	if err := deployment.SaveConfig(config); err != nil {
 		return err
 	}
 

@@ -9,30 +9,13 @@ import (
 	"github.com/krane/krane/internal/docker"
 	"github.com/krane/krane/internal/job"
 	"github.com/krane/krane/internal/logger"
-	"github.com/krane/krane/internal/store"
 	"github.com/krane/krane/internal/utils"
 )
 
-type JobType string
-
-const (
-	RunDeploymentJobType     JobType = "RUN_DEPLOYMENT"
-	DeleteDeploymentJobType  JobType = "DELETE_DEPLOYMENT"
-	StopContainersJobType    JobType = "STOP_CONTAINERS"
-	StartContainersJobType   JobType = "START_CONTAINERS"
-	RestartContainersJobType JobType = "RESTART_CONTAINERS"
-)
-
-// enqueue queue's up deployment job for processing
-func enqueue(j job.Job) {
-	enqueuer := job.NewEnqueuer(job.Queue())
-	queuedJob, err := enqueuer.Enqueue(j)
-	if err != nil {
-		logger.Errorf("Error enqueuing deployment job %v", err)
-		return
-	}
-	logger.Debugf("Deployment job %s queued for processing", queuedJob.Deployment)
-	return
+type Deployment struct {
+	Config
+	Containers []KraneContainer `json:"containers"`
+	Jobs       []job.Job        `json:"jobs"`
 }
 
 // Exist returns true if a deployment exist, false otherwise
@@ -49,17 +32,48 @@ func Exist(deployment string) bool {
 	return true
 }
 
-// Save a deployment configuration into the db
-func Save(config Config) error {
-	config.applyDefaults()
-
-	if err := config.isValid(); err != nil {
-		logger.Errorf("deployment config is not valid %v", err)
-		return err
+// GetAllDeployments returns a single deployment
+func GetDeployment(deployment string) (Deployment, error) {
+	config, err := GetDeploymentConfig(deployment)
+	if err != nil {
+		return Deployment{}, err
 	}
 
-	bytes, _ := config.Serialize()
-	return store.Client().Put(constants.DeploymentsCollectionName, config.Name, bytes)
+	containers, err := GetContainersByDeployment(deployment)
+	if err != nil {
+		return Deployment{}, err
+	}
+
+	jobs, err := GetJobsByDeployment(deployment, uint(utils.OneYear))
+	if err != nil {
+		return Deployment{}, err
+	}
+
+	return Deployment{
+		Config:     config,
+		Containers: containers,
+		Jobs:       jobs,
+	}, nil
+}
+
+// GetAllDeployments returns a list of all deployments
+func GetAllDeployments() ([]Deployment, error) {
+	configs, err := GetAllDeploymentConfigs()
+	if err != nil {
+		return []Deployment{}, err
+	}
+
+	deployments := make([]Deployment, 0)
+	for _, config := range configs {
+		d, err := GetDeployment(config.Name)
+		if err != nil {
+			return []Deployment{}, err
+		}
+
+		deployments = append(deployments, d)
+	}
+
+	return deployments, nil
 }
 
 // Run a deployment runs the current configuration for a
@@ -234,7 +248,7 @@ func Delete(deployment string) error {
 
 			// delete deployment configuration
 			logger.Debugf("removing config for deployment %s", deploymentName)
-			if err := DeleteDeploymentConfig(deploymentName); err != nil {
+			if err := DeleteConfig(deploymentName); err != nil {
 				logger.Errorf("unable to remove deployment configuration %v", err)
 				return err
 			}

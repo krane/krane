@@ -60,7 +60,7 @@ func DeleteSecretsCollection(deployment string) error {
 	return store.Client().DeleteCollection(collection)
 }
 
-// GetAll returns all secrets for a deployment
+// GetAllSecrets returns all secrets for a deployment
 func GetAllSecrets(deployment string) ([]*Secret, error) {
 	collection := getSecretsCollectionName(deployment)
 	bytes, err := store.Client().GetAll(collection)
