@@ -26,7 +26,7 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 
 ## Getting Started
 
-![Install Krane](docs/assets/1-install-krane.png)
+[![Install Krane](docs/assets/1-install-krane.png)](https://www.krane.sh/#/docs/installation)
 
 ```
 docker run -d --name=krane \
@@ -38,7 +38,7 @@ docker run -d --name=krane \
 
 Other [installation](https://www.krane.sh/#/docs/installation) methods and configurations.
 
-![Download CLI](docs/assets/2-download-cli.png)
+[![Download CLI](docs/assets/2-download-cli.png)](https://www.krane.sh/#/docs/cli)
 
 Download the Krane [CLI](https://www.krane.sh/#/docs/cli) to execute commands on a Krane instance.
 
@@ -48,7 +48,7 @@ npm i -g @krane/cli
 
 Full list of [commands](https://www.krane.sh/#/docs/cli?id=commands).
 
-![Setup Authentication](docs/assets/3-setup-authentication.png)
+[![Setup Authentication](docs/assets/3-setup-authentication.png)](https://www.krane.sh/#/docs/cli?id=authenticating)
 
 Create public and private keys used for authentication.
 
@@ -58,7 +58,7 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
 
 The private key stays on the user's machine, the public key is appended to `~/.ssh/authorized_keys` where Krane is running.
 
-![Authenticate](docs/assets/4-authentication.png)
+[![Authenticate](docs/assets/4-authentication.png)](https://www.krane.sh/#/docs/cli?id=authenticating)
 
 When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated you'll be able to execute commands on that Krane instance.
 
@@ -68,7 +68,7 @@ To switch between Krane instances you'll have to login again.
 krane login
 ```
 
-![Deploy](docs/assets/5-deploy.png)
+[![Deploy](docs/assets/5-deploy.png)](https://www.krane.sh/#/docs/cli?id=deploy)
 
 Create a deployment configuration file `deployment.json`
 
