@@ -26,7 +26,7 @@ var WSUpgrader = websocket.Upgrader{
 	},
 }
 
-// GetDeployment returns the configuration for a single deployment
+// GetDeployment returns a deployments and it configuration, containers and recent activity
 func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]
@@ -51,7 +51,7 @@ func GetDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// GetAllDeployments returns all deployments and their configurations
+// GetAllDeployments returns a list of deployments with their configurations, containers and recent activity
 func GetAllDeployments(w http.ResponseWriter, _ *http.Request) {
 	deployments, err := deployment.GetAllDeployments()
 	if err != nil {
