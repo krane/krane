@@ -7,3 +7,5 @@
 
 # jetbrains go land
 .idea
+
+.DS_Store

@@ -158,12 +158,15 @@ required: `false`
 ```json
 {
   "alias": [
+    "example.com",
     "my-app.example.com",
     "my-app-dev.example.com",
     "my-app-mybranch.example.com"
   ]
 }
 ```
+
+The above configuration routes all aliases to the same deployment.
 
 ## command
 

@@ -10,12 +10,12 @@ npm i -g @krane/cli
 
 ## Authenticating
 
-Krane uses [private and public key authentication](https://en.wikipedia.org/wiki/Public-key_cryptography). Both keys are used for ensuring authenticity of incoming request.
+Krane uses [private and public key authentication](https://en.wikipedia.org/wiki/Public-key_cryptography). Both keys are used for ensuring authenticity of incoming requests.
 
 1. Create the public and private key
 
 ```
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f $HOME/.ssh/krane -m 'PEM'
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM' -f $HOME/.ssh/krane
 
 -t type
 -b bytes
@@ -26,11 +26,11 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -f $HOME/.ssh/krane -m 'PE
 
 This will generate 2 different keys, a `private` & `public (.pub)` key.
 
-2. Place the public key on the host machine where Krane is running appended to `~/.ssh/authorized_keys`.
+2. Place the `public key` on the server where Krane is running, appended to `~/.ssh/authorized_keys`.
 
 The `private key` is kept on the user's machine.
 
-Now you can try authenticating. The CLI will prompt you to select the public key you just created. This will be used for authenticating with the private key located on the Krane server.
+Now try authenticating. The CLI will prompt you to select the `private key` you just created. This will be used for authenticating with the `public key` located on the Krane server.
 
 ```
 krane login
