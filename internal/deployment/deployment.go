@@ -136,11 +136,11 @@ func Run(deployment string) error {
 			// pull image
 			logger.Debugf("Pulling image for deployment %s", config.Name)
 			pullImageReader, err := docker.GetClient().PullImage(config.Registry, config.Image, config.Tag)
-			e.emitS(pullImageReader)
 			if err != nil {
 				logger.Errorf("unable to pull image %v", err)
 				return err
 			}
+			e.emitS(pullImageReader)
 
 			// create containers
 			containersCreated := make([]KraneContainer, 0)
