@@ -90,7 +90,9 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: biensupernice/krane:${{ env.RELEASE_VERSION }}
+          tags: |
+          biensupernice/krane:latest
+          biensupernice/krane:${{ env.RELEASE_VERSION }}
           build-args: KRANE_VERSION=${{ env.RELEASE_VERSION }}
         env:
           RELEASE_VERSION: ${{ needs.version.outputs.release-version }}
