@@ -91,8 +91,8 @@ jobs:
         with:
           push: true
           tags: |
-          biensupernice/krane:latest
-          biensupernice/krane:${{ env.RELEASE_VERSION }}
+            biensupernice/krane:latest
+            biensupernice/krane:${{ env.RELEASE_VERSION }}
           build-args: KRANE_VERSION=${{ env.RELEASE_VERSION }}
         env:
           RELEASE_VERSION: ${{ needs.version.outputs.release-version }}
