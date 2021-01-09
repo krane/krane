@@ -13,7 +13,7 @@ import (
 )
 
 type Deployment struct {
-	Config
+	Config     Config           `json:"config"`
 	Containers []KraneContainer `json:"containers"`
 	Jobs       []job.Job        `json:"jobs"`
 }
