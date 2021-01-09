@@ -46,14 +46,6 @@ Authenticate with a Krane instance.
 krane login
 ```
 
-### remove
-
-Remove a deployment.
-
-```
-krane remove <deployment>
-```
-
 ### status
 
 Returns information related to a deployment.
@@ -122,12 +114,20 @@ or get additional details on a specific deployment job.
 krane history <deployment> <job>
 ```
 
-### help
+### edit
 
-Display CLI usage and commands.
+Edit a deployments configuration.
 
 ```
-krane help
+krane edit <deployment>
+```
+
+### remove
+
+Remove a deployment.
+
+```
+krane remove <deployment>
 ```
 
 ### start
@@ -173,3 +173,12 @@ Delete a deployment secret.
 ```
 krane secrets delete <deployment> -k <key>
 ```
+
+### help
+
+Display CLI usage and commands.
+
+```
+krane help
+```
+
