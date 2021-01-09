@@ -108,7 +108,7 @@ func fromDockerContainerToKcontainer(container types.ContainerJSON) KraneContain
 
 	return KraneContainer{
 		ID:         container.ID,
-		Deployment: container.Config.Labels[docker.ContainerNamespaceLabel],
+		Deployment: container.Config.Labels[docker.ContainerDeploymentLabel],
 		Name:       container.Config.Hostname,
 		NetworkID:  container.NetworkSettings.Networks[docker.KraneNetworkName].NetworkID,
 		Image:      container.Config.Image,
@@ -164,7 +164,7 @@ func GetContainers() ([]KraneContainer, error) {
 
 // isKraneManagedContainer returns if a container is managed by Krane based on its labels
 func isKraneManagedContainer(container types.ContainerJSON) bool {
-	return len(container.Config.Labels[docker.ContainerNamespaceLabel]) > 0
+	return len(container.Config.Labels[docker.ContainerDeploymentLabel]) > 0
 }
 
 // GetContainersByDeployment get containers filtered by deployment

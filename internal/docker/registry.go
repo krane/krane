@@ -8,12 +8,14 @@ import (
 	"github.com/krane/krane/internal/constants"
 )
 
-// Base64DockerRegistryCredentials returns base64 docker registry credentials
-func Base64DockerRegistryCredentials() string {
-	bytes, _ := json.Marshal(struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}{
+type RegistryCredentials struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+// Base64RegistryCredentials returns base64 container registry credentials
+func Base64RegistryCredentials() string {
+	bytes, _ := json.Marshal(RegistryCredentials{
 		Username: os.Getenv(constants.EnvDockerBasicAuthUsername),
 		Password: os.Getenv(constants.EnvDockerBasicAuthPassword),
 	})

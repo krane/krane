@@ -13,6 +13,8 @@ import (
 	"github.com/docker/go-connections/nat"
 )
 
+const ContainerDeploymentLabel = "krane.deployment"
+
 // DockerConfig properties required to create a docker container
 type DockerConfig struct {
 	ContainerName string
@@ -27,7 +29,7 @@ type DockerConfig struct {
 	Entrypoint    []string
 }
 
-// CreateContainer creates a docker container from a Dcoker config
+// CreateContainer creates a docker container from a docker config
 func (c *Client) CreateContainer(ctx context.Context, config DockerConfig) (container.ContainerCreateCreatedBody, error) {
 	networkingConfig := createNetworkingConfig(config.NetworkID)
 	hostConfig := createHostConfig(config.Ports, config.VolumeMounts)
@@ -118,7 +120,9 @@ func (c *Client) StreamContainerLogs(containerID string, out chan []byte, done c
 
 	if err != nil {
 		if stream != nil {
-			stream.Close()
+			if err := stream.Close(); err != nil {
+				return err
+			}
 		}
 		return err
 	}
@@ -133,8 +137,8 @@ func (c *Client) StreamContainerLogs(containerID string, out chan []byte, done c
 			header := make([]byte, 8)
 			_, err := reader.Read(header)
 			if err != nil {
-				if stream != nil {
-					stream.Close()
+				if err := stream.Close(); err != nil {
+					return
 				}
 				done <- true
 				return
@@ -142,8 +146,8 @@ func (c *Client) StreamContainerLogs(containerID string, out chan []byte, done c
 
 			bytes, _, err := reader.ReadLine()
 			if err != nil {
-				if stream != nil {
-					stream.Close()
+				if err := stream.Close(); err != nil {
+					return
 				}
 				done <- true
 				return
@@ -164,6 +168,7 @@ func (c *Client) ConnectContainerToNetwork(ctx *context.Context, networkID strin
 	return c.NetworkConnect(*ctx, networkID, containerID, &config)
 }
 
+// createHostConfig returns the entire container config required to create a Docker container
 func createContainerConfig(
 	hostname string,
 	image string,
@@ -191,6 +196,7 @@ func createContainerConfig(
 	return config
 }
 
+// createHostConfig returns the host config for a Docker container
 func createHostConfig(ports nat.PortMap, volumes []mount.Mount) container.HostConfig {
 	return container.HostConfig{
 		PortBindings: ports,

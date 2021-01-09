@@ -10,7 +10,7 @@ import (
 	"github.com/krane/krane/internal/logger"
 )
 
-// KraneNetworkName is the network used for Krane containers
+// KraneNetworkName is the network used for Krane managed containers
 const KraneNetworkName = "krane"
 
 // EnsureKraneDockerNetwork ensure the Krane docker network is created

@@ -237,7 +237,7 @@ func (config Config) DockerEnvs() []string {
 
 // DockerLabels returns a map of Docker labels that are applied to Krane managed containers
 func (config Config) DockerLabels() map[string]string {
-	config.Labels[docker.ContainerNamespaceLabel] = config.Name
+	config.Labels[docker.ContainerDeploymentLabel] = config.Name
 	config.ApplyProxyLabels()
 	return config.Labels
 }

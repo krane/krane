@@ -16,7 +16,7 @@ func (c *Client) PullImage(registry, image, tag string) (io.Reader, error) {
 	ref := createImageRef(registry, image, tag)
 	return c.ImagePull(ctx, ref, types.ImagePullOptions{
 		All:          false,
-		RegistryAuth: Base64DockerRegistryCredentials(),
+		RegistryAuth: Base64RegistryCredentials(),
 	})
 }
 

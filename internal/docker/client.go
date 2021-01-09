@@ -14,7 +14,9 @@ type Client struct{ *client.Client }
 var once sync.Once
 var instance *Client
 
-func GetClient() *Client { return instance }
+func GetClient() *Client {
+	return instance
+}
 
 // Connect establishes a connection with the Docker host
 func Connect() {
@@ -24,7 +26,7 @@ func Connect() {
 	})
 }
 
-// ClientFromEnv create a docker client based on the systems environment
+// ClientFromEnv creates a docker client based on the systems environment
 func ClientFromEnv() {
 	logger.Info("Connecting to Docker client")
 
