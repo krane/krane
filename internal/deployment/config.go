@@ -226,7 +226,7 @@ func (config Config) DockerEnvs() []string {
 	for key, alias := range config.Secrets {
 		secret, err := GetSecret(config.Name, alias)
 		if err != nil || secret == nil {
-			logger.Infof("unable to resolve secret for %s with alias @%s", config.Name, alias)
+			logger.Infof("unable to resolve secret for %s with alias %s", config.Name, alias)
 			continue
 		}
 		envs = append(envs, fmt.Sprintf("%s=%s", key, secret.Value))
