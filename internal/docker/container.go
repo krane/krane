@@ -115,7 +115,7 @@ func (c *Client) StreamContainerLogs(containerID string, out chan []byte, done c
 		ShowStderr: true,
 		Timestamps: true,
 		Follow:     true,
-		Tail:       "50",
+		Tail:       "200",
 	})
 
 	if err != nil {
