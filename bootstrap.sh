@@ -50,7 +50,7 @@ create_krane_docker(){
     -e LETSENCRYPT_EMAIL="$LETSENCRYPT_EMAIL" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "${SSH_KEYS_DIR:-/root/.ssh}":/root/.ssh  \
-    -v "${DB_DIR:-/tmp}":/tmp/krane.db \
+    -v "${DB_DIR:-/tmp}":/tmp \
     -p 8500:8500 biensupernice/krane
 
   echo -e "\nCleaning up older images"
