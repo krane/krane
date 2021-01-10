@@ -135,7 +135,7 @@ $ boltdbweb --db-name=/path/to/krane.db --port=9000
 You can optionally use the [`bootstrap.sh`](https://github.com/krane/krane/blob/master/bootstrap.sh) to update or create a Krane instance.
 
 ```
-wget -O bootstrap.sh https://github.com/krane/krane/blob/master/bootstrap.sh && chmod +x bootstrap.sh
+wget -O bootstrap.sh https://raw.githubusercontent.com/krane/krane/master/bootstrap.sh && chmod +x bootstrap.sh
 ```
 
 ## Minimal Docker example
