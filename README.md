@@ -59,11 +59,11 @@ The private key stays on the user's machine, the public key is appended to `~/.s
 
 When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated you'll be able to execute commands on that Krane instance.
 
-To switch between Krane instances you'll have to login again.
-
 ```
 krane login
 ```
+
+To switch between Krane instances you'll have to login again.
 
 [![Deploy](docs/assets/5-deploy.png)](https://www.krane.sh/#/docs/cli?id=deploy)
 
