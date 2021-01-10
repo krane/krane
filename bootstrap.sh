@@ -49,16 +49,16 @@ create_krane_docker(){
     -e PROXY_DASHBOARD_SECURE="$PROXY_DASHBOARD_SECURE" \
     -e LETSENCRYPT_EMAIL="$LETSENCRYPT_EMAIL" \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v "${SSH_KEYS_PATH:-/root/.ssh}":/root/.ssh  \
-    -v "${DB_PATH:-/tmp/krane.db}":/tmp/krane.db \
+    -v "${SSH_KEYS_DIR:-/root/.ssh}":/root/.ssh  \
+    -v "${DB_DIR:-/tmp}":/tmp/krane.db \
     -p 8500:8500 biensupernice/krane
 
   echo -e "\nCleaning up older images"
   docker image prune -a -f
 }
 
-ensure_env SSH_KEYS_PATH "Ssh keys directory: (optional, default /root/.ssh)"
-ensure_env DB_PATH "Krane database path: (optional, default /tmp/krane.db)"
+ensure_env SSH_KEYS_DIR "Ssh keys directory: (optional, default /root/.ssh)"
+ensure_env DB_DIR "Krane database directory: (optional, default /tmp)"
 ensure_secure_env KRANE_PRIVATE_KEY "Krane private key: (required, for signing client requests)"
 ensure_env DOCKER_BASIC_AUTH_USERNAME "Container registry username: (optional)"
 ensure_secure_env DOCKER_BASIC_AUTH_PASSWORD "Container registry password: (optional)"
