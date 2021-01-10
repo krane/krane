@@ -6,7 +6,9 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 
 ![Install Krane](../assets/1-install-krane.png)
 
-You can install Krane using this interactive script which will walk you through different configurations for you Krane instance.
+You can install Krane using this interactive script. 
+
+It is by far the *easiest* and *fastest* way of **creating** and **updating** a Krane instance.
 
 ```
 bash <(wget -qO- https://raw.githubusercontent.com/krane/krane/master/bootstrap.sh)

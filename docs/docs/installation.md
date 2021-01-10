@@ -2,7 +2,9 @@
 
 > Note: Docker should be running on the machine where you plan on installing Krane
 
-The easiest way to install Krane is using this interactive script that will walk you through different configurations for you Krane instance.
+You can install Krane using this interactive script. 
+
+It is by far the *easiest* and *fastest* way of **creating** and **updating** a Krane instance.
 
 ```
 bash <(wget -qO- https://raw.githubusercontent.com/krane/krane/master/bootstrap.sh)
