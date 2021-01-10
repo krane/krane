@@ -10,7 +10,6 @@ import (
 	"github.com/krane/krane/internal/job"
 	"github.com/krane/krane/internal/logger"
 	"github.com/krane/krane/internal/store"
-	"github.com/krane/krane/internal/utils"
 )
 
 type Scheduler struct {
@@ -20,11 +19,13 @@ type Scheduler struct {
 	interval time.Duration
 }
 
+// New returns a new scheduler used to poll and create deployment resources
 func New(store store.Store, dockerClient *docker.Client, jobEnqueuer job.Enqueuer, interval_ms string) Scheduler {
 	ms, _ := time.ParseDuration(interval_ms + "ms")
 	return Scheduler{store, dockerClient, jobEnqueuer, ms}
 }
 
+// Run starts the scheduler polling on an interval
 func (s *Scheduler) Run() {
 	logger.Debug("Starting Scheduler")
 
@@ -32,42 +33,30 @@ func (s *Scheduler) Run() {
 		go s.poll()
 		<-time.After(s.interval)
 	}
-
-	logger.Debug("Exiting Scheduler")
 }
 
+// poll will on an interval get deployments and queue jobs if they are not
+// in a desired state. For example, if a deployment has a scale of 3 but only
+// 1 container is running, the scheduler schedules a new job to update the deployment state.
 func (s *Scheduler) poll() {
 	logger.Debug("Scheduler polling")
 
-	for _, d := range s.deployments() {
-		containers, err := deployment.GetContainersByDeployment(d.Name)
-		if err != nil {
-			logger.Error(errors.Wrap(err, "Unhandled error when polling"))
-			continue
-		}
-
-		if hasDesiredState(d, containers) {
-			continue
-		}
-
-		go s.enqueuer.Enqueue(job.Job{
-			ID:         utils.ShortID(),
-			Deployment: d.Name,
-			Args:       map[string]interface{}{},
-			Run: func(args interface{}) error {
-				return nil
-			},
-		})
+	deployments, err := deployment.GetAllDeployments()
+	if err != nil {
+		logger.Error(errors.Wrap(err, "Unhandled error when polling"))
 	}
+
+	for _, d := range deployments {
+		if hasDesiredState(d) {
+			continue
+		}
+	}
+
 	logger.Debugf("Next poll in %s", s.interval.String())
 }
 
-func hasDesiredState(config deployment.Config, containers []deployment.KraneContainer) bool {
+// hasDesiredState checks that deployments are in parity with their configurations
+func hasDesiredState(deployment deployment.Deployment) bool {
 	// TODO: implementation not defined - always returning true to avoid doing anything
 	return true
-}
-
-func (s *Scheduler) deployments() []deployment.Config {
-	deployments, _ := deployment.GetAllDeploymentConfigs()
-	return deployments
 }

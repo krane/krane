@@ -58,30 +58,28 @@ func (e EventEmitter) emit(message string) {
 
 func (e EventEmitter) emitS(reader io.Reader) {
 	buffReader := bufio.NewReader(reader)
-	go func() {
-		for {
-			bytes, _, err := buffReader.ReadLine()
-			if err != nil {
+	for {
+		bytes, _, err := buffReader.ReadLine()
+		if err != nil {
+			return
+		}
+
+		data, _ := json.Marshal(Event{
+			JobID:   e.JobID,
+			Message: string(bytes),
+			Phase:   e.Phase,
+		})
+		for _, client := range e.Clients {
+			if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
+				// this will log when a client has disconnected at which point the
+				// connection is not valid causing a write error. This should not
+				// affect other clients or streaming logs in general.
+				logger.Debugf("client %v disconnected", client.RemoteAddr())
+				UnSubscribeFromDeploymentEvents(client, e.Deployment)
 				return
 			}
-
-			data, _ := json.Marshal(Event{
-				JobID:   e.JobID,
-				Message: string(bytes),
-				Phase:   e.Phase,
-			})
-			for _, client := range e.Clients {
-				if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
-					// this will log when a client has disconnected at which point the
-					// connection is not valid causing a write error. This should not
-					// affect other clients or streaming logs in general.
-					logger.Debugf("client %v disconnected", client.RemoteAddr())
-					UnSubscribeFromDeploymentEvents(client, e.Deployment)
-					return
-				}
-			}
 		}
-	}()
+	}
 }
 
 // SubscribeToDeploymentEvents allows clients to subscribes to a particular deployments events

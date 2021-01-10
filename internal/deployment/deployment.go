@@ -32,7 +32,7 @@ func Exist(deployment string) bool {
 	return true
 }
 
-// GetAllDeployments returns a single deployment
+// GetDeployment returns a single deployment
 func GetDeployment(deployment string) (Deployment, error) {
 	config, err := GetDeploymentConfig(deployment)
 	if err != nil {
@@ -185,6 +185,7 @@ func Run(deployment string) error {
 					return err
 				}
 			}
+
 			return nil
 		},
 	})
@@ -225,6 +226,7 @@ func Delete(deployment string) error {
 					return err
 				}
 			}
+			logger.Debugf("%d container(s) for deployment %s removed", len(containers), deploymentName)
 
 			return nil
 		},
@@ -295,6 +297,7 @@ func StartContainers(deployment string) error {
 					return err
 				}
 			}
+			logger.Debugf("%d container(s) for deployment %s started", len(containers), deploymentName)
 
 			return nil
 		},
@@ -337,6 +340,7 @@ func StopContainers(deployment string) error {
 					return err
 				}
 			}
+			logger.Debugf("%d container(s) for deployment %s stopped", len(containers), deploymentName)
 
 			return nil
 		},
@@ -392,7 +396,7 @@ func RestartContainers(deployment string) error {
 				}
 				containersCreated = append(containersCreated, c)
 			}
-			logger.Debugf("Created %d container(s) for deployment %s", len(containersCreated), config.Name)
+			logger.Debugf("%d/%d container(s) for deployment %s created", len(containersCreated), config.Scale, config.Name)
 
 			// start containers
 			containersStarted := make([]KraneContainer, 0)
@@ -403,13 +407,14 @@ func RestartContainers(deployment string) error {
 				}
 				containersStarted = append(containersStarted, c)
 			}
-			logger.Debugf("Started %d container(s) for deployment %s", len(containersStarted), config.Name)
+			logger.Debugf("%d/%d container(s) for deployment %s started", len(containersStarted), len(containersCreated), config.Name)
 
 			retries := 10
 			if err := RetriableContainerHealthCheck(containersStarted, retries); err != nil {
 				logger.Errorf("containers did not pass health check %v", err)
 				return err
 			}
+			logger.Debugf("Deployment %s health check complete", config.Name)
 
 			return nil
 		},
