@@ -21,8 +21,7 @@ ensure_secure_env() {
   echo ""
 }
 
-# steps to create a Krane instance using docker
-create_krane_docker(){
+update_or_create_krane(){
   echo "Stopping Krane (if exists)"
   docker stop krane
 
@@ -51,7 +50,7 @@ create_krane_docker(){
     -v "${DB_DIR:-/tmp}":/tmp \
     -p 8500:8500 biensupernice/krane
 
-  echo -e "\nCleaning up dangling images"
+  echo -e "\nCleaning up older images"
   docker image prune -a -f
 
   echo -e "\nBootstrap complete."
@@ -68,4 +67,4 @@ ensure_env PROXY_DASHBOARD_ALIAS "Network proxy dashboard alias (domain alias fo
 ensure_env PROXY_DASHBOARD_SECURE "Network proxy secure? (default true, enables https on the network proxy. Note: should be set to false for 'localhost')"
 ensure_env LETSENCRYPT_EMAIL "Certificate email: (optional, email used to generate https/tls certificates. Note: Must be a valid email for Let's Encrypt to properly generate certs. Ignore for 'localhost')"
 
-create_krane_docker
+update_or_create_krane
