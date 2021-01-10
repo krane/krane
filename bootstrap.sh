@@ -41,6 +41,7 @@ create_krane_docker(){
   docker run -d --name=krane \
     -e LOG_LEVEL=info \
     -e KRANE_PRIVATE_KEY="$KRANE_PRIVATE_KEY" \
+    -e DB_PATH="$DB_PATH" \
     -e DOCKER_BASIC_AUTH_USERNAME="$DOCKER_BASIC_AUTH_USERNAME" \
     -e DOCKER_BASIC_AUTH_PASSWORD="$DOCKER_BASIC_AUTH_PASSWORD" \
     -e PROXY_ENABLED="$PROXY_ENABLED" \
