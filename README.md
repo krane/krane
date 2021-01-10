@@ -25,12 +25,10 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 
 [![Install Krane](docs/assets/1-install-krane.png)](https://www.krane.sh/#/docs/installation)
 
+You can install Krane using this interactive script which will walk you through different configurations for you Krane instance.
+
 ```
-docker run -d --name=krane \
-    -e KRANE_PRIVATE_KEY=changeme \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v ~/.ssh:/root/.ssh \
-    -p 8500:8500 biensupernice/krane
+bash <(wget -qO- https://raw.githubusercontent.com/krane/krane/master/bootstrap.sh)
 ```
 
 Other [installation](https://www.krane.sh/#/docs/installation) methods and configurations.
@@ -129,14 +127,6 @@ Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To v
 
 ```
 $ boltdbweb --db-name=/path/to/krane.db --port=9000
-```
-
-## Bootstrapping Krane
-
-You can optionally use the [`bootstrap.sh`](https://github.com/krane/krane/blob/master/bootstrap.sh) to update or create a Krane instance.
-
-```
-wget -O bootstrap.sh https://raw.githubusercontent.com/krane/krane/master/bootstrap.sh && chmod +x bootstrap.sh
 ```
 
 ## Minimal Docker example

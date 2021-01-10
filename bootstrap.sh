@@ -15,7 +15,7 @@ ensure_secure_env() {
   local prompt_msg=$2
 
   if [ ! -z "$env" ]; then
-    read -s -p "$prompt_msg: `echo $'\n$ '`" value
+    read -s -p "$prompt_msg: `echo $'\n$ 🔒'`" value
     export "$env=$value"
   fi
   echo ""

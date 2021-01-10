@@ -1,8 +1,12 @@
 # Installation
 
-Krane should be installed on a machine that has Docker running.
+> Note: Docker should be running on the machine where you plan on installing Krane
 
-> Tip: If you're not sure if Docker is running, run `docker -v` and verify the output
+The easiest way to install Krane is using this interactive script that will walk you through different configurations for you Krane instance.
+
+```
+bash <(wget -qO- https://raw.githubusercontent.com/krane/krane/master/bootstrap.sh)
+```
 
 ## Docker
 
