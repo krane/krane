@@ -1,7 +1,7 @@
 [![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1602474802/Marketing_-_Krane_dj2y9e.png)](https://krane.sh)
 
 [![CI](https://github.com/krane/krane/workflows/CI/badge.svg?branch=master)](https://github.com/krane/krane/actions)
-[![Release](https://img.shields.io/github/v/release/krane/krane?color=orange)](https://github.com/krane/krane/releases)
+[![Release](https://img.shields.io/github/v/release/krane/krane)](https://github.com/krane/krane/releases)
 
 Krane makes it easy to deploy containers for development workloads on remote or local servers. Krane interfaces with Docker exposing a productive toolset for managing containerized services known as deployments. The Krane [CLI](https://www.krane.sh/#/docs/cli) allows you to interact with Krane to create, manage and automate deployments.
 
