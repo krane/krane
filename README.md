@@ -2,10 +2,6 @@
 
 [![CI](https://github.com/krane/krane/workflows/CI/badge.svg?branch=master)](https://github.com/krane/krane/actions)
 [![Release](https://img.shields.io/github/v/release/krane/krane?color=orange)](https://github.com/krane/krane/releases)
-[![Go Report Card](https://goreportcard.com/badge/github.com/krane/krane)](https://goreportcard.com/report/github.com/krane/krane)
-[![Coverage](https://img.shields.io/codecov/c/github/krane/krane?color=blue)](https://codecov.io/gh/krane/krane)
-
-> ⚠️ Currently under construction
 
 Krane makes it easy to deploy containers for development workloads on remote or local servers. Krane interfaces with Docker exposing a productive toolset for managing containerized services known as deployments. The Krane [CLI](https://www.krane.sh/#/docs/cli) allows you to interact with Krane to create, manage and automate deployments.
 
@@ -108,6 +104,9 @@ $ ./krane
 ```
 
 ## Running tests
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/krane/krane)](https://goreportcard.com/report/github.com/krane/krane)
+[![Coverage](https://img.shields.io/codecov/c/github/krane/krane?color=blue)](https://codecov.io/gh/krane/krane)
 
 In the root of the project
 
