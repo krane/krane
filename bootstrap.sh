@@ -49,8 +49,8 @@ create_krane_docker(){
     -e PROXY_DASHBOARD_SECURE="$PROXY_DASHBOARD_SECURE" \
     -e LETSENCRYPT_EMAIL="$LETSENCRYPT_EMAIL" \
     -v /var/run/docker.sock:/var/run/docker.sock \
-    -v "${SSH_KEYS_PATH:/root/.ssh}:/root/.ssh"  \
-    -v "${DB_PATH:/tmp/krane.db}:/tmp/krane.db" \
+    -v "${SSH_KEYS_PATH:/root/.ssh}":/root/.ssh  \
+    -v "${DB_PATH:/tmp/krane.db}":/tmp/krane.db \
     -p 8500:8500 biensupernice/krane
 
   echo -e "\nCleaning up older images"
