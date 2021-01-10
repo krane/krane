@@ -1,7 +1,6 @@
 package constants
 
 const (
-	// environment variables used by Krane
 	EnvKranePrivateKey         = "KRANE_PRIVATE_KEY"
 	EnvLogLevel                = "LOG_LEVEL"
 	EnvListenAddress           = "LISTEN_ADDRESS"

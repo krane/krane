@@ -9,13 +9,13 @@ import (
 	"github.com/krane/krane/internal/logger"
 )
 
-// GetServerPrivateKey : get the private key for the Krane server
+// GetServerPrivateKey returns the private key for the Krane server
 func GetServerPrivateKey() string {
 	return os.Getenv(constants.EnvKranePrivateKey)
 }
 
-// GetAuthorizeKeys : get the authorized keys on the machine running Krane
-func GetAuthorizeKeys() []string {
+// GetServerAuthorizeKeys returns the authorized keys on the host running Krane
+func GetServerAuthorizeKeys() []string {
 	homeDir, _ := os.UserHomeDir()
 	authKeysDir := homeDir + "/.ssh/authorized_keys"
 

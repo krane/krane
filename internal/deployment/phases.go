@@ -1,13 +1,15 @@
 package deployment
 
+// Phases represents a particular step a deployment could be going through during its deployment cycle.
+// They are attached to jobs allowing clients to react or filter for particular phases of the deployments cycle.
 type Phase string
 
 const (
-	SetupPhase           = "DEPLOYMENT_SETUP"
-	TeardownPhase        = "DEPLOYMENT_TEARDOWN"
-	HealthCheckPhase     = "DEPLOYMENT_HEALTCHECK"
-	PullImagePhase       = "PULL_IMAGE"
-	CreateContainerPhase = "CREATE_CONTAINER"
-	StartContainerPhase  = "START_CONTAINER"
-	DonePhase            = "DONE"
+	SetupPhase           Phase = "DEPLOYMENT_SETUP"
+	HealthCheckPhase     Phase = "DEPLOYMENT_HEALTCHECK"
+	TeardownPhase        Phase = "DEPLOYMENT_TEARDOWN"
+	DonePhase            Phase = "DEPLOYMENT_DONE"
+	PullImagePhase       Phase = "PULL_IMAGE"
+	CreateContainerPhase Phase = "CREATE_CONTAINER"
+	StartContainerPhase  Phase = "START_CONTAINER"
 )

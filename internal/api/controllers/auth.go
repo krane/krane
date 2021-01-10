@@ -17,13 +17,13 @@ import (
 	"github.com/krane/krane/internal/utils"
 )
 
-// AuthRequest : the payload expected when authenticating with Krane
+// AuthRequest represents the payload expected when authenticating with Krane
 type AuthRequest struct {
 	RequestID string `json:"request_id" binding:"required"`
 	Token     string `json:"token" binding:"required"`
 }
 
-// AuthenticateClientJWT  : authenticate a client signed jwt token. This usually gets called after a call to /login.
+// AuthenticateClientJWT authenticates a client signed jwt token. This usually gets called after a call to /login.
 // The login route returns a server phrase which is signed using the clients private auth. To authenticate the clients signed
 // token this route is called and the token is validated against the clients public auth on the host machine.
 func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
@@ -33,29 +33,26 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if request id is valid, get phrase stored on the server
-	serverPhraseBytes, err := store.Client().Get(constants.AuthenticationCollectionName, body.RequestID)
+	// We check if the request id is valid to ensure we've stored a generate server
+	// phrase for that client id during the initial login request
+	serverPhrase, err := auth.GetClientServerPhrase(body.RequestID)
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
 	}
 
-	serverPhrase := string(serverPhraseBytes)
-	if serverPhrase == "" {
-		logger.Warn("Invalid request id")
-		response.HTTPBad(w, errors.New("unable to authenticate"))
-		return
-	}
-
-	authKeys := auth.GetAuthorizeKeys()
+	// Grab all the authorized keys on the host machine
+	// which will be used to decode the jwt token
+	authKeys := auth.GetServerAuthorizeKeys()
 	if len(authKeys) == 0 || authKeys[0] == "" {
 		logger.Warn("no authorized keys found on the server")
 		response.HTTPBad(w, errors.New("unable to authenticate"))
 		return
 	}
 
-	// If any public key can be used to parse the incoming jwt token
-	// the decode it, and use the phrase in the token with the one on the server
+	// If any public key can be used to parse the incoming jwt token decode it,
+	// and passes the phrase comparison between incoming and server phrase,
+	// that token will be
 	claims := auth.VerifyAuthTokenWithAuthorizedKeys(authKeys, body.Token)
 	if claims == nil || strings.Compare(serverPhrase, claims.Phrase) != 0 {
 		logger.Warn("no authorized keys found on the server")
@@ -68,6 +65,13 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	err = store.Client().Remove(constants.AuthenticationCollectionName, body.RequestID)
 	if err != nil {
 		logger.Errorf("unable to remove authentication request %v", err)
+		response.HTTPBad(w, err)
+		return
+	}
+
+	// revoke the request id to ensure no one else can
+	// use the same request id to create tokens
+	if err := auth.RevokeClientRequestID(body.RequestID); err != nil {
 		response.HTTPBad(w, err)
 		return
 	}

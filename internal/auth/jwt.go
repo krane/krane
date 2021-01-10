@@ -15,19 +15,19 @@ import (
 	"github.com/krane/krane/internal/logger"
 )
 
-// Claims : custom claims for user authentication
+// Claims custom claims for user authentication
 type Claims struct {
 	Phrase string `json:"phrase"`
 	jwt.StandardClaims
 }
 
-// CustomClaims : custom claims for request
+// CustomClaims custom claims for request
 type CustomClaims struct {
 	Data interface{} `json:"data"`
 	jwt.StandardClaims
 }
 
-// ParseJWTToken : parse jwt using signing key
+// DecodeJWTToken decodes a jwt token using the signing key
 func DecodeJWTToken(signKey string, tknStr string) (jwt.Token, error) {
 	tkn, err := jwt.ParseWithClaims(tknStr, &CustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(signKey), nil
@@ -44,7 +44,7 @@ func DecodeJWTToken(signKey string, tknStr string) (jwt.Token, error) {
 	return *tkn, nil
 }
 
-// DecodeJWT : get the claims of a jwt auth token
+// DecodeJWT gets the claims of a jwt auth token
 func DecodeJWT(pubKey string, tknStr string) (claims jwt.Claims, err error) {
 
 	// convert ssh format pub key to rsa pub key
@@ -74,7 +74,7 @@ func DecodeJWT(pubKey string, tknStr string) (claims jwt.Claims, err error) {
 	return tkn.Claims, nil
 }
 
-// VerifyAuthTokenWithAuthorizedKeys : get auth claims from jwt token using an authorized key from server
+// VerifyAuthTokenWithAuthorizedKeys gets the auth claims from jwt token using an authorized key from server
 func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *Claims) {
 	for _, key := range keys {
 		c, err := DecodeJWT(key, tkn)
@@ -91,7 +91,7 @@ func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *Claim
 	return
 }
 
-// DecodePublicKey : decode ssh-rsa string into rsa public key
+// DecodePublicKey decodes an ssh-rsa string into rsa public key
 func DecodePublicKey(str string) (*rsa.PublicKey, error) {
 	// comes in as a three part string
 	// split into component parts
