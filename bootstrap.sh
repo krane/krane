@@ -41,12 +41,12 @@ create_krane_docker(){
   docker run -d --name=krane \
     -e LOG_LEVEL=info \
     -e KRANE_PRIVATE_KEY="$KRANE_PRIVATE_KEY" \
-    -e DB_PATH="$DB_PATH" \
+    -e DB_PATH="${DB_DIR/krane.db:-/tmp/krane.db}" \
     -e DOCKER_BASIC_AUTH_USERNAME="$DOCKER_BASIC_AUTH_USERNAME" \
     -e DOCKER_BASIC_AUTH_PASSWORD="$DOCKER_BASIC_AUTH_PASSWORD" \
-    -e PROXY_ENABLED="$PROXY_ENABLED" \
+    -e PROXY_ENABLED="${PROXY_ENABLED:-true}" \
     -e PROXY_DASHBOARD_ALIAS="$PROXY_DASHBOARD_ALIAS" \
-    -e PROXY_DASHBOARD_SECURE="$PROXY_DASHBOARD_SECURE" \
+    -e PROXY_DASHBOARD_SECURE="${PROXY_DASHBOARD_SECURE:-true}" \
     -e LETSENCRYPT_EMAIL="$LETSENCRYPT_EMAIL" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "${SSH_KEYS_DIR:-/root/.ssh}":/root/.ssh  \
@@ -57,14 +57,14 @@ create_krane_docker(){
   docker image prune -a -f
 }
 
+ensure_env DOCKER_BASIC_AUTH_USERNAME "Container registry username: (optional, will operate as an anonymous user. Note: May affect registry rate-limits)"
+ensure_secure_env DOCKER_BASIC_AUTH_PASSWORD "Container registry password: (optional, only if container registry username is being used)"
 ensure_env SSH_KEYS_DIR "Ssh keys directory: (optional, default /root/.ssh)"
 ensure_env DB_DIR "Krane database directory: (optional, default /tmp)"
 ensure_secure_env KRANE_PRIVATE_KEY "Krane private key: (required, for signing client requests)"
-ensure_env DOCKER_BASIC_AUTH_USERNAME "Container registry username: (optional)"
-ensure_secure_env DOCKER_BASIC_AUTH_PASSWORD "Container registry password: (optional)"
-ensure_env PROXY_ENABLED "Network proxy enabled? (if aliases are needed set as true, true|false)"
+ensure_env PROXY_ENABLED "Network proxy enabled? (default true, Note: if aliases are needed set as true)"
 ensure_env PROXY_DASHBOARD_ALIAS "Network proxy dashboard alias: (alias for the proxy dashboard, ie. monitor.example.com)"
-ensure_env PROXY_DASHBOARD_SECURE "Network proxy secure? (enable https on the network proxy, true|false)"
-ensure_env LETSENCRYPT_EMAIL "Let's encrypt email: (optional, email used to generate https/tls certificates)"
+ensure_env PROXY_DASHBOARD_SECURE "Network proxy secure? (default true, enable https on the network proxy)"
+ensure_env LETSENCRYPT_EMAIL "Certificate email: (optional, email used to generate https/tls certificates. Note: Must be valid for let's encrypt to generate certs)"
 
 create_krane_docker
