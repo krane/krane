@@ -22,19 +22,19 @@ ensure_secure_env() {
 }
 
 update_or_create_krane(){
-  echo "Stopping Krane (if exists)"
+  echo "(1/6) Stopping Krane (if exists)"
   docker stop krane
 
-  echo -e "\nRemoving Krane instance (if exists)"
+  echo -e "\n(2/6) Removing Krane instance (if exists)"
   docker rm krane
 
-  echo -e "\nRemoving existing image"
+  echo -e "\n(3/6) Removing existing image"
   docker image rm biensupernice/krane
 
-  echo -e "\nPulling latest image"
+  echo -e "\n(4/6) Pulling latest image"
   docker pull biensupernice/krane:latest -q
 
-  echo -e "\nStarting new Krane instance"
+  echo -e "\n(5/6) Starting new Krane instance"
   docker run -d --name=krane \
     -e LOG_LEVEL=info \
     -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-uuidgen}" \
@@ -50,10 +50,11 @@ update_or_create_krane(){
     -v "${DB_DIR:-/tmp}":/tmp \
     -p 8500:8500 biensupernice/krane
 
-  echo -e "\nCleaning up older images"
+  echo -e "\n(6/6) Cleaning up older images"
   docker image prune -a -f
 
   echo -e "\nBootstrap complete."
+  echo -e "\nNote: Make sure no errors where found above before attempting to access your Krane instance."
   echo "For documentation on accessing this Krane instance visit https://www.krane.sh/#/docs/cli."
 }
 
