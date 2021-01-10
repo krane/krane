@@ -55,7 +55,6 @@ create_krane_docker(){
   docker image prune -a -f
 
   echo -e "\nBootstrap complete."
-  echo "Now you can try running 'docker ps' to view the running containers."
   echo "For documentation on accessing this Krane instance visit https://www.krane.sh/#/docs/cli."
 }
 
