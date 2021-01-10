@@ -87,8 +87,6 @@ krane deploy -f /path/to/deployment.json
 
 For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/docs/deployment-configuration).
 
----
-
 <a name="motivation"></a>
 
 ## Motivation
@@ -130,6 +128,14 @@ Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To v
 
 ```
 $ boltdbweb --db-name=/path/to/krane.db --port=9000
+```
+
+## Bootstrapping Krane
+
+You can optionally use the [`bootstrap.sh`](https://github.com/krane/krane/blob/master/bootstrap.sh) to update or create a Krane instance.
+
+```
+wget -O bootstrap.sh https://github.com/krane/krane/blob/master/bootstrap.sh && chmod +x bootstrap.sh
 ```
 
 ## Minimal Docker example
