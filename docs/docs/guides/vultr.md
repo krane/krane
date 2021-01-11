@@ -50,11 +50,11 @@ Select **Cloud Compute** and the location closest to you.
 
 <span class="img-wrapper">![Select compute](./assets/vultr/vultr-250-01.png)</span>
 
-For the server type, under the **64 bit OS** tab select Ubuntu **(Ubuntu 20.10 x64)**
+For the server type, under the **64 bit OS** tab select **Ubuntu (20.10 x64)**
 
 <span class="img-wrapper">![Select server](./assets/vultr/vultr-250-02.png)</span>
 
-Under SSH Keys add your public key.
+Under **SSH Keys** add your public key.
 
 This is usually under `~/.ssh/id_rsa`. **David's Personal Mac** being my `id_rsa`.
 
@@ -66,7 +66,9 @@ Click **Deploy Now** to create the server.
 
 ...
 
-Next we'll have to upgrade our **$2.50 plan** to a **$3.50** plan to enable ipv4.
+Next we'll have to upgrade our **$2.50** plan to a **$3.50** plan to enable ipv4.
+
+Find the banner labeled **Need an IPv4 address?** and select **Upgrade to another plan**
 
 From the **Change Hostname** dropdown select the $3.50 plan.
 
