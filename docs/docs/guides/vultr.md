@@ -4,7 +4,7 @@
 
 > The following guides assumes you have a [Vultr](https://my.vultr.com/) account and can access the dashboard
 
-### $5 / month
+## $5 / month
 
 > Note: Vultr's $5.00 offering supports ipv4
 
@@ -38,7 +38,7 @@ Once you're able to `ssh` into your new server, follow the [getting started](doc
 
 ---
 
-### $3.50 / month
+## $3.50 / month
 
 > Note: We start out by creating a $2.50 server and upgrading to $3.50 to enable ipv4
 
