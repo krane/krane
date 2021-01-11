@@ -4,4 +4,4 @@ The Krane [Github Action](https://github.com/krane/action) allows you to automat
 
 For complete documentation, checkout the [action](https://github.com/marketplace/actions/krane) on the GitHub Marketplace.
 
-[![action_screenshot](../assets/tooling-gh-action.png)](https://github.com/marketplace/actions/krane)
+<span class="img-wrapper">![action_screenshot](../assets/action-screenshot.png)</span>
