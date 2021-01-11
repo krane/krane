@@ -55,7 +55,7 @@ update_or_create_krane(){
 
   echo -e "\nBootstrap complete."
   echo -e "\nNote: Make sure no errors where found above before attempting to access your Krane instance."
-  echo "For documentation on accessing this Krane instance visit https://www.krane.sh/#/docs/cli."
+  echo -e "For documentation on accessing this Krane instance visit https://www.krane.sh/#/docs/cli."
 }
 
 ensure_env KRANE_PRIVATE_KEY "Krane private key (optional, used for signing client requests. default uuid)"
