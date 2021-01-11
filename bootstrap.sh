@@ -22,7 +22,7 @@ ensure_secure_env() {
 }
 
 update_or_create_krane(){
-  echo "(1/6) Stopping Krane (if exists)"
+  echo -e "\n(1/6) Stopping Krane (if exists)"
   docker stop krane
 
   echo -e "\n(2/6) Removing Krane instance (if exists)"
