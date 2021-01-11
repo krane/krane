@@ -6,7 +6,7 @@
 
 ### $5 / month
 
-> Note: Vultr's $5.00 offering supports ipv4 and ipv6
+> Note: Vultr's $5.00 offering supports ipv4
 
 Under **Products** click the **+** sign or find _Deploy New Server_
 
