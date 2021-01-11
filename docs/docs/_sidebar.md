@@ -5,3 +5,6 @@
 - Tooling
 - [CLI](docs/cli.md)
 - [GitHub Action](docs/github-action.md)
+
+- Guides
+- [Vultr](docs/guides/vultr.md)
