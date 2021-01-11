@@ -1,18 +1,24 @@
-:root {
-  /* Tabs */
-  --docsifytabs-border-color: white;
-  --docsifytabs-tab-background: white;
-  --docsifytabs-tab-highlight-color: black;
-}
-
-.docsify-tabs__tab {
-  outline: none !important;
-}
-
 body {
   font-size: 15px !important;
   color: black;
   font-family: "Inter", sans-serif !important;
+}
+
+footer {
+  margin-top: 30px;
+  text-align: center;
+}
+
+footer a {
+  color: #adb5bd !important;
+  text-decoration: none;
+  font-weight: normal !important;
+  font-size: small;
+  padding-right: 15px;
+}
+
+footer a:hover {
+  color: #000 !important;
 }
 
 .cover {
@@ -74,7 +80,7 @@ body {
 }
 
 .markdown-section h3 {
-    font-size: 1.3rem !important;
+  font-size: 1.3rem !important;
 }
 
 /* Custom subheader before pre-content. Example dash for subheaders ( - getting started) */
@@ -84,9 +90,6 @@ body {
 
 /* Getting Started button (on homepage) */
 section.cover .cover-main > p:last-child a {
-  /* opacity: 0 !important;
-  color: white !important;
-  */
   color: black !important;
   font-size: 19px !important;
   font-weight: 500;
@@ -94,7 +97,6 @@ section.cover .cover-main > p:last-child a {
   background-color: white !important;
   border: 0px !important;
   border-radius: 0px !important;
-  /* box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); */
 }
 
 section.cover .cover-main > p:last-child a:last-child:hover {

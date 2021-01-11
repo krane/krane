@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Krane</title>
+    <title>Toolset for working with containers</title>
     <link rel="icon" href="assets/favicon/favicon.ico" />
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="description" content="Toolset for working with containers" />
+    <meta
+      name="description"
+      content="Krane makes it easy to deploy containers for development workloads on remote or local servers. Krane interfaces with Docker exposing a productive toolset for managing containerized services known as deployments. The Krane CLI allows you to interact with Krane to create, manage and automate deployments."
+    />
+
+    <!-- Open graph -->
+    <meta property="og:title" content="Toolset for working with containers" />
+    <meta
+      property="og:description"
+      content="Krane makes it easy to deploy containers for development workloads on remote or local servers. Krane interfaces with Docker exposing a productive toolset for managing containerized services known as deployments. The Krane CLI allows you to interact with Krane to create, manage and automate deployments."
+    />
     <meta
       property="og:image"
       content="https://res.cloudinary.com/biensupernice/image/upload/v1609549501/Marketing_-_Deploy_with_Krane_psmdgv.jpg"
@@ -15,8 +25,21 @@
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1280" />
     <meta property="og:image:height" content="720" />
+
+    <!-- Twitter -->
+    <meta name="twitter:title" content="Toolset for working with containers" />
+    <meta
+      name="twitter:description"
+      content="Krane makes it easy to deploy containers for development workloads on remote or local servers. Krane interfaces with Docker exposing a productive toolset for managing containerized services known as deployments. The Krane CLI allows you to interact with Krane to create, manage and automate deployments."
+    />
+    <meta
+      name="twitter:image"
+      content="https://res.cloudinary.com/biensupernice/image/upload/v1609549501/Marketing_-_Deploy_with_Krane_psmdgv.jpg"
+    />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image:alt" content="Deploy containers with Krane" />
+
+    <!-- Meta -->
     <meta
       name="keywords"
       content="docker,containers,container management,golang,toolset"
@@ -26,6 +49,7 @@
       content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
     />
 
+    <!-- CSS -->
     <link
       rel="stylesheet"
       href="//cdn.jsdelivr.net/npm/docsify/lib/themes/vue.css"
@@ -63,6 +87,18 @@
             null,
             "Edit"
           ),
+          function (hook) {
+            var footer = [
+              "<footer>",
+              '<a href="mailto:biensupernice@gmail.com">Contact</a>',
+              '<a href="https://github.com/krane/krane">Github</a>',
+              "</footer>",
+            ].join("");
+
+            hook.afterEach(function (html) {
+              return html + footer;
+            });
+          },
         ],
         copyCode: {
           buttonText: { "/": "copy" },
@@ -75,19 +111,11 @@
             crossChapterText: true,
           },
         },
-        tabs: {
-          persist: false,
-          sync: false,
-          theme: "material",
-          tabComments: true,
-          tabHeadings: true,
-        },
       };
     </script>
     <script src="//cdn.jsdelivr.net/npm/docsify/lib/docsify.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/ga.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
     <script src="//cdn.jsdelivr.net/npm/docsify-pagination/dist/docsify-pagination.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
   </body>
 </html>

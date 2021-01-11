@@ -46,6 +46,14 @@ Authenticate with a Krane instance.
 krane login
 ```
 
+### list
+
+List all deployments.
+
+```
+krane list
+```
+
 ### status
 
 Returns information related to a deployment.
@@ -83,14 +91,6 @@ Flags:
 - `--scale`(`-s`) Number of containers to create
   - required: `false`
   - default: `1`
-
-### list
-
-List all deployments.
-
-```
-krane list
-```
 
 ### logs
 
