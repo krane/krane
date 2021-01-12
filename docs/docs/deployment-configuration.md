@@ -223,7 +223,9 @@ Mark the deployment as internal. Internal deployments are used to differentiate 
 
 ## rate_limit
 
-Requests per second allowed for a given deployment.
+Rate limit allows you to control the incoming traffic to your deployments. It lets you to define the number of **requests per second** that a service can get in a specific predefined period. 
+
+> Note: Default behavior is **no rate limit**  
 
 - required: `false`
 - default: `0`  which means no rate limit
