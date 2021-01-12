@@ -46,11 +46,7 @@ footer a:hover {
   font-size: 1.4em;
 }
 
-/* Sidebar  Header text*/
-.sidebar {
-  color: black !important;
-}
-
+/* KRANE sidebar label */
 .sidebar > h1 a {
   color: black;
   font-weight: 800;

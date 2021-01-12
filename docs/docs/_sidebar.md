@@ -7,4 +7,5 @@
 - [GitHub Action](docs/github-action.md)
 
 - Guides
+- [Digital Ocean](docs/guides/digitalocean.md)
 - [Vultr](docs/guides/vultr.md)

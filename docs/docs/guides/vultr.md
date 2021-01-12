@@ -1,6 +1,6 @@
 # Vultr
 
-[Vultr](https://www.vultr.com/products/cloud-compute/#pricing) is an infrastructure provider with low-cost offerings on cloud servers.
+[Vultr](https://www.vultr.com/products/cloud-compute/#pricing) is an infrastructure provider with low-cost cloud compute.
 
 > The following guides assumes you have a [Vultr](https://my.vultr.com/) account and can access the dashboard
 
