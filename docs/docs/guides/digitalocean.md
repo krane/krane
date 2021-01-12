@@ -1,8 +1,8 @@
 # Digital Ocean
 
-[Digital Ocean](https://www.digitalocean.com/pricing) is a cloud provider offering affordable and easy to setup compute.
+[Digital Ocean](https://www.digitalocean.com/pricing) offers low-cost cloud compute making it an ideal infrastructure provider for running and managing development workloads with **Krane**. This guide will walk you through creating a linux server for just $5 a month, compatible to run Krane. 
 
-> The following guides assumes you have a [Digital Ocean](https://cloud.digitalocean.com) account
+> This guide assumes you have a [Digital Ocean](https://cloud.digitalocean.com) account
 
 ## $5 / month
 

@@ -1,8 +1,9 @@
 # Vultr
 
-[Vultr](https://www.vultr.com/products/cloud-compute/#pricing) is an infrastructure provider with low-cost cloud compute.
+[Vultr](https://www.vultr.com/products/cloud-compute/#pricing) is an infrastructure provider with low-cost cloud compute perfect for running and managing development workloads using **Krane**. This guide will walk you through creating a linux server for $5 or $3.50 a month, compatible to run Krane. 
 
-> The following guides assumes you have a [Vultr](https://my.vultr.com/) account and can access the dashboard
+
+> This guide assumes you have a [Vultr](https://my.vultr.com/) account
 
 ## $5 / month
 
