@@ -35,6 +35,7 @@ type Config struct {
 	Scale      int               `json:"scale"`                    // number of containers to create for the deployment
 	Secure     bool              `json:"secure"`                   // enable/disable secure communication over HTTPS/TLS w/ auto generated certs
 	Internal   bool              `json:"internal"`                 // whether a deployment is internal (ie. krane-proxy)
+	RateLimit  uint              `json:"rate_limit"`               // requests per second for a given deployment (default 0, which means no rate limit)
 }
 
 // SaveConfig a deployment configuration into the db
@@ -254,7 +255,7 @@ func (config Config) ApplyProxyLabels() {
 	}
 
 	// middleware labels
-	for k, v := range proxy.TraefikMiddlewareLabels(config.Name, config.Secure) {
+	for k, v := range proxy.TraefikMiddlewareLabels(config.Name, config.Secure, config.RateLimit) {
 		config.Labels[k] = v
 	}
 

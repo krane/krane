@@ -220,3 +220,16 @@ Mark the deployment as internal. Internal deployments are used to differentiate 
   "internal": true
 }
 ```
+
+## rate_limit
+
+Requests per second allowed for a given deployment.
+
+- required: `false`
+- default: `0`  which means no rate limit
+
+```json
+{
+  "rate_limit": 100
+}
+```

@@ -3,6 +3,7 @@ package proxy
 import (
 	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/krane/krane/internal/proxy/middlewares"
 )
@@ -66,13 +67,29 @@ func TraefikServiceLabels(deployment string, ports map[string]string, targetPort
 	return labels
 }
 
-func TraefikMiddlewareLabels(deployment string, secured bool) map[string]string {
+func TraefikMiddlewareLabels(deployment string, secured bool, rateLimit uint) map[string]string {
 	labels := make(map[string]string, 0)
+
+	allMiddlewares := make([]string, 0)
+
+	// http redirect
 	if secured {
-		// applies http redirect labels to all secure deployments
 		for k, v := range middlewares.RedirectToHTTPSLabels(deployment) {
 			labels[k] = v
 		}
+		allMiddlewares = append(allMiddlewares, "redirect-to-https")
 	}
+
+	// rate limit
+	for k, v := range middlewares.RateLimitLabels(deployment, rateLimit) {
+		labels[k] = v
+	}
+	allMiddlewares = append(allMiddlewares, fmt.Sprintf("%s-ratelimit", deployment))
+
+	// attach all middlewares to the deployment
+	mw := strings.Join(allMiddlewares[:], ",")
+	labels[fmt.Sprintf("traefik.http.routers.%s-insecure.middlewares", deployment)] = mw
+	labels[fmt.Sprintf("traefik.http.routers.%s-secure.middlewares", deployment)] = strings.Replace(mw, "redirect-to-https,", " ", 1)
+
 	return labels
 }

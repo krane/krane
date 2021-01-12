@@ -77,8 +77,7 @@ func GetAllDeployments() ([]Deployment, error) {
 }
 
 // Run a deployment runs the current configuration for a
-// deployment creating or re-creating container resources.
-// Returns the job id to track deployment events
+// deployment creating or re-creating container resources
 func Run(deployment string) error {
 	config, err := GetDeploymentConfig(deployment)
 	if err != nil {
