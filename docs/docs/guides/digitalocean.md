@@ -20,7 +20,7 @@ You can leave block storage empty, but choose the **Data Center** closest to you
 
 Under SSH Keys add your public key. 
 
-This is usually under `~/.ssh/id_rsa`. David's Personal Mac being my `id_rsa`.
+This is usually under `~/.ssh/id_rsa`. **David's Personal Mac** being my `id_rsa`.
 
 > To create a new SSH Key, **Settings** → **Security** → **Add SSH Key**
 
@@ -32,6 +32,6 @@ Click **Create Droplet** to create the server.
 
 Once the server has been created, you'll want configure the [Digital Ocean dns](https://www.digitalocean.com/community/tutorials/how-to-point-to-digitalocean-nameservers-from-common-domain-registrars) with your domain provider. This will setup the domain you'll be using to point to your new server.
 
-> tldr; **Create** → **Domains/DNS** 
+> tldr; **Dashboard** → Top right **Create** → **Domains/DNS** 
 
 Once you're able to `ssh` into your new server, follow the [getting started](docs/getting-started) to install Krane.
