@@ -3,10 +3,11 @@
 [![CI](https://github.com/krane/krane/workflows/CI/badge.svg?branch=master)](https://github.com/krane/krane/actions)
 [![Release](https://img.shields.io/github/v/release/krane/krane)](https://github.com/krane/krane/releases)
 
-Krane makes it easy to deploy containers for development workloads on remote or local servers. Krane interfaces with Docker exposing a productive toolset for managing containerized services known as deployments. The Krane [CLI](https://www.krane.sh/#/docs/cli) allows you to interact with Krane to create, manage and automate deployments.
+Krane makes it easy to deploy containers on remote or local servers by interfacing with Docker to expose a productive toolset for managing containerized applications known as deployments. The Krane [CLI](https://www.krane.sh/#/docs/cli) allows you to interact with a Krane instace to run deployments, read container logs, store deployment secrets and more. The Krane [GitHub Action](https://github.com/marketplace/actions/krane) automates deployments by tapping into your build pipeline to continuously deliver updates when changes occur to your projects.
 
 - **Documentation:** https://krane.sh
 - **Releases:** https://github.com/krane/krane/releases
+- **Bugs:** https://github.com/krane/krane/issues
 - **CLI:** https://github.com/krane/cli
 - **GitHub Action:** https://github.com/krane/action
 
@@ -15,9 +16,10 @@ Krane makes it easy to deploy containers for development workloads on remote or 
 - Single file deployments
 - Compatible with _localhost_ with features like aliases(`my-api.localhost`)
 - HTTPS/TLS support via [Let's Encrypt](https://letsencrypt.org/)
-- Deployment [aliases](https://www.krane.sh/#/docs/deployment-configuration?id=alias) provided by [Traefik](https://traefik.io/traefik/)
-- Deployment [secrets](https://www.krane.sh/#/docs/deployment-configuration?id=secrets) for hiding sensitive environment variables
-- Deployment [scaling](https://www.krane.sh/#/docs/deployment-configuration?id=scale) to distribute the workload between containers
+- Deployment [aliases](https://www.krane.sh/#/docs/deployment?id=alias) provided by [Traefik](https://traefik.io/traefik/)
+- Deployment [secrets](https://www.krane.sh/#/docs/deployment?id=secrets) for hiding sensitive environment variables
+- Deployment [scaling](https://www.krane.sh/#/docs/deployment?id=scale) to distribute the workload between containers
+- [Rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit) support to limit incoming traffic to your deployments.
 - Tooling - [CLI](https://github.com/krane/cli), [GitHub Action](https://github.com/krane/action)
 - [Self-hosted](#motivation) - Bring your own server (could be a cheap $5 server) and scale if you need
 
@@ -45,7 +47,7 @@ npm i -g @krane/cli
 
 Full list of [commands](https://www.krane.sh/#/docs/cli?id=commands).
 
-[![Setup Authentication](docs/assets/3-setup-authentication.png)](https://www.krane.sh/#/docs/cli?id=authenticating)
+[![Setup Authentication](docs/assets/3-setup-authentication.png)](https://www.krane.sh/#/docs/authentication)
 
 Create public and private keys used for authentication.
 
@@ -55,7 +57,7 @@ ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
 
 The private key stays on the user's machine, the public key is appended to `~/.ssh/authorized_keys` where Krane is running.
 
-[![Authenticate](docs/assets/4-authentication.png)](https://www.krane.sh/#/docs/cli?id=authenticating)
+[![Authenticate](docs/assets/4-authentication.png)](https://www.krane.sh/#/docs/authentication)
 
 When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated you'll be able to execute commands on that Krane instance.
 
@@ -83,7 +85,7 @@ For example:
 krane deploy -f /path/to/deployment.json
 ```
 
-For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/docs/deployment-configuration).
+For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/docs/deployment).
 
 <a name="motivation"></a>
 
