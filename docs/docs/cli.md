@@ -94,7 +94,7 @@ Flags:
 
 ### logs
 
-Read realtime container logs for a deployment.
+Read realtime logs for a container.
 
 ```
 krane logs <container>
