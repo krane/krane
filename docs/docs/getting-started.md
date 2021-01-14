@@ -17,7 +17,7 @@ Other [installation](docs/installation) methods and configurations.
 Download the Krane [CLI](docs/cli) to execute commands on a Krane instance.
 
 ```
-npm i -g @krane/cli
+npm i -g krane
 ```
 
 Full list of [commands](docs/cli?id=commands).

@@ -7,7 +7,7 @@ The Krane [CLI](https://github.com/krane/cli) allows you to interact with a Kran
 ## Installing
 
 ```
-npm i -g @krane/cli
+npm i -g krane
 ```
 
 ## Commands
