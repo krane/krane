@@ -52,7 +52,7 @@ Full list of [commands](https://www.krane.sh/#/docs/cli?id=commands).
 Create public and private keys used for authentication.
 
 ```
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM' -f $HOME/.ssh/krane
 ```
 
 The private key stays on the user's machine, the public key is appended to `~/.ssh/authorized_keys` where Krane is running.
