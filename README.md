@@ -19,7 +19,7 @@ Krane makes it easy to deploy containers on remote or local servers by interfaci
 - Deployment [aliases](https://www.krane.sh/#/docs/deployment?id=alias) provided by [Traefik](https://traefik.io/traefik/)
 - Deployment [secrets](https://www.krane.sh/#/docs/deployment?id=secrets) for hiding sensitive environment variables
 - Deployment [scaling](https://www.krane.sh/#/docs/deployment?id=scale) to distribute the workload between containers
-- [Rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit) support to limit incoming traffic to your deployments.
+- [Rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit) support to restrict incoming traffic to your deployments
 - Tooling - [CLI](https://github.com/krane/cli), [GitHub Action](https://github.com/krane/action)
 - [Self-hosted](#motivation) - Bring your own server (could be a cheap $5 server) and scale if you need
 
