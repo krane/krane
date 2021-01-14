@@ -1,39 +1,13 @@
 # CLI
 
-The Krane [CLI](https://github.com/krane/cli) allows you to interact with Krane to create container resources.
+The Krane [CLI](https://www.krane.sh/#/docs/cli) allows you to interact with a Krane instance to run deployments, read container logs, store deployment secrets and more.
+
+> Ensure you have succesfully setup your [authentication](docs/authentication.md)
 
 ## Installing
 
 ```
 npm i -g @krane/cli
-```
-
-## Authenticating
-
-Krane uses [private and public key authentication](https://en.wikipedia.org/wiki/Public-key_cryptography). Both keys are used for ensuring authenticity of incoming requests.
-
-1. Create the public and private key
-
-```
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM' -f $HOME/.ssh/krane
-
--t type
--b bytes
--C comments
--m key format
--f output file
-```
-
-This will generate 2 different keys, a `private` & `public (.pub)` key.
-
-2. Place the `public key` on the server where Krane is running, appended to `~/.ssh/authorized_keys`.
-
-The `private key` is kept on the user's machine.
-
-Now try authenticating. The CLI will prompt you to select the `private key` you just created. This will be used for authenticating with the `public key` located on the Krane server.
-
-```
-krane login
 ```
 
 ## Commands

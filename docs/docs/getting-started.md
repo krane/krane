@@ -1,9 +1,5 @@
 # Getting Started
 
-Krane makes it easy to deploy containers for development workloads on remote or local servers. Krane interfaces with Docker exposing a productive toolset for managing containerized services known as deployments. The Krane [CLI](https://www.krane.sh/#/docs/cli) allows you to interact with Krane to create manage and automate deployments.
-
-![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1609389359/architecture_img_whesih.png)
-
 ![Install Krane](../assets/1-install-krane.png)
 
 You can install Krane using this interactive script. 
@@ -31,7 +27,7 @@ Full list of [commands](docs/cli?id=commands).
 Create public and private keys used for authentication.
 
 ```
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM'
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM' -f $HOME/.ssh/krane
 ```
 
 The private key stays on the user's machine, the public key is appended to `~/.ssh/authorized_keys` where Krane is running.
@@ -48,9 +44,9 @@ krane login
 
 ![Deploy](../assets/5-deploy.png)
 
-Create a deployment configuration file `deployment.json`
+Create a file and copy the following deployment configuration
 
-For example
+`deployment.json`
 
 ```json
 {
@@ -64,4 +60,4 @@ For example
 krane deploy -f /path/to/deployment.json
 ```
 
-For a full list of configuration options, checkout the [deployment configuration](docs/deployment-configuration) section.
+For a full list of configuration properties, checkout the [deployment configuration](docs/deployment) section.
