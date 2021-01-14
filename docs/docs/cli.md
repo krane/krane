@@ -1,6 +1,6 @@
 # CLI
 
-The Krane [CLI](https://www.krane.sh/#/docs/cli) allows you to interact with a Krane instance to run deployments, read container logs, store deployment secrets and more.
+The Krane [CLI](https://github.com/krane/cli) allows you to interact with a Krane instance to run deployments, read container logs, store deployment secrets and more.
 
 > Ensure you have succesfully setup your [authentication](docs/authentication.md)
 
