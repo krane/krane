@@ -24,9 +24,9 @@ var config = deployment.Config{
 	},
 	TargetPort: "8080",
 	Ports: map[string]string{
-		"80":   "80",
-		"443":  "443",
-		"8080": "8080",
+		"80":  "80",
+		"443": "443",
+		"":    "8080",
 	},
 }
 
