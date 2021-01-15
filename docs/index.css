@@ -50,17 +50,22 @@ footer a:hover {
   border-radius: 5px;
 }
 
+.img-wrapper-no-shadow img {
+  margin: 75px 0px;
+  transform: scale(1.1);
+  border-radius: 5px;
+}
+
 .pagination-item-title {
   font-size: 1.4em;
 }
 
-/* KRANE sidebar label */
-.sidebar > h1 a {
-  color: black;
-  font-weight: 800;
-  letter-spacing: 1px;
-  font-size: 20px;
-  text-align: start;
+.sidebar {
+  padding: 25px 5px;
+}
+
+.sidebar img {
+  transform: scale(0.8);
 }
 
 .sidebar ul li.active > a {
