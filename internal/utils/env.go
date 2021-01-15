@@ -30,7 +30,7 @@ func EnvOrDefault(key string, fallback string) string {
 	value, found := os.LookupEnv(key)
 	if !found {
 		if IsSensitiveEnv(key) {
-			log.Printf("%s not set, defaulting to ***", key, fallback)
+			log.Printf("%s not set, defaulting to ***", key)
 		} else {
 			log.Printf("%s not set, defaulting to %s", key, fallback)
 		}
@@ -43,7 +43,7 @@ func EnvOrDefault(key string, fallback string) string {
 
 	if value == "" {
 		if IsSensitiveEnv(key) {
-			log.Printf("%s not set, defaulting to ***", key, fallback)
+			log.Printf("%s not set, defaulting to ***", key)
 		} else {
 			log.Printf("%s not set, defaulting to %s", key, fallback)
 		}
