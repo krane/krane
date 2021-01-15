@@ -22,7 +22,7 @@ krane login
 
 ### list
 
-List all deployments.
+List all deployments and their status.
 
 ```
 krane list
@@ -30,7 +30,7 @@ krane list
 
 ### status
 
-Returns information related to a deployment.
+Returns information about the containers for a deployment.
 
 ```
 krane status <deployment>
@@ -98,7 +98,7 @@ krane edit <deployment>
 
 ### remove
 
-Remove a deployment.
+Remove a deployment and its container resources, secrets, and configuration.
 
 ```
 krane remove <deployment>
@@ -130,19 +130,19 @@ krane restart <deployment>
 
 ### secrets
 
-List all deployment secrets.
+List all secrets for a deployment.
 
 ```
 krane secrets list <deployment>
 ```
 
-Add a deployment secret.
+Add secret to a deployment.
 
 ```
 krane secrets add <deployment> -k <key> -v <value>
 ```
 
-Delete a deployment secret.
+Delete a secret for a deployment.
 
 ```
 krane secrets delete <deployment> -k <key>
