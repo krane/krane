@@ -68,10 +68,6 @@ footer a:hover {
   transform: scale(0.8);
 }
 
-.sidebar ul li.active > a {
-  border-right: 0px;
-}
-
 .app-name {
   text-align: start !important;
   padding: 0px 0px 0px 15px !important;
