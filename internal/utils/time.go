@@ -8,6 +8,11 @@ import (
 var (
 	// OneYear is the unix time for 1 year
 	OneYear = time.Now().Add(time.Minute * 525600).Unix()
+
+	OneMinMs  = "60000"
+	TwoMinMs  = "120000"
+	FiveMinMs = "300000"
+	TenMinMs  = "600000"
 )
 
 // UTCDateString returns the current date time in RFC3339 format

@@ -185,23 +185,23 @@ func GetContainersByDeployment(deployment string) ([]KraneContainer, error) {
 	return containers, nil
 }
 
-// RetriableContainerHealthCheck returns an error if a container is considered unhealthy
-func RetriableContainerHealthCheck(containers []KraneContainer, pollRetry int) error {
+// RetriableContainersHealthCheck returns an error if a container is considered unhealthy
+func RetriableContainersHealthCheck(containers []KraneContainer, retries int) error {
 	for _, c := range containers {
-		for i := 0; i <= pollRetry; i++ {
+		for i := 0; i <= retries; i++ {
 			expBackOff := time.Duration(10 * i)
 			time.Sleep(expBackOff * time.Second)
 
 			isRunning, err := c.Running()
 			if err != nil {
-				if i == pollRetry {
+				if i == retries {
 					return fmt.Errorf("container is not healthy %v", err)
 				}
 				continue
 			}
 
 			if !isRunning {
-				if i == pollRetry {
+				if i == retries {
 					return fmt.Errorf("container is not healthy %v", err)
 				}
 				continue

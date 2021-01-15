@@ -34,6 +34,8 @@ func init() {
 	utils.EnvOrDefault(constants.EnvLetsEncryptEmail, "")
 
 	logger.Configure()
+	logger.Info("Setting up Krane")
+
 	docker.Connect()
 	store.Connect(os.Getenv(constants.EnvDatabasePath))
 }
@@ -55,9 +57,9 @@ func main() {
 	// if watch mode is enabled, the scheduler will run in a separate routine polling
 	// and queuing jobs to maintain the deployment state in parity with the desired state
 	if utils.BoolEnv(constants.EnvWatchMode) {
-		logger.Warn("This feature is experimental, dont use unless ")
+		logger.Warn("The feature watch mode is experimental. Krane will attempt to keep your containers state as close to you deployment configuration even when deployments arent triggered.")
 		enqueuer := job.NewEnqueuer(queue)
-		interval := utils.EnvOrDefault(constants.EnvSchedulerIntervalMs, "30000")
+		interval := utils.EnvOrDefault(constants.EnvSchedulerIntervalMs, utils.TwoMinMs)
 
 		jobScheduler := scheduler.New(db, docker.GetClient(), enqueuer, interval)
 		go jobScheduler.Run()

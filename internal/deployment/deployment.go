@@ -166,7 +166,7 @@ func Run(deployment string) error {
 
 			// health check
 			retries := 10
-			if err := RetriableContainerHealthCheck(containersStarted, retries); err != nil {
+			if err := RetriableContainersHealthCheck(containersStarted, retries); err != nil {
 				logger.Errorf("containers did not pass health check %v", err)
 				return err
 			}
@@ -409,7 +409,7 @@ func RestartContainers(deployment string) error {
 			logger.Debugf("%d/%d container(s) for deployment %s started", len(containersStarted), len(containersCreated), config.Name)
 
 			retries := 10
-			if err := RetriableContainerHealthCheck(containersStarted, retries); err != nil {
+			if err := RetriableContainersHealthCheck(containersStarted, retries); err != nil {
 				logger.Errorf("containers did not pass health check %v", err)
 				return err
 			}

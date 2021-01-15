@@ -21,8 +21,8 @@ type Scheduler struct {
 
 // New returns a new scheduler used to poll and create deployment resources
 func New(store store.Store, dockerClient *docker.Client, jobEnqueuer job.Enqueuer, interval_ms string) Scheduler {
-	ms, _ := time.ParseDuration(interval_ms + "ms")
-	return Scheduler{store, dockerClient, jobEnqueuer, ms}
+	interval, _ := time.ParseDuration(interval_ms + "ms")
+	return Scheduler{store, dockerClient, jobEnqueuer, interval}
 }
 
 // Run starts the scheduler polling on an interval
@@ -56,7 +56,17 @@ func (s *Scheduler) poll() {
 }
 
 // hasDesiredState checks that deployments are in parity with their configurations
-func hasDesiredState(deployment deployment.Deployment) bool {
-	// TODO: implementation not defined - always returning true to avoid doing anything
+func hasDesiredState(d deployment.Deployment) bool {
+	config := d.Config
+	containers := d.Containers
+
+	if config.Scale != len(containers) {
+		return false
+	}
+
+	if err := deployment.RetriableContainersHealthCheck(containers, 3); err != nil {
+		return false
+	}
+
 	return true
 }
