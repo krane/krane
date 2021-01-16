@@ -9,6 +9,14 @@
       name="description"
       content="Krane makes it easy to deploy containers on remote or local servers by interfacing with Docker to expose a productive toolset for managing containerized applications in the form of deployments."
     />
+    <meta
+      name="keywords"
+      content="docker,containers,container management,golang,toolset,traefik"
+    />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
 
     <!-- Open graph -->
     <meta
@@ -44,16 +52,6 @@
     />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image:alt" content="Deploy containers with Krane" />
-
-    <!-- Meta -->
-    <meta
-      name="keywords"
-      content="docker,containers,container management,golang,toolset,traefik"
-    />
-    <meta
-      name="viewport"
-      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
-    />
 
     <!-- CSS -->
     <link
@@ -92,18 +90,15 @@
             null,
             "Edit"
           ),
-          function (hook) {
-            var footer = [
+          (hook) => {
+            const footer = [
               "<footer>",
               '<a href="mailto:biensupernice@gmail.com">Contact</a>',
               '<a href="https://github.com/krane/krane">GitHub</a>',
               '<a href="https://github.com/krane/krane/issues">Bugs</a>',
               "</footer>",
             ].join("");
-
-            hook.afterEach(function (html) {
-              return html + footer;
-            });
+            hook.afterEach((html) => html + footer);
           },
         ],
         copyCode: {
