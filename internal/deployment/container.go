@@ -38,7 +38,7 @@ type ContainerState struct {
 	Pid        int           `json:"pid"`
 	ExitCode   int           `json:"exit_code"`
 	Error      string        `json:"error"`
-	StartedAt  string        `json:"started"`
+	StartedAt  string        `json:"started_at"`
 	FinishedAt string        `json:"finished_at"`
 	Health     *types.Health `json:",omitempty"`
 }
@@ -229,5 +229,4 @@ func (c KraneContainer) Running() (bool, error) {
 	}
 
 	return false, fmt.Errorf("container %s is not in running state", c.ID)
-
 }

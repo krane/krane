@@ -200,7 +200,7 @@ func createContainerConfig(
 func createHostConfig(ports nat.PortMap, volumes []mount.Mount) container.HostConfig {
 	return container.HostConfig{
 		PortBindings: ports,
-		AutoRemove:   true,
+		AutoRemove:   false,
 		Mounts:       volumes,
 	}
 }

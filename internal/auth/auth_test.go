@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/krane/krane/internal/test"
+	"github.com/krane/krane/internal/utils/test"
 )
 
 func TestMain(m *testing.M) {
