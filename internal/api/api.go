@@ -41,7 +41,7 @@ func withBaseMiddlewares(router *mux.Router) {
 	router.Use(handlers.RecoveryHandler())
 	router.Use(handlers.CORS(
 		handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost}),
-		handlers.AllowedOrigins([]string{"*"}))) // TODO: Not allowing wild card origins (*) maybe use LISTEN_ADDRESS
+		handlers.AllowedOrigins([]string{"*"})))
 }
 
 // withRoutes configures rest api endpoints and handlers
@@ -72,6 +72,8 @@ func withRoutes(router *mux.Router) {
 	withRoute(authRouter, "/jobs/{deployment}/{id}", controllers.GetJobByID, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	// session
 	withRoute(authRouter, "/sessions", controllers.GetSessions, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/sessions", controllers.CreateSession, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
+	withRoute(authRouter, "/sessions/{id}", controllers.DeleteSession, middlewares.ValidateSessionMiddleware).Methods(http.MethodDelete)
 	// realtime
 	withRoute(authRouter, "/ws/containers/{container}/logs", controllers.ReadContainerLogs, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/ws/deployments/{deployment}/events", controllers.SubscribeToDeploymentEvents, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)

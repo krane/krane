@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/sirupsen/logrus"
 
 	"github.com/krane/krane/internal/auth"
 	"github.com/krane/krane/internal/constants"
@@ -75,6 +76,26 @@ func Save(session Session) error {
 	}
 
 	return store.Client().Put(constants.SessionsCollectionName, session.ID, bytes)
+}
+
+// Delete removes a user session from the db
+func Delete(id string) error {
+	return store.Client().Remove(constants.SessionsCollectionName, id)
+}
+
+// Exist returns true if a session exist in the db
+func Exist(id string) bool {
+	session, err := GetSessionByID(id)
+	if err != nil {
+		logrus.Debugf("unable to check if session exist, %v", err)
+		return false
+	}
+
+	if !session.IsValid() {
+		return false
+	}
+
+	return true
 }
 
 // GetSessionByID returns a user session by id

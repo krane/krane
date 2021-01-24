@@ -10,10 +10,8 @@ import (
 
 	"github.com/krane/krane/internal/api/response"
 	"github.com/krane/krane/internal/auth"
-	"github.com/krane/krane/internal/constants"
 	"github.com/krane/krane/internal/logger"
 	"github.com/krane/krane/internal/session"
-	"github.com/krane/krane/internal/store"
 	"github.com/krane/krane/internal/utils"
 )
 
@@ -21,6 +19,30 @@ import (
 type AuthRequest struct {
 	RequestID string `json:"request_id" binding:"required"`
 	Token     string `json:"token" binding:"required"`
+}
+
+// LoginResponse is the response received when you initially want to authenticate.
+// The request_id is a uuid stored for future validation and the phrase is a generated phrased
+// containing that request_id meant to be signed by the clients private key to later be unsigned
+// by the clients public key to establish an authenticated sessions
+type LoginResponse struct {
+	RequestID string `json:"request_id"`
+	Phrase    string `json:"phrase"`
+}
+
+// RequestLoginPhrase request a preliminary login request for authentication with the krane server.
+// This will return a request id and phrase. The phrase should be encrypted using the clients private key.
+// This route does not return a token. You must use /auth and provide the signed phrase.
+func RequestLoginPhrase(w http.ResponseWriter, _ *http.Request) {
+	reqID, phrase, err := auth.CreateAuthenticationPhrase()
+	if err != nil {
+		response.HTTPBad(w, err)
+	}
+
+	response.HTTPOk(w, LoginResponse{
+		RequestID: reqID,
+		Phrase:    phrase,
+	})
 }
 
 // AuthenticateClientJWT authenticates a client signed jwt token. This usually gets called after a call to /login.
@@ -35,7 +57,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 
 	// We check if the request id is valid to ensure we've stored a generate server
 	// phrase for that client id during the initial login request
-	serverPhrase, err := auth.GetClientServerPhrase(body.RequestID)
+	serverPhrase, err := auth.GetAuthenticationPhrase(body.RequestID)
 	if err != nil {
 		response.HTTPBad(w, err)
 		return
@@ -59,19 +81,9 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 		response.HTTPBad(w, errors.New("invalid token"))
 		return
 	}
-
-	// Create a new token and assign it to a session
-	// Remove auth data from auth bucket
-	err = store.Client().Remove(constants.AuthenticationCollectionName, body.RequestID)
-	if err != nil {
-		logger.Errorf("unable to remove authentication request %v", err)
-		response.HTTPBad(w, err)
-		return
-	}
-
 	// revoke the request id to ensure no one else can
 	// use the same request id to create tokens
-	if err := auth.RevokeClientRequestID(body.RequestID); err != nil {
+	if err := auth.RevokeAuthenticationRequest(body.RequestID); err != nil {
 		response.HTTPBad(w, err)
 		return
 	}
