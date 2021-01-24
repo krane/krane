@@ -162,7 +162,7 @@ Or list specific details about a session
 krane sessions list <session>
 ```
 
-Create a session for a user or application
+Create a session for a user or application. This will create an access token that can be used to make authenticated requests to a Krane instance
 
 ```
 krane sessions create
