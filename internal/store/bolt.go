@@ -2,7 +2,6 @@ package store
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -83,12 +82,12 @@ func (b *BoltDB) Put(collection string, key string, value []byte) error {
 	})
 }
 
-// Get : get a key/value pair
+// Get : get a key/value pair from a bucket
 func (b *BoltDB) Get(collection, key string) (data []byte, err error) {
 	err = instance.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(collection))
 		if bkt == nil {
-			return errors.New(fmt.Sprintf("Bucket %s does not exists", collection))
+			return nil
 		}
 
 		data = bkt.Get([]byte(key))
