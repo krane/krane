@@ -75,7 +75,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	// If any public key can be used to parse the incoming jwt token decode it,
 	// and passes the phrase comparison between incoming and server phrase,
 	// that token will be
-	claims := auth.VerifyAuthTokenWithAuthorizedKeys(authKeys, body.Token)
+	claims := session.VerifyAuthTokenWithAuthorizedKeys(authKeys, body.Token)
 	if claims == nil || strings.Compare(serverPhrase, claims.Phrase) != 0 {
 		logger.Warn("no authorized keys found on the server")
 		response.HTTPBad(w, errors.New("invalid token"))

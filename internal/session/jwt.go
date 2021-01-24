@@ -1,10 +1,11 @@
-package auth
+package session
 
 import (
 	"bytes"
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"math/big"
@@ -38,14 +39,14 @@ func DecodeJWTToken(signKey string, tknStr string) (jwt.Token, error) {
 	}
 
 	if !tkn.Valid {
-		return jwt.Token{}, errors.New("Token is not valid")
+		return jwt.Token{}, errors.New("token is not valid")
 	}
 
 	return *tkn, nil
 }
 
-// DecodeJWT gets the claims of a jwt auth token
-func DecodeJWT(pubKey string, tknStr string) (claims jwt.Claims, err error) {
+// DecodeJWTWithPubKey gets the claims of a jwt auth token
+func DecodeJWTWithPubKey(pubKey string, tknStr string) (claims jwt.Claims, err error) {
 
 	// convert ssh format pub key to rsa pub key
 	rsaPubKey, err := DecodePublicKey(pubKey)
@@ -77,13 +78,13 @@ func DecodeJWT(pubKey string, tknStr string) (claims jwt.Claims, err error) {
 // VerifyAuthTokenWithAuthorizedKeys gets the auth claims from jwt token using an authorized key from server
 func VerifyAuthTokenWithAuthorizedKeys(keys []string, tkn string) (claims *Claims) {
 	for _, key := range keys {
-		c, err := DecodeJWT(key, tkn)
+		c, err := DecodeJWTWithPubKey(key, tkn)
 		if err != nil {
 			logger.Debugf("unable to decode JWT token with server private key %s", err.Error())
 			continue
 		}
 
-		// map jwt claims into authclaims
+		// map jwt claims into auth claims
 		claims, _ = c.(*Claims)
 		break
 	}
@@ -119,6 +120,60 @@ func DecodePublicKey(str string) (*rsa.PublicKey, error) {
 	}
 
 	return pubKey, nil
+}
+
+// ParseTokenTypeAndValue returns the type and value of a jwt token
+func ParseTokenTypeAndValue(tkn string) (tokenType string, tokenValue string) {
+	if tkn == "" {
+		logger.Error(errors.New("No token provided"))
+		return "", ""
+	}
+	splitTkn := strings.Split(tkn, " ")
+	return splitTkn[0], splitTkn[1]
+}
+
+// ParseTokenTypeAndValue returns the session token within the jwt claims
+func ParseSessionTokenFromJWTClaims(tkn jwt.Token) (Token, error) {
+	claims, ok := tkn.Claims.(*CustomClaims)
+	if !ok {
+		return Token{}, errors.New("unable to parse the claims for the provided token")
+	}
+
+	var sessionTkn Token
+	bytes, _ := json.Marshal(claims.Data)
+	_ = json.Unmarshal(bytes, &sessionTkn)
+
+	return sessionTkn, nil
+}
+
+// IsValidTokenFormat checks if a token is a well formatted Bearer token
+func IsValidTokenFormat(tkn string) bool {
+	if tkn == "" {
+		return false
+	}
+
+	// split on the space of the token ex. Bearer XXXXX
+	splitTkn := strings.Split(tkn, " ")
+	if len(splitTkn) <= 1 {
+		return false
+	}
+
+	// grab the token type (should be Bearer)
+	tknType := splitTkn[0]
+	tknValue := splitTkn[1]
+
+	// check if token is a bearer token
+	if strings.Compare(tknType, "Bearer") != 0 {
+		logger.Infof("Token %s is not a Bearer token", tknType)
+		return false
+	}
+
+	// if the contents of the token value are empty, then return false
+	if tknValue == "" {
+		return false
+	}
+
+	return true
 }
 
 func readLength(data []byte) ([]byte, uint32, error) {

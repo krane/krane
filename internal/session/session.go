@@ -3,11 +3,11 @@ package session
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 
-	"github.com/krane/krane/internal/auth"
 	"github.com/krane/krane/internal/constants"
 	"github.com/krane/krane/internal/store"
 	"github.com/krane/krane/internal/utils"
@@ -44,11 +44,13 @@ func CreateSessionToken(SigningKey string, sessionTkn Token) (string, error) {
 		return "", errors.New("cannot create token - signing key not provided")
 	}
 
-	customClaims := &auth.CustomClaims{
+	customClaims := &CustomClaims{
 		Data: sessionTkn,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: utils.OneYear,
+			IssuedAt:  time.Now().Unix(),
 			Issuer:    "Krane",
+			Id:        sessionTkn.SessionID,
 		},
 	}
 

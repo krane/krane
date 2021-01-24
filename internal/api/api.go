@@ -70,7 +70,7 @@ func withRoutes(router *mux.Router) {
 	withRoute(authRouter, "/jobs", controllers.GetRecentJobs, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/jobs/{deployment}", controllers.GetJobsByDeployment, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/jobs/{deployment}/{id}", controllers.GetJobByID, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
-	// session
+	// sessions
 	withRoute(authRouter, "/sessions", controllers.GetSessions, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/sessions", controllers.CreateSession, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
 	withRoute(authRouter, "/sessions/{id}", controllers.DeleteSession, middlewares.ValidateSessionMiddleware).Methods(http.MethodDelete)
