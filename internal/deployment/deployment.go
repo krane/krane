@@ -12,6 +12,7 @@ import (
 	"github.com/krane/krane/internal/utils"
 )
 
+// Deployment represent a Krane deployment and its configuration, current container resources, and job history
 type Deployment struct {
 	Config     Config           `json:"config"`
 	Containers []KraneContainer `json:"containers"`
@@ -192,8 +193,8 @@ func Run(deployment string) error {
 	return nil
 }
 
-// Delete removes a deployments containers and configuration. This will also remove any existing
-// collections created for the deployment (Secrets, Jobs, etc...)
+// Delete removes a deployments container resources and configuration.
+// Note: This will also remove any existing collections created for the deployment (Secrets, Jobs, Config etc...)
 func Delete(deployment string) error {
 	type DeleteDeploymentJobArgs struct {
 		Deployment string
@@ -261,6 +262,8 @@ func Delete(deployment string) error {
 	return nil
 }
 
+// StartContainers starts current existing containers (if any) for a deployment
+// Note: this does not re-create container resources, only start existing ones
 func StartContainers(deployment string) error {
 	type StartContainersJobArgs struct {
 		Deployment string
@@ -304,6 +307,8 @@ func StartContainers(deployment string) error {
 	return nil
 }
 
+// StartContainers stops current existing containers (if any) for a deployment
+// Note: this does not re-create container resources, only stop existing ones
 func StopContainers(deployment string) error {
 	type StopContainersJobArgs struct {
 		Deployment string
@@ -347,6 +352,8 @@ func StopContainers(deployment string) error {
 	return nil
 }
 
+// RestartContainers will re-create container resources for a deployment
+// Note: this almost the same call as 'Run' since they both re-create container resources based on the current configuration
 func RestartContainers(deployment string) error {
 	config, err := GetDeploymentConfig(deployment)
 	if err != nil {

@@ -81,7 +81,7 @@ func CreateOrUpdateDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// DeleteDeployment deletes a deployments containers and configuration
+// DeleteDeployment deletes a deployments container resources and configuration
 func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]
@@ -105,7 +105,7 @@ func DeleteDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// RunDeployment trigger a deployment run creating container resources
+// RunDeployment triggers a deployment run creating container resources
 func RunDeployment(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]
@@ -129,7 +129,7 @@ func RunDeployment(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// GetDeploymentContainers returns all containers for a deployments
+// GetDeploymentContainers returns all containers for a deployment
 func GetDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]
@@ -229,8 +229,7 @@ func RestartDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// ReadContainerLogs upgrades the incoming http connection into a websocket connection
-// to stream container logs
+// ReadContainerLogs upgrades the incoming http connection into a websocket connection to stream container logs
 func ReadContainerLogs(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	container := params["container"]
@@ -245,8 +244,7 @@ func ReadContainerLogs(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// SubscribeToDeploymentEvents upgrades the incoming http connection into a websocket connection
-// to stream deployment events
+// SubscribeToDeploymentEvents upgrades the incoming http connection into a websocket connection to stream deployment events
 func SubscribeToDeploymentEvents(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]
