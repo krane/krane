@@ -148,6 +148,32 @@ Delete a secret for a deployment.
 krane secrets delete <deployment> -k <key>
 ```
 
+### sessions
+
+List all sessions for a Krane instance
+
+```
+krane sessions list
+```
+
+Or list specific details about a session
+
+```
+krane sessions list <session>
+```
+
+Create a session for a user or application
+
+```
+krane sessions create
+```
+
+Remove a session
+
+```
+krane sessions remove <session>
+```
+
 ### help
 
 Display CLI usage and commands.
