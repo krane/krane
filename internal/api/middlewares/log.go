@@ -7,7 +7,7 @@ import (
 	"github.com/gorilla/handlers"
 )
 
-// Logging : custom middleware for logging http requests
+// Logging custom middleware for logging http requests
 func Logging(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		// logic before reading request values, putting things into the request context, performing authentication
