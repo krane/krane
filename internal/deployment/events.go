@@ -56,7 +56,9 @@ func (e EventEmitter) emit(message string) {
 	}(e.Clients, e.JobID, e.Deployment, e.Phase)
 }
 
-func (e EventEmitter) emitS(reader io.Reader) {
+// emitStream broadcast a stream of data to all clients connected to the deployment.
+// A stream could be the data when pulling an image, reading container logs etc... where an io.Reader is returned
+func (e EventEmitter) emitStream(reader io.Reader) {
 	buffReader := bufio.NewReader(reader)
 	for {
 		bytes, _, err := buffReader.ReadLine()

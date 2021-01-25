@@ -140,7 +140,7 @@ func Run(deployment string) error {
 				logger.Errorf("unable to pull image %v", err)
 				return err
 			}
-			e.emitS(pullImageReader)
+			e.emitStream(pullImageReader)
 
 			// create containers
 			containersCreated := make([]KraneContainer, 0)
@@ -178,7 +178,7 @@ func Run(deployment string) error {
 			jobArgs := args.(*RunDeploymentJobArgs)
 
 			for _, c := range jobArgs.ContainersToRemove {
-				logger.Debugf("Purging container %s", c.Name)
+				logger.Debugf("Removing container %s", c.Name)
 				err := c.Remove()
 				if err != nil {
 					logger.Errorf("unable to remove container %v", err)
@@ -294,6 +294,7 @@ func StartContainers(deployment string) error {
 
 			// start containers
 			for _, c := range containers {
+				logger.Debugf("Starting container %s", c.Name)
 				if err := c.Start(); err != nil {
 					logger.Errorf("unable to start container %v", err)
 					return err
@@ -339,6 +340,7 @@ func StopContainers(deployment string) error {
 
 			// stop containers
 			for _, c := range containers {
+				logger.Debugf("Stopping container %s", c.Name)
 				if err := c.Stop(); err != nil {
 					logger.Errorf("unable to stop container %v", err)
 					return err
@@ -427,6 +429,7 @@ func RestartContainers(deployment string) error {
 		Finally: func(args interface{}) error {
 			jobArgs := args.(*RestartContainersJobArgs)
 			for _, c := range jobArgs.ContainersToRemove {
+				logger.Debugf("Removing container %s", c.Name)
 				if err := c.Remove(); err != nil {
 					logger.Errorf("unable to remove container %v", err)
 					return err
