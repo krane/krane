@@ -225,7 +225,7 @@ func (config Config) DockerEnvs() []string {
 	// secrets specified in the deployment config which work the same as environment variables
 	// but with resolved values located server side
 	for key, alias := range config.Secrets {
-		secret, err := GetSecret(config.Name, alias)
+		secret, err := GetSecret(config.Name, key)
 		if err != nil || secret == nil {
 			logger.Infof("unable to resolve secret for %s with alias %s", config.Name, alias)
 			continue
