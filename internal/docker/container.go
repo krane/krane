@@ -22,6 +22,7 @@ type DockerConfig struct {
 	NetworkID     string
 	Labels        map[string]string
 	Ports         nat.PortMap
+	PortSet       nat.PortSet
 	VolumeMounts  []mount.Mount
 	VolumeSet     map[string]struct{}
 	Env           []string // Comma separated, formatted NODE_ENV=dev
@@ -39,7 +40,8 @@ func (c *Client) CreateContainer(ctx context.Context, config DockerConfig) (cont
 		config.Labels,
 		config.Command,
 		config.Entrypoint,
-		config.VolumeSet)
+		config.VolumeSet,
+		config.PortSet)
 
 	return c.ContainerCreate(
 		ctx,
@@ -176,13 +178,15 @@ func createContainerConfig(
 	labels map[string]string,
 	command []string,
 	entrypoint []string,
-	volumes map[string]struct{}) container.Config {
+	volumes map[string]struct{},
+	ports nat.PortSet) container.Config {
 	config := container.Config{
-		Hostname: hostname,
-		Image:    image,
-		Env:      env,
-		Labels:   labels,
-		Volumes:  volumes,
+		Hostname:     hostname,
+		Image:        image,
+		Env:          env,
+		Labels:       labels,
+		Volumes:      volumes,
+		ExposedPorts: ports,
 	}
 
 	if len(command) > 0 {

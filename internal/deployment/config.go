@@ -205,6 +205,7 @@ func (config Config) DockerConfig() docker.DockerConfig {
 		NetworkID:     kraneNetwork.ID,
 		Labels:        config.DockerLabels(),
 		Ports:         config.DockerPorts(),
+		PortSet:       config.DockerPortSet(),
 		VolumeMounts:  config.DockerVolumeMount(),
 		VolumeSet:     config.DockerVolumeSet(),
 		Env:           config.DockerEnvs(),
@@ -313,5 +314,19 @@ func (config Config) DockerPorts() nat.PortMap {
 		bindings[cPort] = []nat.PortBinding{hostBinding}
 	}
 
+	return bindings
+}
+
+// DockerPortSet returns Docker formatted port set
+func (config Config) DockerPortSet() nat.PortSet {
+	bindings := nat.PortSet{}
+	for _, containerPort := range config.Ports {
+		cPort, err := nat.NewPort(string(TCP), containerPort)
+		if err != nil {
+			logger.Errorf("Error creating a new container port %v", err)
+			continue
+		}
+		bindings[cPort] = struct{}{}
+	}
 	return bindings
 }
