@@ -367,8 +367,10 @@ func RestartContainers(deployment string) error {
 		ContainersToRemove []KraneContainer
 	}
 
+	jobID := uuid.Generate().String()
+	e := createEventEmitter(config.Name, jobID)
 	go enqueue(job.Job{
-		ID:          uuid.Generate().String(),
+		ID:          jobID,
 		Deployment:  deployment,
 		Type:        string(RestartContainersJobType),
 		RetryPolicy: utils.UIntEnv(constants.EnvDeploymentRetryPolicy),
@@ -393,6 +395,15 @@ func RestartContainers(deployment string) error {
 		Run: func(args interface{}) error {
 			jobArgs := args.(*RestartContainersJobArgs)
 			config := jobArgs.Config
+
+			// pull image
+			logger.Debugf("Pulling image for deployment %s", config.Name)
+			pullImageReader, err := docker.GetClient().PullImage(config.Registry, config.Image, config.Tag)
+			if err != nil {
+				logger.Errorf("unable to pull image %v", err)
+				return err
+			}
+			e.emitStream(pullImageReader)
 
 			// create containers
 			containersCreated := make([]KraneContainer, 0)
