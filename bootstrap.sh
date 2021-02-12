@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Check docker is installed
+if [ -x "$(command -v docker)" ]; then
+  echo "Docker already installed"
+else
+    echo "Docker is required to properly bootstrap Krane"
+    exit 0
+fi
+
 ensure_env() {
   local env=$1
   local prompt_msg=$2
