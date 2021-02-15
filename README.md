@@ -32,7 +32,7 @@ You can install Krane using this interactive script.
 It is by far the *easiest* and *fastest* way to **create** or **update** a Krane instance.
 
 ```
-bash <(wget -qO- https://raw.githubusercontent.com/krane/krane/master/bootstrap.sh)
+bash <(wget -qO- get.krane.sh)
 ```
 
 Other [installation](https://www.krane.sh/#/docs/installation) methods and configurations.
