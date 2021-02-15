@@ -28,22 +28,22 @@ ensure_secure_env() {
 }
 
 update_or_create_krane(){
-  echo -e "\n(1/7) Stopping Krane (if exists)"
-  docker stop krane
+  echo -e "(1/7) Stopping Krane (if exists)"
+  docker stop krane > /dev/null 2>&1
 
-  echo -e "\n(2/7) Removing Krane instance (if exists)"
-  docker rm krane
+  echo -e "(2/7) Removing Krane instance (if exists)"
+  docker rm krane > /dev/null 2>&1
 
-  echo -e "\n(3/7) Removing existing image"
-  docker image rm biensupernice/krane
+  echo -e "(3/7) Removing existing image"
+  docker image rm biensupernice/krane > /dev/null 2>&1
 
-  echo -e "\n(4/7) Pulling latest image"
-  docker pull biensupernice/krane:latest -q
+  echo -e "(4/7) Pulling latest image"
+  docker pull biensupernice/krane:latest -q > /dev/null 2>&1
 
-  echo -e "\n(5/7) Ensuring Krane network"
-  docker network create --driver bridge krane
+  echo -e "(5/7) Ensuring Krane network"
+  docker network create --driver bridge krane > /dev/null 2>&1
 
-  echo -e "\n(5/7) Starting new Krane instance"
+  echo -e "(6/7) Starting new Krane instance \n"
   docker run -d --name=krane --network=krane\
     -e LOG_LEVEL=info \
     -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-$(uuidgen)}" \
@@ -59,12 +59,12 @@ update_or_create_krane(){
     -v "${DB_DIR:-/tmp}":/tmp \
     -p 8500:8500 biensupernice/krane
 
-  echo -e "\n(6/6) Cleaning up older images"
+  echo -e "\n(7/7) Cleaning up older images"
   docker image prune -a -f
 
   echo -e "\nBootstrap complete..."
-  echo -e "\nNote: Make sure no errors where found above before attempting to access your Krane instance."
-  echo -e "For documentation on accessing this Krane instance visit https://www.krane.sh/#/docs/cli."
+  echo -e "\nMake sure no errors where found above before attempting to access your Krane instance"
+  echo -e "For documentation on accessing this Krane instance visit https://www.krane.sh/#/docs/cli"
 }
 
 echo "Bootstrapping Krane..."
