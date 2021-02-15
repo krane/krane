@@ -28,19 +28,22 @@ ensure_secure_env() {
 }
 
 update_or_create_krane(){
-  echo -e "\n(1/6) Stopping Krane (if exists)"
+  echo -e "\n(1/7) Stopping Krane (if exists)"
   docker stop krane
 
-  echo -e "\n(2/6) Removing Krane instance (if exists)"
+  echo -e "\n(2/7) Removing Krane instance (if exists)"
   docker rm krane
 
-  echo -e "\n(3/6) Removing existing image"
+  echo -e "\n(3/7) Removing existing image"
   docker image rm biensupernice/krane
 
-  echo -e "\n(4/6) Pulling latest image"
+  echo -e "\n(4/7) Pulling latest image"
   docker pull biensupernice/krane:latest -q
 
-  echo -e "\n(5/6) Starting new Krane instance"
+  echo -e "\n(5/7) Ensuring Krane network"
+  docker network create --driver bridge krane
+
+  echo -e "\n(5/7) Starting new Krane instance"
   docker run -d --name=krane --network=krane\
     -e LOG_LEVEL=info \
     -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-$(uuidgen)}" \
