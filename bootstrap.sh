@@ -43,9 +43,9 @@ update_or_create_krane(){
   docker pull biensupernice/krane:latest -q
 
   echo -e "\n(5/6) Starting new Krane instance"
-  docker run -d --name=krane \
+  docker run -d --name=krane --network=krane\
     -e LOG_LEVEL=info \
-    -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-uuidgen}" \
+    -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-$(uuidgen)}" \
     -e DB_PATH="${DB_DIR/krane.db:-/tmp/krane.db}" \
     -e DOCKER_BASIC_AUTH_USERNAME="$DOCKER_BASIC_AUTH_USERNAME" \
     -e DOCKER_BASIC_AUTH_PASSWORD="$DOCKER_BASIC_AUTH_PASSWORD" \
