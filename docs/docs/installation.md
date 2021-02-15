@@ -7,7 +7,7 @@ You can install Krane using this interactive script.
 It is by far the _easiest_ and _fastest_ way to **create** or **update** a Krane instance.
 
 ```
-bash <(wget -qO- https://raw.githubusercontent.com/krane/krane/master/bootstrap.sh)
+bash <(wget -qO- get.krane.sh)
 ```
 
 ## Docker
