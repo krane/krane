@@ -59,14 +59,16 @@ update_or_create_krane(){
   echo -e "\n(6/6) Cleaning up older images"
   docker image prune -a -f
 
-  echo -e "\nBootstrap complete."
+  echo -e "\nBootstrap complete..."
   echo -e "\nNote: Make sure no errors where found above before attempting to access your Krane instance."
   echo -e "For documentation on accessing this Krane instance visit https://www.krane.sh/#/docs/cli."
 }
 
 echo "Bootstrapping Krane..."
-echo "For the complete documentation visit https://krane.sh"
-echo ""
+echo -e "\nThis interactive script will help you setup:"
+echo "• Krane instance to manage containers"
+echo "• Krane proxy to route traffic"
+echo -e "\nFor complete documentation visit https://krane.sh/#/docs/installation \n"
 
 ensure_env KRANE_PRIVATE_KEY "Krane private key (optional, used for signing client requests. default uuid)"
 ensure_env DOCKER_BASIC_AUTH_USERNAME "Container registry username (optional, will operate as an anonymous user)"
