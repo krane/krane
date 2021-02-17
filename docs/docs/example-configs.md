@@ -52,3 +52,24 @@ https://www.meilisearch.com
   }
 }
 ```
+
+#### Portainer
+
+https://www.portainer.io/
+
+```json
+{
+  "name": "portainer",
+  "image": "portainer/portainer-ce",
+  "secure": true,
+  "alias": ["portainer.example.com"],
+  "target_port": "9000",
+  "ports": {
+    "": "8000",
+    "": "9000"
+  },
+  "volumes": {
+    "/var/run/docker.sock": "/var/run/docker.sock"
+  }
+}
+```
