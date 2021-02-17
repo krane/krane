@@ -27,7 +27,7 @@ ensure_secure_env() {
   echo ""
 }
 
-update_or_create_krane(){
+update_or_create_krane() {
   echo -e "(1/7) Stopping Krane (if exists)"
   docker stop krane > /dev/null 2>&1
 
@@ -44,7 +44,7 @@ update_or_create_krane(){
   docker network create --driver bridge krane > /dev/null 2>&1
 
   echo -e "(6/7) Starting new Krane instance \n"
-  docker run -d --name=krane --network=krane\
+  docker run -d --name=krane --network=krane \
     -e LOG_LEVEL=info \
     -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-$(uuidgen)}" \
     -e DB_PATH="${DB_DIR/krane.db:-/tmp/krane.db}" \

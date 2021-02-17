@@ -1,6 +1,6 @@
 # Deployments
 
-Krane deployments are defined in **single file** which describe the configuration used to create container resources. A deployment configuration gives you a predictable and declarative way to manage container workloads.
+Krane deployments are defined in a **single file** which describe the configuration used to create container resources. A deployment configuration gives you a predictable and declarative way to manage container workloads.
 
 > A common pattern is to have a `deployment.json` at the root of your project
 
@@ -19,6 +19,8 @@ The above **deployment configuration** sets up:
 1. A deployment called **hello-world-app**
 2. A container running the image **hello-world**
 3. An alias **hello.example.com**
+
+Check out these other [deployment configurations](http://krane.sh/#/docs/example-configs) 
 
 ---
 

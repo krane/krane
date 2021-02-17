@@ -7,6 +7,7 @@
 - Tooling
 - [CLI](docs/cli.md)
 - [GitHub Action](docs/github-action.md)
+- [Status Page](docs/status-page.md)
 
 - Guides
 - [Digital Ocean](docs/guides/digitalocean.md)
