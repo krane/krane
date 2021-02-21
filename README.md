@@ -17,7 +17,7 @@ Krane makes it easy to deploy containers on remote or local servers by interfaci
 - Deployment [aliases](https://www.krane.sh/#/docs/deployment?id=alias) (`my-api.localhost`)
 - Deployment [secrets](https://www.krane.sh/#/docs/deployment?id=secrets) for hiding sensitive environment variables
 - Deployment [scaling](https://www.krane.sh/#/docs/deployment?id=scale) to distribute the workload between containers
-- Deployment [rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit)
+- Deployment [rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit) to limit incoming requests
 - HTTPS/TLS support with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates for your deployments
 - Tooling - [Status Page](https://github.com/krane/ui), [CLI](https://github.com/krane/cli), [GitHub Action](https://github.com/krane/action)
 - [Self-hosted](#motivation) - Cost-effective, bring your own server and scale if you need
