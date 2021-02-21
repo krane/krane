@@ -14,14 +14,13 @@ Krane makes it easy to deploy containers on remote or local servers by interfaci
 ## Features
 
 - Single file deployments
-- Compatible with _localhost_ with features like aliases(`my-api.localhost`)
-- HTTPS/TLS support via [Let's Encrypt](https://letsencrypt.org/)
-- Deployment [aliases](https://www.krane.sh/#/docs/deployment?id=alias) provided by [Traefik](https://traefik.io/traefik/)
+- Deployment [aliases](https://www.krane.sh/#/docs/deployment?id=alias) (`my-api.localhost`)
 - Deployment [secrets](https://www.krane.sh/#/docs/deployment?id=secrets) for hiding sensitive environment variables
 - Deployment [scaling](https://www.krane.sh/#/docs/deployment?id=scale) to distribute the workload between containers
-- [Rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit) protection to your deployments
-- Tooling - [CLI](https://github.com/krane/cli), [GitHub Action](https://github.com/krane/action)
-- [Self-hosted](#motivation) - Bring your own server (could be a cheap $5 server) and scale if you need
+- Deployment [rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit)
+- HTTPS/TLS support with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates for your deployments
+- Tooling - [Status Page](https://github.com/krane/ui), [CLI](https://github.com/krane/cli), [GitHub Action](https://github.com/krane/action)
+- [Self-hosted](#motivation) - Cost-effective, bring your own server and scale if you need
 
 ## Getting Started
 
