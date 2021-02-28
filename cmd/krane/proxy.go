@@ -9,7 +9,7 @@ import (
 	"github.com/krane/krane/internal/utils"
 )
 
-var config = deployment.Config{
+var proxyConfig = deployment.Config{
 	Name:     "krane-proxy",
 	Image:    "biensupernice/proxy",
 	Secure:   utils.BoolEnv(constants.EnvProxyDashboardSecure),
@@ -41,12 +41,12 @@ func EnsureNetworkProxy() {
 	}
 
 	leEmail := os.Getenv(constants.EnvLetsEncryptEmail)
-	if config.Secure && leEmail == "" {
+	if proxyConfig.Secure && leEmail == "" {
 		logger.Fatalf("Missing required environment variable %s when running in SECURE mode", constants.EnvLetsEncryptEmail)
 	}
 
 	// get containers (if any) for the proxy deployment
-	containers, err := deployment.GetContainersByDeployment(config.Name)
+	containers, err := deployment.GetContainersByDeployment(proxyConfig.Name)
 	if err != nil {
 		logger.Fatalf("Unable to create network proxy, %v", err)
 	}
@@ -75,15 +75,15 @@ func EnsureNetworkProxy() {
 		}
 	}
 
-	logger.Debug("Network proxy running")
+	logger.Debug("Network proxy already in a running state")
 }
 
 func createProxy() error {
-	if err := deployment.SaveConfig(config); err != nil {
+	if err := deployment.SaveConfig(proxyConfig); err != nil {
 		return err
 	}
 
-	if err := deployment.Run(config.Name); err != nil {
+	if err := deployment.Run(proxyConfig.Name); err != nil {
 		return err
 	}
 

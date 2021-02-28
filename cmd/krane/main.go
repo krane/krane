@@ -71,7 +71,7 @@ func main() {
 	workers := job.NewWorkerPool(wpSize, queue, store.Client())
 	workers.Start()
 
-	// if enabled, ensure network proxy is running
+	// if enabled, ensure internal services are running
 	EnsureNetworkProxy()
 
 	// block until an exit signal is received
