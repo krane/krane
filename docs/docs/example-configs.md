@@ -37,6 +37,47 @@ https://www.vaultproject.io
 }
 ```
 
+#### Kafka
+
+https://kafka.apache.org
+
+```json
+{
+  "name": "kafka",
+  "image": "confluentinc/cp-kafka",
+  "targetPort": "29092",
+  "ports": {
+    "29092": "29092"
+  },
+  "env": {
+    "KAFKA_BROKER_ID": "1",
+    "KAFKA_ZOOKEEPER_CONNECT": "<ZOOKEEPER_CONTAINER_ID>:2181",
+    "KAFKA_ADVERTISED_LISTENERS": "PLAINTEXT://localhost:9092,PLAINTEXT_HOST://localhost:29092",
+    "KAFKA_LISTENER_SECURITY_PROTOCOL_MAP": "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT",
+    "KAFKA_INTER_BROKER_LISTENER_NAME": "PLAINTEXT",
+    "KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR": "1"
+  }
+}
+```
+
+#### Zookeeper
+
+https://zookeeper.apache.org
+
+```json
+{
+  "name": "zookeeper",
+  "image": "confluentinc/cp-zookeeper",
+  "ports": {
+    "2181": "2181"
+  },
+  "env": {
+    "ZOOKEEPER_CLIENT_PORT": "2181",
+    "ZOOKEEPER_TICK_TIME": "2000"
+  }
+}
+```
+
 #### Meili
 
 https://www.meilisearch.com
@@ -55,7 +96,7 @@ https://www.meilisearch.com
 
 #### Portainer
 
-https://www.portainer.io/
+https://www.portainer.io
 
 ```json
 {
