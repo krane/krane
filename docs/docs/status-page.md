@@ -26,7 +26,7 @@ The Krane UI is packaged up into a [Docker image](https://hub.docker.com/reposit
 krane deploy -f /path/to/deployment.json
 ```
 
-> `KRANE_ENDPOINT` and `KRANE_TOKEN` can also be environment variables... it's recommended to use [secrets](http://localhost:3000/#/docs/deployment?id=secrets) to protect against plain-text access tokens
+> `KRANE_ENDPOINT` and `KRANE_TOKEN` can also be environment variables... it's recommended to use [secrets](http://krane.sh/#/docs/deployment?id=secrets) to protect against plain-text access tokens
     
 ## FAQ
 

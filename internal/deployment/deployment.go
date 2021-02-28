@@ -308,7 +308,7 @@ func StartContainers(deployment string) error {
 	return nil
 }
 
-// StartContainers stops current existing containers (if any) for a deployment
+// StopContainers stops current existing containers (if any) for a deployment
 // Note: this does not re-create container resources, only stop existing ones
 func StopContainers(deployment string) error {
 	type StopContainersJobArgs struct {
