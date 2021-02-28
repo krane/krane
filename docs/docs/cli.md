@@ -68,12 +68,18 @@ Flags:
 
 ### logs
 
-Read realtime logs for a container.
+Read realtime logs for a deployment.
 
 ```
-krane logs <container>
+krane logs <deployment>
 ```
 
+Or for a single container.
+ 
+ ```
+ krane logs <deployment> --container=<container>
+```
+  
 ### history
 
 Get recent activity for a deployment.
