@@ -1,4 +1,4 @@
-A collection of commonly deployed services using Krane, and their [deployment configurations](http://localhost:3000/#/docs/deployment)
+A collection of commonly deployed services using Krane, and their [deployment configurations](http://krane.sh/#/docs/deployment)
 
 If you'd like to add a configuration submit a pull request [here](https://github.com/krane/krane/tree/master/docs/docs/example-configs.md)
 
