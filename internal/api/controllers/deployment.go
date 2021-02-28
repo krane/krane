@@ -229,8 +229,8 @@ func RestartDeploymentContainers(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-// ReadContainerLogs upgrades the incoming http connection into a websocket connection to stream container logs
-func ReadContainerLogs(w http.ResponseWriter, r *http.Request) {
+// SubscribeToContainerLogs opens a websocket connection and subscribes the client to container logs
+func SubscribeToContainerLogs(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	container := params["container"]
 
@@ -240,11 +240,26 @@ func ReadContainerLogs(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	deployment.ReadContainerLogs(connection, container)
+	deployment.SubscribeToContainerLogs(connection, container)
 	return
 }
 
-// SubscribeToDeploymentEvents upgrades the incoming http connection into a websocket connection to stream deployment events
+// SubscribeToDeploymentLogs opens a websocket connection and subscribes the client to deployment events
+func SubscribeToDeploymentLogs(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	deploymentName := params["deployment"]
+
+	connection, err := WSUpgrader.Upgrade(w, r, nil)
+	if err != nil {
+		response.HTTPBad(w, err)
+		return
+	}
+
+	deployment.SubscribeToDeploymentLogs(connection, deploymentName)
+	return
+}
+
+// SubscribeToDeploymentEvents opens a websocket connection and subscribes the client to deployment events
 func SubscribeToDeploymentEvents(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	deploymentName := params["deployment"]

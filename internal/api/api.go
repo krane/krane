@@ -75,7 +75,8 @@ func withRoutes(router *mux.Router) {
 	withRoute(authRouter, "/sessions", controllers.CreateSession, middlewares.ValidateSessionMiddleware).Methods(http.MethodPost)
 	withRoute(authRouter, "/sessions/{id}", controllers.DeleteSession, middlewares.ValidateSessionMiddleware).Methods(http.MethodDelete)
 	// realtime
-	withRoute(authRouter, "/ws/containers/{container}/logs", controllers.ReadContainerLogs, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/ws/containers/{container}/logs", controllers.SubscribeToContainerLogs, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
+	withRoute(authRouter, "/ws/deployments/{deployment}/logs", controllers.SubscribeToDeploymentLogs, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 	withRoute(authRouter, "/ws/deployments/{deployment}/events", controllers.SubscribeToDeploymentEvents, middlewares.ValidateSessionMiddleware).Methods(http.MethodGet)
 }
 
