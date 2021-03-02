@@ -47,6 +47,7 @@ func withBaseMiddlewares(router *mux.Router) {
 // withRoutes configures rest api endpoints and handlers
 func withRoutes(router *mux.Router) {
 	noAuthRouter := router.PathPrefix("/").Subrouter()
+	withRoute(noAuthRouter, "/", controllers.RootPath).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/health", controllers.HealthCheck).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/login", controllers.RequestLoginPhrase).Methods(http.MethodGet)
 	withRoute(noAuthRouter, "/auth", controllers.AuthenticateClientJWT).Methods(http.MethodPost)
