@@ -72,9 +72,9 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// If any public key can be used to parse the incoming jwt token decode it,
-	// and passes the phrase comparison between incoming and server phrase,
-	// that token will be
+	// If any public key can be used to parse the incoming jwt token
+	// and also passes the phrase comparison, that token will be considered valid.
+	// A session will be created returning a new jwt token used for future requests
 	claims := session.VerifyAuthTokenWithAuthorizedKeys(authKeys, body.Token)
 	if claims == nil || strings.Compare(serverPhrase, claims.Phrase) != 0 {
 		logger.Warn("no authorized keys found on the server")
@@ -88,6 +88,8 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Create a new session and token
+	// The token will be signed with the servers private key
 	sessionTkn := session.Token{SessionID: uuid.Generate().String()}
 	signedTkn, err := session.CreateSessionToken(auth.GetServerPrivateKey(), sessionTkn)
 	if err != nil {
