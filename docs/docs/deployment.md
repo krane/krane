@@ -8,9 +8,9 @@ Krane deployments are defined in a **single file** which describe the configurat
 
 ```json
 {
-  "name": "hello-world-app",
-  "image": "hello-world",
-  "alias": ["hello.example.com"]
+  "name": "krane-getting-started",    
+  "image": "docker/getting-started",
+  "alias": ["getting-started.example.com"]
 }
 ```
 
