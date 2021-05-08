@@ -203,6 +203,7 @@ func (config Config) DockerConfig() docker.DockerConfig {
 		ContainerName: containerName,
 		Image:         config.Image,
 		NetworkID:     kraneNetwork.ID,
+		Aliases:       config.Alias,
 		Labels:        config.DockerLabels(),
 		Ports:         config.DockerPorts(),
 		PortSet:       config.DockerPortSet(),

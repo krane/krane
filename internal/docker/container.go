@@ -25,6 +25,7 @@ type DockerConfig struct {
 	PortSet       nat.PortSet
 	VolumeMounts  []mount.Mount
 	VolumeSet     map[string]struct{}
+	Aliases       []string
 	Env           []string // Comma separated, formatted NODE_ENV=dev
 	Command       []string
 	Entrypoint    []string
@@ -32,7 +33,7 @@ type DockerConfig struct {
 
 // CreateContainer creates a docker container from a docker config
 func (c *Client) CreateContainer(ctx context.Context, config DockerConfig) (container.ContainerCreateCreatedBody, error) {
-	networkingConfig := createNetworkingConfig(config.NetworkID)
+	networkingConfig := createNetworkingConfig(config.NetworkID, config.Aliases)
 	hostConfig := createHostConfig(config.Ports, config.VolumeMounts)
 	containerConfig := createContainerConfig(config.ContainerName,
 		config.Image,

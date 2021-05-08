@@ -58,11 +58,12 @@ func (c *Client) GetNetworkByName(name string) (types.NetworkResource, error) {
 }
 
 // createNetworkingConfig create the container network config
-func createNetworkingConfig(networkID string) network.NetworkingConfig {
+func createNetworkingConfig(networkID string, aliases []string) network.NetworkingConfig {
 	return network.NetworkingConfig{
 		EndpointsConfig: map[string]*network.EndpointSettings{
 			KraneNetworkName: {
 				NetworkID: networkID,
+				Aliases:   aliases,
 			},
 		},
 	}
