@@ -74,9 +74,9 @@ For example:
 
 ```json
 {
-  "name": "hello-world-app",
-  "image": "hello-world",
-  "alias": ["hello.example.com"]
+  "name": "krane-getting-started",    
+  "image": "docker/getting-started",
+  "alias": ["getting-started.example.com"]
 }
 ```
 
