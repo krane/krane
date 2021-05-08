@@ -43,7 +43,7 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := session.Token{SessionID: uuid.Generate().String()}
-	signedTkn, err := session.CreateSessionToken(auth.GetServerPrivateKey(), token)
+	signedTkn, err := session.CreateSessionJWTToken(auth.GetServerPrivateKey(), token)
 	if err != nil {
 		logger.Errorf("unable to create session %v", err)
 		response.HTTPBad(w, err)

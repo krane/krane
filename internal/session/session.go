@@ -38,8 +38,8 @@ func (s Session) IsValid() bool {
 	return true
 }
 
-// CreateSessionToken creates a new jwt token used in a user session instance
-func CreateSessionToken(SigningKey string, sessionTkn Token) (string, error) {
+// CreateSessionJWTToken creates a new jwt token used in a user session instance
+func CreateSessionJWTToken(SigningKey string, sessionTkn Token) (string, error) {
 	if SigningKey == "" {
 		return "", errors.New("cannot create token - signing key not provided")
 	}

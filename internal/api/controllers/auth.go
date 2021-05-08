@@ -91,7 +91,7 @@ func AuthenticateClientJWT(w http.ResponseWriter, r *http.Request) {
 	// Create a new session and token
 	// The token will be signed with the servers private key
 	sessionTkn := session.Token{SessionID: uuid.Generate().String()}
-	signedTkn, err := session.CreateSessionToken(auth.GetServerPrivateKey(), sessionTkn)
+	signedTkn, err := session.CreateSessionJWTToken(auth.GetServerPrivateKey(), sessionTkn)
 	if err != nil {
 		logger.Errorf("unable to create session token %v", err)
 		response.HTTPBad(w, err)

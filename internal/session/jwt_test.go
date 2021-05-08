@@ -12,7 +12,7 @@ func TestSignAndDecodeJWTToken(t *testing.T) {
 
 	// start by creating a token, then signing it with a key
 	tkn := Token{SessionID: uuid.Generate().String()}
-	signedTkn, err := CreateSessionToken(signingKey, tkn)
+	signedTkn, err := CreateSessionJWTToken(signingKey, tkn)
 	assert.Nil(t, err)
 	assert.NotEqual(t, tkn, signedTkn)
 
