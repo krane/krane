@@ -199,13 +199,13 @@ krane sessions remove <session>
 List DNS information for your deployments such as aliases and IPs
 
 ```
-$ krane dns
+krane dns
 ```
 
 Or for a single deployment 
 
 ```
-$ krane dns <deployment>
+krane dns <deployment>
 ```
 
 ### help
