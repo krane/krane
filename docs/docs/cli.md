@@ -20,6 +20,20 @@ Authenticate with a Krane instance.
 krane login
 ```
 
+### context
+
+View the context for the Krane instance your currently connected to
+
+```
+krane context
+```
+
+Or update your context to use a different Krane instance
+
+```
+krane context --endpoint http://example.com --token XXX
+```
+
 ### list
 
 List all deployments and their status.
@@ -75,11 +89,11 @@ krane logs <deployment>
 ```
 
 Or for a single container.
- 
- ```
- krane logs <deployment> --container=<container>
+
 ```
-  
+krane logs <deployment> --container=<container>
+```
+
 ### history
 
 Get recent activity for a deployment.
@@ -178,6 +192,20 @@ Remove a session
 
 ```
 krane sessions remove <session>
+```
+
+### dns
+
+List DNS information for your deployments such as aliases and IPs
+
+```
+$ krane dns
+```
+
+Or for a single deployment 
+
+```
+$ krane dns <deployment>
 ```
 
 ### help
