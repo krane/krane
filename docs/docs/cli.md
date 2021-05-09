@@ -71,15 +71,6 @@ Flags:
   - required: `false`
   - default: `./deployment.json`
 
-- `--tag`(`-t`) Image tag to apply to the deployment
-
-  - required: `false`
-  - default: `latest`
-
-- `--scale`(`-s`) Number of containers to create
-  - required: `false`
-  - default: `1`
-
 ### logs
 
 Read realtime logs for a deployment.
