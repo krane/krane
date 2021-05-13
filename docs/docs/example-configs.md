@@ -27,9 +27,10 @@ https://www.postgresql.org
 
 ```json
 {
-  "name": "reactionary-chatrs-db",
+  "name": "postgres",
   "image": "library/postgres",
   "alias": ["postgres.example.com"],
+  "secure": true,
   "env": {
     "POSTGRES_DB": "pg",
     "POSTGRES_PASSWORD": "pg",
@@ -144,6 +145,7 @@ https://supabase.io
   "name": "supabase",
   "image": "supabase/postgres",
   "alias": ["supabase.example.com"],
+  "secure": true,
   "secrets": {
     "POSTGRES_DB": "@POSTGRES_DB",
     "POSTGRES_PASSWORD": "@POSTGRES_PASSWORD",
