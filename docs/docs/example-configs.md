@@ -21,7 +21,7 @@ https://www.mongodb.com
 }
 ```
 
-#### Postgress
+#### Postgres
 
 https://www.postgresql.org
 
