@@ -21,6 +21,27 @@ https://www.mongodb.com
 }
 ```
 
+#### Postgres
+
+https://www.postgresql.org
+
+```json
+{
+  "name": "postgres",
+  "image": "library/postgres",
+  "alias": ["postgres.example.com"],
+  "secure": true,
+  "env": {
+    "POSTGRES_DB": "pg",
+    "POSTGRES_PASSWORD": "pg",
+    "POSTGRES_USER": "pg"
+  },
+  "ports": {
+    "5432": "5432"
+  }
+}
+```
+
 #### Vault
  
 https://www.vaultproject.io
@@ -111,6 +132,27 @@ https://www.portainer.io
   },
   "volumes": {
     "/var/run/docker.sock": "/var/run/docker.sock"
+  }
+}
+```
+
+#### Supabase
+
+https://supabase.io
+
+```json
+{
+  "name": "supabase",
+  "image": "supabase/postgres",
+  "alias": ["supabase.example.com"],
+  "secure": true,
+  "secrets": {
+    "POSTGRES_DB": "@POSTGRES_DB",
+    "POSTGRES_PASSWORD": "@POSTGRES_PASSWORD",
+    "POSTGRES_USER": "@POSTGRES_USER"
+  },
+  "ports": {
+    "5432": "5432"
   }
 }
 ```

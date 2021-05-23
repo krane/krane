@@ -6,7 +6,7 @@ type Phase string
 
 const (
 	SetupPhase           Phase = "DEPLOYMENT_SETUP"
-	HealthCheckPhase     Phase = "DEPLOYMENT_HEALTCHECK"
+	HealthCheckPhase     Phase = "DEPLOYMENT_HEALTHCHECK"
 	TeardownPhase        Phase = "DEPLOYMENT_TEARDOWN"
 	DonePhase            Phase = "DEPLOYMENT_DONE"
 	PullImagePhase       Phase = "PULL_IMAGE"
