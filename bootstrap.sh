@@ -117,12 +117,13 @@ prompt_yes_no IS_LOCAL "Are you running Krane on localhost?"
 
 if [ "$IS_LOCAL" == true ];
 then
+  export ROOT_DOMAIN="localhost"
   export KRANE_PRIVATE_KEY="krane"  
+  export SSH_KEYS_DIR="$HOME/.ssh"
   export DB_DIR="/tmp"
   export PROXY_ENABLED=true
-  export PROXY_DASHBOARD_ALIAS="proxy.localhost"
+  export PROXY_DASHBOARD_ALIAS="proxy.$ROOT_DOMAIN"
   export PROXY_DASHBOARD_SECURE=false
-  export LETSENCRYPT_EMAIL="localhost@email.com"
 fi
 
 if [ "$IS_LOCAL" == false ];
