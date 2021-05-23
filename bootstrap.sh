@@ -6,6 +6,13 @@ if ! [ -x "$(command -v docker)" ]; then
   exit 0
 fi
 
+# Check if docker is running
+if ! docker info >/dev/null 2>&1; then 
+  echo "Docker must be in a RUNNING state to bootstrap Krane"
+  echo "try running [$ docker info] to troubleshoot your Docker daemon"
+  exit 0
+fi
+
 ensure_env() {
   local env=$1
   local prompt_msg=$2
@@ -27,7 +34,21 @@ ensure_secure_env() {
   echo ""
 }
 
-update_or_create_krane() {
+prompt_yes_no() {
+  local env=$1
+  local prompt_msg=$2
+
+  while true; do
+    read -p "$prompt_msg yes [Yy] / no [Nn]`echo $'\n$ '`" yn
+    case $yn in
+        [Yy]* ) export "$env=true"; break;;
+        [Nn]* ) export "$env=false"; break;;
+        * ) echo "Please answer yes[Yy] or no[Nn].";;
+    esac
+done
+}
+
+bootstrap_krane() {
   echo -e "(1/7) Stopping Krane (if exists)"
   docker stop krane > /dev/null 2>&1
 
@@ -59,12 +80,31 @@ update_or_create_krane() {
     -v "${DB_DIR:-/tmp}":/tmp \
     -p 8500:8500 biensupernice/krane
 
+  sleep 5s
+
+  # Check that the Krane containers is in a running state 
+  local container_name="krane"
+  if ! [ "$(docker container inspect -f '{{.State.Status}}' $container_name)" == "running" ];  then
+    echo -e "\nEncountered and error while bootstrapping Krane."
+    exit 0
+  fi
+
   echo -e "\n(7/7) Cleaning up older images"
   docker image prune -a -f
 
   echo -e "\nBootstrap complete..."
-  echo -e "\nMake sure no errors where found above before attempting to access your Krane instance"
   echo -e "For documentation on accessing this Krane instance visit https://www.krane.sh/#/docs/cli"
+  
+  echo -e "\nTake note of the following details used to create your Krane instance:"
+  echo -e "* Krane private key: $KRANE_PRIVATE_KEY"
+  echo -e "* SSH keys directory: $SSH_KEYS_DIR"
+  echo -e "* Database directory: $DB_DIR"
+  echo -e "* Proxy alias: $PROXY_DASHBOARD_ALIAS"
+
+  echo -e "\nHere are some helpful commands to help you start using this Krane instance:"
+  echo -e "$ krane login $ROOT_DOMAIN:8500"
+  echo -e "$ krane ls"
+  echo -e "$ krane deploy -f ./deployment.json"
 }
 
 echo "Bootstrapping Krane..."
@@ -73,14 +113,30 @@ echo "• Krane instance to manage containers"
 echo "• Krane proxy to route traffic"
 echo -e "\nFor complete documentation visit https://krane.sh/#/docs/installation \n"
 
-ensure_env KRANE_PRIVATE_KEY "Krane private key (optional, used for signing client requests. default uuid)"
-ensure_env DOCKER_BASIC_AUTH_USERNAME "Container registry username (optional, will operate as an anonymous user)"
-ensure_secure_env DOCKER_BASIC_AUTH_PASSWORD "Container registry password (optional, will operate as an anonymous user)"
-ensure_env SSH_KEYS_DIR "SSH keys directory (optional, default /root/.ssh)"
-ensure_env DB_DIR "Krane database directory (optional, default /tmp)"
-ensure_env PROXY_ENABLED "Network proxy enabled? (default true, Note: set as 'true' to enable domain aliases)"
-ensure_env PROXY_DASHBOARD_ALIAS "Network proxy dashboard alias (domain alias for the proxy dashboard, for example monitor.example.com)"
-ensure_env PROXY_DASHBOARD_SECURE "Network proxy secure? (default true, enables https on the network proxy. Note: should be set to false for 'localhost')"
-ensure_env LETSENCRYPT_EMAIL "Certificate email: (optional, email used to generate https/tls certificates. Note: Must be a valid email for Let's Encrypt to properly generate certs. Ignore for 'localhost')"
+prompt_yes_no IS_LOCAL "Are you running Krane on localhost?"
 
-update_or_create_krane
+if [ "$IS_LOCAL" == true ];
+then
+  export KRANE_PRIVATE_KEY="krane"  
+  export DB_DIR="/tmp"
+  export PROXY_ENABLED=true
+  export PROXY_DASHBOARD_ALIAS="proxy.localhost"
+  export PROXY_DASHBOARD_SECURE=false
+  export LETSENCRYPT_EMAIL="localhost@email.com"
+fi
+
+if [ "$IS_LOCAL" == false ];
+then
+  ensure_env ROOT_DOMAIN "What domain do you want to use for this Krane instance? (ie. example.com | krane.example.com)"
+  ensure_env LETSENCRYPT_EMAIL "What email should we use to generate your deployments TLS certificates?"
+  ensure_env KRANE_PRIVATE_KEY "What should we use as the Krane private key (used for signing client requests, defaults to a uuid)"
+  ensure_env SSH_KEYS_DIR "What directory are your SSH keys located? (optional, default directory /root/.ssh)"
+  ensure_env DB_DIR "What directory should we use for the Krane database? (optional, default directory /tmp)"
+  ensure_env DOCKER_BASIC_AUTH_USERNAME "What is the container registry username you want to use? (optional, will operate as an anonymous user)"
+  ensure_secure_env DOCKER_BASIC_AUTH_PASSWORD "What is the container registry password? (optional, will operate as an anonymous user)"
+  export PROXY_ENABLED=true
+  export PROXY_DASHBOARD_ALIAS="proxy.$ROOT_DOMAIN"
+  export PROXY_DASHBOARD_SECURE=true
+fi
+
+bootstrap_krane
