@@ -9,3 +9,6 @@
 .idea
 
 .DS_Store
+
+# default binary
+krane
