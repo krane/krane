@@ -115,7 +115,7 @@ echo -e "\nFor complete documentation visit https://krane.sh/#/docs/installation
 
 prompt_yes_no IS_LOCAL "Are you running Krane on localhost?"
 
-if [ "$IS_LOCAL" == true ];
+if [ $IS_LOCAL ];
 then
   export ROOT_DOMAIN="localhost"
   export KRANE_PRIVATE_KEY="krane"  
