@@ -98,7 +98,7 @@ bootstrap_krane() {
   echo -e "\nTake note of the following details used to create your Krane instance:"
   echo -e "* Krane private key: $KRANE_PRIVATE_KEY"
   echo -e "* SSH keys directory: $SSH_KEYS_DIR"
-  echo -e "* Database directory: $DB_DIR"
+  echo -e "* Database path: $DB_PATH"
   echo -e "* Proxy alias: $PROXY_DASHBOARD_ALIAS"
 
   echo -e "\nHere are some helpful commands to help you start using this Krane instance:"
