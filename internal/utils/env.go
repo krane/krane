@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 )
 
 // RequireEnv exits the program if environment vairables not set
@@ -19,7 +20,7 @@ func RequireEnv(key string) {
 	}
 
 	if IsSensitiveEnv(key) {
-		log.Printf("%s=%s", key, "***")
+		log.Printf("%s=%s", key, strings.Repeat("*", utf8.RuneCountInString(value)))
 	} else {
 		log.Printf("%s=%s", key, value)
 	}
@@ -30,7 +31,7 @@ func EnvOrDefault(key string, fallback string) string {
 	value, found := os.LookupEnv(key)
 	if !found {
 		if IsSensitiveEnv(key) {
-			log.Printf("%s not set, defaulting to ***", key)
+			log.Printf("%s not set, defaulting to %s", key, strings.Repeat("*", utf8.RuneCountInString(fallback)))
 		} else {
 			log.Printf("%s not set, defaulting to %s", key, fallback)
 		}
@@ -43,7 +44,7 @@ func EnvOrDefault(key string, fallback string) string {
 
 	if value == "" {
 		if IsSensitiveEnv(key) {
-			log.Printf("%s not set, defaulting to ***", key)
+			log.Printf("%s not set, defaulting to %s", key, strings.Repeat("*", utf8.RuneCountInString(fallback)))
 		} else {
 			log.Printf("%s not set, defaulting to %s", key, fallback)
 		}
