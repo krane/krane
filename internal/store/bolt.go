@@ -34,10 +34,10 @@ var (
 	fileMode os.FileMode = 0600
 )
 
-// Client : boltdb client instance
+// Client boltdb client instance
 func Client() Store { return instance }
 
-// Connect : connect to boltdb
+// Connect connect to boltdb
 func Connect(path string) *BoltDB {
 	if instance != nil {
 		logger.Info("Bolt instance already exists")
@@ -52,6 +52,8 @@ func Connect(path string) *BoltDB {
 		path = defaultBoltPath
 	}
 
+	// Attempt to create the directory and ignore any issues
+	os.Create(path)
 	db, err := bolt.Open(path, fileMode, options)
 	if err != nil {
 		logger.Fatalf("Failed to open store at %s: %s", path, err.Error())
@@ -62,7 +64,7 @@ func Connect(path string) *BoltDB {
 	return instance
 }
 
-// Disconnect : close boltdb client
+// Disconnect close boltdb client
 func (b *BoltDB) Disconnect() {
 	logger.Debug("Closing boltdb")
 	if err := b.Close(); err != nil {
@@ -70,7 +72,7 @@ func (b *BoltDB) Disconnect() {
 	}
 }
 
-// Put : upsert a key/value pair
+// Put upsert a key/value pair
 func (b *BoltDB) Put(collection string, key string, value []byte) error {
 	return instance.Update(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists([]byte(collection))
@@ -82,7 +84,7 @@ func (b *BoltDB) Put(collection string, key string, value []byte) error {
 	})
 }
 
-// Get : get a key/value pair from a bucket
+// Get get a key/value pair from a bucket
 func (b *BoltDB) Get(collection, key string) (data []byte, err error) {
 	err = instance.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(collection))
@@ -101,7 +103,7 @@ func (b *BoltDB) Get(collection, key string) (data []byte, err error) {
 	return
 }
 
-// GetAll : get all key/value pairs in a collection
+// GetAll get all key/value pairs in a collection
 func (b *BoltDB) GetAll(collection string) (data [][]byte, err error) {
 	err = instance.View(func(tx *bolt.Tx) (err error) {
 		bkt := tx.Bucket([]byte(collection))
@@ -124,7 +126,7 @@ func (b *BoltDB) GetAll(collection string) (data [][]byte, err error) {
 	return
 }
 
-// GetInRange : get key/value pairs within a time range
+// GetInRange get key/value pairs within a time range
 // minDate: RFC3339 sortable time string ie. 1990-01-01T00:00:00Z
 // maxDate example: RFC3339 sortable time string ie. 2000-01-01T00:00:00Z
 func (b *BoltDB) GetInRange(collection, minDate, maxDate string) (data [][]byte, err error) {
