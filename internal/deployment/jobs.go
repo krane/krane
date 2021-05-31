@@ -43,25 +43,29 @@ func DeleteJobsCollection(deployment string) error {
 	return store.Client().DeleteCollection(collection)
 }
 
-// GetJobs returns all deployment jobs
+// GetJobs returns all deployment jobs within a given date range
 func GetJobs(daysAgo uint) ([]job.Job, error) {
 	deployments, err := GetAllDeploymentConfigs()
 	if err != nil {
 		return make([]job.Job, 0), err
 	}
 
-	// N dim. arr containing un-merged deployment jobs
-	recentActivity := make(job.NJobs, 0)
+	allJobs := make(job.NJobs, 0)
 	for _, deployment := range deployments {
-		activity, err := GetJobsByDeployment(deployment.Name, daysAgo)
+		deploymentJobs, err := GetJobsByDeployment(deployment.Name, daysAgo)
 		if err != nil {
 			return make([]job.Job, 0), err
 		}
 
-		recentActivity = append(recentActivity, activity)
+		allJobs = append(allJobs, deploymentJobs)
 	}
 
-	return recentActivity.MergeAndSort(), nil
+	sortedJobs, err := allJobs.MergeAndSort(job.SortDESC), nil
+	if err != nil {
+		return make([]job.Job, 0), err
+	}
+
+	return sortedJobs, nil
 }
 
 // GetJobByID returns a job by id

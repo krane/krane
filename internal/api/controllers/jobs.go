@@ -13,8 +13,8 @@ import (
 	"github.com/krane/krane/internal/utils"
 )
 
-// GetRecentJobs returns all deployment jobs within a date range (default is 7d ago)
-func GetRecentJobs(w http.ResponseWriter, r *http.Request) {
+// GetJobsByDaysAgo returns all deployment jobs within a date range (default is `7` days ago)
+func GetJobsByDaysAgo(w http.ResponseWriter, r *http.Request) {
 	daysAgo := utils.QueryParamOrDefault(r, "days_ago", "7")
 	daysAgoNum, _ := strconv.Atoi(daysAgo)
 

@@ -95,8 +95,30 @@ func (j *Job) validate() error {
 // N dimensional Job array
 type NJobs [][]Job
 
+type SortOrder func(Job, Job) bool
+
+func SortASC(a, b Job) bool {
+	if a.StartTime > b.EndTime {
+		return true
+	}
+	if b.StartTime > a.EndTime {
+		return true
+	}
+	return false
+}
+
+func SortDESC(a, b Job) bool {
+	if a.StartTime > b.EndTime {
+		return false
+	}
+	if b.StartTime > a.EndTime {
+		return false
+	}
+	return true
+}
+
 // merge : combines njobs into a single job array sorted in DESCENDING order based on timestamp.
-func (njobs NJobs) MergeAndSort() []Job {
+func (njobs NJobs) MergeAndSort(overlap SortOrder) []Job {
 	var JobHeap jobHeap
 	heap.Init(&JobHeap)
 
@@ -113,16 +135,6 @@ func (njobs NJobs) MergeAndSort() []Job {
 	// push all jobs into the heap
 	for i := 0; i < len(flattened); i++ {
 		heap.Push(&JobHeap, flattened[i])
-	}
-
-	overlap := func(a, b Job) bool {
-		if a.StartTime > b.EndTime {
-			return false
-		}
-		if b.StartTime > a.EndTime {
-			return false
-		}
-		return true
 	}
 
 	temp := heap.Pop(&JobHeap).(Job)
