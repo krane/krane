@@ -68,7 +68,7 @@ bootstrap_krane() {
   docker run -d --name=krane --network=krane \
     -e LOG_LEVEL=info \
     -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-$(uuidgen)}" \
-    -e DB_PATH="${DB_DIR/krane.db:-/tmp/krane.db}" \
+    -e DB_PATH=${DB_PATH} \
     -e DOCKER_BASIC_AUTH_USERNAME="$DOCKER_BASIC_AUTH_USERNAME" \
     -e DOCKER_BASIC_AUTH_PASSWORD="$DOCKER_BASIC_AUTH_PASSWORD" \
     -e PROXY_ENABLED="${PROXY_ENABLED:-true}" \
@@ -102,7 +102,7 @@ bootstrap_krane() {
   echo -e "* Proxy alias: $PROXY_DASHBOARD_ALIAS"
 
   echo -e "\nHere are some helpful commands to help you start using this Krane instance:"
-  echo -e "$ krane login $ROOT_DOMAIN:8500"
+  echo -e "$ krane login http://$ROOT_DOMAIN:8500"
   echo -e "$ krane ls"
   echo -e "$ krane deploy -f ./deployment.json"
 }
@@ -120,14 +120,11 @@ then
   export ROOT_DOMAIN="localhost"
   export KRANE_PRIVATE_KEY="krane"  
   export SSH_KEYS_DIR="$HOME/.ssh"
-  export DB_DIR="/tmp"
+  export DB_PATH="/tmp/krane.db"
   export PROXY_ENABLED=true
   export PROXY_DASHBOARD_ALIAS="proxy.$ROOT_DOMAIN"
   export PROXY_DASHBOARD_SECURE=false
-fi
-
-if [ "$IS_LOCAL" == false ];
-then
+else
   ensure_env ROOT_DOMAIN "What domain do you want to use for this Krane instance? (ie. example.com | krane.example.com)"
   ensure_env LETSENCRYPT_EMAIL "What email should we use to generate your deployments TLS certificates?"
   ensure_env KRANE_PRIVATE_KEY "What should we use as the Krane private key (used for signing client requests, defaults to a uuid)"
@@ -135,6 +132,7 @@ then
   ensure_env DB_DIR "What directory should we use for the Krane database? (optional, default directory /tmp)"
   ensure_env DOCKER_BASIC_AUTH_USERNAME "What is the container registry username you want to use? (optional, will operate as an anonymous user)"
   ensure_secure_env DOCKER_BASIC_AUTH_PASSWORD "What is the container registry password? (optional, will operate as an anonymous user)"
+  export DB_PATH="${DB_DIR:-/tmp}/krane.db"
   export PROXY_ENABLED=true
   export PROXY_DASHBOARD_ALIAS="proxy.$ROOT_DOMAIN"
   export PROXY_DASHBOARD_SECURE=true
