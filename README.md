@@ -1,90 +1,62 @@
-[![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1602474802/Marketing_-_Krane_dj2y9e.png)](https://krane.sh)
+<!-- [![Logo](docs/assets/logo.png)](https://krane.sh) -->
+
+# Krane
+
+> Open-source, self-hosted, container management solution
 
 [![CI](https://github.com/krane/krane/workflows/CI/badge.svg?branch=master)](https://github.com/krane/krane/actions)
 [![Release](https://img.shields.io/github/v/release/krane/krane)](https://github.com/krane/krane/releases)
 
-Krane makes it easy to deploy containers on remote or local servers by interfacing with Docker to expose a productive toolset for managing containerized applications known as deployments. The Krane [CLI](https://www.krane.sh/#/docs/cli) allows you to interact with a Krane instace to run deployments, read container logs, store deployment secrets and more. The Krane [GitHub Action](https://github.com/marketplace/actions/krane) automates deployments by tapping into your build pipeline to continuously deliver updates when changes occur to your projects.
+Krane is a container management solution that abstracts away the hard parts from deploying infrastructrue at the lowest cost possible.
 
 - **Documentation:** https://krane.sh
 - **Releases:** https://github.com/krane/krane/releases
 - **Bugs:** https://github.com/krane/krane/issues
-- **UI** https://github.com/krane/ui
+
+## Krane Tooling
+
+- **Deployment Dashboard:** https://github.com/krane/ui
 - **CLI:** https://github.com/krane/cli
 - **GitHub Action:** https://github.com/krane/action
 
 ## Features
 
+- One command deployments
 - Single file deployments
 - Deployment [aliases](https://www.krane.sh/#/docs/deployment?id=alias) (`my-api.localhost`)
 - Deployment [secrets](https://www.krane.sh/#/docs/deployment?id=secrets) for hiding sensitive environment variables
 - Deployment [scaling](https://www.krane.sh/#/docs/deployment?id=scale) to distribute the workload between containers
 - Deployment [rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit) to limit incoming requests
-- HTTPS/TLS support with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates for your deployments
+- HTTPS/TLS support with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates
 - [Self-hosted](#motivation) - Cost-effective, bring your own server and scale if you need
 
 ## Getting Started
 
-[![Install Krane](docs/assets/1-install-krane.png)](https://www.krane.sh/#/docs/installation)
-
-You can install Krane using this interactive script. 
-
-It is by far the *easiest* and *fastest* way to **create** or **update** a Krane instance.
+1. Install Krane
 
 ```
 bash <(wget -qO- get.krane.sh)
 ```
 
-Other [installation](https://www.krane.sh/#/docs/installation) methods and configurations.
+2. Create a deployment configuration file
 
-[![Download CLI](docs/assets/2-download-cli.png)](https://www.krane.sh/#/docs/cli)
-
-Download the Krane [CLI](https://www.krane.sh/#/docs/cli) to execute commands on a Krane instance.
-
-```
-npm i -g krane
-```
-
-Full list of [commands](https://www.krane.sh/#/docs/cli?id=commands).
-
-[![Setup Authentication](docs/assets/3-setup-authentication.png)](https://www.krane.sh/#/docs/authentication)
-
-Create public and private keys used for authentication.
-
-```
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM' -f $HOME/.ssh/krane
-```
-
-The private key stays on the user's machine, the public key is appended to `~/.ssh/authorized_keys` where Krane is running.
-
-[![Authenticate](docs/assets/4-authentication.png)](https://www.krane.sh/#/docs/authentication)
-
-When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated you'll be able to execute commands on that Krane instance.
-
-```
-krane login
-```
-
-To switch between Krane instances you'll have to login again.
-
-[![Deploy](docs/assets/5-deploy.png)](https://www.krane.sh/#/docs/cli?id=deploy)
-
-Create a deployment configuration file `deployment.json`
-
-For example:
+`deployment.json`
 
 ```json
 {
-  "name": "krane-getting-started",    
+  "name": "krane-getting-started",
   "image": "docker/getting-started",
   "alias": ["getting-started.example.com"]
 }
 ```
 
+3. Deploy your infrastructure
+
 ```
-krane deploy -f /path/to/deployment.json
+krane deploy -f ./deployment.json
 ```
 
-For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/docs/deployment).
+For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/docs/deployment)
 
 <a name="motivation"></a>
 
