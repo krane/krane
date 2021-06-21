@@ -6,6 +6,7 @@
 
 [![CI](https://github.com/krane/krane/workflows/CI/badge.svg?branch=master)](https://github.com/krane/krane/actions)
 [![Release](https://img.shields.io/github/v/release/krane/krane)](https://github.com/krane/krane/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/krane/krane)](https://goreportcard.com/report/github.com/krane/krane)
 
 Krane is a container management solution that abstracts away the hard parts from deploying infrastructrue at the lowest cost possible.
 
@@ -23,14 +24,14 @@ Krane is a container management solution that abstracts away the hard parts from
 
 - One command deployments
 - Single file deployments
-- Deployment [aliases](https://www.krane.sh/#/docs/deployment?id=alias) (`my-api.localhost`)
+- Deployment DNS [aliases](https://www.krane.sh/#/docs/deployment?id=alias) (`subdomain.example.com`)
 - Deployment [secrets](https://www.krane.sh/#/docs/deployment?id=secrets) for hiding sensitive environment variables
 - Deployment [scaling](https://www.krane.sh/#/docs/deployment?id=scale) to distribute the workload between containers
 - Deployment [rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit) to limit incoming requests
 - HTTPS/TLS support with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates
-- [Self-hosted](#motivation) - Cost-effective, bring your own server and scale if you need
+- [Self-hosted](#motivation) - Cost-effective, bring your own server, scale when you need
 
-## Getting Started
+## Getting started
 
 1. Install Krane
 
@@ -50,7 +51,7 @@ bash <(wget -qO- get.krane.sh)
 }
 ```
 
-3. Deploy your infrastructure
+3. Deploy
 
 ```
 krane deploy -f ./deployment.json
@@ -78,7 +79,6 @@ $ ./krane
 
 ## Running tests
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/krane/krane)](https://goreportcard.com/report/github.com/krane/krane)
 [![Coverage](https://img.shields.io/codecov/c/github/krane/krane?color=blue)](https://codecov.io/gh/krane/krane)
 
 In the root of the project
