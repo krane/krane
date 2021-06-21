@@ -1,6 +1,4 @@
-<!-- [![Logo](docs/assets/logo.png)](https://krane.sh) -->
-
-# Krane
+[![Logo](docs/assets/logo.png)](https://krane.sh)
 
 > Open-source, self-hosted, container management solution
 
@@ -57,7 +55,7 @@ bash <(wget -qO- get.krane.sh)
 krane deploy -f ./deployment.json
 ```
 
-For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/docs/deployment)
+[Deployment configuration options](https://www.krane.sh/#/docs/deployment)
 
 <a name="motivation"></a>
 
@@ -104,39 +102,4 @@ Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To v
 $ boltdbweb --db-name=/path/to/krane.db --port=9000
 ```
 
-## Minimal Docker example
-
-This is the most minimal Docker example to get _up-and-running_ with Krane
-
-```
-docker run -d --name=krane \
-    -e KRANE_PRIVATE_KEY=changeme \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v ~/.ssh:/root/.ssh  \
-    -p 8500:8500 biensupernice/krane
-```
-
-## Complete Docker example
-
-This is a complete Docker example to get Krane running with:
-
-- Automatic HTTPS/SSL w/ Lets Encrypt certificates
-- Container registry authentication for pulling images
-- Volumed Krane DB (for storing session & deployment details)
-- Log level set to debug (for debugging)
-
-```
-docker run -d --name=krane \
-    -e KRANE_PRIVATE_KEY=changeme \
-    -e LOG_LEVEL=debug \
-    -e DOCKER_BASIC_AUTH_USERNAME=changeme \
-    -e DOCKER_BASIC_AUTH_PASSWORD=changeme \
-    -e PROXY_ENABLED=true \
-    -e PROXY_DASHBOARD_SECURE=true \
-    -e PROXY_DASHBOARD_ALIAS=monitor.example.com \
-    -e LETSENCRYPT_EMAIL=email@example.com \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v ~/.ssh:/root/.ssh  \
-    -v /tmp/krane.db:/tmp/krane.db \
-    -p 8500:8500 biensupernice/krane
-```
+## Contributions
