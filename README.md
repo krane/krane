@@ -1,4 +1,4 @@
-[![Logo](docs/assets/logo.png)](https://krane.sh)
+[![Logo](docs/assets/krane-wordmark.png)](https://krane.sh)
 
 > Open-source, self-hosted, container management solution
 
@@ -12,7 +12,7 @@ Krane is a container management solution that abstracts away the hard parts from
 - **Releases:** https://github.com/krane/krane/releases
 - **Bugs:** https://github.com/krane/krane/issues
 
-## Krane Tooling
+## Tooling
 
 - **Deployment Dashboard:** https://github.com/krane/ui
 - **CLI:** https://github.com/krane/cli
