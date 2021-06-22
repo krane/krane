@@ -6,7 +6,7 @@
 [![Release](https://img.shields.io/github/v/release/krane/krane)](https://github.com/krane/krane/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/krane/krane)](https://goreportcard.com/report/github.com/krane/krane)
 
-Krane is a container management solution that abstracts away the hard parts from deploying infrastructrue at the lowest cost possible.
+Krane is a container management solution that allows you to deploy infrastructure with ease. Lightweight and easy to setup, Krane is the perfect solution for developers who want to setup infrastructure at the lowest cost possible.
 
 - **Documentation:** https://krane.sh
 - **Releases:** https://github.com/krane/krane/releases
@@ -14,12 +14,15 @@ Krane is a container management solution that abstracts away the hard parts from
 
 ## Tooling
 
+These development tools help manage and automate infrastructure running on Krane.
+
 - **Deployment CLI:** https://github.com/krane/cli
 - **Deployment UI:** https://github.com/krane/ui
 - **GitHub Action:** https://github.com/krane/action
 
 ## Features
 
+- Can run on compute as low as $3.50
 - Single command deployments
 - Single file deployments
 - Deployment DNS [aliases](https://www.krane.sh/#/docs/deployment?id=alias) (`subdomain.example.com`)
