@@ -1,90 +1,66 @@
-[![Krane](https://res.cloudinary.com/biensupernice/image/upload/v1602474802/Marketing_-_Krane_dj2y9e.png)](https://krane.sh)
+<img src="docs/assets/krane-wordmark.png" width="350">
+
+> Open-source, self-hosted, container management solution
 
 [![CI](https://github.com/krane/krane/workflows/CI/badge.svg?branch=master)](https://github.com/krane/krane/actions)
 [![Release](https://img.shields.io/github/v/release/krane/krane)](https://github.com/krane/krane/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/krane/krane)](https://goreportcard.com/report/github.com/krane/krane)
 
-Krane makes it easy to deploy containers on remote or local servers by interfacing with Docker to expose a productive toolset for managing containerized applications known as deployments. The Krane [CLI](https://www.krane.sh/#/docs/cli) allows you to interact with a Krane instace to run deployments, read container logs, store deployment secrets and more. The Krane [GitHub Action](https://github.com/marketplace/actions/krane) automates deployments by tapping into your build pipeline to continuously deliver updates when changes occur to your projects.
+Krane is a container management solution that allows you to deploy infrastructure with ease. Lightweight and easy to setup, Krane is the perfect solution for developers who want to setup infrastructure at the lowest cost possible.
 
 - **Documentation:** https://krane.sh
 - **Releases:** https://github.com/krane/krane/releases
 - **Bugs:** https://github.com/krane/krane/issues
-- **UI** https://github.com/krane/ui
-- **CLI:** https://github.com/krane/cli
+
+## Tooling
+
+These development tools help manage and automate infrastructure running on Krane.
+
+- **Deployment CLI:** https://github.com/krane/cli
+- **Deployment UI:** https://github.com/krane/ui
 - **GitHub Action:** https://github.com/krane/action
 
 ## Features
 
+- Krane runs on compute as low as $3.50
+- Single command deployments
 - Single file deployments
-- Deployment [aliases](https://www.krane.sh/#/docs/deployment?id=alias) (`my-api.localhost`)
+- Deployment DNS [aliases](https://www.krane.sh/#/docs/deployment?id=alias) (`subdomain.example.com`)
 - Deployment [secrets](https://www.krane.sh/#/docs/deployment?id=secrets) for hiding sensitive environment variables
 - Deployment [scaling](https://www.krane.sh/#/docs/deployment?id=scale) to distribute the workload between containers
 - Deployment [rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit) to limit incoming requests
-- HTTPS/TLS support with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates for your deployments
-- [Self-hosted](#motivation) - Cost-effective, bring your own server and scale if you need
+- HTTPS/TLS out-of-the-box with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates
+- [Self-hosted](#motivation) - Cost-effective, bring your own server, scale when you need
 
-## Getting Started
+## Getting started
 
-[![Install Krane](docs/assets/1-install-krane.png)](https://www.krane.sh/#/docs/installation)
+1. Install Krane
 
-You can install Krane using this interactive script. 
-
-It is by far the *easiest* and *fastest* way to **create** or **update** a Krane instance.
+Krane can be installed on virtually any compute like Vultr, Digital Ocean, AWS, Azure, GCP, linode, and even works on your localhost. Note that to properly run Krane, Docker must already be installed and setup.
 
 ```
 bash <(wget -qO- get.krane.sh)
 ```
 
-Other [installation](https://www.krane.sh/#/docs/installation) methods and configurations.
+2. Create a deployment configuration file
 
-[![Download CLI](docs/assets/2-download-cli.png)](https://www.krane.sh/#/docs/cli)
-
-Download the Krane [CLI](https://www.krane.sh/#/docs/cli) to execute commands on a Krane instance.
-
-```
-npm i -g krane
-```
-
-Full list of [commands](https://www.krane.sh/#/docs/cli?id=commands).
-
-[![Setup Authentication](docs/assets/3-setup-authentication.png)](https://www.krane.sh/#/docs/authentication)
-
-Create public and private keys used for authentication.
-
-```
-ssh-keygen -t rsa -b 4096 -C "your_email@example.com" -m 'PEM' -f $HOME/.ssh/krane
-```
-
-The private key stays on the user's machine, the public key is appended to `~/.ssh/authorized_keys` where Krane is running.
-
-[![Authenticate](docs/assets/4-authentication.png)](https://www.krane.sh/#/docs/authentication)
-
-When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated you'll be able to execute commands on that Krane instance.
-
-```
-krane login
-```
-
-To switch between Krane instances you'll have to login again.
-
-[![Deploy](docs/assets/5-deploy.png)](https://www.krane.sh/#/docs/cli?id=deploy)
-
-Create a deployment configuration file `deployment.json`
-
-For example:
+`deployment.json`
 
 ```json
 {
-  "name": "krane-getting-started",    
+  "name": "krane-getting-started",
   "image": "docker/getting-started",
   "alias": ["getting-started.example.com"]
 }
 ```
 
+3. Deploy
+
 ```
-krane deploy -f /path/to/deployment.json
+krane deploy -f ./deployment.json
 ```
 
-For more deployment configuration options, checkout the [documentation](https://www.krane.sh/#/docs/deployment).
+[Additional deployment configuration options](https://www.krane.sh/#/docs/deployment)
 
 <a name="motivation"></a>
 
@@ -94,77 +70,6 @@ Krane is a self-hosted PaaS. You bring your own server and install Krane on it t
 
 Krane isn't a replacement for [Kubernetes](https://kubernetes.io), [ECS](https://aws.amazon.com/ecs/), or any other container orchestration solution you might see running production applications, instead it's a tool you can leverage to make development of side-projects or small workloads cheap and straight forward. That was the main objective, a productive deployment tool for managing non-critical container workloads on remote servers.
 
-## Building from source
+## Contributions
 
-```
-$ git clone https://github.com/krane/krane
-$ cd krane
-$ go build ./cmd/krane
-$ export KRANE_PRIVATE_KEY=changeme
-$ ./krane
-```
-
-## Running tests
-
-[![Go Report Card](https://goreportcard.com/badge/github.com/krane/krane)](https://goreportcard.com/report/github.com/krane/krane)
-[![Coverage](https://img.shields.io/codecov/c/github/krane/krane?color=blue)](https://codecov.io/gh/krane/krane)
-
-In the root of the project
-
-```
-# run tests
-$ go test ./...
-
-or
-
-# run tests with coverage
-$ go test -coverprofile coverage.out ./...
-
-# view coverage
-$ go tool cover -html=coverage.out
-```
-
-## Viewing the database
-
-Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To view the contents in bolt, you can use [boltdbweb](https://github.com/evnix/boltdbweb).
-
-```
-$ boltdbweb --db-name=/path/to/krane.db --port=9000
-```
-
-## Minimal Docker example
-
-This is the most minimal Docker example to get _up-and-running_ with Krane
-
-```
-docker run -d --name=krane \
-    -e KRANE_PRIVATE_KEY=changeme \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v ~/.ssh:/root/.ssh  \
-    -p 8500:8500 biensupernice/krane
-```
-
-## Complete Docker example
-
-This is a complete Docker example to get Krane running with:
-
-- Automatic HTTPS/SSL w/ Lets Encrypt certificates
-- Container registry authentication for pulling images
-- Volumed Krane DB (for storing session & deployment details)
-- Log level set to debug (for debugging)
-
-```
-docker run -d --name=krane \
-    -e KRANE_PRIVATE_KEY=changeme \
-    -e LOG_LEVEL=debug \
-    -e DOCKER_BASIC_AUTH_USERNAME=changeme \
-    -e DOCKER_BASIC_AUTH_PASSWORD=changeme \
-    -e PROXY_ENABLED=true \
-    -e PROXY_DASHBOARD_SECURE=true \
-    -e PROXY_DASHBOARD_ALIAS=monitor.example.com \
-    -e LETSENCRYPT_EMAIL=email@example.com \
-    -v /var/run/docker.sock:/var/run/docker.sock \
-    -v ~/.ssh:/root/.ssh  \
-    -v /tmp/krane.db:/tmp/krane.db \
-    -p 8500:8500 biensupernice/krane
-```
+Krane is released under the [MIT license](https://github.com/krane/krane/blob/refactor-readme/LICENSE). Please refer to [contribution guidelines](https://github.com/krane/krane/blob/refactor-readme/CONTRIBUTING.md) before raising an issue or feature request, we appreciate all contributions, small or large, and look forward to hearing feeback and improvement proposals.
