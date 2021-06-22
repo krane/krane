@@ -2,13 +2,13 @@
 
 # -- fatal if the system does not meet minimum requirements --
 verify_system() {
-  # -- Check if docker is installed --
+  # -- check docker is installed --
   if ! [ -x "$(command -v docker)" ]; then
     echo "Docker required to properly install Krane"
     exit 0
   fi
 
-  # -- Check if docker is running --
+  # -- check docker is running --
   if ! docker info >/dev/null 2>&1; then
     echo "Docker must be in a RUNNING state to install Krane"
     echo "try running [$ docker info] to troubleshoot your Docker daemon"
@@ -16,7 +16,7 @@ verify_system() {
   fi
 }
 
-# -- Setup the system environment --
+# -- setup the system environment --
 setup_env() {
   echo "Installing Krane..."
   echo -e "\nThis interactive script will configure:"
@@ -50,7 +50,7 @@ setup_env() {
   fi
 }
 
-# -- Helper function to ensure environment variable set --
+# --helper function to ensure environment variable is set --
 ensure_env() {
   local env=$1
   local prompt_msg=$2
@@ -61,7 +61,7 @@ ensure_env() {
   fi
 }
 
-# -- Helper function to ensure sensitive environment variable set --
+# -- helper function to ensure sensitive environment variable is set --
 ensure_secure_env() {
   local env=$1
   local prompt_msg=$2
@@ -87,7 +87,7 @@ prompt_yes_no() {
 done
 }
 
-# -- Download Krane and verify in it's in a running state --
+# -- download Krane and verify in it's in a running state --
 download_and_verify() {
   echo -e "(1/7) Stopping Krane (if exists)"
   docker stop krane > /dev/null 2>&1
@@ -122,7 +122,7 @@ download_and_verify() {
 
   sleep 5s
 
-  # -- Check that the Krane container is in a running state --
+  # -- check that the Krane container is in a running state --
   local container_name="krane"
   if ! [ "$(docker container inspect -f '{{.State.Status}}' $container_name)" == "running" ];  then
     echo -e "\nEncountered and error while installing Krane."
