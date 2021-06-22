@@ -36,7 +36,7 @@ These development tools help manage and automate infrastructure running on Krane
 
 1. Install Krane
 
-Krane can be installed on virtually any compute like Vultr, Digital Ocean, AWS, Azure, GCP, linode, and even work on your localhost!
+Krane can be installed on virtually any compute like Vultr, Digital Ocean, AWS, Azure, GCP, linode, and even works on your localhost. Note that to properly run Krane, Docker must already be installed and setup.
 
 ```
 bash <(wget -qO- get.krane.sh)
