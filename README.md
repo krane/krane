@@ -1,4 +1,4 @@
-<img src="docs/assets/krane-wordmark.png" width="200">
+<img src="docs/assets/krane-wordmark.png" width="400">
 
 > Open-source, self-hosted, container management solution
 
