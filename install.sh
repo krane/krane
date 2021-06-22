@@ -132,8 +132,8 @@ download_and_verify() {
   echo -e "\n(7/7) Cleaning up older images"
   docker image prune -a -f
 
-  echo -e "\Installation complete..."
-  echo -e "For documentation on accessing this Krane instance visit https://www.krane.sh/#/docs/cli"
+  echo -e "\nInstallation complete..."
+  echo -e "For documentation on accessing this Krane instance visit:\n https://www.krane.sh/#/docs/cli"
   
   echo -e "\nTake note of the following details used to create your Krane instance:"
   echo -e "* Krane private key: $KRANE_PRIVATE_KEY"
@@ -141,7 +141,7 @@ download_and_verify() {
   echo -e "* Database path: $DB_PATH"
   echo -e "* Proxy alias: $PROXY_DASHBOARD_ALIAS"
 
-  echo -e "\nHere are some helpful commands to help you start using this Krane instance:"
+  echo -e "\nSome helpful commands to help you start using this Krane instance:"
   echo -e "$ krane login http://$ROOT_DOMAIN:8500"
   echo -e "$ krane ls"
   echo -e "$ krane deploy -f ./deployment.json"
