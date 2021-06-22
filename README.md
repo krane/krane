@@ -1,4 +1,4 @@
-[![Logo](docs/assets/krane-wordmark.png)](https://krane.sh)
+<img src="docs/assets/krane-wordmark.png" width="200">
 
 > Open-source, self-hosted, container management solution
 
