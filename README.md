@@ -32,11 +32,13 @@ These development tools help manage and automate infrastructure running on Krane
 - HTTPS/TLS out-of-the-box with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates
 - [Self-hosted](#motivation) - Cost-effective, bring your own server, scale when you need
 
-## Getting started
+## Quick-Start - Install Script
 
 1. Install Krane
 
-Krane can be installed on virtually any compute like Vultr, Digital Ocean, AWS, Azure, GCP, linode, and even works on your localhost. Note that to properly run Krane, Docker must already be installed and setup.
+The `install.sh` script provides a convenient way to download Krane on virtually any compute such as Vultr, Digital Ocean, AWS, Azure, GCP, Linode, and even on your localhost.
+
+To install Krane just run:
 
 ```
 bash <(wget -qO- get.krane.sh)
@@ -60,7 +62,7 @@ bash <(wget -qO- get.krane.sh)
 krane deploy -f ./deployment.json
 ```
 
-[Additional deployment configuration options](https://www.krane.sh/#/docs/deployment)
+Please see the [official docs site](https://www.krane.sh/#/docs/deployment) for complete documentation.
 
 <a name="motivation"></a>
 
