@@ -14,13 +14,13 @@ Krane is a container management solution that abstracts away the hard parts from
 
 ## Tooling
 
-- **Deployment Dashboard:** https://github.com/krane/ui
-- **CLI:** https://github.com/krane/cli
+- **Deployment CLI:** https://github.com/krane/cli
+- **Deployment UI:** https://github.com/krane/ui
 - **GitHub Action:** https://github.com/krane/action
 
 ## Features
 
-- One command deployments
+- Single command deployments
 - Single file deployments
 - Deployment DNS [aliases](https://www.krane.sh/#/docs/deployment?id=alias) (`subdomain.example.com`)
 - Deployment [secrets](https://www.krane.sh/#/docs/deployment?id=secrets) for hiding sensitive environment variables
@@ -55,7 +55,7 @@ bash <(wget -qO- get.krane.sh)
 krane deploy -f ./deployment.json
 ```
 
-[Deployment configuration options](https://www.krane.sh/#/docs/deployment)
+[Additional deployment configuration options](https://www.krane.sh/#/docs/deployment)
 
 <a name="motivation"></a>
 
@@ -65,41 +65,6 @@ Krane is a self-hosted PaaS. You bring your own server and install Krane on it t
 
 Krane isn't a replacement for [Kubernetes](https://kubernetes.io), [ECS](https://aws.amazon.com/ecs/), or any other container orchestration solution you might see running production applications, instead it's a tool you can leverage to make development of side-projects or small workloads cheap and straight forward. That was the main objective, a productive deployment tool for managing non-critical container workloads on remote servers.
 
-## Building from source
-
-```
-$ git clone https://github.com/krane/krane
-$ cd krane
-$ go build ./cmd/krane
-$ export KRANE_PRIVATE_KEY=changeme
-$ ./krane
-```
-
-## Running tests
-
-[![Coverage](https://img.shields.io/codecov/c/github/krane/krane?color=blue)](https://codecov.io/gh/krane/krane)
-
-In the root of the project
-
-```
-# run tests
-$ go test ./...
-
-or
-
-# run tests with coverage
-$ go test -coverprofile coverage.out ./...
-
-# view coverage
-$ go tool cover -html=coverage.out
-```
-
-## Viewing the database
-
-Krane uses [boltdb](https://github.com/etcd-io/bbolt) as its backing store. To view the contents in bolt, you can use [boltdbweb](https://github.com/evnix/boltdbweb).
-
-```
-$ boltdbweb --db-name=/path/to/krane.db --port=9000
-```
-
 ## Contributions
+
+Krane is released under the [MIT license](https://github.com/krane/krane/blob/refactor-readme/LICENSE). Contributions are welcome and appreaciated, please refer to [contribution guidelines](https://github.com/krane/krane/blob/refactor-readme/CONTRIBUTING.md) before raising an issue or feature request.
