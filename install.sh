@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DEFAULT_KRANE_PRIVATE_KEY="1ab43c39-2cec-4a0a-b088-67a4361c5714"
+
 # -- check if the krane container is running --
 is_krane_running() {
   local container_name="krane"
@@ -127,7 +129,7 @@ download_and_verify() {
   echo -e "✓ Starting new Krane instance"
   docker run -d --name=krane --network=krane \
     -e LOG_LEVEL=info \
-    -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-$(uuidgen)}" \
+    -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-DEFAULT_KRANE_PRIVATE_KEY}" \
     -e DB_PATH=${DB_PATH} \
     -e DOCKER_BASIC_AUTH_USERNAME="$DOCKER_BASIC_AUTH_USERNAME" \
     -e DOCKER_BASIC_AUTH_PASSWORD="$DOCKER_BASIC_AUTH_PASSWORD" \
@@ -158,18 +160,18 @@ download_and_verify() {
   echo -e "For documentation on accessing this Krane instance visit:\nhttps://www.krane.sh/#/docs/cli"
   
   echo -e "\nYou can now use your Krane instance with:"
-  echo -e "🔐 Krane private key: $KRANE_PRIVATE_KEY"
+  echo -e "🔐 Krane private key: ${KRANE_PRIVATE_KEY:-DEFAULT_KRANE_PRIVATE_KEY}"
   echo -e "📝 SSH keys directory: ${SSH_KEYS_DIR:-/root/.ssh}"
   echo -e "🗂  Database path: $DB_PATH"
   echo -e "🌎 Proxy alias: $PROXY_DASHBOARD_ALIAS"
-  echo -e "🕹 Let's Encrypt email: ${LETSENCRYPT_EMAIL:-not set}"
+  echo -e "🕹  Let's Encrypt email: ${LETSENCRYPT_EMAIL:-not set}"
 
   echo -e "\nSome helpful CLI commands:"
   echo -e "$ krane login http://$ROOT_DOMAIN:8500"
   echo -e "$ krane ls"
   echo -e "$ krane deploy -f ./deployment.json"
 
-  echo -e "Thanks for using Krane! ☺️"
+  echo -e "\nThanks for using Krane! ☺️"
 }
 
 # --- run the install process --
