@@ -5,7 +5,7 @@ DEFAULT_KRANE_PRIVATE_KEY="1ab43c39-2cec-4a0a-b088-67a4361c5714"
 # -- check if the krane container is running --
 is_krane_running() {
   local container_name="krane"
-  if [ "$(docker container inspect -f '{{.State.Status}}' "$container_name")  > /dev/null 2>&1" == "running" ];
+  if [ "$(docker container inspect -f '{{.State.Status}}' "$container_name")" == "running" ];
     then
       return 0
     else
