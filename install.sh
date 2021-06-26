@@ -27,10 +27,12 @@ verify_system() {
   fi
 
   if is_krane_running ; then
-    prompt_yes_no EXIT_EARLY "A Krane instance is already running. Would you like to continue?"
+    prompt_yes_no CONTINUE_INSTALLATION "A Krane instance is already running. Would you like to continue?"
+  else
+    export CONTINUE_INSTALLATION="true"
   fi
 
-  if [ "$EXIT_EARLY" == true ]; then
+  if ! [ "$CONTINUE_INSTALLATION" == true ]; then
     exit 0
   fi
 }
