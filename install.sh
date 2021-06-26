@@ -111,7 +111,7 @@ done
 
 # -- download Krane and verify in it's in a running state --
 download_and_verify() {
-  echo -e "✅ Stopping Krane (if running)"
+  echo -e "\n✅ Stopping Krane (if running)"
   docker stop krane > /dev/null 2>&1
 
   echo -e "✅ Removing Krane instance (if exists)"
@@ -156,12 +156,12 @@ download_and_verify() {
   echo -e "\n✅ Cleaning up older images"
   docker image prune -a -f
 
-  echo -e "\nInstallation complete..."
-  echo -e "For documentation on accessing this Krane instance visit:\n https://www.krane.sh/#/docs/cli"
+  echo -e "\n✅ Installation complete!"
+  echo -e "For documentation on accessing this Krane instance visit:\nhttps://www.krane.sh/#/docs/cli"
   
   echo -e "\nTake note of the following details used to create your Krane instance:"
   echo -e "🔐 Krane private key: $KRANE_PRIVATE_KEY"
-  echo -e "📝 SSH keys directory: $SSH_KEYS_DIR"
+  echo -e "📝 SSH keys directory: ${SSH_KEYS_DIR:-/root/.ssh}"
   echo -e "🗂 Database path: $DB_PATH"
   echo -e "🌎 Proxy alias: $PROXY_DASHBOARD_ALIAS"
 
