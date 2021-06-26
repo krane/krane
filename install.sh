@@ -45,7 +45,7 @@ setup_env() {
   echo -e "\nThis interactive script will configure:"
   echo "• A running Krane container instance"
   echo "• A running proxy container to route DNS traffic"
-  echo -e "\nPlease see the official docs site for complete documentation:\nhttps://krane.sh/#/docs/installation \n"
+  echo -e "\nCheckout the official docs site for complete documentation:\nhttps://krane.sh/#/docs/installation \n"
 
   prompt_yes_no IS_LOCAL "Are you running Krane on localhost?"
 
@@ -129,7 +129,7 @@ download_and_verify() {
   echo -e "✓ Starting new Krane instance"
   docker run -d --name=krane --network=krane \
     -e LOG_LEVEL=info \
-    -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-DEFAULT_KRANE_PRIVATE_KEY}" \
+    -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-${DEFAULT_KRANE_PRIVATE_KEY}}" \
     -e DB_PATH=${DB_PATH} \
     -e DOCKER_BASIC_AUTH_USERNAME="$DOCKER_BASIC_AUTH_USERNAME" \
     -e DOCKER_BASIC_AUTH_PASSWORD="$DOCKER_BASIC_AUTH_PASSWORD" \
@@ -157,16 +157,15 @@ download_and_verify() {
   docker image prune -a -f
 
   echo -e "\n✓ Installation complete 💛"
-  echo -e "For documentation on accessing this Krane instance visit:\nhttps://www.krane.sh/#/docs/cli"
-  
+
   echo -e "\nYou can now use your Krane instance with:"
-  echo -e "🔐 Krane private key: ${KRANE_PRIVATE_KEY:-DEFAULT_KRANE_PRIVATE_KEY}"
+  echo -e "🔐 Krane private key: ${KRANE_PRIVATE_KEY:-${DEFAULT_KRANE_PRIVATE_KEY}}"
   echo -e "📝 SSH keys directory: ${SSH_KEYS_DIR:-/root/.ssh}"
   echo -e "🗂  Database path: $DB_PATH"
   echo -e "🌎 Proxy alias: $PROXY_DASHBOARD_ALIAS"
   echo -e "🕹  Let's Encrypt email: ${LETSENCRYPT_EMAIL:-not set}"
 
-  echo -e "\nSome helpful CLI commands:"
+  echo -e "\nSome helpful CLI commands to get you started:"
   echo -e "$ krane login http://$ROOT_DOMAIN:8500"
   echo -e "$ krane ls"
   echo -e "$ krane deploy -f ./deployment.json"
