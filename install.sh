@@ -41,10 +41,10 @@ verify_system() {
 
 # -- setup the system environment --
 setup_env() {
-  echo "Installing Krane "
+  echo -e "\nInstalling Krane..."
   echo -e "\nThis interactive script will configure:"
   echo "• A running Krane container instance"
-  echo "• A running proxy container to route DNS traffic"
+  echo "• A running Krane proxy container to route DNS traffic"
   echo -e "\nCheckout the official docs site for complete documentation:\nhttps://krane.sh/#/docs/installation \n"
 
   prompt_yes_no IS_LOCAL "Are you running Krane on localhost?"
