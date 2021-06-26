@@ -111,22 +111,20 @@ done
 
 # -- download Krane and verify in it's in a running state --
 download_and_verify() {
-  echo -e "\n✅ Stopping Krane (if running)"
+  echo -e "\n✓ Stopping Krane (if running)"
   docker stop krane > /dev/null 2>&1
 
-  echo -e "✅ Removing Krane instance (if exists)"
+  echo -e "✓ Removing Krane instance (if exists)"
   docker rm krane > /dev/null 2>&1
 
-  echo -e "✅ Removing existing image"
+  echo -e "✓ Pulling latest image"
   docker image rm biensupernice/krane > /dev/null 2>&1
-
-  echo -e "✅ Pulling latest image"
   docker pull biensupernice/krane:latest -q > /dev/null 2>&1
 
-  echo -e "✅ Preparing Krane network"
+  echo -e "✓ Preparing Krane network"
   docker network create --driver bridge krane > /dev/null 2>&1
 
-  echo -e "✅ Starting new Krane instance \n"
+  echo -e "✓ Starting new Krane instance"
   docker run -d --name=krane --network=krane \
     -e LOG_LEVEL=info \
     -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-$(uuidgen)}" \
@@ -140,35 +138,38 @@ download_and_verify() {
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "${SSH_KEYS_DIR:-/root/.ssh}":/root/.ssh  \
     -v "${DB_DIR:-/tmp}":/tmp \
-    -p 8500:8500 biensupernice/krane
+    -p 8500:8500 biensupernice/krane > /dev/null 2>&1
 
-  echo -e "\n⏳ Waiting 10 seconds for Krane to be ready!"
+  echo -e "\n⏳ Waiting for Krane to be ready"
   sleep 10s
 
   # -- check that the Krane container is in a running state --
   local container_name="krane"
   if ! [ "$(docker container inspect -f '{{.State.Status}}' $container_name)" == "running" ];  then
-    echo -e "\n❌ Encountered an error starting Krane:"
+    echo -e "\n✕ Encountered an error starting Krane:"
     docker logs krane 2>&1
     exit 0
   fi
 
-  echo -e "\n✅ Cleaning up older images"
+  echo -e "\n✓ Cleaning up older images"
   docker image prune -a -f
 
-  echo -e "\n✅ Installation complete!"
+  echo -e "\n✓ Installation complete 💛"
   echo -e "For documentation on accessing this Krane instance visit:\nhttps://www.krane.sh/#/docs/cli"
   
-  echo -e "\nTake note of the following details used to create your Krane instance:"
+  echo -e "\nYou can now use your Krane instance with:"
   echo -e "🔐 Krane private key: $KRANE_PRIVATE_KEY"
   echo -e "📝 SSH keys directory: ${SSH_KEYS_DIR:-/root/.ssh}"
-  echo -e "🗂 Database path: $DB_PATH"
+  echo -e "🗂  Database path: $DB_PATH"
   echo -e "🌎 Proxy alias: $PROXY_DASHBOARD_ALIAS"
+  echo -e "🕹 Let's Encrypt email: ${LETSENCRYPT_EMAIL:-not set}"
 
-  echo -e "\nSome helpful commands to help you start using this Krane instance:"
+  echo -e "\nSome helpful CLI commands:"
   echo -e "$ krane login http://$ROOT_DOMAIN:8500"
   echo -e "$ krane ls"
   echo -e "$ krane deploy -f ./deployment.json"
+
+  echo -e "Thanks for using Krane! ☺️"
 }
 
 # --- run the install process --
