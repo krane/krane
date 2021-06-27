@@ -52,8 +52,10 @@ func Connect(path string) *BoltDB {
 		path = defaultBoltPath
 	}
 
-	// Attempt to create the directory and ignore any issues
-	os.Create(path)
+	if _, err := os.OpenFile(path, os.O_CREATE, fileMode); err != nil {
+		logger.Fatalf("Failed to create store at %s: %s", path, err.Error())
+	}
+
 	db, err := bolt.Open(path, fileMode, options)
 	if err != nil {
 		logger.Fatalf("Failed to open store at %s: %s", path, err.Error())
