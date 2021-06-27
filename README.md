@@ -74,4 +74,4 @@ Krane isn't a replacement for [Kubernetes](https://kubernetes.io), [ECS](https:/
 
 ## Contributions
 
-Krane is released under the [MIT license](https://github.com/krane/krane/blob/refactor-readme/LICENSE). Please refer to [contribution guidelines](https://github.com/krane/krane/blob/refactor-readme/CONTRIBUTING.md) before raising an issue or feature request, we appreciate all contributions, small or large, and look forward to hearing feeback and improvement proposals.
+Krane is released under the [MIT license](https://github.com/krane/krane/blob/refactor-readme/LICENSE). Please refer to the [contribution guidelines](https://github.com/krane/krane/blob/refactor-readme/CONTRIBUTING.md) before raising an issue or feature request. We appreciate all contributions, small or large, and look forward to hearing feedback and improvement proposals.
