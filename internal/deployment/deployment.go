@@ -105,19 +105,23 @@ func Run(deployment string) error {
 			jobArgs := args.(*RunDeploymentJobArgs)
 			deploymentName := jobArgs.Config.Name
 
-			e.emit(fmt.Sprintf("Preparing deployment environment"))
+			e.emit(DeploymentSetup, "Preparing deployment environment")
 
 			// ensure secrets collections
 			if err := CreateSecretsCollection(deploymentName); err != nil {
 				logger.Errorf("[ERROR CODE 1] unable to create secrets collection %v", err)
-				e.closeStream(fmt.Sprintf("Error setting up the deployment environment for %s: ERROR CODE 1", deploymentName))
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error setting up the deployment environment for %s: ERROR CODE 1", deploymentName))
 				return err
 			}
 
 			// ensure jobs collections
 			if err := CreateJobsCollection(deploymentName); err != nil {
 				logger.Errorf("[ERROR CODE 2] unable to create jobs collection %v", err)
-				e.closeStream(fmt.Sprintf("Error setting up the deployment environment for %s: ERROR CODE 2", deploymentName))
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error setting up the deployment environment for %s: ERROR CODE 2", deploymentName))
 				return err
 			}
 
@@ -125,7 +129,9 @@ func Run(deployment string) error {
 			containers, err := GetContainersByDeployment(deploymentName)
 			if err != nil {
 				logger.Errorf("[ERROR CODE 3] unable to get containers %v", err)
-				e.closeStream(fmt.Sprintf("Error setting up the deployment environment for %s: ERROR CODE 3", deploymentName))
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error setting up the deployment environment for %s: ERROR CODE 3", deploymentName))
 				return err
 			}
 
@@ -139,23 +145,27 @@ func Run(deployment string) error {
 
 			// pull image
 			logger.Debugf("Pulling image for deployment %s", config.Name)
-			e.emit(fmt.Sprintf("Pulling %s:%s", config.Image, config.Tag))
+			e.emit(DeploymentPullImage, fmt.Sprintf("Pulling %s:%s", config.Image, config.Tag))
 			pullImageReader, err := docker.GetClient().PullImage(config.Registry, config.Image, config.Tag)
 			if err != nil {
 				logger.Errorf("unable to pull image %v", err)
-				e.closeStream(fmt.Sprintf("Unable to pull %s:%s: %v", config.Image, config.Tag, err))
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Unable to pull %s:%s: %v", config.Image, config.Tag, err))
 				return err
 			}
-			e.emitStream(pullImageReader)
+			e.emitStream(DeploymentPullImage, pullImageReader)
 
 			// create containers
-			e.emit(fmt.Sprintf("Creating %d container(s)", config.Scale))
+			e.emit(DeploymentCreateContainer, fmt.Sprintf("Creating %d container(s)", config.Scale))
 			containersCreated := make([]KraneContainer, 0)
 			for i := 0; i < config.Scale; i++ {
 				c, err := ContainerCreate(config)
 				if err != nil {
 					logger.Errorf("unable to create container %v", err)
-					e.closeStream(fmt.Sprintf("Error creating container resources: %v", err))
+					e.emit(
+						DeploymentError,
+						fmt.Sprintf("Error creating container resources: %v", err))
 					return err
 				}
 				containersCreated = append(containersCreated, c)
@@ -163,12 +173,14 @@ func Run(deployment string) error {
 			logger.Debugf("%d/%d container(s) for deployment %s created", config.Scale, len(containersCreated), config.Name)
 
 			// start containers
-			e.emit("Starting deployment resources")
+			e.emit(DeploymentStartContainer, "Starting deployment resources")
 			containersStarted := make([]KraneContainer, 0)
 			for _, c := range containersCreated {
 				if err := c.Start(); err != nil {
 					logger.Errorf("unable to start container %v", err)
-					e.closeStream(fmt.Sprintf("Error starting container resources: %v", err))
+					e.emit(
+						DeploymentError,
+						fmt.Sprintf("Error starting container resources: %v", err))
 					return err
 				}
 				containersStarted = append(containersStarted, c)
@@ -176,11 +188,13 @@ func Run(deployment string) error {
 			logger.Debugf("%d/%d container(s) for deployment %s started", len(containersStarted), len(containersCreated), config.Name)
 
 			// health check
-			e.emit("Checking deployment health")
+			e.emit(DeploymentHealthCheck, "Checking deployment health")
 			retries := 10
 			if err := RetriableContainersHealthCheck(containersStarted, retries); err != nil {
 				logger.Errorf("containers did not pass health check %v", err)
-				e.closeStream(fmt.Sprintf("Deployment healtcheck failed: %v", err))
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Deployment healtcheck failed: %v", err))
 				return err
 			}
 			logger.Debugf("Deployment %s health check complete", config.Name)
@@ -189,17 +203,19 @@ func Run(deployment string) error {
 		Finally: func(args interface{}) error {
 			jobArgs := args.(*RunDeploymentJobArgs)
 
-			e.emit("Cleaning up unused resources")
+			e.emit(DeploymentCleanup, "Cleaning up unused resources")
 			for _, c := range jobArgs.ContainersToRemove {
 				err := c.Remove()
 				if err != nil {
 					logger.Errorf("unable to remove container %v", err)
-					e.closeStream(fmt.Sprintf("Error cleaning up unused resources: %v", err))
+					e.emit(
+						DeploymentError,
+						fmt.Sprintf("Error cleaning up unused resources: %v", err))
 					return err
 				}
 			}
 
-			e.closeStream("Deployment complete")
+			e.emit(DeploymentDone, "Deployment complete")
 			return nil
 		},
 	})
@@ -417,7 +433,7 @@ func RestartContainers(deployment string) error {
 				logger.Errorf("unable to pull image %v", err)
 				return err
 			}
-			e.emitStream(pullImageReader)
+			e.emitStream(DeploymentPullImage, pullImageReader)
 
 			// create containers
 			containersCreated := make([]KraneContainer, 0)
