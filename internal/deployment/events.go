@@ -18,9 +18,24 @@ type EventEmitter struct {
 }
 
 type Event struct {
-	JobID   string `json:"job_id"`
-	Message string `json:"message"`
+	JobID      string    `json:"job_id"`
+	Deployment string    `json:"deployment"`
+	Type       EventType `json:"type"`
+	Message    string    `json:"message"`
 }
+
+type EventType string
+
+const (
+	DeploymentSetup           EventType = "DEPLOYMENT_SETUP"
+	DeploymentHealthCheck     EventType = "DEPLOYMENT_HEALTHCHECK"
+	DeploymentCleanup         EventType = "DEPLOYMENT_CLEANUP"
+	DeploymentDone            EventType = "DEPLOYMENT_DONE"
+	DeploymentPullImage       EventType = "PULL_IMAGE"
+	DeploymentCreateContainer EventType = "CREATE_CONTAINER"
+	DeploymentStartContainer  EventType = "START_CONTAINER"
+	DeploymentError           EventType = "ERROR"
+)
 
 var eventClients = make(map[string][]*websocket.Conn)
 var eventsMutex = &sync.Mutex{}
@@ -36,12 +51,14 @@ func createEventEmitter(deployment string, jobID string) *EventEmitter {
 // emit broadcasts an event payload to all clients connected to that deployment.
 // In order to allow clients to filter events for specific deployment runs, the job id
 // was added into the event payload, the job id is returned when triggering a deployment run.
-func (e EventEmitter) emit(message string) {
+func (e EventEmitter) emit(eventType EventType, message string) {
 	go func(clients []*websocket.Conn, jobID string, deployment string) {
 		for _, client := range clients {
 			bytes, _ := json.Marshal(Event{
-				JobID:   jobID,
-				Message: message,
+				JobID:      jobID,
+				Deployment: e.Deployment,
+				Type:       eventType,
+				Message:    message,
 			})
 
 			eventsMutex.Lock()
@@ -49,9 +66,8 @@ func (e EventEmitter) emit(message string) {
 				// this will log when a client has disconnected at which point the
 				// connection is not valid causing a write error. This should not
 				// affect other clients or streaming logs in general.
-				logger.Debugf("client %v disconnected", client.RemoteAddr())
+				logger.Debugf("client %v disconnected: %v", client.RemoteAddr(), err)
 				UnSubscribeFromDeploymentEvents(client, deployment)
-				return
 			}
 			eventsMutex.Unlock()
 		}
@@ -60,7 +76,7 @@ func (e EventEmitter) emit(message string) {
 
 // emitStream broadcast a stream of data to all clients connected to the deployment.
 // A stream could be the data when pulling an image, reading container logs etc... where an io.Reader is returned
-func (e EventEmitter) emitStream(reader io.Reader) {
+func (e EventEmitter) emitStream(eventType EventType, reader io.Reader) {
 	buffReader := bufio.NewReader(reader)
 	for {
 		bytes, _, err := buffReader.ReadLine()
@@ -69,8 +85,10 @@ func (e EventEmitter) emitStream(reader io.Reader) {
 		}
 
 		data, _ := json.Marshal(Event{
-			JobID:   e.JobID,
-			Message: string(bytes),
+			JobID:      e.JobID,
+			Deployment: e.Deployment,
+			Type:       eventType,
+			Message:    string(bytes),
 		})
 		for _, client := range e.Clients {
 			eventsMutex.Lock()
@@ -78,27 +96,28 @@ func (e EventEmitter) emitStream(reader io.Reader) {
 				// this will log when a client has disconnected at which point the
 				// connection is not valid causing a write error. This should not
 				// affect other clients or streaming logs in general.
-				logger.Debugf("client %v disconnected", client.RemoteAddr())
+				logger.Debugf("client %v disconnected: %v", client.RemoteAddr(), err)
 				UnSubscribeFromDeploymentEvents(client, e.Deployment)
-				return
 			}
 			eventsMutex.Unlock()
 		}
 	}
 }
 
-func (e EventEmitter) closeStream(message string) {
+func (e EventEmitter) closeStream(eventType EventType, message string) {
 	for _, client := range e.Clients {
 		data, _ := json.Marshal(Event{
-			JobID:   e.JobID,
-			Message: message,
+			JobID:      e.JobID,
+			Deployment: e.Deployment,
+			Type:       eventType,
+			Message:    message,
 		})
 		eventsMutex.Lock()
 		if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
 			// this will log when a client has disconnected at which point the
 			// connection is not valid causing a write error. This should not
 			// affect other clients or streaming logs in general.
-			logger.Debugf("client %v disconnected", client.RemoteAddr())
+			logger.Debugf("client %v disconnected: %v", client.RemoteAddr(), err)
 		}
 		UnSubscribeFromDeploymentEvents(client, e.Deployment)
 		eventsMutex.Unlock()
