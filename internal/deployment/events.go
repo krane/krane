@@ -108,6 +108,19 @@ func (e EventEmitter) closeStream(message string) {
 // SubscribeToDeploymentEvents allows clients to subscribes to a particular deployments events
 func SubscribeToDeploymentEvents(client *websocket.Conn, deployment string) {
 	eventClients[deployment] = append(eventClients[deployment], client)
+
+	// This will read indefinitely until the client closes
+	// the connection ensuring we cleanup up dead connections.
+	// Clients should invoke `ws.close()` so that the server
+	// can properly unsubscribe from deployment events.
+	go func(client *websocket.Conn, deployment string) {
+		for {
+			if _, _, err := client.NextReader(); err != nil {
+				UnSubscribeFromDeploymentEvents(client, deployment)
+				break
+			}
+		}
+	}(client, deployment)
 }
 
 // UnSubscribeFromDeploymentEvents unsubscribes a client from deployment events
