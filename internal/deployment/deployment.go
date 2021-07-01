@@ -157,7 +157,7 @@ func Run(deployment string) error {
 			e.emitStream(DeploymentPullImage, pullImageReader)
 
 			// create containers
-			e.emit(DeploymentCreateContainer, fmt.Sprintf("Creating %d container(s)", config.Scale))
+			e.emit(DeploymentContainerCreate, fmt.Sprintf("Creating %d container(s)", config.Scale))
 			containersCreated := make([]KraneContainer, 0)
 			for i := 0; i < config.Scale; i++ {
 				c, err := ContainerCreate(config)
@@ -173,7 +173,7 @@ func Run(deployment string) error {
 			logger.Debugf("%d/%d container(s) for deployment %s created", config.Scale, len(containersCreated), config.Name)
 
 			// start containers
-			e.emit(DeploymentStartContainer, "Starting deployment resources")
+			e.emit(DeploymentContainerStart, "Starting deployment resources")
 			containersStarted := make([]KraneContainer, 0)
 			for _, c := range containersCreated {
 				if err := c.Start(); err != nil {

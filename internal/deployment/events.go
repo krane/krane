@@ -27,14 +27,14 @@ type Event struct {
 type EventType string
 
 const (
-	DeploymentSetup           EventType = "DEPLOYMENT_SETUP"
-	DeploymentHealthCheck     EventType = "DEPLOYMENT_HEALTHCHECK"
+	DeploymentContainerCreate EventType = "DEPLOYMENT_CONTAINER_CREATE"
+	DeploymentContainerStart  EventType = "DEPLOYMENT_CONTAINER_START"
 	DeploymentCleanup         EventType = "DEPLOYMENT_CLEANUP"
 	DeploymentDone            EventType = "DEPLOYMENT_DONE"
-	DeploymentPullImage       EventType = "PULL_IMAGE"
-	DeploymentCreateContainer EventType = "CREATE_CONTAINER"
-	DeploymentStartContainer  EventType = "START_CONTAINER"
-	DeploymentError           EventType = "ERROR"
+	DeploymentHealthCheck     EventType = "DEPLOYMENT_HEALTHCHECK"
+	DeploymentSetup           EventType = "DEPLOYMENT_SETUP"
+	DeploymentPullImage       EventType = "DEPLOYMENT_PULL_IMAGE"
+	DeploymentError           EventType = "DEPLOYMENT_ERROR"
 )
 
 var eventClients = make(map[string][]*websocket.Conn)
@@ -101,26 +101,6 @@ func (e EventEmitter) emitStream(eventType EventType, reader io.Reader) {
 			}
 			eventsMutex.Unlock()
 		}
-	}
-}
-
-func (e EventEmitter) closeStream(eventType EventType, message string) {
-	for _, client := range e.Clients {
-		data, _ := json.Marshal(Event{
-			JobID:      e.JobID,
-			Deployment: e.Deployment,
-			Type:       eventType,
-			Message:    message,
-		})
-		eventsMutex.Lock()
-		if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
-			// this will log when a client has disconnected at which point the
-			// connection is not valid causing a write error. This should not
-			// affect other clients or streaming logs in general.
-			logger.Debugf("client %v disconnected: %v", client.RemoteAddr(), err)
-		}
-		UnSubscribeFromDeploymentEvents(client, e.Deployment)
-		eventsMutex.Unlock()
 	}
 }
 
