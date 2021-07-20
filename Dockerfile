@@ -1,4 +1,4 @@
-FROM alpine:3.9
+FROM alpine:3.13.5
 
 ARG KRANE_VERSION
 ENV KRANE_DOWNLOAD_URL=https://github.com/krane/krane/releases/download/${KRANE_VERSION}/krane_${KRANE_VERSION}_linux_386.tar.gz
