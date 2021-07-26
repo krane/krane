@@ -226,37 +226,57 @@ func Run(deployment string) error {
 // Delete removes a deployments container resources and configuration.
 // Note: This will also remove any existing collections created for the deployment (Secrets, Jobs, Config etc...)
 func Delete(deployment string) error {
+	config, err := GetDeploymentConfig(deployment)
+	if err != nil {
+		return err
+	}
+
 	type DeleteDeploymentJobArgs struct {
 		Deployment string
 	}
 
+	jobID := uuid.Generate().String()
+	e := createEventEmitter(config.Name, jobID)
 	go enqueue(job.Job{
-		ID:          uuid.Generate().String(),
-		Deployment:  deployment,
+		ID:          jobID,
+		Deployment:  config.Name,
 		Type:        string(DeleteDeploymentJobType),
 		RetryPolicy: utils.UIntEnv(constants.EnvDeploymentRetryPolicy),
 		Args: DeleteDeploymentJobArgs{
-			Deployment: deployment,
+			Deployment: config.Name,
 		},
 		Run: func(args interface{}) error {
 			jobArgs := args.(DeleteDeploymentJobArgs)
 			deploymentName := jobArgs.Deployment
 
+			e.emit(DeploymentContainerRemove, "Finding deployment resources to remove")
+
 			// get current containers
 			containers, err := GetContainersByDeployment(deploymentName)
 			if err != nil {
 				logger.Errorf("unable get containers %v", err)
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error finding deployment containers to remove: %v", err))
 				return err
 			}
 
 			// remove containers
+			e.emit(
+				DeploymentContainerRemove,
+				fmt.Sprintf("Removing %d container(s)", len(containers)))
 			for _, c := range containers {
 				if err := c.Remove(); err != nil {
 					logger.Errorf("unable to remove container %v", err)
+					e.emit(
+						DeploymentError,
+						fmt.Sprintf("Error removing deployment containers: %v", err))
 					return err
 				}
 			}
 			logger.Debugf("%d container(s) for deployment %s removed", len(containers), deploymentName)
+
+			e.emit(DeploymentCleanup, "Container(s) successfully removed")
 
 			return nil
 		},
@@ -264,10 +284,15 @@ func Delete(deployment string) error {
 			jobArgs := args.(DeleteDeploymentJobArgs)
 			deploymentName := jobArgs.Deployment
 
+			e.emit(DeploymentCleanup, "Cleaning up remaining deployment resources")
+
 			// delete secrets collection
 			logger.Debugf("removing secrets collection for deployment %s", deploymentName)
 			if err := DeleteSecretsCollection(deploymentName); err != nil {
 				logger.Errorf("unable to remove secrets collection %v", err)
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error cleaning up deployment resources: %v", err))
 				return err
 			}
 
@@ -275,6 +300,9 @@ func Delete(deployment string) error {
 			logger.Debugf("removing jobs collection for deployment %s", deploymentName)
 			if err := DeleteJobsCollection(deploymentName); err != nil {
 				logger.Errorf("unable to remove jobs collection %v", err)
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error cleaning up deployment resources: %v", err))
 				return err
 			}
 
@@ -282,8 +310,13 @@ func Delete(deployment string) error {
 			logger.Debugf("removing config for deployment %s", deploymentName)
 			if err := DeleteConfig(deploymentName); err != nil {
 				logger.Errorf("unable to remove deployment configuration %v", err)
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error cleaning up deployment resources: %v", err))
 				return err
 			}
+
+			e.emit(DeploymentDone, "Deployment deletion complete")
 
 			return nil
 		},
@@ -299,6 +332,8 @@ func StartContainers(deployment string) error {
 		Deployment string
 	}
 
+	jobID := uuid.Generate().String()
+	e := createEventEmitter(deployment, jobID)
 	go enqueue(job.Job{
 		ID:          uuid.Generate().String(),
 		Deployment:  deployment,
@@ -311,26 +346,42 @@ func StartContainers(deployment string) error {
 			jobArgs := args.(StartContainersJobArgs)
 			deploymentName := jobArgs.Deployment
 
+			e.emit(DeploymentContainerStart, "Looking for container resources to start")
+
 			// get current containers
 			containers, err := GetContainersByDeployment(deploymentName)
 			if err != nil {
 				logger.Errorf("unable to get containers %v", err)
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error getting container resources: %v", err))
 				return err
 			}
 
 			if len(containers) == 0 {
+				e.emit(DeploymentDone, "Deployment has 0 containers to start up")
 				return fmt.Errorf("deployment %s has 0 containers to start", deploymentName)
 			}
+
+			e.emit(DeploymentContainerStart,
+				fmt.Sprintf("Starting %d container resources", len(containers)))
 
 			// start containers
 			for _, c := range containers {
 				logger.Debugf("Starting container %s", c.Name)
 				if err := c.Start(); err != nil {
+					e.emit(
+						DeploymentError,
+						fmt.Sprintf("Error starting container resources: %v", err))
 					logger.Errorf("unable to start container %v", err)
 					return err
 				}
 			}
 			logger.Debugf("%d container(s) for deployment %s started", len(containers), deploymentName)
+
+			e.emit(
+				DeploymentDone,
+				fmt.Sprintf("%s container resources started", len(containers)))
 
 			return nil
 		},

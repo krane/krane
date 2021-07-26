@@ -27,13 +27,14 @@ type Event struct {
 type EventType string
 
 const (
-	DeploymentContainerCreate EventType = "DEPLOYMENT_CONTAINER_CREATE"
-	DeploymentContainerStart  EventType = "DEPLOYMENT_CONTAINER_START"
+	DeploymentContainerCreate EventType = "CONTAINER_CREATE"
+	DeploymentContainerStart  EventType = "CONTAINER_START"
+	DeploymentContainerRemove EventType = "CONTAINER_REMOVE"
 	DeploymentCleanup         EventType = "DEPLOYMENT_CLEANUP"
 	DeploymentDone            EventType = "DEPLOYMENT_DONE"
 	DeploymentHealthCheck     EventType = "DEPLOYMENT_HEALTHCHECK"
 	DeploymentSetup           EventType = "DEPLOYMENT_SETUP"
-	DeploymentPullImage       EventType = "DEPLOYMENT_PULL_IMAGE"
+	DeploymentPullImage       EventType = "PULL_IMAGE"
 	DeploymentError           EventType = "DEPLOYMENT_ERROR"
 )
 
