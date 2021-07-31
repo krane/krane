@@ -26,8 +26,6 @@ func init() {
 	utils.EnvOrDefault(constants.EnvDeploymentRetryPolicy, "1")
 	utils.EnvOrDefault(constants.EnvSchedulerIntervalMs, "30000")
 	utils.EnvOrDefault(constants.EnvWatchMode, "false")
-	utils.EnvOrDefault(constants.EnvDockerBasicAuthUsername, "")
-	utils.EnvOrDefault(constants.EnvDockerBasicAuthPassword, "")
 	utils.EnvOrDefault(constants.EnvProxyEnabled, "true")
 	utils.EnvOrDefault(constants.EnvProxyDashboardSecure, "false")
 	utils.EnvOrDefault(constants.EnvProxyDashboardAlias, "")

@@ -80,7 +80,7 @@ func (c KraneContainer) Start() error {
 	return docker.GetClient().StartContainer(ctx, c.ID)
 }
 
-// Stops stops a Krane managed Docker Container
+// Stop stops a Krane managed Docker Container
 func (c KraneContainer) Stop() error {
 	ctx := context.Background()
 	defer ctx.Done()

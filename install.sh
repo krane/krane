@@ -52,7 +52,6 @@ setup_env() {
   if [ "$IS_LOCAL" == true ];
   then
     export ROOT_DOMAIN="localhost"
-    export KRANE_PRIVATE_KEY="krane"
     export SSH_KEYS_DIR="$HOME/.ssh"
     export DB_PATH="/tmp/krane.db"
     export PROXY_ENABLED=true
@@ -61,11 +60,8 @@ setup_env() {
   else
     ensure_env ROOT_DOMAIN "What domain do you want to use for this Krane instance? (ie. example.com | krane.example.com)"
     ensure_env LETSENCRYPT_EMAIL "What email should we use to generate deployment TLS certificates?"
-    ensure_env KRANE_PRIVATE_KEY "What should we use as the Krane private key (used for signing client requests, defaults to a uuid)"
     ensure_env SSH_KEYS_DIR "What directory are your SSH keys located? (optional, default directory /root/.ssh)"
     ensure_env DB_DIR "What directory should we use for the Krane database? (optional, default directory /tmp)"
-    ensure_env DOCKER_BASIC_AUTH_USERNAME "What is the container registry username you want to use? (optional, will operate as an anonymous user)"
-    ensure_secure_env DOCKER_BASIC_AUTH_PASSWORD "What is the container registry password? (optional, will operate as an anonymous user)"
     export DB_PATH="${DB_DIR:-/tmp}/krane.db"
     export PROXY_ENABLED=true
     export PROXY_DASHBOARD_ALIAS="proxy.$ROOT_DOMAIN"
@@ -131,8 +127,6 @@ download_and_verify() {
     -e LOG_LEVEL=info \
     -e KRANE_PRIVATE_KEY="${KRANE_PRIVATE_KEY:-${DEFAULT_KRANE_PRIVATE_KEY}}" \
     -e DB_PATH=${DB_PATH} \
-    -e DOCKER_BASIC_AUTH_USERNAME="$DOCKER_BASIC_AUTH_USERNAME" \
-    -e DOCKER_BASIC_AUTH_PASSWORD="$DOCKER_BASIC_AUTH_PASSWORD" \
     -e PROXY_ENABLED="${PROXY_ENABLED:-true}" \
     -e PROXY_DASHBOARD_ALIAS="$PROXY_DASHBOARD_ALIAS" \
     -e PROXY_DASHBOARD_SECURE="${PROXY_DASHBOARD_SECURE:-true}" \

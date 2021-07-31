@@ -42,3 +42,83 @@ func TestInvalidDeploymentNames(t *testing.T) {
 	assert.False(t, Config{Name: "7example"}.isValidName())
 	assert.False(t, Config{Name: strings.Repeat("a", 51)}.isValidName()) // max deployment name chars is 50 chars
 }
+
+func TestResolveRegistryCredentials_WithSecrets(t *testing.T) {
+	config := Config{
+		Name:  "test-name",
+		Image: "test-image",
+		Registry: Registry{
+			URL:      "@TEST_URL",
+			Username: "@TEST_USERNAME",
+			Password: "@TEST_PASSWORD",
+		},
+	}
+
+	// setup
+	urlSecret, err := AddSecret(config.Name, "TEST_URL", "test-url")
+	assert.Nil(t, err)
+	usernameSecret, err := AddSecret(config.Name, "TEST_USERNAME", "test")
+	assert.Nil(t, err)
+	passwordSecret, err := AddSecret(config.Name, "TEST_PASSWORD", "123")
+	assert.Nil(t, err)
+
+	// act
+	err = config.ResolveRegistryCredentials()
+	assert.Nil(t, err)
+
+	// assert
+	assert.Equal(t, urlSecret.Value, config.Registry.URL)
+	assert.Equal(t, usernameSecret.Value, config.Registry.Username)
+	assert.Equal(t, passwordSecret.Value, config.Registry.Password)
+}
+
+func TestResolveRegistryCredentials_NoSecrets(t *testing.T) {
+	config := Config{
+		Name:  "test-name",
+		Image: "test-image",
+		Registry: Registry{
+			URL:      "test.io",
+			Username: "username",
+			Password: "password",
+		},
+	}
+
+	// act
+	err := config.ResolveRegistryCredentials()
+	assert.Nil(t, err)
+
+	// assert
+	assert.Equal(t, "test.io", config.Registry.URL)
+	assert.Equal(t, "username", config.Registry.Username)
+	assert.Equal(t, "password", config.Registry.Password)
+}
+
+func TestResolveRegistryCredentials_NoRegistry(t *testing.T) {
+	config := Config{
+		Name:  "test-name",
+		Image: "test-image",
+	}
+
+	// act
+	err := config.ResolveRegistryCredentials()
+	assert.Nil(t, err)
+
+	// assert
+	assert.Equal(t, "", config.Registry.URL)
+	assert.Equal(t, "", config.Registry.Username)
+	assert.Equal(t, "", config.Registry.Password)
+}
+
+func TestResolveRegistryCredentials_SecretNotFound(t *testing.T) {
+	config := Config{
+		Name:  "test-name",
+		Image: "test-image",
+		Registry: Registry{
+			URL:      "@TEST_URL_NOTFOUND",
+			Username: "@TEST_USERNAME_NOTFOUND",
+			Password: "@TEST_PASSWORD_NOTFOUND",
+		},
+	}
+	err := config.ResolveRegistryCredentials()
+	assert.Error(t, err, "secret \"@TEST_URL\" not found")
+}

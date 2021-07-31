@@ -9,14 +9,14 @@ import (
 )
 
 // PullImage pulls a container image from a registry onto the host machine
-func (c *Client) PullImage(registry, image, tag string) (io.Reader, error) {
+func (c *Client) PullImage(image string, tag string, registry RegistryCredentials) (io.Reader, error) {
 	ctx := context.Background()
 	defer ctx.Done()
 
-	ref := createImageRef(registry, image, tag)
+	ref := createImageRef(registry.URL, image, tag)
 	return c.ImagePull(ctx, ref, types.ImagePullOptions{
 		All:          false,
-		RegistryAuth: Base64RegistryCredentials(),
+		RegistryAuth: Base64RegistryCredentials(registry.Username, registry.Password),
 	})
 }
 
