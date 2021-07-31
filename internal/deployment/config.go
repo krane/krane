@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/go-connections/nat"
@@ -21,7 +22,7 @@ import (
 type Config struct {
 	Name       string            `json:"name" binding:"required"`  // deployment name
 	Image      string            `json:"image" binding:"required"` // container image
-	Registry   string            `json:"registry"`                 // container registry
+	Registry   Registry          `json:"registry"`                 // container registry credentials / auth
 	Tag        string            `json:"tag"`                      // container image tag
 	Alias      []string          `json:"alias"`                    // custom domain aliases (my-app.example.com or my-app.localhost)
 	Env        map[string]string `json:"env"`                      // deployment environment variables
@@ -65,8 +66,8 @@ func DeSerializeConfig(bytes []byte) (Config, error) {
 
 // applyDefaults applies default deployment configuration values
 func (config *Config) applyDefaults() {
-	if config.Registry == "" {
-		config.Registry = "docker.io"
+	if config.Registry.URL == "" {
+		config.Registry.URL = "docker.io"
 	}
 
 	if config.Alias == nil {
@@ -199,9 +200,10 @@ func (config Config) DockerConfig() docker.DockerConfig {
 	}
 
 	containerName := fmt.Sprintf("%s-%s", config.Name, shortuuid.New())
+	imageName := fmt.Sprintf("%s/%s", config.Registry.URL, config.Image)
 	return docker.DockerConfig{
 		ContainerName: containerName,
-		Image:         config.Image,
+		Image:         imageName,
 		NetworkID:     kraneNetwork.ID,
 		Aliases:       config.Alias,
 		Labels:        config.DockerLabels(),
@@ -330,4 +332,29 @@ func (config Config) DockerPortSet() nat.PortSet {
 		bindings[cPort] = struct{}{}
 	}
 	return bindings
+}
+
+func (config *Config) ResolveRegistryCredentials() error {
+	if strings.HasPrefix(config.Registry.URL, "@") {
+		secret, err := GetSecret(config.Name, strings.Trim(config.Registry.URL, "@"))
+		if err != nil {
+			return fmt.Errorf("secret \"%s\" not found", config.Registry.URL)
+		}
+		config.Registry.URL = secret.Value
+	}
+	if strings.HasPrefix(config.Registry.Username, "@") {
+		secret, err := GetSecret(config.Name, strings.Trim(config.Registry.Username, "@"))
+		if err != nil {
+			return fmt.Errorf("secret \"%s\" not found", config.Registry.Username)
+		}
+		config.Registry.Username = secret.Value
+	}
+	if strings.HasPrefix(config.Registry.Password, "@") {
+		secret, err := GetSecret(config.Name, strings.Trim(config.Registry.Password, "@"))
+		if err != nil {
+			return fmt.Errorf("secret \"%s\" not found", config.Registry.Password)
+		}
+		config.Registry.Password = secret.Value
+	}
+	return nil
 }
