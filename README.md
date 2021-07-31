@@ -2,7 +2,7 @@
 
 > Open-source, self-hosted, container management solution
 
-[![CI](https://github.com/krane/krane/workflows/CI/badge.svg?branch=master)](https://github.com/krane/krane/actions)
+[![CI](https://github.com/krane/krane/workflows/CI/badge.svg?branch=main)](https://github.com/krane/krane/actions)
 [![Release](https://img.shields.io/github/v/release/krane/krane)](https://github.com/krane/krane/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/krane/krane)](https://goreportcard.com/report/github.com/krane/krane)
 
