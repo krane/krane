@@ -2,7 +2,6 @@ package deployment
 
 import (
 	"fmt"
-
 	"github.com/docker/distribution/uuid"
 
 	"github.com/krane/krane/internal/constants"
@@ -143,10 +142,21 @@ func Run(deployment string) error {
 			jobArgs := args.(*RunDeploymentJobArgs)
 			config := jobArgs.Config
 
+			// resolve registry credentials
+			if err := config.ResolveRegistryCredentials(); err != nil {
+				logger.Errorf("unable to resolve registry credentials: %v", err)
+				return err
+			}
+
 			// pull image
 			logger.Debugf("Pulling image for deployment %s", config.Name)
 			e.emit(DeploymentPullImage, fmt.Sprintf("Pulling %s:%s", config.Image, config.Tag))
-			pullImageReader, err := docker.GetClient().PullImage(config.Registry, config.Image, config.Tag)
+			pullImageReader, err := docker.GetClient().PullImage(
+				config.Image, config.Tag, docker.RegistryCredentials{
+					URL:      config.Registry.URL,
+					Username: config.Registry.Username,
+					Password: config.Registry.Password,
+				})
 			if err != nil {
 				logger.Errorf("unable to pull image %v", err)
 				e.emit(
@@ -477,9 +487,20 @@ func RestartContainers(deployment string) error {
 			jobArgs := args.(*RestartContainersJobArgs)
 			config := jobArgs.Config
 
+			// resolve registry credentials
+			if err := config.ResolveRegistryCredentials(); err != nil {
+				logger.Errorf("unable to resolve registry credentials: %v", err)
+				return err
+			}
+
 			// pull image
 			logger.Debugf("Pulling image for deployment %s", config.Name)
-			pullImageReader, err := docker.GetClient().PullImage(config.Registry, config.Image, config.Tag)
+			pullImageReader, err := docker.GetClient().PullImage(
+				config.Image, config.Tag, docker.RegistryCredentials{
+					URL:      config.Registry.URL,
+					Username: config.Registry.Username,
+					Password: config.Registry.Password,
+				})
 			if err != nil {
 				logger.Errorf("unable to pull image %v", err)
 				return err

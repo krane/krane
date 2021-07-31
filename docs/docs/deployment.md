@@ -20,7 +20,7 @@ The above **deployment configuration** sets up:
 2. A container running the image **hello-world**
 3. An alias **hello.example.com**
 
-Check out these other [deployment configurations](http://krane.sh/#/docs/example-configs) 
+Check out these other [deployment configurations](http://krane.sh/#/docs/example-configs)
 
 ---
 
@@ -40,10 +40,40 @@ Container image to use for you deployment.
 
 ## registry
 
-The container registry to use for pulling images.
+The container registry credentials to use for pulling images.
 
 - required: `false`
-- default: `docker.io`
+
+```json
+{
+  "registry": {
+    "url": "docker.io",
+    "username": "username",
+    "password": "password"
+  }
+}
+```
+
+> ⚠️You should not be storing credentials in plain-text, use Krane [`secrets`](docs/deployment?id=secrets) instead.
+
+Here's an example of setting registry secrets
+
+```sh
+$ krane secrets add <deployment> -k GITHUB_USERNAME -v <value>
+$ krane secrets add <deployment> -k GITHUB_TOKEN -v <value>
+```
+
+And referencing them in your config
+
+```json
+{
+  "registry": {
+    "url": "ghcr.io",
+    "username": "@GITHUB_USERNAME",
+    "password": "@GITHUB_TOKEN"
+  }
+}
+```
 
 ## tag
 
