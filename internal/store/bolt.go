@@ -56,8 +56,8 @@ func Connect(path string) *BoltDB {
 	if err := os.MkdirAll(filepath.Dir(path), fileMode); err != nil {
 		logger.Fatalf("Failed to create directory at %s: %s", path, err.Error())
 	}
-	if _, err := os.Create(path); err != nil {
-		logger.Fatalf("Failed to create file at %s: %s", path, err.Error())
+	if _, err := os.OpenFile(path, os.O_CREATE, fileMode); err != nil {
+		logger.Fatalf("Failed to create store at %s: %s", path, err.Error())
 	}
 
 	db, err := bolt.Open(path, fileMode, options)
