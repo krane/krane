@@ -133,7 +133,7 @@ download_and_verify() {
     -e LETSENCRYPT_EMAIL="$LETSENCRYPT_EMAIL" \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "${SSH_KEYS_DIR:-/root/.ssh}":/root/.ssh  \
-    -v "${DB_DIR:-/tmp}":/tmp \
+    -v "${DB_DIR:-/tmp}":"${DB_DIR:-/tmp}" \
     -p 8500:8500 biensupernice/krane > /dev/null 2>&1
 
   echo -e "\n⏳ Waiting for Krane to be ready"
