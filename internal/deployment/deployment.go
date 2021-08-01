@@ -259,7 +259,7 @@ func Delete(deployment string) error {
 			jobArgs := args.(DeleteDeploymentJobArgs)
 			deploymentName := jobArgs.Deployment
 
-			e.emit(DeploymentContainerRemove, "Finding deployment resources to remove")
+			e.emit(DeploymentContainerRemove, "Collecting deployment resources to remove")
 
 			// get current containers
 			containers, err := GetContainersByDeployment(deploymentName)
@@ -345,7 +345,7 @@ func StartContainers(deployment string) error {
 	jobID := uuid.Generate().String()
 	e := createEventEmitter(deployment, jobID)
 	go enqueue(job.Job{
-		ID:          uuid.Generate().String(),
+		ID:          jobID,
 		Deployment:  deployment,
 		Type:        string(StartContainersJobType),
 		RetryPolicy: utils.UIntEnv(constants.EnvDeploymentRetryPolicy),
@@ -355,8 +355,6 @@ func StartContainers(deployment string) error {
 		Run: func(args interface{}) error {
 			jobArgs := args.(StartContainersJobArgs)
 			deploymentName := jobArgs.Deployment
-
-			e.emit(DeploymentContainerStart, "Looking for container resources to start")
 
 			// get current containers
 			containers, err := GetContainersByDeployment(deploymentName)
@@ -369,12 +367,12 @@ func StartContainers(deployment string) error {
 			}
 
 			if len(containers) == 0 {
-				e.emit(DeploymentDone, "Deployment has 0 containers to start up")
+				e.emit(DeploymentDone, "Deployment has 0 containers to start")
 				return fmt.Errorf("deployment %s has 0 containers to start", deploymentName)
 			}
 
 			e.emit(DeploymentContainerStart,
-				fmt.Sprintf("Starting %d container resources", len(containers)))
+				fmt.Sprintf("Starting %d container(s)", len(containers)))
 
 			// start containers
 			for _, c := range containers {
@@ -389,9 +387,7 @@ func StartContainers(deployment string) error {
 			}
 			logger.Debugf("%d container(s) for deployment %s started", len(containers), deploymentName)
 
-			e.emit(
-				DeploymentDone,
-				fmt.Sprintf("%s container resources started", len(containers)))
+			e.emit(DeploymentDone, fmt.Sprintf("Container resources started successfully"))
 
 			return nil
 		},
@@ -406,8 +402,10 @@ func StopContainers(deployment string) error {
 		Deployment string
 	}
 
+	jobID := uuid.Generate().String()
+	e := createEventEmitter(deployment, jobID)
 	go enqueue(job.Job{
-		ID:          uuid.Generate().String(),
+		ID:          jobID,
 		Deployment:  deployment,
 		Type:        string(StopContainersJobType),
 		RetryPolicy: utils.UIntEnv(constants.EnvDeploymentRetryPolicy),
@@ -426,18 +424,27 @@ func StopContainers(deployment string) error {
 			}
 
 			if len(containers) == 0 {
+				e.emit(DeploymentDone, "Deployment has 0 containers to stop")
 				return fmt.Errorf("deployment %s has 0 containers to stop", deploymentName)
 			}
+
+			e.emit(DeploymentContainerStop,
+				fmt.Sprintf("Stopping %d container(s)", len(containers)))
 
 			// stop containers
 			for _, c := range containers {
 				logger.Debugf("Stopping container %s", c.Name)
 				if err := c.Stop(); err != nil {
+					e.emit(
+						DeploymentError,
+						fmt.Sprintf("Error stopping container resources: %v", err))
 					logger.Errorf("unable to stop container %v", err)
 					return err
 				}
 			}
 			logger.Debugf("%d container(s) for deployment %s stopped", len(containers), deploymentName)
+
+			e.emit(DeploymentDone, fmt.Sprintf("Container resources stopped successfully"))
 
 			return nil
 		},

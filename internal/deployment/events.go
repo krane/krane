@@ -29,6 +29,7 @@ type EventType string
 const (
 	DeploymentContainerCreate EventType = "CONTAINER_CREATE"
 	DeploymentContainerStart  EventType = "CONTAINER_START"
+	DeploymentContainerStop   EventType = "CONTAINER_STOP"
 	DeploymentContainerRemove EventType = "CONTAINER_REMOVE"
 	DeploymentCleanup         EventType = "DEPLOYMENT_CLEANUP"
 	DeploymentDone            EventType = "DEPLOYMENT_DONE"
@@ -116,6 +117,7 @@ func SubscribeToDeploymentEvents(client *websocket.Conn, deployment string) {
 	go func(client *websocket.Conn, deployment string) {
 		for {
 			if _, _, err := client.NextReader(); err != nil {
+				logger.Debugf("unstable client connection, unsubscribing: %v", err)
 				UnSubscribeFromDeploymentEvents(client, deployment)
 				break
 			}
