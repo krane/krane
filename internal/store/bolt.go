@@ -52,7 +52,7 @@ func Connect(path string) *BoltDB {
 		path = defaultBoltPath
 	}
 
-	if _, err := os.OpenFile(path, os.O_CREATE, fileMode); err != nil {
+	if err := os.MkdirAll(path, fileMode); err != nil {
 		logger.Fatalf("Failed to create store at %s: %s", path, err.Error())
 	}
 
