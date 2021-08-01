@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -52,8 +53,11 @@ func Connect(path string) *BoltDB {
 		path = defaultBoltPath
 	}
 
-	if err := os.MkdirAll(path, fileMode); err != nil {
-		logger.Fatalf("Failed to create store at %s: %s", path, err.Error())
+	if err := os.MkdirAll(filepath.Dir(path), fileMode); err != nil {
+		logger.Fatalf("Failed to create directory at %s: %s", path, err.Error())
+	}
+	if _, err := os.Create(path); err != nil {
+		logger.Fatalf("Failed to create file at %s: %s", path, err.Error())
 	}
 
 	db, err := bolt.Open(path, fileMode, options)
