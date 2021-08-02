@@ -51,7 +51,7 @@ setup_env() {
 
   if [ "$IS_LOCAL" == true ];
   then
-    export ROOT_DOMAIN="localhost"
+    export ROOT_DOMAIN="krane.localhost"
     export SSH_KEYS_DIR="$HOME/.ssh"
     export DB_PATH="/tmp/krane.db"
     export PROXY_ENABLED=true
@@ -134,6 +134,17 @@ download_and_verify() {
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v "${SSH_KEYS_DIR:-/root/.ssh}":/root/.ssh  \
     -v "${DB_DIR:-/tmp}":"${DB_DIR:-/tmp}" \
+    -l "traefik.enable=true" \
+    -l "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=false" \
+    -l "traefik.http.middlewares.redirect-to-https.redirectscheme.port=443" \
+    -l "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https" \
+    -l "traefik.http.routers.krane-insecure.entrypoints=web" \
+    -l "traefik.http.routers.krane-insecure.middlewares=redirect-to-https" \
+    -l "traefik.http.routers.krane-insecure.rule=Host(\`${ROOT_DOMAIN}\`)" \
+    -l "traefik.http.routers.krane-secure.entrypoints=web-secure" \
+    -l "traefik.http.routers.krane-secure.rule=Host(\`${ROOT_DOMAIN}\`)" \
+    -l "traefik.http.routers.krane-secure.tls=true" \
+    -l "traefik.http.routers.krane-secure.tls.certresolver=lets-encrypt" \
     -p 8500:8500 biensupernice/krane > /dev/null 2>&1
 
   echo -e "\n⏳ Waiting for Krane to be ready"
