@@ -171,7 +171,7 @@ download_and_verify() {
   echo -e "🕹  Let's Encrypt email: ${LETSENCRYPT_EMAIL:-not set}"
 
   echo -e "\nSome helpful CLI commands to get you started:"
-  echo -e "$ krane login http://$ROOT_DOMAIN:8500"
+  echo -e "$ krane login http://$ROOT_DOMAIN"
   echo -e "$ krane ls"
   echo -e "$ krane deploy -f ./deployment.json"
 
