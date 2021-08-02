@@ -135,7 +135,7 @@ download_and_verify() {
     -v "${SSH_KEYS_DIR:-/root/.ssh}":/root/.ssh  \
     -v "${DB_DIR:-/tmp}":"${DB_DIR:-/tmp}" \
     -l "traefik.enable=true" \
-    -l "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=false" \
+    -l "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true" \
     -l "traefik.http.middlewares.redirect-to-https.redirectscheme.port=443" \
     -l "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https" \
     -l "traefik.http.routers.krane-insecure.entrypoints=web" \
