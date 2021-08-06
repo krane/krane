@@ -108,29 +108,29 @@ func Run(deployment string) error {
 
 			// ensure secrets collections
 			if err := CreateSecretsCollection(deploymentName); err != nil {
-				logger.Errorf("[ERROR CODE 1] unable to create secrets collection %v", err)
+				logger.Errorf("unable to create secrets collection %v", err)
 				e.emit(
 					DeploymentError,
-					fmt.Sprintf("Error setting up the deployment environment for %s: ERROR CODE 1", deploymentName))
+					fmt.Sprintf("Error setting up the deployment environment for %s: ", deploymentName))
 				return err
 			}
 
 			// ensure jobs collections
 			if err := CreateJobsCollection(deploymentName); err != nil {
-				logger.Errorf("[ERROR CODE 2] unable to create jobs collection %v", err)
+				logger.Errorf("unable to create jobs collection %v", err)
 				e.emit(
 					DeploymentError,
-					fmt.Sprintf("Error setting up the deployment environment for %s: ERROR CODE 2", deploymentName))
+					fmt.Sprintf("Error setting up the deployment environment for %s: ", deploymentName))
 				return err
 			}
 
 			// get containers (if any) currently part of this deployment
 			containers, err := GetContainersByDeployment(deploymentName)
 			if err != nil {
-				logger.Errorf("[ERROR CODE 3] unable to get containers %v", err)
+				logger.Errorf("unable to get containers %v", err)
 				e.emit(
 					DeploymentError,
-					fmt.Sprintf("Error setting up the deployment environment for %s: ERROR CODE 3", deploymentName))
+					fmt.Sprintf("Error setting up the deployment environment for %s: ", deploymentName))
 				return err
 			}
 
@@ -145,6 +145,9 @@ func Run(deployment string) error {
 			// resolve registry credentials
 			if err := config.ResolveRegistryCredentials(); err != nil {
 				logger.Errorf("unable to resolve registry credentials: %v", err)
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error resolving registry credentials: %v", err))
 				return err
 			}
 
@@ -175,7 +178,7 @@ func Run(deployment string) error {
 					logger.Errorf("unable to create container %v", err)
 					e.emit(
 						DeploymentError,
-						fmt.Sprintf("Error creating container resources: %v", err))
+						fmt.Sprintf("Error creating containers: %v", err))
 					return err
 				}
 				containersCreated = append(containersCreated, c)
@@ -190,7 +193,7 @@ func Run(deployment string) error {
 					logger.Errorf("unable to start container %v", err)
 					e.emit(
 						DeploymentError,
-						fmt.Sprintf("Error starting container resources: %v", err))
+						fmt.Sprintf("Error starting containers: %v", err))
 					return err
 				}
 				containersStarted = append(containersStarted, c)
@@ -198,7 +201,7 @@ func Run(deployment string) error {
 			logger.Debugf("%d/%d container(s) for deployment %s started", len(containersStarted), len(containersCreated), config.Name)
 
 			// health check
-			e.emit(DeploymentHealthCheck, "Checking deployment health")
+			e.emit(DeploymentHealthCheck, "Performing deployment health check")
 			retries := 10
 			if err := RetriableContainersHealthCheck(containersStarted, retries); err != nil {
 				logger.Errorf("containers did not pass health check %v", err)
@@ -267,7 +270,7 @@ func Delete(deployment string) error {
 				logger.Errorf("unable get containers %v", err)
 				e.emit(
 					DeploymentError,
-					fmt.Sprintf("Error finding deployment containers to remove: %v", err))
+					fmt.Sprintf("Error finding containers to remove: %v", err))
 				return err
 			}
 
@@ -294,7 +297,7 @@ func Delete(deployment string) error {
 			jobArgs := args.(DeleteDeploymentJobArgs)
 			deploymentName := jobArgs.Deployment
 
-			e.emit(DeploymentCleanup, "Cleaning up remaining deployment resources")
+			e.emit(DeploymentCleanup, "Cleaning up remaining resources")
 
 			// delete secrets collection
 			logger.Debugf("removing secrets collection for deployment %s", deploymentName)
@@ -362,7 +365,7 @@ func StartContainers(deployment string) error {
 				logger.Errorf("unable to get containers %v", err)
 				e.emit(
 					DeploymentError,
-					fmt.Sprintf("Error getting container resources: %v", err))
+					fmt.Sprintf("Error getting containers: %v", err))
 				return err
 			}
 
@@ -380,14 +383,14 @@ func StartContainers(deployment string) error {
 				if err := c.Start(); err != nil {
 					e.emit(
 						DeploymentError,
-						fmt.Sprintf("Error starting container resources: %v", err))
+						fmt.Sprintf("Error starting containers: %v", err))
 					logger.Errorf("unable to start container %v", err)
 					return err
 				}
 			}
 			logger.Debugf("%d container(s) for deployment %s started", len(containers), deploymentName)
 
-			e.emit(DeploymentDone, fmt.Sprintf("Container resources started successfully"))
+			e.emit(DeploymentDone, fmt.Sprintf("Containers started successfully"))
 
 			return nil
 		},
@@ -437,14 +440,14 @@ func StopContainers(deployment string) error {
 				if err := c.Stop(); err != nil {
 					e.emit(
 						DeploymentError,
-						fmt.Sprintf("Error stopping container resources: %v", err))
+						fmt.Sprintf("Error stopping containers: %v", err))
 					logger.Errorf("unable to stop container %v", err)
 					return err
 				}
 			}
 			logger.Debugf("%d container(s) for deployment %s stopped", len(containers), deploymentName)
 
-			e.emit(DeploymentDone, fmt.Sprintf("Container resources stopped successfully"))
+			e.emit(DeploymentDone, fmt.Sprintf("Containers stopped successfully"))
 
 			return nil
 		},
@@ -482,8 +485,14 @@ func RestartContainers(deployment string) error {
 
 			// get current containers (if any) which will be removed after new containers are created
 			containers, err := GetContainersByDeployment(deploymentName)
+			e.emit(
+				DeploymentSetup,
+				fmt.Sprintf("Restart plan: -%d / +%d container(s)", len(containers), jobArgs.Config.Scale))
 			if err != nil {
 				logger.Errorf("unable to get containers %v", err)
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error finding containers to restart: %v", err))
 				return err
 			}
 
@@ -497,11 +506,15 @@ func RestartContainers(deployment string) error {
 			// resolve registry credentials
 			if err := config.ResolveRegistryCredentials(); err != nil {
 				logger.Errorf("unable to resolve registry credentials: %v", err)
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Error resolving registry credentials: %v", err))
 				return err
 			}
 
 			// pull image
 			logger.Debugf("Pulling image for deployment %s", config.Name)
+			e.emit(DeploymentPullImage, fmt.Sprintf("Pulling %s:%s (if not already present)", config.Image, config.Tag))
 			pullImageReader, err := docker.GetClient().PullImage(
 				config.Image, config.Tag, docker.RegistryCredentials{
 					URL:      config.Registry.URL,
@@ -510,6 +523,9 @@ func RestartContainers(deployment string) error {
 				})
 			if err != nil {
 				logger.Errorf("unable to pull image %v", err)
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Unable to pull %s:%s: %v", config.Image, config.Tag, err))
 				return err
 			}
 			e.emitStream(DeploymentPullImage, pullImageReader)
@@ -520,6 +536,9 @@ func RestartContainers(deployment string) error {
 				c, err := ContainerCreate(config)
 				if err != nil {
 					logger.Errorf("unable to create container %v", err)
+					e.emit(
+						DeploymentError,
+						fmt.Sprintf("Error creating containers: %v", err))
 					return err
 				}
 				containersCreated = append(containersCreated, c)
@@ -527,35 +546,49 @@ func RestartContainers(deployment string) error {
 			logger.Debugf("%d/%d container(s) for deployment %s created", len(containersCreated), config.Scale, config.Name)
 
 			// start containers
+			e.emit(DeploymentContainerStart, "Starting deployment resources")
 			containersStarted := make([]KraneContainer, 0)
 			for _, c := range containersCreated {
 				if err := c.Start(); err != nil {
 					logger.Errorf("unable to start container %v", err)
+					e.emit(
+						DeploymentError,
+						fmt.Sprintf("Error starting containers: %v", err))
 					return err
 				}
 				containersStarted = append(containersStarted, c)
 			}
 			logger.Debugf("%d/%d container(s) for deployment %s started", len(containersStarted), len(containersCreated), config.Name)
 
+			// health check
+			e.emit(DeploymentHealthCheck, "Performing deployment health check")
 			retries := 10
 			if err := RetriableContainersHealthCheck(containersStarted, retries); err != nil {
 				logger.Errorf("containers did not pass health check %v", err)
+				e.emit(
+					DeploymentError,
+					fmt.Sprintf("Deployment healtcheck failed: %v", err))
 				return err
 			}
 			logger.Debugf("Deployment %s health check complete", config.Name)
-
 			return nil
 		},
 		Finally: func(args interface{}) error {
 			jobArgs := args.(*RestartContainersJobArgs)
+
+			e.emit(DeploymentCleanup, "Removing old containers")
 			for _, c := range jobArgs.ContainersToRemove {
 				logger.Debugf("Removing container %s", c.Name)
 				if err := c.Remove(); err != nil {
 					logger.Errorf("unable to remove container %v", err)
+					e.emit(
+						DeploymentError,
+						fmt.Sprintf("Error removing old containers: %v", err))
 					return err
 				}
 			}
-
+			e.emit(DeploymentDone,
+				fmt.Sprintf("Restart complete %d new container(s) created", jobArgs.Config.Scale))
 			return nil
 		},
 	})
