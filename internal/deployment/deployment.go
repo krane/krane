@@ -104,8 +104,6 @@ func Run(deployment string) error {
 			jobArgs := args.(*RunDeploymentJobArgs)
 			deploymentName := jobArgs.Config.Name
 
-			e.emit(DeploymentSetup, "Preparing deployment environment")
-
 			// ensure secrets collections
 			if err := CreateSecretsCollection(deploymentName); err != nil {
 				logger.Errorf("unable to create secrets collection %v", err)
@@ -170,7 +168,7 @@ func Run(deployment string) error {
 			e.emitStream(DeploymentPullImage, pullImageReader)
 
 			// create containers
-			e.emit(DeploymentContainerCreate, fmt.Sprintf("Creating %d container(s)", config.Scale))
+			e.emit(DeploymentContainerCreate, fmt.Sprintf("Rolling out %d container(s)", config.Scale))
 			containersCreated := make([]KraneContainer, 0)
 			for i := 0; i < config.Scale; i++ {
 				c, err := ContainerCreate(config)
@@ -186,7 +184,6 @@ func Run(deployment string) error {
 			logger.Debugf("%d/%d container(s) for deployment %s created", config.Scale, len(containersCreated), config.Name)
 
 			// start containers
-			e.emit(DeploymentContainerStart, "Starting deployment resources")
 			containersStarted := make([]KraneContainer, 0)
 			for _, c := range containersCreated {
 				if err := c.Start(); err != nil {
@@ -201,7 +198,6 @@ func Run(deployment string) error {
 			logger.Debugf("%d/%d container(s) for deployment %s started", len(containersStarted), len(containersCreated), config.Name)
 
 			// health check
-			e.emit(DeploymentHealthCheck, "Performing deployment health check")
 			retries := 10
 			if err := RetriableContainersHealthCheck(containersStarted, retries); err != nil {
 				logger.Errorf("containers did not pass health check %v", err)
@@ -216,7 +212,6 @@ func Run(deployment string) error {
 		Finally: func(args interface{}) error {
 			jobArgs := args.(*RunDeploymentJobArgs)
 
-			e.emit(DeploymentCleanup, "Cleaning up unused resources")
 			for _, c := range jobArgs.ContainersToRemove {
 				err := c.Remove()
 				if err != nil {
@@ -514,7 +509,7 @@ func RestartContainers(deployment string) error {
 
 			// pull image
 			logger.Debugf("Pulling image for deployment %s", config.Name)
-			e.emit(DeploymentPullImage, fmt.Sprintf("Pulling %s:%s (if not already present)", config.Image, config.Tag))
+			e.emit(DeploymentPullImage, fmt.Sprintf("Pulling %s:%s", config.Image, config.Tag))
 			pullImageReader, err := docker.GetClient().PullImage(
 				config.Image, config.Tag, docker.RegistryCredentials{
 					URL:      config.Registry.URL,
@@ -531,6 +526,7 @@ func RestartContainers(deployment string) error {
 			e.emitStream(DeploymentPullImage, pullImageReader)
 
 			// create containers
+			e.emit(DeploymentContainerCreate, fmt.Sprintf("Rolling out %d new container(s)", config.Scale))
 			containersCreated := make([]KraneContainer, 0)
 			for i := 0; i < config.Scale; i++ {
 				c, err := ContainerCreate(config)
@@ -546,7 +542,6 @@ func RestartContainers(deployment string) error {
 			logger.Debugf("%d/%d container(s) for deployment %s created", len(containersCreated), config.Scale, config.Name)
 
 			// start containers
-			e.emit(DeploymentContainerStart, "Starting deployment resources")
 			containersStarted := make([]KraneContainer, 0)
 			for _, c := range containersCreated {
 				if err := c.Start(); err != nil {
@@ -561,7 +556,6 @@ func RestartContainers(deployment string) error {
 			logger.Debugf("%d/%d container(s) for deployment %s started", len(containersStarted), len(containersCreated), config.Name)
 
 			// health check
-			e.emit(DeploymentHealthCheck, "Performing deployment health check")
 			retries := 10
 			if err := RetriableContainersHealthCheck(containersStarted, retries); err != nil {
 				logger.Errorf("containers did not pass health check %v", err)
@@ -576,7 +570,6 @@ func RestartContainers(deployment string) error {
 		Finally: func(args interface{}) error {
 			jobArgs := args.(*RestartContainersJobArgs)
 
-			e.emit(DeploymentCleanup, "Removing old containers")
 			for _, c := range jobArgs.ContainersToRemove {
 				logger.Debugf("Removing container %s", c.Name)
 				if err := c.Remove(); err != nil {
@@ -587,8 +580,7 @@ func RestartContainers(deployment string) error {
 					return err
 				}
 			}
-			e.emit(DeploymentDone,
-				fmt.Sprintf("Restart complete %d new container(s) created", jobArgs.Config.Scale))
+			e.emit(DeploymentDone, "Restart complete")
 			return nil
 		},
 	})
