@@ -257,8 +257,6 @@ func Delete(deployment string) error {
 			jobArgs := args.(DeleteDeploymentJobArgs)
 			deploymentName := jobArgs.Deployment
 
-			e.emit(DeploymentContainerRemove, "Collecting deployment resources to remove")
-
 			// get current containers
 			containers, err := GetContainersByDeployment(deploymentName)
 			if err != nil {
