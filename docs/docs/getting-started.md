@@ -2,9 +2,7 @@
 
 ![Install Krane](../assets/1-install-krane.png)
 
-You can install Krane using this interactive script. 
-
-It is by far the *easiest* and *fastest* way to **create** or **update** a Krane instance.
+Run the below command to install Krane. 
 
 ```
 bash <(wget -qO- get.krane.sh)
@@ -14,7 +12,7 @@ Other [installation](docs/installation) methods and configurations.
 
 ![Download CLI](../assets/2-download-cli.png)
 
-Download the Krane [CLI](docs/cli) to execute commands on a Krane instance.
+Download the [Krane CLI](docs/cli) to execute commands on the Krane instance created above.
 
 ```
 npm i -g krane
@@ -35,8 +33,6 @@ The private key stays on the user's machine, the public key is appended to `~/.s
 ![Authenticate](../assets/4-authentication.png)
 
 When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated you'll be able to execute commands on that Krane instance.
-
-To switch between Krane instances you'll have to login again.
 
 ```
 krane login
@@ -60,4 +56,4 @@ Create a file and copy the following deployment configuration
 krane deploy -f /path/to/deployment.json
 ```
 
-For a full list of configuration properties, checkout the [deployment configuration](docs/deployment) section.
+For the full list of configuration options checkout out the [deployments pages](docs/deployment).

@@ -1,5 +1,4 @@
 - Getting started
-- [Quick start](docs/getting-started.md)
 - [Installation](docs/installation.md)
 - [Authentication](docs/authentication.md)
 - [Deployments](docs/deployment.md)
