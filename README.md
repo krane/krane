@@ -62,7 +62,7 @@ bash <(wget -qO- get.krane.sh)
 krane deploy -f ./deployment.json
 ```
 
-Please see the [official docs site](https://www.krane.sh/#/docs/deployment) for complete documentation.
+Please see the [official docs site](https://docs.krane.sh) for complete documentation.
 
 <a name="motivation"></a>
 
