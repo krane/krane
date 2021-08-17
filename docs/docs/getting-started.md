@@ -32,10 +32,10 @@ The private key stays on the user's machine, the public key is appended to `~/.s
 
 ![Authenticate](../assets/4-authentication.png)
 
-When logging in, you'll be prompted for the endpoint where Krane is running and the public key you created in step 3. Once authenticated you'll be able to execute commands on that Krane instance.
+When login in you'll be prompted for the private key created in step 3. Once authenticated you'll be able to execute commands on that Krane instance.
 
 ```
-krane login
+krane login https://krane.example.com
 ```
 
 ![Deploy](../assets/5-deploy.png)
