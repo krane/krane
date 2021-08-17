@@ -8,7 +8,7 @@
 
 Krane is a container management solution that helps you to deploy infrastructure with ease. Lightweight and easy to setup, Krane is great for developers who want to self-host infrastructure at the lowest cost possible.
 
-- **Documentation:** https://krane.sh
+- **Documentation:** https://docs.krane.sh
 - **Releases:** https://github.com/krane/krane/releases
 - **Bugs:** https://github.com/krane/krane/issues
 
@@ -25,10 +25,10 @@ These development tools help manage and automate infrastructure running on Krane
 - Krane runs on compute as low as $3.50
 - Single command deployments
 - Single file deployments
-- Deployment DNS [aliases](https://www.krane.sh/#/docs/deployment?id=alias) (`subdomain.example.com`)
-- Deployment [secrets](https://www.krane.sh/#/docs/deployment?id=secrets) for hiding sensitive environment variables
-- Deployment [scaling](https://www.krane.sh/#/docs/deployment?id=scale) to distribute the workload between containers
-- Deployment [rate limit](https://www.krane.sh/#/docs/deployment?id=rate_limit) to limit incoming requests
+- Deployment DNS [aliases](https://docs.krane.sh/#/docs/deployment?id=alias) (`subdomain.example.com`)
+- Deployment [secrets](https://docs.krane.sh/#/docs/deployment?id=secrets) for hiding sensitive environment variables
+- Deployment [scaling](https://docs.krane.sh/#/docs/deployment?id=scale) to distribute the workload between containers
+- Deployment [rate limit](https://docs.krane.sh/#/docs/deployment?id=rate_limit) to limit incoming requests
 - HTTPS/TLS out-of-the-box with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates
 - [Self-hosted](#motivation) - Cost-effective, bring your own server, scale when you need
 
