@@ -55,7 +55,7 @@ func main() {
 	// if watch mode is enabled, the scheduler will run in a separate routine polling
 	// and queuing jobs to maintain the deployment state in parity with the desired state
 	if utils.BoolEnv(constants.EnvWatchMode) {
-		logger.Warn("The feature watch mode is experimental. Krane will attempt to keep your containers state as close to you deployment configuration even when deployments arent triggered.")
+		logger.Warn("Watch mode is an experimental feature. Krane will maintain container state in parity with your deployment configuration.")
 		enqueuer := job.NewEnqueuer(queue)
 		interval := utils.EnvOrDefault(constants.EnvSchedulerIntervalMs, utils.TwoMinMs)
 
@@ -69,7 +69,9 @@ func main() {
 	workers := job.NewWorkerPool(wpSize, queue, store.Client())
 	workers.Start()
 
-	// if enabled, ensure internal services are running
+	// ensure internal services are running
+	// the network proxy is currently the only dependant 
+	// service for krane (others include the ui)
 	EnsureNetworkProxy()
 
 	// block until an exit signal is received
