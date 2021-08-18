@@ -16,7 +16,7 @@ The Krane UI is packaged up into a [Docker image](https://hub.docker.com/reposit
    "secure": true,
    "alias": ["status.example.com"],
    "secrets": {
-     "KRANE_ENDPOINT": "@KRANE_ENDPOINT",
+     "KRANE_ENDPOINT": "https://krane.example.com",
      "KRANE_TOKEN": "@KRANE_TOKEN"
    }
  }
@@ -26,13 +26,9 @@ The Krane UI is packaged up into a [Docker image](https://hub.docker.com/reposit
 krane deploy -f /path/to/deployment.json
 ```
 
-> `KRANE_ENDPOINT` and `KRANE_TOKEN` can also be environment variables... it's recommended to use [secrets](http://krane.sh/#/docs/deployment?id=secrets) to protect against plain-text access tokens
+> It's recommended to use [secrets](http://docs.krane.sh/#/docs/deployment?id=secrets) to protect against plain-text access tokens
     
 ## FAQ
-
-##### What should i use for `KRANE_ENDPOINT`?
-
-> tldr; http://krane:8500
 
 For most use cases set it to `http://krane:8500`... this reference the Krane instance running on the same [Docker stack](https://docs.docker.com/engine/reference/commandline/stack/) and enables container-to-container communication.
 
@@ -40,7 +36,7 @@ You can also deploy a Status Page pointing to any Krane instance... if that Kran
 
 ##### How do i get a `KRANE_TOKEN`?
 
-You can create ad-hoc access tokens using [Krane sessions](http://krane.sh/#/docs/cli?id=sessions)
+You can create ad-hoc access tokens using [Krane sessions](http://docs.krane.sh/#/docs/cli?id=sessions)
 
 ```
 krane sessions create krane-ui
