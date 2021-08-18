@@ -1,12 +1,12 @@
 # Status Page
 
-The [Krane Status Page](https://github.com/krane/ui) is an observability dashboard exposing the status of your Krane deployments.
+The [Krane status sage](https://github.com/krane/ui) is an observability dashboard exposing the status of your Krane deployments.
 
 <span class="img-wrapper">![Status Page](../assets/ui-page.png)</span>
 
 ## Deploying
 
-The Status Page is packaged up into a [Docker image](https://hub.docker.com/repository/docker/biensupernice/krane-ui) you can directly deploy using Krane.
+The status page is packaged up into a [Docker image](https://hub.docker.com/repository/docker/biensupernice/krane-ui) you can directly deploy using Krane.
 
 `deployment.json` 
  ```json
