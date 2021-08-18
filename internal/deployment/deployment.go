@@ -11,7 +11,7 @@ import (
 	"github.com/krane/krane/internal/utils"
 )
 
-// Deployment represent a Krane deployment and its configuration, current container resources, and job history
+// Deployment represent a Krane deployment and its configuration, current container resources, and recent job history
 type Deployment struct {
 	Config     Config           `json:"config"`
 	Containers []KraneContainer `json:"containers"`
