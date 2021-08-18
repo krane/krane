@@ -70,10 +70,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # Publish Docker image
-  publish-release-to-docker:
+  # Publish Docker image to DockerHub
+  publish-image-to-dockerhub:
     needs: [version, run-test, build-binary-release]
-    name: Publish Docker image
+    name: Publish to DockerHub
     runs-on: ubuntu-latest
 
     steps:
@@ -97,6 +97,37 @@ jobs:
           tags: |
             biensupernice/krane:latest
             biensupernice/krane:${{ env.RELEASE_VERSION }}
+          build-args: KRANE_VERSION=${{ env.RELEASE_VERSION }}
+        env:
+          RELEASE_VERSION: ${{ needs.version.outputs.release-version }}
+          
+  # Publish Docker image to GitHub Container Registry
+  publish-image-to-ghcr:
+    name: Publish to GitHub Container Registry
+    needs: [version, run-test, build-binary-release]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ env.RELEASE_VERSION }}
           build-args: KRANE_VERSION=${{ env.RELEASE_VERSION }}
         env:
           RELEASE_VERSION: ${{ needs.version.outputs.release-version }}
