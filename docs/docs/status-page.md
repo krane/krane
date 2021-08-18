@@ -35,5 +35,5 @@ krane deploy -f /path/to/deployment.json
 You can create ad-hoc access tokens using [Krane sessions](http://docs.krane.sh/#/docs/cli?id=sessions)
 
 ```
-krane sessions create krane-ui
+krane sessions create krane-statuspage
 ```
