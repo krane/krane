@@ -16,7 +16,7 @@ var proxyConfig = deployment.Config{
 	Alias:    []string{os.Getenv(constants.EnvProxyDashboardAlias)},
 	Scale:    1,
 	Internal: true,
-	Registry: {
+	Registry: deployment.Registry{
 		URL: "ghcr.io",
 	},
 	Env: map[string]string{
