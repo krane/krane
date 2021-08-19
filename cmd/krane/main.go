@@ -71,7 +71,7 @@ func main() {
 
 	// ensure internal services are running
 	// the network proxy is currently the only dependant 
-	// service for krane (others include the ui)
+	// service for krane (others include the statuspage)
 	EnsureNetworkProxy()
 
 	// block until an exit signal is received
