@@ -1,6 +1,6 @@
 # Status Page
 
-The [Krane status sage](https://github.com/krane/ui) is an observability dashboard exposing the status of your Krane deployments.
+The [Krane status sage](https://github.com/krane/statuspage) is an observability dashboard exposing the status of your Krane deployments.
 
 <span class="img-wrapper">![Status Page](../assets/ui-page.png)</span>
 
@@ -12,9 +12,12 @@ The status page is packaged up into a [Docker image](https://hub.docker.com/repo
  ```json
  {
    "name": "krane-statuspage",
-   "image": "biensupernice/krane-ui",
+   "image": "krane/statuspage",
    "secure": true,
    "alias": ["status.example.com"],
+   "registry": {
+     "url": "ghcr.io"
+   },
    "secrets": {
      "KRANE_ENDPOINT": "https://krane.example.com",
      "KRANE_TOKEN": "@KRANE_TOKEN"

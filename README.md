@@ -17,7 +17,7 @@ Krane is a container management solution that helps you to deploy infrastructure
 These development tools help manage and automate infrastructure running on Krane.
 
 - **Deployment CLI:** https://github.com/krane/cli
-- **Deployment UI:** https://github.com/krane/ui
+- **Deployment Status Page:** https://github.com/krane/statuspage
 - **GitHub Action:** https://github.com/krane/action
 
 ## Features
