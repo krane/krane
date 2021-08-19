@@ -72,7 +72,7 @@ func TestAddNewSecret(t *testing.T) {
 }
 
 func TestFormatSecretCollectionName(t *testing.T) {
-	collections := []string{"api", "UI", "api-proxy", "messaging_service", "db-container", "app-123-proxy", "123-proxy_api", "aPi_pR0Xy"}
+	collections := []string{"api", "statuspage", "api-proxy", "messaging_service", "db-container", "app-123-proxy", "123-proxy_api", "aPi_pR0Xy"}
 	for _, collection := range collections {
 		expected := fmt.Sprintf("%s-secrets", strings.ToLower(collection)) // lowercase, ending with -secrets
 		assert.Equal(t, expected, getSecretsCollectionName(collection))
