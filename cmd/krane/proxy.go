@@ -11,11 +11,14 @@ import (
 
 var proxyConfig = deployment.Config{
 	Name:     "krane-proxy",
-	Image:    "biensupernice/proxy",
+	Image:    "krane/proxy",
 	Secure:   utils.BoolEnv(constants.EnvProxyDashboardSecure),
 	Alias:    []string{os.Getenv(constants.EnvProxyDashboardAlias)},
 	Scale:    1,
 	Internal: true,
+	Registry: deployment.Registry{
+		URL: "ghcr.io",
+	},
 	Env: map[string]string{
 		constants.EnvLetsEncryptEmail: os.Getenv(constants.EnvLetsEncryptEmail),
 	},

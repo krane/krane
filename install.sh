@@ -116,8 +116,8 @@ download_and_verify() {
   docker rm krane > /dev/null 2>&1
 
   echo -e "✓ Pulling latest image"
-  docker image rm biensupernice/krane > /dev/null 2>&1
-  docker pull biensupernice/krane:latest -q > /dev/null 2>&1
+  docker image rm ghcr.io/krane/krane > /dev/null 2>&1
+  docker pull ghcr.io/krane/krane:latest -q > /dev/null 2>&1
 
   echo -e "✓ Preparing Krane network"
   docker network create --driver bridge krane > /dev/null 2>&1
@@ -145,7 +145,7 @@ download_and_verify() {
     -l "traefik.http.routers.krane-secure.rule=Host(\`${ROOT_DOMAIN}\`)" \
     -l "traefik.http.routers.krane-secure.tls=true" \
     -l "traefik.http.routers.krane-secure.tls.certresolver=lets-encrypt" \
-    -p 8500:8500 biensupernice/krane > /dev/null 2>&1
+    -p 8500:8500 ghcr.io/krane/krane > /dev/null 2>&1
 
   echo -e "\n⏳ Waiting for Krane to be ready"
   sleep 10s

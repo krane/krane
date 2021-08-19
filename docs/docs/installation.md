@@ -2,9 +2,7 @@
 
 > Note: Docker should be running on the machine where you plan on installing Krane
 
-You can install Krane using this interactive script.
-
-It is by far the _easiest_ and _fastest_ way to **create** or **update** a Krane instance.
+You can install Krane using the below command.
 
 ```
 bash <(wget -qO- get.krane.sh)
@@ -12,24 +10,21 @@ bash <(wget -qO- get.krane.sh)
 
 ## Docker
 
-### Minimal Docker example
+### Docker examples
 
-This is the most minimal Docker example to get _up-and-running_ with Krane
+This is the most minimal Docker example to install Krane if you preffer not to use the provided install script above.
 
 ```
 docker run -d --name=krane \
     -e KRANE_PRIVATE_KEY=changeme \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v ~/.ssh:/root/.ssh  \
-    -p 8500:8500 biensupernice/krane
+    -p 8500:8500 ghcr.io/krane/krane
 ```
 
-### Complete Docker example
+This is a complete Docker example with:
 
-This is a complete Docker example to get Krane running with:
-
-- Automatic HTTPS/SSL w/ Lets Encrypt certificates
-- Container registry authentication for pulling images
+- Automatic HTTPS w/ Lets Encrypt certificates for deployments
 - Volumed Krane DB (for storing session & deployment details)
 - Log level set to debug (for debugging)
 
@@ -37,8 +32,6 @@ This is a complete Docker example to get Krane running with:
 docker run -d --name=krane \
     -e KRANE_PRIVATE_KEY=changeme \
     -e LOG_LEVEL=debug \
-    -e DOCKER_BASIC_AUTH_USERNAME=changeme \
-    -e DOCKER_BASIC_AUTH_PASSWORD=changeme \
     -e PROXY_ENABLED=true \
     -e PROXY_DASHBOARD_SECURE=true \
     -e PROXY_DASHBOARD_ALIAS=monitor.example.com \
@@ -46,7 +39,7 @@ docker run -d --name=krane \
     -v /var/run/docker.sock:/var/run/docker.sock \
     -v ~/.ssh:/root/.ssh  \
     -v /tmp/krane.db:/tmp/krane.db \
-    -p 8500:8500 biensupernice/krane
+    -p 8500:8500 ghcr.io/krane/krane
 ```
 
 ## Linux
@@ -67,6 +60,8 @@ krane &
 ## Mac
 
 Run Krane using the executable for Mac
+
+> Note: Krane is currently not compatible with linux/arm64/v8 machines (m1 chip)
 
 ```
 # set Krane private key
