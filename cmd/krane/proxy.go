@@ -18,7 +18,7 @@ var proxyConfig = deployment.Config{
 	Internal: true,
 	Registry: {
 		URL: "ghcr.io",
-	}
+	},
 	Env: map[string]string{
 		constants.EnvLetsEncryptEmail: os.Getenv(constants.EnvLetsEncryptEmail),
 	},
