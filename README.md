@@ -1,5 +1,7 @@
 <img src="docs/assets/krane-wordmark.png" width="350">
 
+### ⚠️ This project is not under active maintainence
+
 > Open-source, self-hosted, container management solution
 
 [![CI](https://github.com/krane/krane/workflows/CI/badge.svg?branch=main)](https://github.com/krane/krane/actions)
