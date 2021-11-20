@@ -1,6 +1,6 @@
 <img src="docs/assets/krane-wordmark.png" width="350">
 
-### ⚠️ This project is not under active maintainence
+### ⚠️ This project is not under active development
 
 > Open-source, self-hosted, container management solution
 
