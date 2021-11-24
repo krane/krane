@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"io"
+	"sync"
 
 	"github.com/gorilla/websocket"
 
@@ -13,17 +14,33 @@ import (
 type EventEmitter struct {
 	Deployment string
 	JobID      string
-	Phase      Phase
 	Clients    []*websocket.Conn
 }
 
 type Event struct {
-	JobID   string `json:"job_id"`
-	Message string `json:"message"`
-	Phase   Phase  `json:"phase"`
+	JobID      string    `json:"job_id"`
+	Deployment string    `json:"deployment"`
+	Type       EventType `json:"type"`
+	Message    string    `json:"message"`
 }
 
+type EventType string
+
+const (
+	DeploymentContainerCreate EventType = "CONTAINER_CREATE"
+	DeploymentContainerStart  EventType = "CONTAINER_START"
+	DeploymentContainerStop   EventType = "CONTAINER_STOP"
+	DeploymentContainerRemove EventType = "CONTAINER_REMOVE"
+	DeploymentCleanup         EventType = "DEPLOYMENT_CLEANUP"
+	DeploymentDone            EventType = "DEPLOYMENT_DONE"
+	DeploymentHealthCheck     EventType = "DEPLOYMENT_HEALTHCHECK"
+	DeploymentSetup           EventType = "DEPLOYMENT_SETUP"
+	DeploymentPullImage       EventType = "PULL_IMAGE"
+	DeploymentError           EventType = "DEPLOYMENT_ERROR"
+)
+
 var eventClients = make(map[string][]*websocket.Conn)
+var eventsMutex = &sync.Mutex{}
 
 func createEventEmitter(deployment string, jobID string) *EventEmitter {
 	return &EventEmitter{
@@ -36,29 +53,32 @@ func createEventEmitter(deployment string, jobID string) *EventEmitter {
 // emit broadcasts an event payload to all clients connected to that deployment.
 // In order to allow clients to filter events for specific deployment runs, the job id
 // was added into the event payload, the job id is returned when triggering a deployment run.
-func (e EventEmitter) emit(message string) {
-	go func(clients []*websocket.Conn, jobID string, deployment string, phase Phase) {
+func (e EventEmitter) emit(eventType EventType, message string) {
+	go func(clients []*websocket.Conn, jobID string, deployment string) {
 		for _, client := range clients {
 			bytes, _ := json.Marshal(Event{
-				JobID:   jobID,
-				Message: message,
-				Phase:   phase,
+				JobID:      jobID,
+				Deployment: e.Deployment,
+				Type:       eventType,
+				Message:    message,
 			})
+
+			eventsMutex.Lock()
 			if err := client.WriteMessage(websocket.TextMessage, bytes); err != nil {
 				// this will log when a client has disconnected at which point the
 				// connection is not valid causing a write error. This should not
 				// affect other clients or streaming logs in general.
-				logger.Debugf("client %v disconnected", client.RemoteAddr())
+				logger.Debugf("client %v disconnected: %v", client.RemoteAddr(), err)
 				UnSubscribeFromDeploymentEvents(client, deployment)
-				return
 			}
+			eventsMutex.Unlock()
 		}
-	}(e.Clients, e.JobID, e.Deployment, e.Phase)
+	}(e.Clients, e.JobID, e.Deployment)
 }
 
 // emitStream broadcast a stream of data to all clients connected to the deployment.
 // A stream could be the data when pulling an image, reading container logs etc... where an io.Reader is returned
-func (e EventEmitter) emitStream(reader io.Reader) {
+func (e EventEmitter) emitStream(eventType EventType, reader io.Reader) {
 	buffReader := bufio.NewReader(reader)
 	for {
 		bytes, _, err := buffReader.ReadLine()
@@ -67,19 +87,21 @@ func (e EventEmitter) emitStream(reader io.Reader) {
 		}
 
 		data, _ := json.Marshal(Event{
-			JobID:   e.JobID,
-			Message: string(bytes),
-			Phase:   e.Phase,
+			JobID:      e.JobID,
+			Deployment: e.Deployment,
+			Type:       eventType,
+			Message:    string(bytes),
 		})
 		for _, client := range e.Clients {
+			eventsMutex.Lock()
 			if err := client.WriteMessage(websocket.TextMessage, data); err != nil {
 				// this will log when a client has disconnected at which point the
 				// connection is not valid causing a write error. This should not
 				// affect other clients or streaming logs in general.
-				logger.Debugf("client %v disconnected", client.RemoteAddr())
+				logger.Debugf("client %v disconnected: %v", client.RemoteAddr(), err)
 				UnSubscribeFromDeploymentEvents(client, e.Deployment)
-				return
 			}
+			eventsMutex.Unlock()
 		}
 	}
 }
@@ -87,6 +109,20 @@ func (e EventEmitter) emitStream(reader io.Reader) {
 // SubscribeToDeploymentEvents allows clients to subscribes to a particular deployments events
 func SubscribeToDeploymentEvents(client *websocket.Conn, deployment string) {
 	eventClients[deployment] = append(eventClients[deployment], client)
+
+	// This will read indefinitely until the client closes
+	// the connection ensuring we cleanup up dead connections.
+	// Clients should invoke `ws.close()` so that the server
+	// can properly unsubscribe from deployment events.
+	go func(client *websocket.Conn, deployment string) {
+		for {
+			if _, _, err := client.NextReader(); err != nil {
+				logger.Debugf("unstable client connection, unsubscribing: %v", err)
+				UnSubscribeFromDeploymentEvents(client, deployment)
+				break
+			}
+		}
+	}(client, deployment)
 }
 
 // UnSubscribeFromDeploymentEvents unsubscribes a client from deployment events
